@@ -1,7 +1,7 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#define DISCARD_BUFFER_SIZE 200
+#define DISCARD_BUFFER_SIZE 100
 
 struct intListNode {
 	int value;
@@ -57,13 +57,13 @@ void addElem(int target, intListHead * head) {
 
 	assert(newNode != nullptr);
 	// old
-	/*newNode->value = target;
+	newNode->value = target;
 	newNode->next = head->first;
 	head->first = newNode;
-	head->length++;*/
+	++head->length;
 	
 	// new
-	newNode->value = target;
+	/*newNode->value = target;
 	if (head->first)
 	{
 		newNode->next = head->first;
@@ -73,7 +73,7 @@ void addElem(int target, intListHead * head) {
 		head->first = newNode;
 		newNode->next = nullptr;
 	}
-	head->length++;
+	head->length++;*/
 }
 
 void deleteElem(int target, intListHead * head) {
@@ -86,7 +86,7 @@ void deleteElem(int target, intListHead * head) {
 		temp->next = head->first;
 		head->first = head->first->next;
 		temp->next->next = nullptr;
-		head->length--;
+		--head->length;
 		return;
 	}
 	while (temp->next != nullptr)
@@ -96,14 +96,15 @@ void deleteElem(int target, intListHead * head) {
 		temp = temp->next;
 	}
 	if (pre->next->next == nullptr) {
-		head->length--;
+		--head->length;
 	}
 	else {
 		temp->next = pre->next;
 		pre->next = pre->next->next;
 		temp->next->next = nullptr;
-		head->length--;
+		--head->length;
 	}
+	//--head->length;
 }
 
 void recoverElem(int target, intListHead * head) {
@@ -114,7 +115,7 @@ void recoverElem(int target, intListHead * head) {
 	tempNode->next->next = head->first;
 	head->first = tempNode->next;
 	tempNode->next = nullptr;
-	head->length++;
+	++head->length;
 }
 
 DecisionTreeNode * addAssumption(int assumption, bool valid, DecisionTreeHead * head) {
@@ -151,21 +152,12 @@ void InitIntListHead(CNF * cnf) {
 
 	assert(cnf->clauses != nullptr && cnf->variables != nullptr);
 
-	for (int i = cnf->clauseNum; i > 0; i--) {
-		//cnf->clauses[i].variables = (intListHead *)calloc(1, sizeof(intListHead));
-
-		//assert(cnf->clauses[i].variables != nullptr);
-
+	for (int i = cnf->clauseNum; i > 0; --i) {
 		cnf->clauses[i].variables.length = 0;
 		cnf->clauses[i].hidden = 0;
 		cnf->clauses[i].variables.first = nullptr;
 	}
-	for (int i = cnf->varNum; i > 0; i--) {
-		//cnf->variables[i].negative = (intListHead *)calloc(1, sizeof(intListHead));
-		//cnf->variables[i].positive = (intListHead *)calloc(1, sizeof(intListHead));
-
-		//assert(cnf->variables[i].positive != nullptr && cnf->variables[i].negative != nullptr);
-
+	for (int i = cnf->varNum; i > 0; --i) {
 		cnf->variables[i].negative.length = 0;
 		cnf->variables[i].positive.length = 0;
 		cnf->variables[i].negative.first = nullptr;
@@ -182,7 +174,6 @@ int LoadFile(const char * filename, CNF * cnf) {
 		char firstChar = fgetc(fp);
 		while ('c' == firstChar) {
 			// 如果是 c 说明是注释，直接跳到下一行
-			//char discardBuffer[DISCARD_BUFFER_SIZE];
 			char * discardBuffer = (char *)calloc(DISCARD_BUFFER_SIZE, sizeof(char));
 			fgets(discardBuffer, DISCARD_BUFFER_SIZE, fp);
 			firstChar = fgetc(fp);
@@ -203,10 +194,9 @@ int LoadFile(const char * filename, CNF * cnf) {
 		InitIntListHead(cnf);
 		
 		// 替换
-		int currentClause = 1;
 		int clauseLength;
 		int totalLength = cnf->clauseNum;
-		for (int i = 1; i <= totalLength; i++) {
+		for (int i = 1; i <= totalLength; ++i) {
 			clauseLength = 0;
 			int temp; // 储存读取到的数字
 			fscanf(fp, "%d", &temp);
@@ -214,25 +204,20 @@ int LoadFile(const char * filename, CNF * cnf) {
 			while (temp)
 			{
 				if (temp > 0) {
-					//cnf->variables[temp].positiveCount++;
-					//cnf->variables[temp].index = temp;
 					cnf->variables[temp].handled = false;
 					addElem(i, &cnf->variables[temp].positive);
 					addElem(temp, &cnf->clauses[i].variables);
 				}
 				else {
-					//cnf->variables[-temp].negativeCount++;
-					//cnf->variables[-temp].index = -temp;
 					cnf->variables[temp].handled = false;
 					addElem(i, &cnf->variables[-temp].negative);
 					addElem(temp, &cnf->clauses[i].variables);
 				}
-				clauseLength++;
+				++clauseLength;
 				fscanf(fp, "%d", &temp);
 			}
 			cnf->clauses[i].length = clauseLength;
 			assert(cnf->clauses[i].length >= 0);
-			//currentClause++;
 		}
 	}
 	;
@@ -241,7 +226,7 @@ int LoadFile(const char * filename, CNF * cnf) {
 
 void DisplayData(CNF * cnf) {
 	int clauseNum = cnf->clauseNum;
-	for (int i = 1; i <= clauseNum; i++) {
+	for (int i = 1; i <= clauseNum; ++i) {
 		intListNode * temp = cnf->clauses[i].variables.first;
 		while (temp)
 		{
@@ -295,7 +280,7 @@ bool Process(DecisionTreeNode * node, CNF * cnf) {
 		if (!cnf->clauses[currentClauseIndex].hidden) {
 			assert(cnf->clauses[currentClauseIndex].variables.length > 0);
 			deleteElem(-assumption, &cnf->clauses[currentClauseIndex].variables);
-			cnf->clauses[currentClauseIndex].length--; // 子句长度减少
+			--cnf->clauses[currentClauseIndex].length; // 子句长度减少
 			if (0 == cnf->clauses[currentClauseIndex].length) {
 				// 说明出现了空子句
 				flag = false;
@@ -331,7 +316,7 @@ void Recover(DecisionTreeNode * node, CNF * cnf) {
 		// 取负，则将子句中的对应文字恢复
 		if (!cnf->clauses[currentClauseIndex].hidden) {
 			recoverElem(-assumption, &cnf->clauses[currentClauseIndex].variables);
-			cnf->clauses[currentClauseIndex].length++;// 子句长度恢复
+			++cnf->clauses[currentClauseIndex].length;// 子句长度恢复
 
 		}
 		negativeClauseIndexPtr = negativeClauseIndexPtr->next;
@@ -375,13 +360,13 @@ DecisionTreeNode * BackTrack(DecisionTreeNode * node, CNF * cnf) {
 void updateCountNum(CNF * cnf) {
 	int count = 0; 
 	intListNode * tempNode = nullptr;
-	for (int i = cnf->varNum; i > 0; i--) {
+	for (int i = cnf->varNum; i > 0; --i) {
 		count = 0;
 		tempNode = cnf->variables[i].negative.first;
 		while (tempNode)
 		{
 			if (!cnf->clauses[tempNode->value].hidden)
-				count++;
+				++count;
 			tempNode = tempNode->next;
 		}
 		cnf->variables[i].negativeCount = count;
@@ -392,7 +377,7 @@ void updateCountNum(CNF * cnf) {
 		while (tempNode)
 		{
 			if (!cnf->clauses[tempNode->value].hidden)
-				count++;
+				++count;
 			tempNode = tempNode->next;
 		}
 		cnf->variables[i].positiveCount = count;
@@ -402,7 +387,7 @@ void updateCountNum(CNF * cnf) {
 void updateCountNum_2(CNF * cnf) {
 	int count = 0;
 	intListNode * tempNode = nullptr;
-	for (int i = cnf->varNum; i > 0; i--) {
+	for (int i = cnf->varNum; i > 0; --i) {
 		count = 0;
 		if (cnf->variables[i].handled) {
 			cnf->variables[i].negativeCount = cnf->variables[i].positiveCount = 0;
@@ -413,7 +398,7 @@ void updateCountNum_2(CNF * cnf) {
 			while (tempNode)
 			{
 				if (!cnf->clauses[tempNode->value].hidden && cnf->clauses[tempNode->value].length == 2)
-					count++;
+					++count;
 				tempNode = tempNode->next;
 			}
 			cnf->variables[i].negativeCount = count;
@@ -424,7 +409,7 @@ void updateCountNum_2(CNF * cnf) {
 			while (tempNode)
 			{
 				if (!cnf->clauses[tempNode->value].hidden && cnf->clauses[tempNode->value].length == 2)
-					count++;
+					++count;
 				tempNode = tempNode->next;
 			}
 			cnf->variables[i].positiveCount = count;
@@ -437,7 +422,7 @@ int FindMax_2(CNF * cnf) {
 	int max = 0;
 	updateCountNum_2(cnf);
 	int maxCount = cnf->variables[max].positiveCount + cnf->variables[max].negativeCount;
-	for (int i = 1; i <= cnf->varNum; i++) {
+	for (int i = 1; i <= cnf->varNum; ++i) {
 		if (!cnf->variables[i].handled) {
 			int iCount = cnf->variables[i].positiveCount + cnf->variables[i].negativeCount;
 			if (iCount > maxCount) {
@@ -456,7 +441,7 @@ int FindMax(CNF *cnf) {
 	int max = 0;
 	updateCountNum(cnf);
 	int maxCount = cnf->variables[max].positiveCount + cnf->variables[max].negativeCount;
-	for (int i = 1; i <= cnf->varNum; i++) {
+	for (int i = 1; i <= cnf->varNum; ++i) {
 		if (!cnf->variables[i].handled) {
 			int iCount = cnf->variables[i].positiveCount + cnf->variables[i].negativeCount;
 			if (iCount > maxCount) {
@@ -472,6 +457,37 @@ int FindMax(CNF *cnf) {
 }
 
 
+int Findmax_new_2(CNF * cnf) {
+	int max = 0;
+	int max_2 = 0;
+
+	int max_count_positive = 0;
+	int max_count_negative = 0;
+	int max_count_2_negative = 0;
+	int max_count_2_positive = 0;  
+
+
+
+	intListNode * tempNode;
+	for (int i = cnf->varNum; i > 0; --i) {
+		if (!cnf->variables[i].handled) {
+			tempNode = cnf->variables[i].positive.first;
+			while (tempNode) {
+				if (!cnf->clauses[tempNode->value].hidden) {
+					if (cnf->clauses[tempNode->value].length == 2)
+						++max_count_2_positive;
+					++max_count_positive;
+				}
+				tempNode = tempNode->next;
+			}
+			
+		}
+	}
+	return 0;
+}
+
+
+
 int SelectVar(CNF * cnf) {
 	int max_2 = FindMax_2(cnf);
 	if (max_2)
@@ -484,7 +500,7 @@ bool Satisfied(CNF * cnf) {
 	// 检查CNF是否已经满足
 	int flag = true;
 	// 如果存在还未被删除的子句则说明没有满足
-	for (int i = cnf->clauseNum; i > 0; i--) {
+	for (int i = cnf->clauseNum; i > 0; --i) {
 		if (!cnf->clauses[i].hidden) {
 			flag = false;
 			break;
@@ -496,13 +512,25 @@ bool Satisfied(CNF * cnf) {
 int SingleRule(CNF * cnf) {
 	// 返回找到的第一个单子句中的变元,0表示不存在单子句
 	int result = 0;
-	for (int i = cnf->clauseNum; i > 0; i--) {
+	for (int i = cnf->clauseNum; i > 0; --i) {
 		if (1 == cnf->clauses[i].length && !cnf->clauses[i].hidden) {
 			result = cnf->clauses[i].variables.first->value;
 			break;
 		}
 	}
 	return result;
+	/*int result = 0;
+	intListNode * tempNode = nullptr;
+	for (int i = cnf->clauseNum; i > 0; --i) {
+		if (1 == cnf->clauses[i].length && !cnf->clauses[i].hidden) {
+			tempNode = cnf->clauses[i].variables.first;
+			while (cnf->variables[abs(tempNode->value)].handled)
+				tempNode = tempNode->next;
+			result = tempNode->value;
+			break;
+		}
+	}*/
+	return result; 
 }
 
 DecisionTreeHead * DPLL(CNF * cnf) {
@@ -578,13 +606,13 @@ int * TurnToArray(DecisionTreeHead * result, CNF * cnf) {
 }
 
 void PrintArray(int * resultArray, int length) {
-	for (int i = 1; i < length; i++)
+	for (int i = 1; i < length; ++i)
 		printf("%d ", *(resultArray + i));
 }
 
 void CheckFinalResult(int * resultArray, CNF * cnf) {
 	intListNode * tempNode = nullptr;
-	for (int i = 1; i <= cnf->clauseNum; i++) {
+	for (int i = 1; i <= cnf->clauseNum; ++i) {
 		bool flag = false;
 		tempNode = cnf->clauses[i].variables.first;
 		while (tempNode)
@@ -609,7 +637,7 @@ int main(int argc, char ** args) {
 		const char * filename = "problem11-100.cnf";
 		LoadFile(filename, cnf);
 	}
-	//LoadFile("problem11-100.cnf", cnf);
+
 	//DisplayData(cnf);
 	DecisionTreeHead * result = DPLL(cnf);
 	if (result) {
