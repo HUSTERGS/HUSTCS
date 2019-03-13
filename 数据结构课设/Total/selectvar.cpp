@@ -189,6 +189,7 @@ int InOrder(CNF * cnf) {
 	else
 		return i;
 }
+
 int SelectVar(CNF * cnf) {
 	/*int max_2 = FindMax_2(cnf);
 	if (max_2)

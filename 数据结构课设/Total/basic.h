@@ -1,16 +1,13 @@
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
+#ifndef BASIC_H
+#define BASIC_H
 
-#ifndef _BASIC_H
-#define _BASIC_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <time.h>
+#include <string.h>
 
 #define DISCARD_BUFFER_SIZE 100
-#define TRUE 1
-#define FALSE 0
-#define BOOL int
-
 
 struct intListNode {
 	int value;
@@ -30,7 +27,7 @@ struct Var
 	int negativeCount; // 负的数量
 	intListHead * positive;
 	intListHead * negative;
-	BOOL handled; // 表示该变元是否已经被赋值了，用于FindMax时排除变量
+	bool handled; // 表示该变元是否已经被赋值了，用于FindMax时排除变量
 };
 
 struct Clause
@@ -50,7 +47,7 @@ struct CNF {
 struct DecisionTreeNode
 {
 	int assumption;
-	BOOL valid;
+	bool valid;
 	DecisionTreeNode * next;
 	DecisionTreeNode * back;
 };
@@ -61,15 +58,29 @@ struct DecisionTreeHead
 };
 
 
+
 void addElem(int target, intListHead * head);
+inline void deleteElem(int target, intListHead * head) {
+	--head->length;
+}
+
+inline void recoverElem(int target, intListHead * head) {
+	++head->length;
+}
+
+void printAssumptions(DecisionTreeHead * head);
+DecisionTreeNode * addAssumption(int assumption, bool valid, DecisionTreeHead * head);
 void InitIntListHead(CNF * cnf);
 int LoadFile(const char * filename, CNF * cnf);
+void DisplayResult(DecisionTreeHead * Head);
 int * TurnToArray(DecisionTreeHead * result, CNF * cnf);
+void PrintArray(int * resultArray, int length);
 void CheckFinalResult(int * resultArray, CNF * cnf);
 void DestroyList(intListHead * head);
 void DestroyCNF(CNF * cnf);
-
-
 #endif 
+
+
+
 
 

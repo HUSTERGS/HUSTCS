@@ -1,45 +1,8 @@
-#include "basic.h"
+#include "dpll.h"
 #include "selectvar.h"
 
-
-inline void deleteElem(int target, intListHead * head) {
-	--head->length;
-}
-
-inline void recoverElem(int target, intListHead * head) {
-	++head->length;
-}
-
-DecisionTreeNode * addAssumption(int assumption, BOOL valid, DecisionTreeHead * head) {
-	DecisionTreeNode * tempNode = head->firstNode;
-	if (tempNode == nullptr) {
-		// 此时还没有任何assumption
-		head->firstNode = (DecisionTreeNode *)malloc(sizeof(DecisionTreeNode));
-
-		assert(head->firstNode != nullptr);
-
-		head->firstNode->back = nullptr;
-		head->firstNode->next = nullptr;
-		head->firstNode->assumption = assumption;
-		head->firstNode->valid = valid;
-		return head->firstNode;
-	}
-	while (tempNode->next)
-		tempNode = tempNode->next;
-	// 找到最后一个节点
-	tempNode->next = (DecisionTreeNode *)malloc(sizeof(DecisionTreeNode));
-
-	assert(tempNode->next != nullptr);
-
-	tempNode->next->back = tempNode;
-	tempNode->next->next = nullptr;
-	tempNode->next->assumption = assumption;
-	tempNode->next->valid = valid;
-	return tempNode->next;
-}
-
 bool Process(DecisionTreeNode * node, CNF * cnf) {
-	bool flag = TRUE; //标志是否出现空子句,TRUE为没有出现，FALSE为出现了
+	bool flag = true; //标志是否出现空子句,true为没有出现，false为出现了
 
 	int assumption = node->assumption;
 	int currentClauseIndex = 0;
@@ -51,12 +14,12 @@ bool Process(DecisionTreeNode * node, CNF * cnf) {
 	if (assumption > 0) {
 		positiveClauseIndexPtr = cnf->variables[assumption].positive->first;
 		negativeClauseIndexPtr = cnf->variables[assumption].negative->first;
-		cnf->variables[assumption].handled = TRUE;
+		cnf->variables[assumption].handled = true;
 	}
 	else {
 		negativeClauseIndexPtr = cnf->variables[-assumption].positive->first;
 		positiveClauseIndexPtr = cnf->variables[-assumption].negative->first;
-		cnf->variables[-assumption].handled = TRUE;
+		cnf->variables[-assumption].handled = true;
 	}
 
 
@@ -82,13 +45,14 @@ bool Process(DecisionTreeNode * node, CNF * cnf) {
 			--cnf->clauses[currentClauseIndex].length; // 子句长度减少
 			if (0 == cnf->clauses[currentClauseIndex].length) {
 				// 说明出现了空子句
-				flag = FALSE;
+				flag = false;
 			}
 		}
 		negativeClauseIndexPtr = negativeClauseIndexPtr->next;
 	}
 	return flag;
 }
+
 
 void Recover(DecisionTreeNode * node, CNF * cnf) {
 	int assumption = node->assumption;
@@ -98,12 +62,12 @@ void Recover(DecisionTreeNode * node, CNF * cnf) {
 	if (assumption > 0) {
 		positiveClauseIndexPtr = cnf->variables[assumption].positive->first;
 		negativeClauseIndexPtr = cnf->variables[assumption].negative->first;
-		cnf->variables[assumption].handled = FALSE; // 恢复状态
+		cnf->variables[assumption].handled = false; // 恢复状态
 	}
 	else {
 		negativeClauseIndexPtr = cnf->variables[-assumption].positive->first;
 		positiveClauseIndexPtr = cnf->variables[-assumption].negative->first;
-		cnf->variables[-assumption].handled = FALSE;
+		cnf->variables[-assumption].handled = false;
 	}
 
 
@@ -133,6 +97,7 @@ void Recover(DecisionTreeNode * node, CNF * cnf) {
 
 }
 
+
 DecisionTreeNode * BackTrack(DecisionTreeNode * node, CNF * cnf) {
 	while (node->valid && node->back)
 	{
@@ -144,10 +109,10 @@ DecisionTreeNode * BackTrack(DecisionTreeNode * node, CNF * cnf) {
 		tempPtr = nullptr;
 	}
 	if (!node->valid) {
-		// 此时是因为valid为FALSE而跳出循环，说明找到了假设点
+		// 此时是因为valid为false而跳出循环，说明找到了假设点
 		Recover(node, cnf);
 		node->assumption = -node->assumption;
-		node->valid = TRUE;
+		node->valid = true;
 		return node;
 	}
 	else {
@@ -156,13 +121,14 @@ DecisionTreeNode * BackTrack(DecisionTreeNode * node, CNF * cnf) {
 	}
 }
 
+
 bool Satisfied(CNF * cnf) {
 	// 检查CNF是否已经满足
-	int flag = TRUE;
+	int flag = true;
 	// 如果存在还未被删除的子句则说明没有满足
 	for (int i = cnf->clauseNum; i > 0; --i) {
 		if (!cnf->clauses[i].hidden) {
-			flag = FALSE;
+			flag = false;
 			break;
 		}
 	}
@@ -191,7 +157,7 @@ DecisionTreeHead * DPLL(CNF * cnf) {
 
 	DecisionTreeNode * currentTreeNode = nullptr;
 	Head->firstNode = nullptr;
-	bool flag = TRUE;
+	bool flag = true;
 	int singleRuleResult = 0;
 
 	int assumption = 0;
@@ -199,7 +165,7 @@ DecisionTreeHead * DPLL(CNF * cnf) {
 	while (!Satisfied(cnf))
 	{
 		while (flag && (singleRuleResult = SingleRule(cnf))) {
-			currentTreeNode = addAssumption(singleRuleResult, TRUE, Head);
+			currentTreeNode = addAssumption(singleRuleResult, true, Head);
 			//clock_t start = clock();
 			flag = Process(currentTreeNode, cnf);
 			//clock_t end = clock();
@@ -220,7 +186,7 @@ DecisionTreeHead * DPLL(CNF * cnf) {
 			//printf("SelectVar : %f\n ", (double)(end - start));
 			if (assumption == 0)
 				return Head;
-			currentTreeNode = addAssumption(assumption, FALSE, Head);
+			currentTreeNode = addAssumption(assumption, false, Head);
 			//printf("assumption var = %d\n", assumption);
 
 			// 测试
@@ -253,6 +219,7 @@ DecisionTreeHead * DPLL(CNF * cnf) {
 
 			//printf("process the single rule\n");
 		}
+
 	}
 	return Head;
 }

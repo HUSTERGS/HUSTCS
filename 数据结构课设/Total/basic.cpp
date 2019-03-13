@@ -4,12 +4,13 @@ void addElem(int target, intListHead * head) {
 	intListNode * newNode = (intListNode *)malloc(sizeof(intListNode));
 
 	assert(newNode != nullptr);
-
+	// old
 	newNode->value = target;
 	newNode->next = head->first;
 	head->first = newNode;
 	++head->length;
 }
+
 
 void InitIntListHead(CNF * cnf) {
 	cnf->clauses = (Clause *)malloc((cnf->clauseNum + 1) * sizeof(Clause));
@@ -38,8 +39,52 @@ void InitIntListHead(CNF * cnf) {
 		cnf->variables[i].positive->length = 0;
 		cnf->variables[i].negative->first = nullptr;
 		cnf->variables[i].positive->first = nullptr;
-		cnf->variables[i].handled = FALSE;
+		cnf->variables[i].handled = false;
 	}
+}
+
+
+void printAssumptions(DecisionTreeHead * head) {
+	system("cls");
+	DecisionTreeNode * tempNode = head->firstNode;
+	while (tempNode)
+	{
+		printf("%d", tempNode->assumption);
+		if (!tempNode->valid)
+			printf(" false");
+		else
+			printf(" true ");
+		printf("\t");
+		tempNode = tempNode->next;
+	}
+}
+
+DecisionTreeNode * addAssumption(int assumption, bool valid, DecisionTreeHead * head) {
+	DecisionTreeNode * tempNode = head->firstNode;
+	if (tempNode == nullptr) {
+		// 此时还没有任何assumption
+		head->firstNode = (DecisionTreeNode *)malloc(sizeof(DecisionTreeNode));
+
+		assert(head->firstNode != nullptr);
+
+		head->firstNode->back = nullptr;
+		head->firstNode->next = nullptr;
+		head->firstNode->assumption = assumption;
+		head->firstNode->valid = valid;
+		return head->firstNode;
+	}
+	while (tempNode->next)
+		tempNode = tempNode->next;
+	// 找到最后一个节点
+	tempNode->next = (DecisionTreeNode *)malloc(sizeof(DecisionTreeNode));
+
+	assert(tempNode->next != nullptr);
+
+	tempNode->next->back = tempNode;
+	tempNode->next->next = nullptr;
+	tempNode->next->assumption = assumption;
+	tempNode->next->valid = valid;
+	return tempNode->next;
 }
 
 int LoadFile(const char * filename, CNF * cnf) {
@@ -96,8 +141,18 @@ int LoadFile(const char * filename, CNF * cnf) {
 		}
 	}
 	fclose(fp);
-	fp = nullptr;
 }
+
+
+void DisplayResult(DecisionTreeHead * Head) {
+	DecisionTreeNode * tempNode = Head->firstNode;
+	while (tempNode)
+	{
+		printf("%d ", tempNode->assumption);
+		tempNode = tempNode->next;
+	}
+}
+
 
 int * TurnToArray(DecisionTreeHead * result, CNF * cnf) {
 	int * resultArray = (int *)calloc((cnf->varNum + 1), sizeof(int));
@@ -113,27 +168,26 @@ int * TurnToArray(DecisionTreeHead * result, CNF * cnf) {
 	return resultArray;
 }
 
-
-
-
-
+void PrintArray(int * resultArray, int length) {
+	for (int i = 1; i < length; ++i)
+		printf("%d ", *(resultArray + i));
+}
 
 void CheckFinalResult(int * resultArray, CNF * cnf) {
 	intListNode * tempNode = nullptr;
 	for (int i = 1; i <= cnf->clauseNum; ++i) {
-		bool flag = FALSE;
+		bool flag = false;
 		tempNode = cnf->clauses[i].variables->first;
 		while (tempNode)
 		{
 			if (resultArray[abs(tempNode->value)] * tempNode->value > 0)
-				flag = TRUE;
+				flag = true;
 			tempNode = tempNode->next;
 		}
 		if (!flag)
 			printf("Clause %d gg\n", i);
 	}
 }
-
 
 void DestroyList(intListHead * head) {
 	if (!head) {
