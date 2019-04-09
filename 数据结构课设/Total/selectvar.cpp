@@ -220,14 +220,8 @@ int LeastLength(CNF * cnf){
 }
 
 int SelectVar(CNF * cnf) {
-	/*int max_2 = FindMax_2(cnf);
-	if (max_2)
-		return -max_2;
-	else
-		return -FindMax(cnf);*/
-		//return InOrder(cnf);
-		//return Findmax_new_2(cnf);
 	return FindMax(cnf);
 	//return InOrder(cnf);
     //return LeastLength(cnf);
+	//return ReverseOrder(cnf);
 }

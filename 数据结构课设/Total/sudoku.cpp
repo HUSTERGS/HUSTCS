@@ -279,39 +279,3 @@ void Dig2(int(*Sudoku)[SUDOKU_LENGTH], int level, const char * tempfileName) {
 	}
 }
 
-int  Play(int(*Sudoku)[SUDOKU_LENGTH], int remain){
-	int copySudoku[SUDOKU_LENGTH][SUDOKU_LENGTH];
-	for (int i = 0; i < SUDOKU_LENGTH; ++i){
-		for (int j = 0; j < SUDOKU_LENGTH; ++j){
-			copySudoku[i][j] = Sudoku[i][j];
-		}
-	}
-
-	int x, y, z, choice;
-	printf("Please choose you action\n");
-	printf("1. solve sudoku\n");
-	printf("2. fill in sudoku\n");
-		
-	if (scanf("%d", &choice)){
-		if (choice == 1){
-			printf("You choose to solve sudoku\n");
-			return  1;
-		}else if (choice == 2){
-			printf("You choose to fill in sudoku\n");
-			while(remain >=0 ){
-				system("cls");
-				printSudoku(copySudoku);
-				printf("Please enter position x, y, and value z\n0 to exit");
-				scanf("%d%d%d", &x, &y, &z);
-				if (x >= 1 && x <= SUDOKU_LENGTH && y >= 1 && y <= SUDOKU_LENGTH &&z>= 1 && z<= SUDOKU_LENGTH){
-					printf("You choose to fill position %d , %d with value %d", x, y, z);
-					copySudoku[x-1][y-1] = z;
-					remain--;
-				}
-			}
-			
-		}
-	}
-
-	
-}	

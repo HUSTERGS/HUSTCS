@@ -59,7 +59,6 @@ struct DecisionTreeHead
 
 
 
-void addElem(int target, intListHead * head);
 inline void deleteElem(int target, intListHead * head) {
 	--head->length;
 }
@@ -67,7 +66,7 @@ inline void deleteElem(int target, intListHead * head) {
 inline void recoverElem(int target, intListHead * head) {
 	++head->length;
 }
-
+void addElem(int target, intListHead * head);
 void printAssumptions(DecisionTreeHead * head);
 DecisionTreeNode * addAssumption(int assumption, bool valid, DecisionTreeHead * head);
 void InitIntListHead(CNF * cnf);

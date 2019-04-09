@@ -2,7 +2,7 @@
 #include "selectvar.h"
 
 bool Process(DecisionTreeNode * node, CNF * cnf) {
-	bool flag = true; //±Í÷æ «∑Ò≥ˆœ÷ø’◊”æ‰,trueŒ™√ª”–≥ˆœ÷£¨falseŒ™≥ˆœ÷¡À
+	bool flag = true; //ÔøΩÔøΩ÷æÔøΩ«∑ÔøΩÔøΩÔøΩ÷øÔøΩÔøΩ”æÔøΩ,trueŒ™√ªÔøΩ–≥ÔøΩÔøΩ÷£ÔøΩfalseŒ™ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
 
 	int assumption = node->assumption;
 	int currentClauseIndex = 0;
@@ -23,12 +23,12 @@ bool Process(DecisionTreeNode * node, CNF * cnf) {
 	}
 
 
-	// œ»…æ≥˝◊”æ‰°¢‘Ÿ…æ≥˝Œƒ◊÷£¨ø…ƒ‹≥ˆœ÷’˝∏∫Õ¨ ±≥ˆœ÷‘⁄Õ¨“ª∏ˆ◊”æ‰µƒ«Èøˆ
+	// ÔøΩÔøΩ…æÔøΩÔøΩÔøΩ”æ‰°¢ÔøΩÔøΩ…æÔøΩÔøΩÔøΩÔøΩÔøΩ÷£ÔøΩÔøΩÔøΩÔøΩ‹≥ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÕ¨ ±ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÕ¨“ªÔøΩÔøΩÔøΩ”æÔøΩÔøΩÔøΩÔøΩÔøΩ
 
 	while (positiveClauseIndexPtr)
 	{
 		currentClauseIndex = positiveClauseIndexPtr->value;
-		// »°’˝£¨‘ÚΩ´◊”æ‰…æ≥˝
+		// »°ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ”æÔøΩ…æÔøΩÔøΩ
 		if (!cnf->clauses[currentClauseIndex].hidden) {
 			cnf->clauses[currentClauseIndex].hidden = assumption;
 		}
@@ -38,13 +38,13 @@ bool Process(DecisionTreeNode * node, CNF * cnf) {
 	while (negativeClauseIndexPtr)
 	{
 		currentClauseIndex = negativeClauseIndexPtr->value;
-		// »°∏∫£¨‘ÚΩ´◊”æ‰÷–µƒ∂‘”¶Œƒ◊÷…æ≥˝
+		// »°ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ”æÔøΩÔøΩ–µƒ∂ÔøΩ”¶ÔøΩÔøΩÔøΩÔøΩ…æÔøΩÔøΩ
 		if (!cnf->clauses[currentClauseIndex].hidden) {
 			assert(cnf->clauses[currentClauseIndex].variables->length >= 0);
 			deleteElem(-assumption, cnf->clauses[currentClauseIndex].variables);
-			--cnf->clauses[currentClauseIndex].length; // ◊”æ‰≥§∂»ºı…Ÿ
+			--cnf->clauses[currentClauseIndex].length; // ÔøΩ”æ‰≥§ÔøΩ»ºÔøΩÔøΩÔøΩ
 			if (0 == cnf->clauses[currentClauseIndex].length) {
-				// Àµ√˜≥ˆœ÷¡Àø’◊”æ‰
+				// ÀµÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÀøÔøΩÔøΩ”æÔøΩ
 				flag = false;
 			}
 		}
@@ -62,7 +62,7 @@ void Recover(DecisionTreeNode * node, CNF * cnf) {
 	if (assumption > 0) {
 		positiveClauseIndexPtr = cnf->variables[assumption].positive->first;
 		negativeClauseIndexPtr = cnf->variables[assumption].negative->first;
-		cnf->variables[assumption].handled = false; // ª÷∏¥◊¥Ã¨
+		cnf->variables[assumption].handled = false; // ÔøΩ÷∏ÔøΩ◊¥Ã¨
 	}
 	else {
 		negativeClauseIndexPtr = cnf->variables[-assumption].positive->first;
@@ -71,15 +71,15 @@ void Recover(DecisionTreeNode * node, CNF * cnf) {
 	}
 
 
-	// ”Î Processœ‡∑¥£¨œ»ª÷∏¥Œƒ◊÷£¨‘Ÿª÷∏¥…æ≥˝
+	// ÔøΩÔøΩ ProcessÔøΩ‡∑¥ÔøΩÔøΩÔøΩ»ª÷∏ÔøΩÔøΩÔøΩÔøΩ÷£ÔøΩÔøΩŸª÷∏ÔøΩ…æÔøΩÔøΩ
 
 	while (negativeClauseIndexPtr)
 	{
 		currentClauseIndex = negativeClauseIndexPtr->value;
-		// »°∏∫£¨‘ÚΩ´◊”æ‰÷–µƒ∂‘”¶Œƒ◊÷ª÷∏¥
+		// »°ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ”æÔøΩÔøΩ–µƒ∂ÔøΩ”¶ÔøΩÔøΩÔøΩ÷ª÷∏ÔøΩ
 		if (!cnf->clauses[currentClauseIndex].hidden) {
 			recoverElem(-assumption, cnf->clauses[currentClauseIndex].variables);
-			++cnf->clauses[currentClauseIndex].length;// ◊”æ‰≥§∂»ª÷∏¥
+			++cnf->clauses[currentClauseIndex].length;// ÔøΩ”æ‰≥§ÔøΩ»ª÷∏ÔøΩ
 
 		}
 		negativeClauseIndexPtr = negativeClauseIndexPtr->next;
@@ -87,7 +87,7 @@ void Recover(DecisionTreeNode * node, CNF * cnf) {
 
 	while (positiveClauseIndexPtr)
 	{
-		// »°’˝,»Áπ˚◊”æ‰µƒ…æ≥˝ «”…µ±«∞assumptionµº÷¬µƒ£¨‘Úª÷∏¥
+		// »°ÔøΩÔøΩ,ÔøΩÔøΩÔøΩÔøΩ”æÔøΩÔøΩ…æÔøΩÔøΩÔøΩÔøΩÔøΩ…µÔøΩ«∞assumptionÔøΩÔøΩÔøΩ¬µƒ£ÔøΩÔøΩÔøΩ÷∏ÔøΩ
 		currentClauseIndex = positiveClauseIndexPtr->value;
 		if (cnf->clauses[currentClauseIndex].hidden == assumption)
 			cnf->clauses[currentClauseIndex].hidden = 0;
@@ -109,23 +109,23 @@ DecisionTreeNode * BackTrack(DecisionTreeNode * node, CNF * cnf) {
 		tempPtr = nullptr;
 	}
 	if (!node->valid) {
-		// ¥À ± «“ÚŒ™validŒ™false∂¯Ã¯≥ˆ—≠ª∑£¨Àµ√˜’“µΩ¡ÀºŸ…Ëµ„
+		// ÔøΩÔøΩ ±ÔøΩÔøΩÔøΩÔøΩŒ™validŒ™falseÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ—≠ÔøΩÔøΩÔøΩÔøΩÀµÔøΩÔøΩÔøΩ“µÔøΩÔøΩÀºÔøΩÔøΩÔøΩÔøΩ
 		Recover(node, cnf);
 		node->assumption = -node->assumption;
 		node->valid = true;
 		return node;
 	}
 	else {
-		// ¥À ±£¨º¥ πªÿÀ›µΩ◊Óø™ º“≤Œﬁ∑® πCNFŒ™’Ê£¨∑µªÿNULL
+		// ÔøΩÔøΩ ±ÔøΩÔøΩÔøΩÔøΩ πÔøΩÔøΩÔøΩ›µÔøΩÔøΩÓø™ º“≤ÔøΩﬁ∑ÔøΩ πCNFŒ™ÔøΩÊ£¨ÔøΩÔøΩÔøΩÔøΩNULL
 		return nullptr;
 	}
 }
 
 
 bool Satisfied(CNF * cnf) {
-	// ºÏ≤ÈCNF «∑Ò“—æ≠¬˙◊„
+	// ÔøΩÔøΩÔøΩCNFÔøΩ«∑ÔøΩÔøΩ—æÔøΩÔøΩÔøΩÔøΩÔøΩ
 	int flag = true;
-	// »Áπ˚¥Ê‘⁄ªπŒ¥±ª…æ≥˝µƒ◊”æ‰‘ÚÀµ√˜√ª”–¬˙◊„
+	// ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ⁄ªÔøΩŒ¥ÔøΩÔøΩ…æÔøΩÔøΩÔøΩÔøΩÔøΩ”æÔøΩÔøΩÔøΩÀµÔøΩÔøΩ√ªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
 	for (int i = cnf->clauseNum; i > 0; --i) {
 		if (!cnf->clauses[i].hidden) {
 			flag = false;
@@ -166,60 +166,29 @@ DecisionTreeHead * DPLL(CNF * cnf) {
 	{
 		while (flag && (singleRuleResult = SingleRule(cnf))) {
 			currentTreeNode = addAssumption(singleRuleResult, true, Head);
-			//clock_t start = clock();
 			flag = Process(currentTreeNode, cnf);
-			//clock_t end = clock();
-			//printf("Processtime: %f\n", (double)(end - start));
-			// ≤‚ ‘
-			//printAssumptions(Head);
-
-			//printf("proccess the single rule @@ var = %d\n", singleRuleResult);
-
 			if (!flag)
 				break;
 		}
 		if (flag) {
-			// ”…”⁄≤ª‘Ÿ”–µ•◊”æ‰≤≈ÕÀ≥ˆ
-			//clock_t start = clock();
+			// ÔøΩÔøΩÔøΩ⁄≤ÔøΩÔøΩÔøΩÔøΩ–µÔøΩÔøΩ”æÔøΩÔøΩÔøΩÀ≥ÔøΩ
 			assumption = SelectVar(cnf);
-			//clock_t end = clock();
-			//printf("SelectVar : %f\n ", (double)(end - start));
 			if (assumption == 0)
 				return Head;
 			currentTreeNode = addAssumption(assumption, false, Head);
-			//printf("assumption var = %d\n", assumption);
 
-			// ≤‚ ‘
+			// ÔøΩÔøΩÔøΩÔøΩ
 
 
-			//start = clock();
 			flag = Process(currentTreeNode, cnf);
-			//end = clock();
-			//printf("Processtime: %f\n", (double)(end - start));
-			//printAssumptions(Head);
-			//printf("process the single rule\n");
 		}
 		else {
-			//  ”…”⁄¥Ê‘⁄≥ÂÕª∂¯ÕÀ≥ˆ
-			//printf("BAKETRACK @@ var = %d\n", currentTreeNode->assumption);
-			//clock_t start = clock();
+			//  ÔøΩÔøΩÔøΩ⁄¥ÔøΩÔøΩ⁄≥ÔøΩÕªÔøΩÔøΩÔøΩÀ≥ÔøΩ
 			currentTreeNode = BackTrack(currentTreeNode, cnf);
 			if (nullptr == currentTreeNode)
 				return nullptr;
-			//clock_t end = clock();
-			//printf("BackTrackTime: %f\n", (double)(end - start));
-			//printf("AFTER backtrack @@ var = %d\n", currentTreeNode->assumption);
-			//start = clock();
 			flag = Process(currentTreeNode, cnf);
-			//end = clock();
-			//printf("Processtime: %f\n", (double)(end - start));
-
-			// ≤‚ ‘
-			//printAssumptions(Head);
-
-			//printf("process the single rule\n");
 		}
-
 	}
 	return Head;
 }

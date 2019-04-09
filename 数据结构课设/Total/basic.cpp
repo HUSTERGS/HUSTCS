@@ -228,10 +228,10 @@ void DestroyCNF(CNF * cnf) {
 void writeFile(int * resultArray, int length, float runtime, const char *filename){
 	char resultfilename[100];
 	int i  = 0;
-	/*while('\0' != (resultfilename[i] = filename[i])){
+	while('\0' != (resultfilename[i] = filename[i])){
 		printf("%c", resultfilename[i]);
 		i++;
-	}*/
+	}
 	resultfilename[i-1] = 's';
 	resultfilename[i-2] = 'e';
 	resultfilename[i-3] = 'r';

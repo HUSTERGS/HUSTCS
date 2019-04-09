@@ -1,29 +1,47 @@
 ﻿#include "dpll.h"
 #include "sudoku.h"
+#include <unistd.h>
+#include <getopt.h>
 
-int main(int argc, char ** args) {
-	/*CNF * cnf = (CNF *)malloc(sizeof(CNF));
+struct options
+{
+    int p;  // 命令行参数，表示打印内部表示
+    int s;	// 命令行参数，表示是否保存文件
+    const char * filename; // 命令行参数，用于输入文件名
+}option;
+
+int main(int argc, char ** argv) {
+	int opt;
+	option.s = 0;
+	option.p = 0;
+	option.filename = nullptr;
+	while ((opt = getopt(argc, argv, "spf:")) != -1) {
+            if (opt == 's')
+                option.s = 1;
+            else if (opt == 'p')
+                option.p = 1;
+            else if (opt == 'f')
+                option.filename = optarg;
+	}
+
+	CNF * cnf = (CNF *)malloc(sizeof(CNF));
 	
 	assert(cnf != nullptr);
-	int type = 0;
-	if (argc == 2){
-		if (-1 == LoadFile(args[1], cnf)){
+	if (option.filename != nullptr){
+		if (-1 == LoadFile(option.filename, cnf)){
 			printf("文件不存在\n");
-			type = 0;
 			return 0;
 		}
 	}
 	
 	else {
-		type = 1;
-		const char * filename = "../SAT测试备选算例/满足算例/S/7cnf20_90000_90000_7.shuffled-20.cnf";
-		if (-1 == LoadFile(filename, cnf)){
-			printf("文件不存在\n");
-			return 0;
-		}
+		printf("请以 -f filename 输入文件路径\n");
+		return 0;
 	}
-
-	//DisplayData(cnf);
+	if (option.p){
+		DisplayData(cnf);
+	}
+	
 	
 	struct timeval start;
 	struct timeval end;
@@ -40,43 +58,14 @@ int main(int argc, char ** args) {
 		PrintArray(resultArray, cnf->varNum + 1);
 		printf("\nt  %fms\n",timer * 1000);
 		CheckFinalResult(resultArray, cnf);
-		if (!type){
-			writeFile(resultArray, cnf->varNum + 1, timer, args[1]);
+		if (option.s){
+			writeFile(resultArray, cnf->varNum + 1, timer, option.filename);
 		}
 		cnf  = nullptr;	
 	}
 	else {
 		printf("\nt  %fms\n",timer * 1000);
 		printf("0\n");
-	}
-	return 0;*/
-	
-
-
-
-
-	int a[SUDOKU_LENGTH][SUDOKU_LENGTH];
-	memset(a, 0, SUDOKU_LENGTH * SUDOKU_LENGTH * sizeof(int));
-	generate(a, 0, 0);
-	//Reduction(a, "terminal.cnf");
-	Dig2(a, 40, "lulala.cnf");
-	display(a);
-	Reduction(a, "hai.cnf");
-	CNF * cnf = (CNF *)malloc(sizeof(CNF));
-	LoadFile("hai.cnf", cnf);
-	clock_t startTime = clock();
-	DecisionTreeHead * result = DPLL(cnf);
-	clock_t endTime = clock();
-	int duration = (int)(endTime - startTime);
-	if (result) {
-		int * resultArray = TurnToArray(result, cnf);  // 最终的结果数组
-
-		printf("DPLL time: %d ms\n", duration);
-
-		fillIn(resultArray, a);
-		display(a);
-		//PrintArray(resultArray, cnf->varNum + 1);
-		CheckFinalResult(resultArray, cnf);
 	}
 	return 0;
 }
