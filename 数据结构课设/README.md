@@ -12,7 +12,7 @@ cd build
 ./DSCourseDesign -s -f filename
 ```
 
-若要在windows平台运行，请使用cmake进行编译生成可执行文件
+若要在Windows下运行，请自行编译
 
 可以通过修改selectVar.cpp 中最后一行SelectVar()的注释来使用不同的选取变元方式
 
