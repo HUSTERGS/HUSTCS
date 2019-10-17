@@ -1,0 +1,113 @@
+/*-----------------------------------------------------------------------*
+ * filename - stricmp.cas
+ *
+ * function(s)
+ *        stricmp - compare  one  string  to  another  without case
+ *                  sensitivity
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            stricmp - compare  one  string  to  another  without case
+                          sensitivity
+
+Usage           int stricmp(const char *str1, const char *str2);
+
+Prototype in    string.h
+
+Description     Case-independent  comparison of  *str1 with  *str2. Compare
+                the strings, but act as  if upper and lower case characters
+                were  always  upper-case,  returning  a  negative, zero, or
+                positive integer  according to whether *str1  is less than,
+                equal, or greater than *str2, respectively.
+
+                The strings *str1 and *str2 are not changed.
+
+                When  comparing to  punctuation characters  alphabetics are
+                always treated as upper-case.
+
+Return value    strcmp return an integer value such as:
+                        < 0     if str1 is less than str2
+                        = 0     if str1 is the same as str2
+                        > 0     if str2 is greater than str2
+
+*------------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+int _CType _FARFUNC stricmp(const char *str1, const char *str2)
+{
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     mov     dx, ds
+#endif
+#if !(LDATA)
+asm     mov     ax, ds
+asm     mov     es, ax
+#endif
+asm     cld
+
+asm     LDS_    si, str1
+asm     LES_    di, str2
+
+/*
+  We setup some constants in registers because there's a slight payoff
+  when the strings get longer than 3-4 characters (which should be most
+  of the time in a typical program).
+*/
+asm     xor     ax, ax  /* AH and BH stay zero until the end            */
+asm     mov     bx, ax  /* when the final sub AX, BX is done            */
+asm     mov     cx, 617aH       /* CH = 'a',  CL = 'z'                  */
+
+cmi_nextCh:
+asm     lodsb                   /* AL <- str1[i]        */
+asm     mov     bl, ES_ [di]    /* BL <- str2[i]        */
+asm     or      al, al          /* null terminator?     */
+asm     jz      cmi_end
+asm     scasb                   /* test & advance DI    */
+asm     je      cmi_nextCh
+
+cmi_alUpper:
+asm     cmp     al, ch          /* str1[i] < 'a' */
+asm     jb      cmi_blUpper
+asm     cmp     al, cl          /* str1[i] > 'z' */
+asm     ja      cmi_blUpper
+asm     sub     al, 'a'-'A'     /* upper case str1[i] */
+
+cmi_blUpper:
+asm     cmp     bl, ch          /* str2[i] < 'a' */
+asm     jb      cmi_compareAgain
+asm     cmp     bl, cl          /* str2[i] > 'z' */
+asm     ja      cmi_compareAgain
+asm     sub     bl, 'a'-'A'     /* upper case str2[i] */
+
+cmi_compareAgain:
+asm     cmp     al, bl          /* str1[i] == str2[i] */
+asm     je      cmi_nextCh
+
+cmi_end:
+/*
+  We need to do the full word subtract here because ANSI requires unsigned
+  comparisons. A simple byte subtract with a CBW would produce the wrong
+  result in some cases. Remember that AH, BH are still zero.
+*/
+asm     sub     ax, bx
+
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     mov     ds, dx
+#endif
+        return _AX;
+}

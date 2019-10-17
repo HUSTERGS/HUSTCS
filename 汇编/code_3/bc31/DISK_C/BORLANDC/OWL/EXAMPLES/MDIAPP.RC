@@ -1,0 +1,19 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include "windows.h"
+#include "owlrc.h"
+
+MDIMenu MENU
+BEGIN
+  POPUP "&MDI Children"
+    BEGIN
+    MENUITEM "C&reate",  CM_CREATECHILD,
+    MENUITEM "&Cascade", CM_CASCADECHILDREN,
+    MENUITEM "&Tile", CM_TILECHILDREN,
+    MENUITEM "Arrange &Icons", CM_ARRANGEICONS,
+    MENUITEM "C&lose All", CM_CLOSECHILDREN,
+    END
+END
+
+
+

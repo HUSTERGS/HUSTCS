@@ -1,0 +1,299 @@
+/*---------------------------------------------------------------------------
+ * filename - crtinit.cas
+ *
+ * function(s)
+ *        system       - displays system information
+ *        egainstalled - checks for ega card
+ *        _VideoInt    - generates video interrupt
+ *        _c0crtinit   - initializes crt
+ *        _crtinit     - initializes _video variable
+ *        turboCrt     -
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#define __IN_CRTINIT  /* _video.h checks whether to make extern _video decl */
+
+#pragma inline
+#include <asmrules.h>
+#include <_video.h>
+#include <dos.h>
+#include <conio.h>
+
+VIDEOREC _video = {0};
+int _Cdecl directvideo = 1;
+
+
+/*--------------------------------------------------------------------------*
+
+Name            system - displays system information
+
+Usage           static int near pascal system(char far *ROM,
+                                                     char *Copyright);
+
+Description     displays system information.
+
+Return value    system always returns 1.
+
+*---------------------------------------------------------------------------*/
+
+
+/*
+Note:   "_video" and "__turboCrt" are used to pull in this initialization
+        logic whenever any of the video routines are called. Do not remove
+        "_video" from here unless adding "__turboCrt" to those modules.
+        See also additional notes near "_c0crtinit" regarding "_video".
+
+        Also, this module needs to be put in segment "_TEXT", so that it
+        may be called by the startup using a NEAR call.
+
+*/
+
+static int near pascal system(char far *ROM, char *Copyright)
+{
+        while (*Copyright)
+                if (*Copyright++ != *ROM++) return 0;
+        return 1;
+}
+
+
+
+/*--------------------------------------------------------------------------*
+
+Name            egainstalled - checks for ega card
+
+Usage           static int near pascal egainstalled(void);
+
+Description     checks for ega card through video interrupt.
+
+Return value    returns TRUE if an EGA card is found, FALSE otherwise.
+
+*---------------------------------------------------------------------------*/
+
+static int near pascal egainstalled(void)
+{
+        _AH = 0x12;
+        _BL = 0x10;
+        _VideoInt();
+        return (unsigned char) (_BL - 0x10);
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _VideoInt - generates video interrupt
+
+Usage           void _VideoInt(void);
+
+Prototype in    _video.h
+
+Description     generates video interrupt through dos interrupt 10.
+
+*---------------------------------------------------------------------------*/
+#pragma saveregs
+
+#define _40h    0x40
+#define _B000h  0xB000
+#define _B800h  0xB800
+#define _F000h  0xF000
+
+void near _VideoInt( void )
+  {
+  /********** Turbo does this for us ************
+  asm push  si
+  asm push  di
+  ***********************************************/
+
+  asm push  bp
+  asm push  ds
+
+  asm push  cx
+  asm mov   cx,_40h                 /* ds = BIOS video data area */
+  asm mov   ds,cx
+  asm pop   cx
+
+  asm cmp   ah,V_SET_MODE
+  asm je    SetMode
+  asm cmp   ah,V_GET_MODE
+  asm je    GetMode
+NormalCall:
+  asm int   10h
+  asm jmp   Exit
+
+SetMode:
+  asm cmp   al,BW80
+  asm je    SetEGA
+  asm cmp   al,C80
+  asm jne   NotC80
+SetEGA:
+  asm push  ax                     /* save original request */
+  asm mov   ax,1a00h               /* is this an EGA? */
+  asm int   10h
+  asm cmp   al,1ah
+  asm je    NotEGA
+  asm and   byte ptr ds:[87h],0feh /* enable cursor size emulation */
+NotEGA:
+  asm mov   ah,1                   /* set cursor size */
+  asm mov   cx,0607h
+  asm int   10h
+  asm pop   ax                     /* restore original request */
+  asm jmp   NormalCall
+
+NotC80:
+  asm cmp   al,C4350
+  asm jne   NormalCall
+
+  asm mov   bl,10h                 /* make sure he has an EGA/VGA */
+  asm mov   ah,12h
+  asm int   10h
+  asm cmp   bl,10h
+  asm je    Exit
+
+  asm mov   ax,1112h               /* load 8x8 character set */
+  asm xor   bl,bl
+  asm int   10h
+
+  asm mov   ax,1200h               /* select alternate print-screen routine */
+  asm mov   bl,20h
+  asm int   10h
+
+  asm mov   ax,1a00h               /* is this a VGA? */
+  asm int   10h
+  asm cmp   al,1ah
+  asm je    Exit
+
+  asm or    byte ptr ds:[87h],1    /* disable cursor size emulation */
+
+  asm mov   ah,1                   /* set cursor size */
+  asm mov   cx,0600h
+  asm int   10h
+  asm jmp   Exit
+
+GetMode:
+  asm int   10h
+  asm cmp   al,BW80
+  asm je    CheckEga
+  asm cmp   al,C80
+  asm jne   Exit
+
+CheckEga:
+  asm push  ax
+
+  egainstalled();
+
+  asm or    al,al
+  asm pop   ax
+  asm jz    Exit
+  asm cmp   byte ptr ds:[84h],24
+  asm je    Exit
+  asm mov   al,C4350
+
+Exit:
+  asm pop   ds
+  asm pop   bp
+  /********** Turbo does this for us ************
+  asm pop   di
+  asm pop   si
+  ***********************************************/
+  }
+
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _c0crtinit - crt initialization routine called by startup
+
+Usage           void _c0crtinit(void);
+
+Description     _c0crtinit  is called  by the  startup code  to initialize
+                the VIDEO structure. This module is linked if and only if
+                there is at least  one of the video functions called  by
+                the user program. This  is done by  having an external
+                reference to __turboCrt or __Video in all video modules.
+
+
+*---------------------------------------------------------------------------*/
+
+
+        /* IMPORTANT: _video must be defined in this module,
+        otherwise HUGE model needs to be more careful */
+
+void near _c0crtinit(void)
+{
+asm      PUBLIC         __turboCrt
+asm      __turboCrt     equ     0
+        _AH = V_GET_MODE;
+        _VideoInt();
+        _crtinit(_AX);          /* really only _AL */
+        _AH = V_RD_CHAR_ATTR;
+        _BH = 0;
+        _VideoInt();
+        _AH &= 0x7f;    /* strip blink bit */
+        _video.normattr = _AH;
+        _video.attribute = _AH;
+}
+
+/*****
+#pragma startup _c0crtinit 16
+******/
+asm     _INIT_  SEGMENT WORD PUBLIC 'INITDATA'
+asm             db      0                       /* near call    */
+asm             db      16                      /* priority 16  */
+asm             dw      offset _c0crtinit
+asm             dw      ?
+asm     _INIT_  ENDS
+
+/*--------------------------------------------------------------------------*
+
+Name            _crtinit - initializes the _video variable
+
+Usage           void _crtinit( uchar newmode )
+
+Prototype in    _video.h
+
+Description     Initializes the _video variable
+
+*---------------------------------------------------------------------------*/
+
+
+void near _crtinit( uchar newmode )
+  {
+  _video.currmode = newmode;
+  _AH = V_GET_MODE;
+  _VideoInt();
+  _video.screenwidth = _AH;
+
+  if (_AL != _video.currmode)
+    {
+    _AL = _video.currmode;
+    _AH = V_SET_MODE;
+    _VideoInt();
+    _AH = V_GET_MODE;
+    _VideoInt();
+    _video.currmode = _AL;
+    _video.screenwidth = _AH;
+    }
+
+
+  _video.graphicsmode     = (_video.currmode > C80) &&
+                            (_video.currmode < C4350) &&
+                            (_video.currmode != MONO);
+  _video.screenheight     = _video.currmode != C4350 ? 25 :
+                            *(char far *)MK_FP( _40h, 0x84 ) + 1;
+  _video.snow             = (_video.currmode != MONO) &&
+                            (!system((char far *)MK_FP( _F000h, 0xFFEA) ,"COMPAQ")) &&
+                            (!egainstalled());
+  _video.displayptr.u.seg = _video.currmode == MONO ? _B000h : _B800h;
+  _video.displayptr.u.off = 0;
+  _video.windowx1         = _video.windowy1 = 0;
+  _video.windowx2         = _video.screenwidth - 1;
+  _video.windowy2         = _video.screenheight - 1;
+  }
+

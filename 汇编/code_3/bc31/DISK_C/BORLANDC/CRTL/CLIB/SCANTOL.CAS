@@ -1,0 +1,392 @@
+/*-----------------------------------------------------------------------*
+ * filename - scantol.cas
+ *
+ * function(s)
+ *        stl_Digit - converts an ascii digit to a character digit
+ *        _scantol  - scans a source for an ascii long
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <_scanf.h>
+#include <stdio.h>
+#include <ctype.h>
+
+
+
+/*-----------------------------------------------------------------------*
+
+Name            stl_Digit - converts an ascii digit to a character digit
+
+Usage           static char near stl_Digit (void)
+
+Description     This procedure converts a character in range '0..9',
+                'a..z'|'A..Z' into a numeric digit.  The result is the
+                unchanged character if it was not a digit.
+
+                The radix must be in CL at time of calling, and the character
+                is in BL.
+
+                If the result is a digit carry is clear, else carry is set.
+                On output AH = sign extend of AL and no other registers are
+                changed.
+
+                The method is as follows:
+
+                - for any ASCII <= '9', map letters '0..9' onto values 0..9,
+                        discarding any ASCII below '0'.
+
+                - for any ASCII > '9', map letters 'A..Z' or 'a..z' onto
+                        values 10..36, and discard any ASCII which map to less
+                        than 10.
+
+                - for any value that passed correctly through the above
+                        mapping, discard it if it is not less than the radix.
+
+Return value    the numeric value on success; the original character on
+                failure.
+
+*------------------------------------------------------------------------*/
+static void near stl_Digit (void)
+{
+asm             push    bx              /* remember original character. */
+
+asm             sub     bl, '0'
+asm             jb      stld_badEnd
+asm             cmp     bl, 9
+asm             jna     stld_digitised  /* digitized values are 0..9 */
+
+asm             cmp     bl, ('Z' - '0')
+asm             ja      stld_maybeLower
+asm             sub     bl, ('A' - '0' - 10)
+asm             jmp     short   stld_extended
+
+stld_maybeLower:
+asm             sub     bl, ('a' - '0' - 10)
+
+stld_extended:                          /* extended digits are 10..radix */
+asm             cmp     bl, 9
+asm             jna     stld_badEnd
+
+stld_digitised:
+asm             cmp     bl, cl          /* is digit within radix range ? */
+asm             jnb     stld_badEnd
+
+asm             inc     sp              /* forget the original char     */
+asm             inc     sp
+asm             clc                     /* since we found a true digit */
+asm             mov     bh, 0
+
+stld_end:
+        return;
+
+stld_badEnd:
+asm             pop     bx              /* recover original character   */
+asm             stc                     /* carry set, was not a char.   */
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            _scantol - scans a source for an ascii long
+
+Prototype in    _scanf.h
+
+Description     Scan input to parse a long integer.  The syntax of the
+                string must be:
+
+                        long     ::= [isspace]* [sign] numeral;
+
+                        numeral  ::= { '0' ['x'|'X'] digit [digit]* } |
+                                     { digit [digit] }
+
+                "srceP" must be a source of characters, such as a FILE *.
+                Get() and UnGet() must operate on srceP to read and replace
+                characters so that LR(1) parsing is permitted.
+
+                The radix may be zero, or any number 2..36.  If the radix
+                is zero, then a radix will be chosen from the possibilities
+                8, 10, or 16, by the usual "C" rules for distinguishing octal,
+                decimal, and hex numerals.
+
+                If radix > 10 then the letters of the alphabet "A..Z" form
+                the extended set of valid digits.
+
+                If the radix is invalid or no number could be found then the
+                result value is zero and the next char pointer will equal
+                the starting string pointer.
+
+                The width is the limit on the number of digits which may be
+                accepted.  It includes the sign character, if any, but does
+                not include any leading spaces.
+
+                The count value returned to the caller is a count of all the
+                characters consumed, including leading spaces even if no
+                numerals are found.  It is ADDED to the existing value of
+                count.
+
+                The status returned is EOF if EOF was encountered before
+                conversion could begin, 0 if no numerals were found before
+                some other character occurred, 1 if the conversion proceeded
+                correctly, and 2 if overflow occurred.
+
+Return value
+*------------------------------------------------------------------------*/
+#pragma warn -sus
+#pragma warn -rvl
+long near _scantol( int   near  (*Get)   (void *srceP),
+                    void  near  (*UnGet) (int ch, void *srceP),
+                    const void   *srceP,
+                    int           radix,
+                    int           width,
+                    int          *countP,
+                    int          *statusP )
+{
+        char            sign = 0;
+        int             ct = 0;
+        int             status = 1;
+
+/*              First skip over any white-space prefix.         */
+stl_skipSpace:
+        ct ++;
+        Get (srceP);
+
+asm             or      ax, ax
+asm             jl      stl_EOF
+asm             cbw
+
+asm             xchg    bx, ax
+asm             test    bl, 80h
+asm             jnz     stl_notSpace
+#ifdef __HUGE__
+asm             mov     ax, seg _ctype
+asm             mov     DS, ax
+#endif
+asm             mov     di, 1 + offset (ES_ _ctype)
+asm             test    BY0 ([bx+di]), _IS_SP   /* (1 + _ctype) [bx]    */
+asm             jnz     stl_skipSpace
+
+stl_notSpace:
+asm             xchg    ax, bx
+asm             dec     W0 (width)
+asm             jl      stl_noDigitSeen
+        /* next check for an optional negative sign. */
+asm             cmp     al, '+'
+asm             je      stl_signSeen
+asm             cmp     al, '-'
+asm             jne     stl_signed
+        sign++;
+
+stl_signSeen:
+asm             dec     W0 (width)
+asm             jl      stl_noDigitSeen
+        ct ++;
+        Get (srceP);
+asm             or      ax, ax
+asm             jl      stl_EOF
+
+stl_signed:
+asm             sub     si, si  /*      DI:SI hold the result.          */
+asm             mov     di, si  /*      default result is zero.         */
+
+asm             mov     cx, radix
+asm             jcxz    stl_autoRadix
+asm             cmp     cx, 36
+asm             ja      stl_badRadix
+asm             cmp     cl, 2
+asm             jb      stl_badRadix
+
+/*
+  The first few digits are special cases.  Firstly, there must be
+  at least one digit.  Secondly, the second "digit" may be 'X' or 'x'
+  if the radix is hexadecimal.
+*/
+stl_radixSet:
+asm             cmp     al, '0'
+asm             jne     stl_digitNeeded
+asm             cmp     cl, 16          /* is "0x.." allowed ?  */
+asm             jne     stl_nextWordDigitJmp
+
+asm             dec     W0 (width)
+asm             jl      stl_resultJmp   /* DI:SI is the result  */
+        ct ++;
+        Get (srceP);
+
+asm             cmp     al, 'x'
+asm             je      stl_nextWordDigitJmp
+asm             cmp     al, 'X'     /*  continue main part of the number */
+asm             je      stl_nextWordDigitJmp
+asm             jmp     stl_inspectDigit
+
+
+stl_EOF:        /*      source ended before any digit seen      */
+        status = EOF;
+asm             jmp     short   stl_backUp
+
+
+/*      When a syntax error occurs, the result is always zero.          */
+stl_badRadix:
+stl_noDigitSeen:
+        status = 0;
+stl_backUp:
+        UnGet (_AX, srceP);
+        ct --;
+asm             sub     ax, ax
+asm             cwd
+        goto  stl_end;
+
+
+stl_resultJmp:
+asm             jmp     stl_result      /* extend jump range    */
+
+
+/*
+  Automatic radix recognition:
+  Note: single digit "0" with no following digits is a valid octal zero.
+*/
+stl_autoRadix:
+asm             cmp     al, '0'
+        radix = 10;      /* if first digit not '0', numeral is decimal. */
+asm             jne     stl_digitNeeded
+
+asm             dec     W0 (width)
+asm             jl      stl_resultJmp
+        ct ++;
+        Get (srceP);
+
+        radix = 8;              /* if begins "0.." then will be octal   */
+
+asm             cmp     al, 'x'  /* unless "0x.." or "0X..", which is hex */
+asm             je      stl_autoHex
+asm             cmp     al, 'X'
+asm             jne     stl_inspectDigit
+
+stl_autoHex:
+        radix = 16;
+stl_nextWordDigitJmp:
+asm             jmp     short   stl_nextWordDigit
+
+
+/*      If arrived here then a first true digit is still awaited.       */
+stl_digitNeeded:
+asm             mov     cx, radix
+asm             xchg    bx, ax
+asm             call    stl_Digit
+asm             xchg    ax, bx
+asm             jc      stl_noDigitSeen
+asm             xchg    si, ax
+asm             jmp     short   stl_nextWordDigit
+
+
+/*
+  This is the short (16-bit) loop which accumulates digits after
+  the radix and start digits have been processed, until either
+  the accumulated value overflows 16 bits or until there are no
+  more digits in the source string.
+
+  The loop calculation is:      DI:SI = (radix * SI) + new digit.
+*/
+stl_digitOnWord:
+asm             xchg    ax, si
+asm             mul     W0 (radix)
+asm             add     si, ax
+asm             adc     di, dx
+asm             jnz     stl_nextDigit
+
+stl_nextWordDigit:
+asm             dec     W0 (width)
+asm             jl      stl_result
+        ct ++;
+        Get (srceP);
+
+stl_inspectDigit:
+asm             mov     cx, radix
+asm             xchg    bx, ax
+asm             call    stl_Digit
+asm             xchg    ax, bx
+asm             jnc     stl_digitOnWord
+
+asm             jmp     short   stl_term
+
+
+/*
+  Loop accumulating digits until overflow or the end of the digits.
+
+  The loop calculation is  DI:SI = (DI:SI * radix) + new digit.
+*/
+stl_digitOnLong:
+asm             xchg    ax, si
+asm             mul     cx              /* CX == radix  */
+asm             xchg    ax, di
+asm             xchg    cx, dx
+asm             mul     dx
+asm             add     si, di
+asm             adc     ax, cx
+asm             xchg    di, ax  /* result in DI:SI                  */
+asm             adc     dl, dh  /* bits beyond 32nd should be zero. */
+asm             jnz     stl_overflow
+
+stl_nextDigit:
+asm             dec     W0 (width)
+asm             jl      stl_result
+        ct ++;
+        Get (srceP);
+
+asm             mov     cx, radix
+asm             xchg    bx, ax
+asm             call    stl_Digit
+asm             xchg    ax, bx
+asm             jnc     stl_digitOnLong
+
+/*
+  Arrive here if no error but terminator character has been seen.
+
+  The original terminator character must be in AL.
+*/
+stl_term:
+        UnGet (_AX, srceP);     /* unget to the terminator.             */
+        ct --;
+
+stl_result:
+asm             mov     dx, di
+asm             xchg    ax, si  /* result is now in DX:AX               */
+
+/*      Was '-' negative seen ?  If so, then negate the result.         */
+        if (sign)
+        {
+asm             neg     dx
+asm             neg     ax
+asm             sbb     dx, 0           /* negate (DX:AX)               */
+        }
+
+stl_end:
+asm             LES_    di, countP
+asm             mov     bx, ct
+asm             add     ES_ [di], bx
+asm             LES_    di, statusP
+asm             mov     bx, status
+asm             mov     ES_ [di], bx
+
+        return( MK_LONG );
+
+        /*      An overflow produces a maximum result.          */
+stl_overflow:
+asm             mov     ax, 0FFFFh
+asm             mov     dx, 7FFFh
+asm             add     al, sign
+asm             adc     ah, 0
+asm             adc     dx, 0   /* result 8000:0000h if signed.  */
+        status = 2;
+asm             jmp     short   stl_end
+}
+#pragma warn .sus
+#pragma warn .rvl
+

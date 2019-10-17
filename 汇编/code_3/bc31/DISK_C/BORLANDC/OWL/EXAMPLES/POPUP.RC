@@ -1,0 +1,12 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+COMMANDS MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+  POPUP "&Window"
+  BEGIN
+    MenuItem  "&Child", 100
+    MenuItem  "Popup &with Parent", 101
+    MenuItem  "Popup with&out Parent", 102
+  END
+END
+

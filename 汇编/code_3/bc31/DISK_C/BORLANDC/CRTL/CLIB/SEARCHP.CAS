@@ -1,0 +1,388 @@
+/*-----------------------------------------------------------------------*
+ * filename - searchp.cas
+ *
+ * function(s)
+ *        CopyUpr      - copy string and convert to upper-case
+ *        CheckFile    - build absolute pathname and check existence
+ *        __search_env - return an absolute DOS path for the given file name,
+ *                       using any path environment variable
+ *        __searchpath - return an absolute DOS path for the given file name,
+ *                       using PATH environment variable
+ *        _searchenv   - search a path environment variable for a file.
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dir.h>
+#include <_dir.h>
+#include <direct.h>
+#include <dos.h>
+#include <_io.h>
+#include <string.h>
+#include <stdlib.h>
+
+static  char    PathFile[MAXPATH];
+static  char    drive[MAXDRIVE+1];
+static  char    dir[MAXDIR+1];
+static  char    fname[MAXFILE+1];
+static  char    ext[MAXEXT+1];
+
+/*-----------------------------------------------------------------------*
+
+Name            CopyUpr - copy string and convert to upper-case
+
+Usage           void * pascal near CopyUpr(char *dst, char *src)
+
+Description     Copies a string to another, converting all lowercase
+                characters to upper case.
+
+Return value    Returns the address of the terminating null byte in "dst".
+
+*------------------------------------------------------------------------*/
+static void * pascal near CopyUpr(char *dst, char *src)
+{
+        pushDS_
+asm     LDS_    si, src
+asm     LES_    di, dst
+asm     cld
+#if !LDATA
+asm     push    ds
+asm     pop     es
+#endif
+Copying:
+asm     lodsb
+asm     cmp     al, 'a'
+asm     jb      Converted
+asm     cmp     al, 'z'
+asm     ja      Converted
+asm     sub     al, 'a' - 'A'
+Converted:
+asm     stosb
+asm     or      al, al
+asm     jnz     Copying
+asm     dec     di
+asm     xchg    ax,di
+        popDS_
+#pragma warn -sus
+        return (void _es *) _AX;
+#pragma warn .sus
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _getcurdir - gets current directory for specified drive
+
+Usage           int _getcurdir(int drive, char *direc);
+
+Prototype in    local
+
+Description     _getcurdir gets the name of the current working
+                directory for the named drive.
+
+                drive contains a drive number (0 = default, 1 = A, etc.).
+
+                direc points to an area of memory of length MAXDIR where
+                the directory name will be placed. The null-terminated name
+                does not contain the drive specification and does not begin
+                with a backslash.
+
+Return value    _getcurdir returns 0 on success or the DOS error code
+                in the event of error.
+
+*---------------------------------------------------------------------------*/
+static int pascal _getcurdir(int drive, char *direc)
+{
+        pushDS_
+asm     mov     ah, 047h
+asm     mov     dl, drive
+asm     LDS_    si, direc
+asm     int     021H
+        popDS_
+asm     jc      getcurdirFailed
+        return(0);
+
+getcurdirFailed:
+        return (_AX);
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            CheckFile - build absolute pathname and check existence
+
+Usage           static unsigned pascal near CheckFile(char *pathP, char *driveP,
+                                                 char *dirP, char *nameP,
+                                                 char *extP, int mode);
+
+Description     Builds an absolute pathname with the given components,
+                and then checks for the existence of the given file.
+
+Return value    Returns zero if the given file exists, or the DOS error
+                code from _dos_findfirst() if it doesn't exist.
+
+*------------------------------------------------------------------------*/
+static unsigned pascal near CheckFile(char *pathP, char *driveP, char *dirP,
+                                 char *nameP, char *extP, int mode)
+{
+        register char   *bufP;
+        struct   find_t ffbuf;
+        unsigned drive, len;
+
+        bufP = pathP;
+        if (*driveP == '\0')
+                _dos_getdrive(&drive);  /* get drive, 1=A, 2=B, etc. */
+        else
+                drive = *driveP & 0x1f; /* convert A(a) to 1, B(b) to 2, etc. */
+        *bufP++ = drive + 'A' - 1;
+        *bufP++ = ':';
+
+        if (*dirP != '\\' && *dirP != '/')
+            {
+            *bufP++ = '\\';
+            if (_getcurdir(drive, bufP) != 0)
+                return (e_pathNotFound);
+            len = strlen(bufP);
+            if (len != 0)
+                {
+                bufP += len;
+                *bufP++ = '\\';
+                }
+            }
+
+        bufP = CopyUpr(bufP, dirP);
+        if (*(bufP - 1) != '\\' && *(bufP - 1) != '/')
+                *bufP++ = '\\';
+
+        bufP = CopyUpr(bufP, nameP);
+
+        if (extP)
+                CopyUpr(bufP, extP);
+
+        return (_dos_findfirst(pathP, (mode & _PROGRAM) ? 0x27 : 0x37, &ffbuf));
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            __search_env - return an absolute DOS path for the given file
+                               name.
+
+Usage           char    *pascal __searchpath(const char *pathP, int mode,
+                                             char *envname);
+
+Description     __search_env attempts to locate a file, given by filename.
+                If the value for mode specified is _USEPATH, the directories
+                in the MS-DOS environment variable envname (typically PATH)
+                are searched.  If mode is _STRING, the directories in the
+                string envname are searched.  A pointer to the complete
+                path-name string is returned as the function value.
+
+                The current directory of the current drive is checked first. If
+                the file is not found there and _USEPATH is specified, the
+                environment variable is fetched, and each directory in the
+                variable is searched in turn until the file is found or the
+                path is exhausted.  Similarly, if _STRING is specified,
+                the list of directories pointed to by envname is searched.
+
+                When the file is located, a string is returned containing the
+                full path name. This string can be used in a call to open or
+                exec... to access the file.
+
+                The string returned is located in a static buffer and is
+                destroyed on each subsequent call to __search_env.
+
+Return value    A pointer to a filename string is returned if the
+                file is successfully located; otherwise, __search_env returns
+                NULL.
+
+*------------------------------------------------------------------------*/
+static char *pascal near __search_env(const char *pathP, int mode, char *envname)
+{
+        register char   *bufP = PathFile;
+        register char   *envP = NULL;
+                 int    flag;
+
+        /*      Preliminary checking            */
+        flag = 0;
+        if ((pathP != NULL) || (*pathP != 0))
+                flag = _fnsplit(pathP, drive, dir, fname, ext);
+        if ((flag & (WILDCARDS + FILENAME)) != FILENAME)
+                return (NULL);
+
+/*      If  looking  for  a  program  file,  limit  the  search  if a
+        directory or an extension is specified
+*/
+        if (mode & _PROGRAM) {
+                if (flag & DIRECTORY)
+                        mode &= ~_USEPATH;
+                if (flag & EXTENSION)
+                        mode &= ~_PROGRAM;
+        }
+
+        /*      Get environment variable (usually "PATH") if allowed      */
+        if (mode & _USEPATH)
+                envP = getenv(envname);
+        else if (mode & _STRING)
+                envP = envname;
+
+/*      Try to locate "pathP" in current  directory, then try in all
+        directories specified  by the environment variable and
+        return a pointer  to the full path if  found, otherwise NULL
+        is returned.
+*/
+        while (1) {
+                unsigned doserr;
+
+                /* Check if the file exists */
+                if ((doserr = CheckFile(bufP, drive, dir, fname, ext, mode)) == 0)
+                        break;
+
+                /* If PROGRAM file, try with ".COM" and ".EXE" extension */
+                if ((doserr != e_pathNotFound) && (mode & _PROGRAM)) {
+
+                        if ((doserr = CheckFile(bufP, drive, dir, fname, ".COM", mode)) == 0)
+                                break;
+                        if (doserr != e_pathNotFound)
+                                if (CheckFile(bufP, drive, dir, fname, ".EXE", mode) == 0)
+                                        break;
+                }
+
+                /* Stops if no environment or end of it */
+                if (envP == NULL || *envP == '\0') {
+                        bufP = NULL;
+                        break;
+                }
+
+                /* Isolate drive name from environment */
+                flag = 0;
+                if (envP[1] == ':') {
+                        drive[flag++] = *envP++;
+                        drive[flag++] = *envP++;
+                }
+                drive[flag] = 0;
+
+                /* Isolate directory name from environment */
+                for (flag = 0; (dir[flag] = *envP++) != 0; flag++)
+                        if (dir[flag] == ';') {
+                                dir[flag] = 0;
+                                envP++;
+                                break;
+                        }
+                envP--;         /* point back at '\0' or past ';' */
+
+                /* if only drive specified, set dir to root */
+                if (dir[0] == '\0') {
+                  dir[0] = '\\';
+                  dir[1] = '\0';
+                }
+        }
+        return (bufP);
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            __searchpath - return an absolute DOS path for the given file
+                               name.
+
+Usage           char    *pascal __searchpath(const char *pathP, int mode);
+
+Prototype in    _dir.h
+
+Description     __searchpath attempts to locate a file, given by filename.
+                If the value for mode specified is _USEPATH, the MS-DOS path
+                is searched. A pointer to the complete path-name string is
+                returned as the function value.
+
+                The current directory of the current drive is checked first. If
+                the file is not found there and _USEPATH is specified, the PATH
+                environment variable is fetched, and each directory in the
+                path is searched in turn until the file is found or the path
+                is exhausted.
+
+                When the file is located, a string is returned containing the
+                full path name. This string can be used in a call to open or
+                exec... to access the file.
+
+                The string returned is located in a static buffer and is
+                destroyed on each subsequent call to __searchpath.
+
+Return value    A pointer to a filename string is returned if the
+                file is successfully located; otherwise, __searchpath returns
+                NULL.
+
+*------------------------------------------------------------------------*/
+char    *pascal near __searchpath(const char *pathP, int mode)
+{
+        return (__search_env(pathP, mode, "PATH"));
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            _searchenv - searches for a file using an enviroment path
+
+Usage           void _searchenv(const char *filename, const char *varname,
+                                char *pathname);
+
+Prototype in    stdlib.h
+
+Description     _searchenv simply calls __search_env to search the current
+                directory and MS DOS environment variable 'varname' for
+                filename.  If found, the complete pathname of the file
+                is copied to the user's buffer pathname.  If the file
+                is not found, an empty string will be stored in pathname.
+
+Return value    None.
+
+Note            Compatible with Microsoft C.  Not the same as searchpath().
+*------------------------------------------------------------------------*/
+
+void _searchenv(const char *file, const char *varname, char *pathname)
+{
+        char *found;
+
+        if ((found = __search_env(file, _USEPATH, (char *)varname)) == NULL)
+                *pathname = '\0';       /* not found, store empty string */
+        else
+                strcpy(pathname,found); /* found, copy complete pathname */
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            _searchstr - searches for a file using a path string
+
+Usage           void _searchstr(const char *filename, const char *ipath,
+                                char *pathname);
+
+Prototype in    stdlib.h
+
+Description     _searchstr simply calls __search_env to search the current
+                directory and the list of semicolon-separated directories
+                specified by ipath for the file filename.  If found,
+                the complete pathname of the file is copied to the user's
+                buffer pathname.  If the file is not found, an empty string
+                will be stored in pathname.
+
+Return value    None.
+
+*------------------------------------------------------------------------*/
+
+void _searchstr(const char *file, const char *ipath, char *pathname)
+{
+        char *found;
+
+        if ((found = __search_env(file, _STRING, (char *)ipath)) == NULL)
+                *pathname = '\0';       /* not found, store empty string */
+        else
+                strcpy(pathname,found); /* found, copy complete pathname */
+}
+

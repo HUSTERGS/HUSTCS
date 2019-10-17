@@ -1,0 +1,139 @@
+/*---------------------------------------------------------------------------
+ * filename - getenv.cas
+ *
+ * function(s)
+ *        getenv - get string from environment
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <stdlib.h>
+#include <stddef.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            getenv - get string from environment
+
+Usage           char *getenv(const char *envvar);
+
+Prototype in    stdlib.h
+
+Description     The MS-DOS environment consists of a series of entries that
+                are of the form:
+
+                name=string\0
+
+                getenv searches the environment for the entry corresponding
+                to envvar, then returns a pointer to string.
+
+                The string  comparison is case-sensitive, in  the usual "C"
+                tradition.
+
+Return value    On  success,   getenv  returns  a  pointer   to  the  value
+                associated with envvar.
+
+*---------------------------------------------------------------------------*/
+
+char * _CType _FARFUNC getenv(const char *nameP)
+{
+        char  **envP;
+
+        /* Compute nameP length and remember first character */
+
+asm             LES_    di, nameP
+#if (LDATA)
+asm             mov     ax, ES
+asm             or      ax, di
+#else
+asm             push    ds
+asm             pop     es
+asm             or      di, di
+#endif
+asm             jz      VarNotFound
+asm             mov     al, 0
+asm             mov     ah, ES_ [di]    /* remember first char of name  */
+asm             mov     cx, -1
+asm             cld
+asm     repne   scasb
+asm             not     cx
+asm             dec     cx
+asm             jz      VarNotFound
+
+        /* Look for nameP in environment array */
+
+#if __HUGE__
+asm             mov     di, seg environ
+asm             mov     DS, di
+#endif
+asm             LES_    di, DPTR_(environ)
+#if (LDATA)
+asm             mov     W1 (envP), ES
+asm             mov     bx, ES
+asm             or      bx, di
+#else
+asm             or      di, di
+#endif
+asm             mov     W0 (envP), di
+asm             jnz     FirstVariable
+
+/* If no match can be found, return a NULL pointer. */
+
+VarNotFound:
+        return NULL;
+
+                /* Does the first character match ??? */
+
+NextVariable:
+asm             add     W0 (envP), dPtrSize
+asm             LES_    di, envP
+FirstVariable:
+asm             LES_    di, ES_ [di]
+#if (LDATA)
+asm             mov     bx, ES
+asm             or      bx, di
+#else
+asm             or      di, di
+#endif
+asm             jz      VarNotFound
+asm             mov     al, ES_ [di]
+asm             or      al, al          /* "" terminates environment */
+asm             jz      VarNotFound
+asm             cmp     ah, al          /* compare first characters */
+asm             jne     NextVariable
+
+asm             mov     bx, cx
+#ifndef _Windows
+asm             cmp     BY0 (ES_ [di+bx]), '='
+asm             jne     NextVariable    /* must be followed by '=' */
+                /* Yes, so compare the remainder of nameP */
+#endif
+                pushDS_
+asm             LDS_    si, nameP
+asm     repe    cmpsb
+                popDS_
+asm             xchg    cx, bx
+asm             jne     NextVariable
+#ifdef  _Windows
+asm             cmp     BY0 (ES_ [di]), '='
+asm             jne     NextVariable
+#endif
+asm             inc     di
+
+/* Now return the pointer to the caller. */
+
+VarFound:
+#if (LDATA)
+        return (char _es *) _DI;
+#else
+        return (char *) _DI;
+#endif
+}

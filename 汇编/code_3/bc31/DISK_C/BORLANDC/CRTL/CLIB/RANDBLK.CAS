@@ -1,0 +1,107 @@
+/*-----------------------------------------------------------------------*
+ * filename - randblk.cas
+ *
+ * function(s)
+ *        randbrd - random block read
+ *        randbwr - random block write
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            randbrd - random block read
+
+Usage           #include <dos.h>
+                int randbrd(struct fcb *fcbptr, int reccnt);
+
+Related
+functions usage int randbwr(struct fcb *fcbptr, int reccnt);
+
+Prototype in    dos.h
+
+Description     randbrd reads reccnt number of records using the
+                open FCB pointed to by fcbptr. The records are read into memory
+                at the current disk transfer address. They are read from the
+                disk record indicated in the random record field of the FCB.
+                This is accomplished by calling DOS system call 0x27.
+
+                randbwr performs essentially the same function as randbrd,
+                except that data is written to disk instead of read from disk.
+                This is accomplished using DOS system call DOS 0x28. If reccnt
+                is 0, the file is truncated to the length indicated by the
+                random record field.
+
+                The actual number of records read or written can be determined
+                by examining the random record field of the FCB. The random
+                record field will be advanced by the number of records actually
+                read or written.
+
+Return value    The following values are returned, depending upon
+                the result of the randbrd or randbwr operation:
+
+                        0       All records are read or written.
+
+                        1       End-of-file is reached and the last record
+                                read is complete.
+
+                        2       Reading records would have wrapped around
+                                address 0xFFFF (as many records as possible
+                                are read).
+
+                        3       End-of-file is reached with the last record
+                                incomplete.
+
+                randbwr returns 1 if there is not enough disk space to write
+                the records (no records are written).
+
+*------------------------------------------------------------------------*/
+int randbrd(struct fcb *fcb, int rcnt)
+{
+        pushDS_
+asm     mov     ah, 027h
+asm     mov     cx, rcnt
+asm     LDS_    dx, fcb
+asm     int     021h
+asm     cbw
+        popDS_
+
+        return( _AX );
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            randbwr - random block write
+
+Usage           #include <dos.h>
+                int randbwr(struct fcb *fcbptr, int reccnt);
+
+Prototype in    dos.h
+
+Description     see randbrd above
+
+*------------------------------------------------------------------------*/
+int randbwr(struct fcb *fcb, int rcnt)
+{
+        pushDS_
+asm     mov     ah, 028h
+asm     mov     cx, rcnt
+asm     LDS_    dx, fcb
+asm     int     021h
+asm     cbw
+        popDS_
+
+        return( _AX );
+}

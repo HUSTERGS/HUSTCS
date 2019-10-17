@@ -1,0 +1,68 @@
+/*-----------------------------------------------------------------------*
+ * filename - memchr.cas
+ *
+ * function(s)
+ *        memchr - search for a character
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <mem.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            memchr - search for a character
+
+Usage           void *memchr(const void *s, int val, size_t n);
+
+Prototype in    mem.h & string.h
+
+Description     memchr scans up to n bytes at the memory location s looking
+                for a match to val.
+
+Return value    If  val  was matched then the  return value is a  pointer to
+                the first matching position, otherwise it is NULL.
+
+*------------------------------------------------------------------------*/
+#undef memchr                  /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+void * _FARFUNC memchr(const void *s, int val, size_t n)
+{
+#if !(LDATA)
+        _ES = _DS;
+#endif
+asm     LES_    di, s
+asm     mov     cx, n
+asm     jcxz    mch_NULL
+asm     mov     al, val
+asm     cld
+asm     repne   scasb
+asm     je      mch_OK
+mch_NULL:
+#if (LDATA)
+asm     xor     di, di
+asm     mov     es, di
+#endif
+asm     mov     di, 1
+
+mch_OK:
+asm     dec     di
+#if (LDATA)
+        return (void _es *) _DI;
+#else
+        return (void *) _DI;
+#endif
+}

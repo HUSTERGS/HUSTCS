@@ -1,0 +1,42 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#define TTTICON	510
+#include <owlrc.h>
+#include <bwcc.h>
+#include <windows.h>
+#include "ttt.h"
+
+COMMANDS MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+	POPUP "&Game"
+	BEGIN
+		MENUITEM "&New", CM_GAMENEW
+		MENUITEM "&Options", CM_GAMEOPTIONS
+		MENUITEM SEPARATOR
+		MENUITEM "E&xit", CM_EXIT
+	END
+
+	POPUP "&Help"
+	BEGIN
+		MENUITEM "&About TicTacToe", CM_ABOUT
+	END
+END
+
+ABOUT DIALOG 20, 15, 115, 75
+CLASS "BorDlg"
+STYLE WS_POPUP | WS_DLGFRAME
+BEGIN
+	CONTROL "", 101, "BorShade", 4, 3, 4, 108, 34
+END
+
+OPTIONS DIALOG 18, 20, 120, 152
+CAPTION "Tic Tac Toe Options"
+CLASS "BorDlg"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL "", 101, "BorShade", BSS_HDIP, 0, 106, 120, 2
+END
+
+TTTICON ICON ttt.ico
+
+

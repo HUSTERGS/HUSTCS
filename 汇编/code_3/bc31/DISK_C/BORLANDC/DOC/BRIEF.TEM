@@ -1,0 +1,332 @@
+/***********************************************************************
+
+              Brief editor emulation for Borland C++ IDE.
+
+	This file contains a Turbo Editor Macro Language (TEML)
+script which emulates the Brief programmer's editor in the Borland
+C++ IDE.  A complete description of the TEML language and the Turbo
+Editor Macro Compiler (TEMC) can be found in the file "UTIL.DOC".
+
+	The TEMC compiler can be invoked from the DOS command line at
+follows:
+ 
+	  temc [-c] brief.tem <IDE configuration file>
+
+The optional -c switch can also be specified as /c, and can appear in
+any argument position on the command line. If you use this option,
+any existing command table in your configuration file is thrown away
+before the script file is merged with those already defined. The
+configuration file extensions is assumed to be .TC.  The configuration
+file need not exist. If it does not exist, it is created. 
+tcconfig.tc is the main configuration file.
+
+Most of the simple Brief commands have been fully implemented.  Most
+of the complex commands have been either partially implemented or not
+implemented at all. Below is a list of the commands that have been
+fully or partially implemented.
+
+IDE Binding   Brief Command              Comments
+-----------   ---------------	         -------------------------
+F4            Close Window               Closes the current window
+F5            Search                     
+F6            Replace
+F10           Command                    Activates system menu
+Shift-F5      Search Backward            Repeats previous search
+                                         Option to go backward can be selected
+Shift-F6      Repeat Replace             Repeats previous replace
+                                         Option to go backward can be selected
+Ins           Paste Scrap                Pastes current clipboard selection
+Del           Delete                     Deletes current character only
+PgDn          Page Down
+PgUp          Page Up
+UpAr          Cursor Up
+DnAr          Cursor Down
+Star          Undo
+Plus          Copy to Scrap              Copies block to clipboard
+Minus         Cut to Scrap               Cuts block to clipboard
+Ctrl-D        Scroll Down
+Ctrl-E        Scroll Up
+Ctrl-G        Routines                   Activates the search menu
+                                         Find function can be selected here
+Ctrl-N        Next Error
+Ctrl-P        Error list                 Moves to previous error
+Ctrl-K        Delete To BOL              Deletes to beginning of line
+Ctrl-U        Redo
+Ctrl-W        Toggle Backup              Activates Options menu
+                                         Backup files can be toggled here
+Ctrl-F5       Case Sensitivity           Selects search dialog box
+                                         Case sensitivity can be toggled here
+Ctrl-F6       Toggle Regular Exp.        Selects search dialog box
+                                         Regular expressions can be toggled here
+Ctrl-bksp     Delete Prev Word
+Alt-A         Drop anchor                Sets beginning of block
+Alt-B         Buffer List                Lists ALL open windows
+Alt-C         Column mark                Sets beginning of *non-column* block
+Alt-D         Delete line
+Alt-E         Edit File
+Alt-G         Goto line                  Activates the search menu
+                                         Goto line can be selected here
+Alt-H         Help                       Context sensitive help
+Alt-I         Toggle Insert
+Alt-J+0       Goto BookMark(0)           Only marks 0-5 are supported
+Alt-J+1       Goto BookMark(1)             :
+Alt-J+2       Goto BookMark(2)             :
+Alt-J+3       Goto BookMark(3)             :
+Alt-J+4       Goto BookMark(4)             :
+Alt-J+5       Goto BookMark(5)           by this macro file
+Alt-K         Delete To EOL
+Alt-L         Mark Line
+Alt-M         Mark                       Sets beginning of block
+Alt-N         Next Buffer                Cycles to next open window
+Alt-O         New output file            Activates file menu
+                                         Save as... can be selected here
+Alt-P         Print Block
+Alt-Q         Quote                      Insert literal character
+Alt-R         Read Block
+Alt-S         Search
+Alt-T         Replace
+Alt-U         Undo
+Alt-V         Version                    Activates system menu
+                                         About can be selected here
+Alt-W         Write File
+Alt-X         Quit
+Alt-Z         DOS Shell                  Activates the file menu
+                                         OS Shell can be selected here
+Alt-0         Set BookMark(0)
+Alt-1         Set BookMark(1)
+Alt-2         Set BookMark(2)
+Alt-3         Set BookMark(3)
+Alt-4         Set BookMark(4)
+Alt-5         Set BookMark(5)
+Alt-F2        Zoom Window
+Alt-F5        Incremental Search         Prompts for search string
+                                         IDE does not support inc. search
+Alt-F6        Translate Backwards        Prompts for replace string
+                                         Option to go backward can be selected
+Alt-F10       Compile File
+Alt-BkSp      Delete Next Word
+
+****************************************************************/
+
+/******* Macros ********/
+
+MACRO MacScrollUp
+  ScrollScreenUp;
+  FixCursorPos;
+END;
+
+MACRO MacScrollDown
+  ScrollScreenDown;
+  FixCursorPos;
+END;
+
+MACRO MacPageUp
+  FixScreenPos;
+  PageScreenUp;
+  FixCursorPos;
+END;
+
+MACRO MacPageDown
+  FixScreenPos;
+  PageScreenDown;
+  FixCursorPos;
+END;
+
+MACRO MacDeleteLine
+  DeleteLine;
+  LeftOfLine;
+END;
+
+MACRO MacTopOfScreen
+  SetPrevPos;
+  TopOfScreen;
+END;
+
+MACRO MacBottomOfScreen
+  SetPrevPos;
+  BottomOfScreen;
+END;
+
+MACRO MacHomeCursor
+  SetPrevPos;
+  HomeCursor;
+END;
+
+MACRO MacEndCursor
+  SetPrevPos;
+  EndCursor;
+END;
+
+MACRO MacOpenLine
+  RightOfLine;
+  LiteralChar(13);
+END;
+
+
+MACRO MacSetBlockBeg
+  HideBlock;
+  SetBlockBeg;
+END;
+
+MACRO MacSetBlockEnd
+  HideBlock;
+  SetBlockEnd;
+  HighlightBlock;
+END;
+
+MACRO MacMarkLine
+  HideBlock;
+  SetTempPos;
+  RightOfLine;
+  CursorCharRight;
+  SetBlockEnd;
+  CursorCharLeft;
+  LeftOfLine;
+  SetBlockBeg;
+  HighlightBlock;
+  MoveToTempPos;
+END;
+
+MACRO MacMarkWord
+  HideBlock;
+  SetTempPos;
+  CursorRight;
+  WordLeft;
+  RightOfWord;
+  SetBlockEnd;
+  WordLeft;
+  SetBlockBeg;
+  HighlightBlock;
+  MoveToTempPos;
+END;
+
+MACRO MacMoveToBlockBeg
+  SetPrevPos;
+  MoveToBlockBeg;
+  CenterFixScreenPos;
+END;
+
+MACRO MacMoveToBlockEnd
+  SetPrevPos;
+  MoveToBlockEnd;
+  CenterFixScreenPos;
+END;
+
+MACRO MacMoveToPrevPos
+  SwapPrevPos;
+  CenterFixScreenPos;
+END;
+
+MACRO MacCopyBlock
+  CopyBlock;
+  HideBlock;
+  CenterFixScreenPos;
+END;
+
+MACRO MacMoveBlock
+  MoveBlock;
+  HighlightBlock;
+  CenterFixScreenPos;
+END;
+
+MACRO MacBreakLine
+  LiteralChar(13);
+  CursorCharLeft;
+END;
+
+MACRO MacDeleteNextWord
+  WordRight;
+  MacMarkWord;
+  DeleteBlock;
+  CenterFixScreenPos;
+END;
+
+MACRO MacDeletePrevWord
+  WordLeft;
+  MacMarkWord;
+  DeleteBlock;
+  CenterFixScreenPos;
+END;
+
+MACRO MacDeleteToBOL
+  SetPrevPos;
+  LeftOfLine;
+  SetBlockBeg;
+  MoveToPrevPos;
+  SetBlockEnd;
+  DeleteBlock;
+  CenterFixScreenPos;
+END;
+
+/******* Brief Key Bindings  ******/
+
+F4        : CloseWindow;
+F5        : GetFindString;
+F6        : Replace;
+F10       : Menu;
+
+Shift-F5  : RepeatSearch;
+Shift-F6  : RepeatSearch;
+
+Ins       : ClipPaste;
+Del       : DeleteChar;
+PgDn      : MacPageDown;
+PgUp      : MacPageUp;
+UpAr      : CursorUp;
+DnAr      : CursorDown;
+Star      : Undo;
+Plus      : ClipCopy;
+Minus     : ClipCut;
+
+Ctrl-D    : MacScrollDown;
+Ctrl-E    : MacScrollUp;
+Ctrl-G    : SearchMenu;
+Ctrl-N    : NextError;
+Ctrl-P    : PrevError;
+Ctrl-K    : MacDeleteToBOL;
+Ctrl-U    : Redo;
+Ctrl-W    : OptionsMenu;
+Ctrl-F5   : GetFindString;
+Ctrl-F6   : GetFindString;
+Ctrl-bksp : MacDeletePrevWord;
+
+Alt-A     : SetBlockBeg;
+Alt-B     : WindowList;
+Alt-C     : MacSetBlockBeg;
+Alt-D     : MacDeleteLine;
+Alt-E     : OpenFile;
+Alt-G     : SearchMenu;
+Alt-H     : Help;
+Alt-I     : ToggleInsert;
+Alt-J+0   : MoveToMark(0);
+Alt-J+1   : MoveToMark(1);
+Alt-J+2   : MoveToMark(2);
+Alt-J+3   : MoveToMark(3);
+Alt-J+4   : MoveToMark(4);
+Alt-J+5   : MoveToMark(5);
+Alt-K     : DeleteToEOL;
+Alt-L     : MacMarkLine;
+Alt-M     : SetBlockBeg;
+Alt-N     : NextWindow;
+Alt-O     : FileMenu;
+Alt-P     : PrintBlock;
+Alt-Q     : LiteralChar;
+Alt-R     : ReadBlock;
+Alt-S     : GetFindString;
+Alt-T     : Replace;
+Alt-U     : Undo;
+Alt-V     : SystemMenu;
+Alt-W     : SaveFile;
+Alt-X     : Quit;
+Alt-Z     : FileMenu;
+Alt-0     : SetMark(0);
+Alt-1     : SetMark(1);
+Alt-2     : SetMark(2);
+Alt-3     : SetMark(3);
+Alt-4     : SetMark(4);
+Alt-5     : SetMark(5);
+Alt-F2    : ZoomWindow;
+Alt-F5    : GetFindString;
+Alt-F6    : GetFindString;
+Alt-F10   : CompileFile;
+Alt-BkSp  : MacDeleteNextWord;

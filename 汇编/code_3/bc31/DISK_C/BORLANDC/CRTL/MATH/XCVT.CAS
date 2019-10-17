@@ -1,0 +1,580 @@
+/*------------------------------------------------------------------------
+ * filename - xcvt.cas
+ *
+ * function(s)
+ *        __xcvt - converts a double value to an ASCIIZ string
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+
+#include <_printf.h>
+#include <_math.h>
+#include <math.h>       /* for pow10 */
+
+#define I asm
+
+#ifdef _WINDOWS
+extern near _Cdecl void _fbstp(void);
+#endif
+
+#if LPROG
+#define  EXTPROC1(x)  asm call far ptr (x)
+#else
+#define  EXTPROC1(x)  asm call near ptr (x)
+#endif
+
+/*--------------------------------------------------------------------------*
+
+Name            __xcvt - convert double/long double value to ASCIIZ string
+
+Usage           short pascal near __xcvt(void *valP,
+                                    short ndigits,
+                                    int *signP,
+                                    char *strP,
+                                    int ftype)
+
+Prototype in    _printf.h
+
+Description     The double/long double (*valP) is converted to a decimal
+                string (*strP) of up to 18 digits, a  sign (*signP,
+                false == positive) and a decimal exponent (the function
+                return value).
+
+                "ndigits" specifies  how the number  should be rounded.  If
+                positive,  then  ndigits  specifies  the  maximum number of
+                digits. Otherwise, ndigits specifies  the maximum number of
+                fractional decimals (to the right of the decimal point). If
+                |ndigits| is > 18 then ndigits will be limited to +-18.
+
+                The string  is in ASCIIZ   form. The string  is padded with
+                zeros  to the  right to  fill in  the requested  number of
+                digits or decimal places.
+
+                The exponent is calculated as  if the decimal point were at
+                the left (most significant) end  of the string (there is no
+                "." character  in the string).  If the value  was zero then
+                the exponent is set to zero.
+
+                If the value was zero then the exponent is 0 and the string
+                is  all "0".  If the  value was  infinite or  NAN then  the
+                exponent is MAXSHORT and the string is all "9".
+
+
+        The ftype parameter will be :
+
+                2 - FLOAT
+                6 - DOUBLE
+                8 - LONG DOUBLE
+
+        The numbers correspond to the offset of the exponent word from
+        the start of the number.
+
+Return value    __xcvt returns the decimal exponent of the number.
+
+Note: A #define in '_printf.h' can be used to enable recognition of floats
+      as well as doubles and long doubles.  This feature may be disabled
+      though because it isn't strictly ANSI standard.  The code in this module
+      is set up to recognize floats but the higher modules will never pass
+      the float flag unless the variable is defined in _float.h
+*---------------------------------------------------------------------------*/
+
+#define MaxSigDigits    18
+
+#pragma warn -use
+int pascal near
+__xcvt(void *valP, int digits, int *signP, char *strP, int ftype)
+{
+        unsigned Sign = 0x8000;
+        short   ten = 10;
+        short   SW;             /* iNDP status word */
+        char    frac [10];      /* tenbyte BCD integer */
+
+/* caller expects ES to be preserved! */
+I       push    ES
+
+#if (! LDATA)
+I       mov     ax, ds
+I       mov     es, ax
+#endif
+
+/*
+        Convert parm to 'long double' and store locally.  We ZAP the sign
+        bit out of the number on the stack before loading it, but after
+        saving the exponent word in CX.  This saves having to do a FABS
+        later on which saves lots of time if this code is running emulated
+        and really doesn't cost any more than a real FABS running on a 8087
+        in terms of speed.
+*/
+I       LES_    di, valP                /* ES:DI <- pointer to value    */
+I       mov     ax, 7FFFH               /* Mask for sign zapping        */
+I       mov     bx, ftype               /* types are 2,6 or 8           */
+I       mov     cx, es:[bx+di]          /* Get original exponent word   */
+I       and     Sign, cx                /* Save original sign           */
+I       and     es:[bx+di], ax          /* Zap the sign bit             */
+I       shr     bx, 1                   /* Make 'type' into 0,2 or 4    */
+I       shr     bx, 1                   /*    and do an indexed jump to */
+I       shl     bx, 1                   /*       the right load instr.  */
+I       jmp     word ptr cs:type_table[bx]
+
+#pragma warn -asm
+I type_table    LABEL   NEAR
+I       dw      F4bytes                 /* 4  byte 'float'              */
+I       dw      F8bytes                 /* 8  byte 'double'             */
+I       dw      F10bytes                /* 10 byte 'long double'        */
+
+I F4bytes       LABEL NEAR
+I       FLD     FLOAT (es:[di])         /* Load 32 bit 'float'          */
+I       jmp     short its_loaded
+I F8bytes       LABEL NEAR
+I       FLD     DOUBLE (es:[di])        /* Load 64 bit 'double'         */
+I       jmp     short its_loaded
+I F10bytes      LABEL NEAR
+/* hack a few bits off of normals (please don't ask why) */
+I       and     ax, es:[di+8]
+I       cmp     ax, 7FFFh
+I       je      F10bytesHacked
+I       and     BY0(es:[di]), 0F0H      /* Can't print em' anyway       */
+F10bytesHacked:
+I       FLD     LONGDOUBLE (es:[di])    /* Load 80 bit 'long double'    */
+#pragma warn .asm
+
+/* Take original exponent word's sign & return it to caller.            */
+
+its_loaded:
+I       xor     bx, bx
+I       shl     cx, 1                   /* CF <- sign                   */
+I       rcl     bx, 1                   /* BX <- sign                   */
+I       LES_    di, signP               /* Store result in caller space */
+I       mov     ES_ [di], bx
+
+/*
+        Weed out all the 'strange' numbers here(0, Infinity & NANs).
+
+        The format of C0, C1, C2 & C4 in the status word is:
+
+        15 14 13 12 11 10  9  8  7  6  5  4  3  2  1  0
+        --+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--
+           C3          C2 C1 C0
+        ----- upper byte ------+----- lower byte ------
+                   AH                      AL
+
+        C3 C2 C1 C0
+        -----------
+         0  0  0  0     +Unnormal
+         0  0  0  1     +NAN
+         0  0  1  0     -Unnormal       (*)
+         0  0  1  1     -NAN            (*)
+         0  1  0  0     +Normal
+         0  1  0  1     +Infinity
+         0  1  1  0     -Normal         (*)
+         0  1  1  1     -Infinity       (*)
+         1  0  0  0     +Zero
+         1  0  0  1     Empty
+         1  0  1  0     -Zero           (*)
+         1  0  1  1     Empty
+         1  1  0  0     +Denormal
+         1  1  0  1     Empty
+         1  1  1  0     -Denormal       (*)
+         1  1  1  1     Empty
+
+         (*) We'll never see these in operation because we've zapped the
+             sign bit before loading the number (it was saved though
+             before being clobbered).
+
+        Note : 286/287 specific porters.
+
+                The 80287/80387 know how to do a FSTSW directly into the
+                AX register.
+*/
+
+I       FXAM
+I       FSTSW   SW                      /* Get the 87' Status           */
+I       FWAIT
+
+I       mov     ax, SW                  /* Load up the status word      */
+I       and     ah, 47H                 /* Mask out uninteresting stuff */
+
+/*
+        Zero is the most likely 'strange' number, so it's checked first.
+        Remember, signs were zapped above so we only need to look for the
+        positive cases!
+*/
+I       cmp     ah, 40H                 /* +0   */
+I       je      zero
+
+I       cmp     ah, 05H                 /* +INF */
+I       je      its_infinity
+
+I       cmp     ah, 01H                 /* +NAN */
+I       je      its_NAN
+
+        goto normal;
+
+/************************************************************************
+*       Special representations for 0, Infinity and NAN values.         *
+************************************************************************/
+
+its_NAN:
+I       mov     dx, NAN_number          /* dx = NAN flag                */
+I       jmp     short   pop_and_go
+
+its_infinity:
+I       mov     dx, INF_number          /* dx = Infinity flag           */
+I       jmp     short   pop_and_go
+
+        /* True zero and 'rounds to zero' results wind up here          */
+
+zero:
+roundToZero:
+I       mov     dx, 1                   /* We really want 0.0E+01       */
+I       mov     al, '0'
+
+extreme:
+I       mov     cx, digits              /* fill caller's string with    */
+I       or      cx, cx                  /*      either all zeros or     */
+I       jg      extSized                /*      all nines.              */
+I       neg     cx
+I       inc     cx                      /* digit left of decimal point  */
+
+extSized:
+I       cmp     cx, __XCVTDIG__         /* limit caller's buffer        */
+I       jbe     extLimited
+I       mov     cx, __XCVTDIG__
+
+extLimited:
+I       cld                             /* Fill in & NULL terminate str */
+I       LES_    di, strP
+I       rep stosb
+I       xor     al, al
+I       stosb
+
+pop_and_go:
+I       FSTP    ST(0)                   /* clear X from stack */
+        goto  end;
+
+/************************************************************************
+*               Normal numbers are not zero, infinite or NANs.          *
+*                                                                       *
+* Note: upon arrival here --                                            *
+*               87' TOS contains the number to convert                  *
+************************************************************************/
+
+normal:
+/*
+        How many decimal places are there in the number?  It is not good
+        to use the log10 function for two reasons:
+
+        - it is slow and clumsy (even when not emulated)
+
+        - the answer can be wrong: it is somewhat rare but rounding errors
+          in the log function can cause the wrong number of digits.
+
+        An alternative method is to make a swift estimate of the log, then
+        check it later.  So long as the error is at most one digit up or
+        down, and happens in a minority of cases, performance will be
+        reasonable.  We can form the estimate by multiplying the binary
+        exponent by a conversion factor Log10of2.  Since 16 bit accuracy
+        is OK at this stage, it is possible to use fixed point arithmetic
+        on the main CPU.
+*/
+        /*** FST won't do temp-reals so we have to use FSTP ***/
+
+I       FLD     st(0)                   /* Duplicate the number         */
+I       FSTP    LONGDOUBLE (frac)       /* Save long double form        */
+I       FWAIT
+
+I       mov     ax, frac[8]             /* Get new 80 bit #'s exp word  */
+I       sub     ax, 3FFFH               /* Remove exponent bias         */
+
+I       mov     dx, 4D10h               /* 10000h * Log10of2, rounded.  */
+I       imul    dx
+I       xchg    ax, bx
+I       mov     ah, 4DH
+I       mov     al, frac[7]
+I       shl     al, 1
+I       mul     ah
+I       add     ax, bx
+I       adc     dx, 0
+I       neg     ax
+I       adc     dx, 0                   /* DX = estimated exponent      */
+
+/*
+        Now we are ready to do the rounding.  DX estimates the decimal digits
+        left of the decimal point.  AX contains the requested precision.
+*/
+I       mov     ax, digits
+I       or      ax, ax                  /* -,0,+ = decimals, dflt, digits */
+I       jg      digitPlaces
+
+/*
+        The caller has requested (-AX) decimals following the decimal point.
+*/
+I       neg     ax
+I       add     ax, dx                  /* AX = equivalent signif. digits */
+I       jl      roundToZero             /* Ignore if it rounds to zero  */
+
+/*
+        The caller has requested (AX) significant digits (approximately).
+        This is now limited to 18, the maximum precision convertible by
+        the iNDP-87 (equivalent to around 59 bits of precision: double
+        precision in C is 53 bits, roughly 16 decimals).  Zeros will be
+        appended later to make up the extra digits requested.
+*/
+digitPlaces:
+I       cmp     ax, MaxSigDigits
+I       jng     defaultPlaces
+I       mov     ax, MaxSigDigits
+
+/*
+        Now the number is scaled to place the requested number of digits
+        left of the decimal point, and that number is rounded and converted
+        to a BCD integer.  Upon arrival here:
+
+        DX      is the estimated decimal magnitude of the number
+        AX      is the number of leading digits required
+*/
+defaultPlaces:
+I       mov     bx, ax          /* BX = safe copy of AX */
+I       sub     ax, dx
+powloop:
+I       jz      adjusted        /* 10^0 == 1, so skip the multiply/divide */
+I       mov     si, ax
+
+I       jnl     power10
+I       neg     ax
+
+power10:
+/* pow10 may ret +INF, which would wreck things */
+I       cmp     ax, 4932
+I       jle     getpow
+I       mov     ax, 4932
+
+getpow:
+I       push    ax
+                EXTPROC1 (pow10)         /* leaves result in ST */
+I       pop     ax
+
+/*
+        Now the value 10^(|SI|) is on TOS.  That is multiplied or divided
+        with the value in TOS(1) to yield a number with an integral part
+        probably having just the number of wanted digits.
+*/
+I       or      si, si
+I       jg      increase
+
+I       FDIV
+I       add     ax, si
+I       jmp     short   powloop
+
+increase:
+I       FMUL
+I       xchg    ax, si
+I       sub     ax, si
+I       jmp     short   powloop
+
+/*
+        Before unpacking the TOS, we must check that the number of actual
+        decimals is correct, since up till now everything has depended on
+        an estimate.
+*/
+adjusted:
+I       push    bx
+        EXTPROC1 (pow10)         /* leaves result in ST */
+I       pop     ax
+I       FCOMP                           /* cmp ST, ST(1), then pop */
+I       FSTSW   SW
+I       FWAIT
+
+I       test    BY1 (SW), 45h           /* test C3, C2, C0 */
+I       jz      notTooHigh              /*  all zero implies ST > ST(1) */
+
+/*
+        If arrived here then the number is too high.  The error is never
+        as great as tenfold, so divide by 10 to correct it.
+*/
+I       inc     dx                      /* correct the estimate of decimals */
+I       inc     bx                      /*  and size of result string */
+I       cmp     bx, MaxSigDigits
+I       ja      mustShorten
+I       cmp     W0 (digits), 0         /* is format F or E ? */
+I       jng     notTooLow
+
+mustShorten:
+I       FIDIV   W0 (ten)                /* E formats: maintain requested */
+I       dec     bx                      /*  count of digits */
+I       jmp     short   notTooLow
+
+/*
+        If arrived here the number was not too high, but may be too low.
+*/
+notTooHigh:
+I       mov     ax, bx
+I       dec     ax
+I       push    ax
+        EXTPROC1 (pow10)         /* leaves result in ST */
+I       pop     ax
+I       FCOMP                           /* cmp ST, ST(1), then pop */
+I       FSTSW   SW
+I       FWAIT
+I       test    BY1 (SW), 41h           /* test C3, C0 */
+I       jnz     notTooLow               /* either non-zero implies ST <= ST(1 */
+
+/*
+        Adjust upward tenfold to correct the alignment.
+*/
+I       dec     dx                      /* correct the estimate of decimals */
+I       dec     bx                      /*      and size of result string */
+I       cmp     W0 (digits), 0         /* is format F or E ? */
+I       jng     notTooLow
+
+I       FIMUL   W0 (ten)                /* E formats: maintain requested */
+I       inc     bx                      /*      count of digits */
+
+/*
+        Now convert the number in TOS into a decimal integer of up to 18
+        digits.  The default rounding mode applies.
+*/
+notTooLow:
+I       or      bx,bx           /* If precision < 0, number rounds to zero */
+I       jl      jmp_roundToZero
+I       FRNDINT                 /* FBSTP does not round properly ! */
+#ifdef _WINDOWS
+I       mov     di, ss          /* ES:DI -> frac */
+I       mov     es, di
+I       lea     di, frac
+I       push    bx              /* save misc. registers */
+I       push    dx
+
+        _fbstp();               /* convert TOS to packed BCD in frac */
+
+I       pop     dx
+I       pop     bx
+#else
+I       FBSTP   frac
+#endif
+I       LES_    di, strP        /* Locate the end of string .. */
+I       add     di, bx
+I       push    di              /* .. remember it for later .. */
+I       xor     al, al          /* .. and put the zero terminator there. */
+I       std                     /* fill the string in reverse order */
+I       stosb
+
+/*
+        Locate the fraction.
+*/
+I       lea     si, frac
+
+I       mov     cx, 4           /* CL = nibble shift, CH = round-up flag */
+
+/*
+        The CH flag is necessary because the rounding to integer can change
+        a 999.. value to 1000..  by rounding up.  In that case the number
+        of digits changes, and we will not scan as far as the '1' digit.
+        The CH flag accumulates the OR of all digits: if it remains zero,
+        then we know we have a round-up problem.
+*/
+I       FWAIT                   /* wait for conversion to finish. */
+I       or      bx, bx
+I       jnz     nextPair
+
+/*
+        Fractions which may round up to 1 are checked here as a special case.
+*/
+I       mov     ch, SS_ [si]
+I       xor     ch, 1           /* enable round-up if is 1. */
+I       jz      short   maybeRoundup
+jmp_roundToZero:
+I       FLDZ                    /* Load dummy to discard    */
+I       pop     di              /* Remove saved DI          */
+I       jmp     roundToZero     /* print as zero if it is 0.*/
+
+/*
+        Note that string direction is reversed, least significant digits are
+        converted first.
+*/
+nextPair:
+I       mov     al, SS_ [si]            /* convert the packed BCD .. */
+I       inc     si
+I       mov     ah, al
+I       shr     ah, cl
+I       and     al, 0Fh
+I       add     ax, 3030h /* '00' */    /* .. to ASCII decimals */
+I       stosb
+I       or      ch, al          /* accumulate non-zero digits */
+I       dec     bx
+I       jz      maybeRoundup
+I       mov     al, ah
+I       stosb
+I       or      ch, al          /* accumulate non-zero digits */
+I       dec     bx
+I       jnz     nextPair
+
+maybeRoundup:
+I       pop     bx              /* remember end-of-string position. */
+I       and     ch, 0Fh         /* were any non-zero digits seen ? */
+I       jnz     append
+
+/*
+        If all zeros, then we can assume the leading digit will be '1'
+        due to a round-up.  Increment DX to correct the estimated digits.
+*/
+I       inc     dx
+I       cmp     W0 (digits), 0
+I       jg      put1
+I       mov     BY0 (ES_ [bx]), '0'
+put1:
+
+I       inc     bx              /* also increment count of digits */
+I       mov     BY0 (ES_ [di+1]), '1'
+
+/*
+        The caller may want more than 18 digits.  We oblige, with limits,
+        by appending zeros up to the intended length.
+*/
+append:
+I       mov     cx, digits
+I       or      cx, cx
+I       jg      zMax
+I       neg     cx              /* request was for fixed decimals       */
+I       add     cx, dx          /*   so add digits to get intended size */
+
+zMax:
+I       cmp     cx, __XCVTDIG__ /* assumed limit to caller's buffer     */
+I       jna     zLimited
+I       mov     cx, __XCVTDIG__
+
+zLimited:
+
+I       mov     BY0 (ES_ [bx]), 0 /* make sure null terminated */
+
+I       mov     ax, bx
+I       sub     ax, strP        /* calculate actual digits      */
+I       sub     cx, ax
+I       jna     end             /* all digits have been delivered       */
+
+appendZloop:
+
+I       mov     W0 (ES_ [bx]), '0'      /* extend the string    */
+I       inc     bx
+I       loop    appendZloop
+
+end:
+I       cld                         /* reinstate default, forwards string   */
+I       LES_    di, valP            /* ES:DI <- pointer to value            */
+I       mov     bx, ftype           /* types are 2,6 or 8                   */
+I       mov     cx, Sign            /* Get original sign and restore it     */
+I       or      es:[bx+di], cx
+I       pop     ES
+        return _DX;             /* returns decimal exponent of the number.  */
+}
+#pragma warn .use

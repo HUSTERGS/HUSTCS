@@ -1,0 +1,66 @@
+/*-----------------------------------------------------------------------*
+ * filename - segread.cas
+ *
+ * function(s)
+ *        segread - reads segment registers
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            segread - reads segment registers
+
+Usage           #include <dos.h>
+                void segread(struct SREGS *segp);
+
+Prototype in    dos.h
+
+Description     segread places the current values of the segment
+                registers (stored in SEGREGS) into the structure pointed to by
+                segp.
+
+                This call is intended for use with intdosx and int86x.
+
+Return value    None
+
+*------------------------------------------------------------------------*/
+void segread(struct SREGS *segp)
+{
+#if (LDATA)
+asm mov bx,es           /* save ES */
+#endif
+asm LES_ si,segp
+#if (LDATA)
+asm mov es:[si].es,bx
+#else
+asm mov [si].es,es
+#endif
+#if (LPROG)
+asm mov ax,[bp+4]       /* Retrieve callers CS from stack */
+asm mov ES_ [si].cs,ax
+#else
+asm mov ES_ [si].cs,cs
+#endif
+asm mov ES_ [si].ss,ss
+#ifdef __HUGE__
+asm mov ax,[bp-4]       /* Retrieve saved DS from stack (SI pushed first) */
+asm mov ES_ [si].ds,ax
+#else
+asm mov ES_ [si].ds,ds
+#endif
+#if (LDATA)
+asm mov es,bx           /* Restore ES */
+#endif
+}

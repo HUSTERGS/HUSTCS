@@ -1,0 +1,114 @@
+/*------------------------------------------------------------------------
+ * filename - expld.cas
+ *
+ * function(s)
+ *        expld - long double exponential function helper function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static unsigned short log2hi[5] =
+        { 0x0000,0xD1D0,0x17F7,0xB172,0x3FFE };         /* +0.693E+0 */
+static unsigned short log2hi_ov_2[5] =
+        { 0x0000,0xD1D0,0x17F7,0xB172,0x3FFD };         /* +0.34657E+0 */
+static unsigned short log2lo[5] =
+        { 0xFC0D,0x4C67,0x361C,0x8654,0xBFCE };         /* -0.1864E-14 */
+
+
+/*--------------------------------------------------------------------------*
+
+Name            __expld - long double exponential function
+
+Usage           void near __expld(void)
+
+Prototype in    _math.h
+
+Description     expl calculates the exponent of the argument on the top
+                of the FPU stack (e^TOS).  The result is left on the
+                top of the FPU stack.  No error checking on the argument
+                is performed.  This function is a helper for expl(), sinh(),
+                and coshl().
+
+Return value    __expld does not return a value, but leaves the result
+                e^TOS on the TOS.
+
+*---------------------------------------------------------------------------*/
+
+void pascal near __expld(void)
+{
+        unsigned short status;
+
+asm     FLD     LONGDOUBLE (log2hi)     /* st(0)= log2hi st(1)= x */
+asm     FLD     st(1)           /* st(0)= x; st(1)= log2hi; st(2)= x */
+asm     FPREM                   /* st(0)=hi; st(1)=log2hi; st(2)=x */
+asm     FLD     LONGDOUBLE (log2hi_ov_2)        /* st(0)=log2hi/2 */
+asm     FCOMP   st(1)           /* log2hi/2 >= hi ? */
+asm     FSTSW   status
+asm     FWAIT
+asm     mov     ah, status[1]
+asm     sahf
+asm     jae     expl_test_neg
+asm     FSUB    st(0), st(1)    /* st(0)= hi; st(1)= log2hi; st(2)= x */
+asm     jmp     short expl_begin
+
+expl_test_neg:
+asm     FLD     LONGDOUBLE (log2hi_ov_2)        /* st(0)=-log2hi/2 */
+asm     FCHS
+asm     FCOMP   st(1)           /* -log2hi/2 <= hi ? */
+asm     FSTSW   status
+asm     FWAIT
+asm     mov     ah, status[1]
+asm     sahf
+asm     jbe     expl_begin
+asm     FADD    st(0), st(1)    /* st(0)=hi; st(1)=log2hi; st(2)=x */
+
+expl_begin:
+asm     FXCH    st(2)           /* st(0)= x; st(1)= log2hi; st(2)= hi */
+asm     FSUB    st(0), st(2)    /* st(0)= x-hi; st(1)= log2hi; st(2)= hi */
+asm     FDIVRP  st(1), st(0)    /* st(0)= (x-hi)/log2hi; st(1)= hi */
+asm     FRNDINT                 /* st(0)= i= rint((x-hi)/log2hi); st(1)= hi */
+asm     FXCH    st(1)           /* st(0)= hi; st(1)= i */
+asm     FLD     LONGDOUBLE (log2lo)     /* st(0)=log2lo; st(1)=hi; st(2)=i */
+asm     FMUL    st(0), st(2)    /* st(0)= i*log2lo; st(1)= hi; st(2)= i */
+asm     FSUBP   st(1), st(0)    /* st(0)= r= x-i*log2; st(1)= i */
+asm     FLDL2E                  /* st(0)= log2(e); st(1)= r; st(2)= i */
+asm     FMUL                    /* st(0)= f; st(1)= i */
+
+asm     FTST                    /* f >= 0? */
+asm     FSTSW   status
+asm     FWAIT
+asm     mov     ah, status[1]
+asm     sahf
+asm     jb      expl_red_neg
+asm     F2XM1                   /* st(0)= 2^f-1; st(1)= i */
+asm     FLD1                    /* st(0)= 1; st(1)= 2^f-1; st(2)= i */
+asm     FADDP   st(1), st(0)    /* st(0)= 2^f; st(1)= i */
+asm     jmp     short expl_red_next
+
+expl_red_neg:
+asm     FCHS                    /* st(0)= -f; st(1)= i */
+asm     F2XM1                   /* st(0)= 2^(-f)-1; st(1)= i */
+asm     FLD1                    /* st(0)= 1; st(1)= 2^(-f)-1; st(2)= i */
+asm     FADD    st(1), st(0)    /* st(0)= 1; st(1)= 2^(-f); st(2)= i */
+asm     FDIVRP  st(1), st(0)    /* st(0)= 2^f; st(1)= i */
+
+expl_red_next:
+asm     FSCALE                  /* st(0)= (2^i)*(2^f) */
+asm     FSTP    st(1)
+        return;
+}

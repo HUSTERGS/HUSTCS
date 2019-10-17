@@ -1,0 +1,66 @@
+/*-----------------------------------------------------------------------*
+ * filename - opena.cas
+ *
+ * function(s)
+ *        _open - opens a file for reading or writing
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <fcntl.h>
+#include <_io.h>
+#include <RtlData.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            _open - opens a file for reading or writing
+
+Usage           #include <fcntl.h>
+                int _open(const char *pathname, int access);
+
+Prototype in    io.h
+
+Description     see open
+
+*------------------------------------------------------------------------*/
+int _CType _FARFUNC _open( const char *filename, int oflag )
+{
+        register int            fd;
+
+asm             mov             al, 1
+asm             mov             cx, oflag
+asm             test    cx, O_WRONLY
+asm             jnz             ready
+asm             mov             al, 2
+asm             test    cx, O_RDWR
+asm             jnz             ready
+asm             mov             al, 0
+ready:
+                pushDS_
+asm             LDS_    dx, filename
+asm             mov             cl, 0F0h
+asm             and             cl, oflag
+asm             or              al, cl
+asm             mov             ah, 3Dh
+asm             int             21h             /* AX = sopen (DS:DX, AL) */
+                popDS_
+asm             jc              _openFailed
+
+asm             mov             fd,ax
+                _RTLInstanceData(_openfd)[fd] =
+                (oflag & ~(_O_RUNFLAGS | O_TEXT)) | O_BINARY;
+                return(fd);
+
+_openFailed:
+                return __IOerror (_AX);
+}

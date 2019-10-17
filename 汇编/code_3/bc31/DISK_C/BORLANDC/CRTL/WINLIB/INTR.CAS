@@ -1,0 +1,183 @@
+/*-----------------------------------------------------------------------*
+ * filename - intr.cas
+ *
+ * function(s)
+ *        intr - alternate 8086 software interrupt interface
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+
+#if defined(_Windows)
+void far pascal AllocDStoCSAlias(void);
+void far pascal FreeSelector(void);
+void far pascal GlobalFix(void);
+void far pascal GlobalUnfix(void);
+#endif
+
+/*-----------------------------------------------------------------------*
+
+Name            intr - alternate 8086 software interrupt interface
+
+Usage           #include <dos.h>
+                void intr(int intr_num, struct REGPACK *preg);
+
+Prototype in    dos.h
+
+Description     The intr function is an alternate interface for
+                executing software interrupts. It generates an 8086 software
+                interrupt specified by the argument intr_num.
+
+                intr copies register values from the REGPACK structure
+                preg into the registers before executing the software
+                interrupt. After the software interrupt completes, intr
+                copies the current register values into preg. The flags
+                are preserved.
+
+                The arguments passed to intr are as follows:
+
+                  intr_num      the interrupt number to be executed
+
+                  preg          the address of a structure containing
+                                (a) the input registers before the call
+                                (b) the value of the registers after the
+                                    interrupt call.
+
+                The REGPACK structure preg (described in dos.h) has the
+                following format :
+
+                  struct  REGPACK
+                  {
+                  unsigned  r_ax, r_bx, r_cx, r_dx;
+                  unsigned  r_bp, r_si, r_di, r_ds, r_es, r_flags;
+                  };
+
+Return value    No value is returned. The REGPACK structure preg
+                contains the value of the registers after the interrupt
+                call.
+
+
+*------------------------------------------------------------------------*/
+#pragma option -r+
+void intr(int int_type, struct REGPACK *preg)
+{
+        void    (far * Vector)(void);
+        char    Code[14];
+
+/*      #define WhereIsBP       -(sizeof(Code) + sizeof(Vector) + 12)   */
+
+#define WhereIsBP       -34
+
+        /* Save caller context */
+
+asm     push    bp
+asm     push    ds
+asm     pushf
+
+        /* Prepare Interrupt call */
+
+asm     mov     word ptr Code, 06E8Bh
+asm     mov     byte ptr Code+2, WhereIsBP
+asm     mov     byte ptr Code+3, 0CDh
+asm     mov     ax, int_type
+asm     mov     byte ptr Code+4, al
+asm     cmp     al, 025h
+asm     jb      NormalIntr
+asm     cmp     al, 026h
+asm     ja      NormalIntr
+asm     mov     byte ptr Code+5, 036h
+asm     mov     word ptr Code+6, 00068Fh
+asm     mov     word ptr Code+8, cx
+asm     mov     byte ptr Code+10, 0CAh
+asm     mov     word ptr Code+11, 2
+asm     jmp     InitVector
+
+asm     popf_proc proc near
+asm     iret                    /* this proc does a bullet-proof popf */
+asm     popf_proc endp
+
+NormalIntr:
+asm     mov     byte ptr Code+5, 0CAh
+asm     mov     word ptr Code+6, 2
+
+        /* Set up the vector to our interrupt function */
+
+InitVector:
+asm     lea     cx, Code
+asm     mov     word ptr Vector, cx
+
+#if !defined( _Windows )
+asm     mov     word ptr Vector+2, ss
+#else
+asm     push    ss
+        GlobalFix();
+asm     push    ss
+        AllocDStoCSAlias();
+asm     mov     word ptr Vector+2, ax
+#endif
+
+        /* Set registers with register structure content */
+
+asm     LDS_    di, preg
+asm     push    ds
+asm     push    di
+
+asm     mov     ax,[di].r_ax
+asm     mov     bx,[di].r_bx
+asm     mov     cx,[di].r_cx
+asm     mov     dx,[di].r_dx
+asm     push    word ptr [di].r_bp  /* BP will be loaded before int xx */
+asm     mov     si,[di].r_si
+asm     mov     es,[di].r_es
+asm     lds     di,[di].r_di
+
+        /* Call the interrupt routine */
+
+        (* Vector)();
+
+        /* Set register structure with registers */
+
+asm     push    ds
+asm     push    di
+asm     push    bp
+asm     pushf
+
+asm     mov     bp,sp
+asm     lds     di,[bp+8]     /* DS:DI points to the reg structure   */
+asm     mov     [di].r_ax,ax
+asm     mov     [di].r_bx,bx
+asm     mov     [di].r_cx,cx
+asm     mov     [di].r_dx,dx
+asm     mov     [di].r_si,si
+asm     mov     [di].r_es,es
+asm     pop     [di].r_flags    /* flags                             */
+asm     pop     [di].r_bp       /* BP                                */
+asm     pop     [di].r_di       /* DI                                */
+asm     pop     [di].r_ds       /* DS                                */
+
+asm     add     sp,4          /* Remove saved DS:DI                  */
+
+asm     push    cs
+asm     call    popf_proc       /* pop flags */
+
+asm     pop     ds
+asm     pop     bp
+
+#if defined( _Windows )
+asm     push    word ptr Vector+2
+        FreeSelector();
+asm     push    ss
+        GlobalUnfix();
+#endif
+}
+#pragma option -r.

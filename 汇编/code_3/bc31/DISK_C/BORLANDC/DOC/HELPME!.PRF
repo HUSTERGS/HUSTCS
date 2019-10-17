@@ -1,0 +1,197 @@
+/*************************************************************************/
+                      TURBO PROFILER TIPS AND HINTS
+
+  This file contains a list of the most commonly asked questions about 
+  Turbo Profiler. In addition, there is a section on mouse usage at the 
+  end of the file.
+
+1. Answers to common questions
+==============================
+ 
+  1. How can a "}" line in the program possibly use 90% of the total time
+     spent in the program?
+  
+     Turbo Profiler area markers only mark the beginning of an area when you
+     are profiling in active analysis mode. All time spent in the program
+     after hitting one area marker is charged to that marker until the
+     program hits a different area marker. Thus, if you're profiling one
+     routine in your program with an area set on each line in the routine,
+     you should see normal results for all lines except the last one. The
+     last line (usually a "}" in C++ or "end" in Pascal) will show all the
+     time spent between calls to the routine.
+    
+     Several methods can be used to obtain normal-looking results. You can
+     use the Filter/Current local command in the Execution Profile window to
+     remove that line from the statistics after each run. Or you can set
+     that area to Disable statistics collection, using the Operation command
+     in the Module or Areas windows. (Set the first area in the routine to
+     Enable statistics collection or you will only get results from the first
+     call to the routine.) Or you can switch to passive analysis mode, which
+     uses the area markers in a completely different way.
+    
+  2. What's the difference between Active, Passive, and Coverage analysis?
+    
+     Think of it this way: while profiling, your program is like a rabbit
+     running through a maze. The maze is set up with buttons (area markers)
+     on the floor. In active analysis mode, each button the rabbit hits
+     tells Turbo Profiler the part of the maze the rabbit is going into. In
+     passive analysis mode, each button marks the boundary between two areas,
+     and when a flash of light goes off, Turbo Profiler records which two
+     buttons the rabbit is between. Coverage analysis mode is like having
+     flags in the maze, but only at the entrance to new paths. As the rabbit
+     goes down a new path, it knocks down the flag for that path. Then, at
+     the end of the run, you can inspect which flags are left standing in the
+     maze.
+  
+  3. How does Turbo Profiler handle screen output for graphics- and 
+     text-based programs?
+  
+     There are a number of strategies that can be used to control how and
+     when the screen gets refreshed. If you are profiling a program that
+     uses a graphics display mode or are using a Borland pop-up utility
+     (such as SideKick or SideKick Plus) while profiling, you should review
+     the following tips.
+     
+     The default screen-updating mode is "Swap"; this means that Turbo
+     Profiler uses a single display adapter and display page, and swaps the
+     contents of the User and Turbo Profiler screens in software. This is
+     the slowest method of display swapping, but it is the most protective
+     and least disruptive.
+     
+     Pop-up utilities may not appear on the screen if your screen updating
+     is set to Flip, even though they are active and processing your
+     keystrokes. You must select "Swap" mode for display updating in order
+     for these programs to work properly. Use Turbo Profiler's -ds
+     command-line option to do this, or use the TFINST utility to
+     permanently set this mode. Swap mode makes screen updating slower, but
+     it makes sure that Turbo Profiler's screen does not interfere with
+     either your program's or any other program's display.
+    
+     You may also need to use "Swap" when you use the DOS Shell command or
+     run an editor from within Turbo Profiler. Most programs expect to run 
+     on video page 0, and don't check to see what the current video page is.
+     Turbo Profiler's DOS Shell and any editors that Turbo Profiler runs 
+     in "Flip" mode don't run from video page 0, and the programs might 
+     appear to hang, even though you'll be able to type in keystrokes normally.
+     If this happens, use the -ds command-line option when you run Turbo 
+     Profiler, or reinstall Turbo Profiler to use "Swap" instead of "Flip."
+    
+     If you're profiling a graphics mode application, you must specify the
+     -ds command-line option ("Swap" contents). You might also want to use
+     Turbo Profiler's -vg command-line option (Graphics Save), which causes
+     additional memory to be set aside for saving the entire graphics image
+     your program produces. If you don't use this option, a "red cloud" 
+     might appear on your program's screen. You can also set the -ds and -vg 
+     options permanently with the TFINST program. The Graphics Save option
+     takes an additional 8K of memory and slows screen-swapping.
+    
+     If you're running a graphics program that changes the EGA palette,
+     make sure you use the -vp command-line option to save the palette.
+  
+  4. Can Turbo Profiler execute other programs while you're still profiling?
+     
+     When you're using Turbo Profiler, the DOS Shell and Edit commands in the 
+     Module and File windows can swap the program you're profiling to disk 
+     to make room for running DOS or your editor. The default amount of memory 
+     to swap is 128K. You can use TFINST to set a different amount if that's 
+     not enough memory to run your editor or other programs. Setting the swap 
+     size to 0K tells Turbo Profiler to swap the entire user program to disk 
+     before running the DOS command processor.
+
+     Only your program gets swapped to disk; Turbo Profiler remains in
+     memory.
+
+  5. Why can't I press Ctrl-Break to get out of a program running on a
+     remote machine?
+
+     The program running on the remote machine has taken control of
+     Interrupt 1B (Ctrl-Break). TFREMOTE does not take back control of
+     Interrupt 1B until you stop execution of the running program on the
+     profiler side by completing the program or pressing Ctrl-F2 (Program
+     Reset).
+    
+  6. What is the most likely reason for Turbo Profiler to hang when
+     starting up on a PC-compatible computer?
+     
+     If your computer is a Tandy 1000, IBM PC Convertible, or NEC
+     MultiSpeed, or if Turbo Profiler hangs when loading onto your system, 
+     run TFINST and change an item in the Options\Miscellaneous menu so that
+     NMI Intercept is not set. Some computers use the NMI (Non-Maskable
+     Interrupt) in ways that conflict with Turbo Profiler, so you must disable
+     Turbo Profiler's use of this interrupt in order to run the program.
+     
+     Also, if you're using a machine based on the Intel 80386 processor (or
+     higher) and you have the SuperKey utility loaded, be careful not to 
+     press a key when TF386 is loading, since SuperKey might capture the 
+     keystroke and cause unexpected results.
+  
+  
+2. Mouse support
+================
+  Turbo Profiler provides mouse support that allows you to manipulate 
+  elements of the user interface. Most Turbo Profiler mouse operations are 
+  similar to Windows mouse operations. In the material that follows, we 
+  discuss some driver issues, some uses of the mouse under Turbo 
+  Profiler that are different from standard Windows mouse usage, and
+  some problems you might encounter with using a mouse with TPROFW.
+
+
+Mouse drivers
+-------------
+  If you have a mouse driver installed by default, Turbo Profiler
+  and installation utilities will try to use your mouse. If you don't
+  want to use your mouse during a debugging session, you can use the
+  command-line switch '-p-' to turn the mouse off. You can also set
+  this option in TFINST.
+
+  Your mouse driver is the application that you install to make your
+  mouse active inside Turbo Profiler and other programs. Most mouse
+  drivers will work with Turbo Profiler but may have to be updated
+  to a newer version if you are having problems using an older
+  version.
+
+  If you have problems with the mouse once you have loaded Turbo 
+  Profiler or TFINST, you might try using the Display Swap option 
+  that can be specified either in TFINST or on the command-line with 
+  the -ds switch. Consult your mouse manual to ensure proper use of the
+  mouse and its driver. Early versions of mouse drivers don't
+  support screen display modes larger than 80 columns by 24 lines.
+  As a result, your mouse driver might not work correctly when you
+  use Turbo Profiler's EGA 80x43, VGA 80x50, or EGA/VGA graphics modes.
+
+
+Using the mouse
+---------------
+  Most mice provide two or three buttons that allow for various
+  functions inside an application. With Turbo Profiler you can, among 
+  other things, use the left mouse button to select options, move items 
+  around on the screen, and set breakpoints. 
+
+  Double-clicking the mouse on an item in a list chooses the item. 
+  For instance, in the File|Open dialog box clicking the mouse once 
+  just highlights a file. Double-clicking loads the file.
+
+  The right mouse button has some of the same functionality as the 
+  left mouse button, but you can also open local menus within Turbo
+  Profiler windows by using this button. 
+
+  You can also choose the commands shown at the bottom of the screen, 
+  like F1-Help, by using the mouse.
+
+
+Mouse problems when profiling Windows programs
+----------------------------------------------
+  When the mouse driver is disabled for Windows, it will be disabled
+  for TPROFW as well.  Starting TRPOFW with the mouse support option
+  (-p) has no effect unless you enable the Windows mouse driver.
+  
+  If you have a mouse driver installed by default, TPROFW and the
+  installation utilities will try to use your mouse. If you 
+  don't want to use your mouse during a debugging session, you 
+  can use the command-line switch '-p-' to turn the mouse off. 
+
+  When you're debugging a Windows application that uses the mouse,
+  and you reset the application and then run the program, it won't
+  accept mouse clicks until you make a keyboard entry.
+
+/********************** END OF FILE ******************************/

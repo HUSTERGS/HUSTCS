@@ -1,0 +1,368 @@
+/* macro definitions for anything which isn't an editor primitive */
+
+MACRO MacScrollUp
+		ScrollScreenUp;FixCursorPos;
+END;
+
+MACRO MacScrollDown
+		ScrollScreenDown;FixCursorPos;
+END;
+
+MACRO MacPageUp
+		SetPrevPos;FixScreenPos;PageUp;FixCursorPos;
+END;
+
+MACRO MacPageDown
+		SetPrevPos;FixScreenPos;PageDown;FixCursorPos;
+END;
+
+MACRO MacWordLeft
+		SetPrevPos;WordLeft;
+END;
+
+MACRO MacWordRight
+		SetPrevPos;WordRight;
+END;
+
+MACRO MacDeleteLine
+		DeleteLine;LeftOfLine;
+END;
+
+MACRO MacLeftOfLine
+		SetPrevPos;LeftOfLine;
+END;
+
+MACRO MacRightOfLine
+		SetPrevPos;RightOfLine;
+END;
+
+MACRO MacTopOfScreen
+	SetPrevPos;TopOfScreen;
+END;
+
+MACRO MacBottomOfScreen
+	SetPrevPos;BottomOfScreen;
+END;
+
+MACRO MacHomeCursor
+		SetPrevPos;HomeCursor;
+END;
+
+MACRO MacEndCursor
+		SetPrevPos;EndCursor;
+END;
+
+MACRO MacOpenLine
+		SetPrevPos;RightOfLine;LiteralChar(13);
+END;
+
+MACRO MacInsertStar
+		InsertText("*");
+END;
+
+MACRO MacInsertMinus
+		InsertText("-");
+END;
+
+MACRO MacInsertPlus
+		InsertText("+");
+END;
+
+MACRO MacMarkCursorSwitchedRight
+  ExtendBlockBeg;CursorSwitchedRight;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkCursorSwitchedLeft
+  ExtendBlockBeg;CursorSwitchedLeft;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkCursorUp
+  ExtendBlockBeg;CursorUp;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkCursorDown
+  ExtendBlockBeg;CursorDown;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkPageUp
+  ExtendBlockBeg;PageUp;FixCursorPos;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkPageDown
+  ExtendBlockBeg;PageDown;FixCursorPos;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkWordLeft
+  ExtendBlockBeg;WordLeft;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkWordRight
+  ExtendBlockBeg;WordRight;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkLeftOfLine
+  ExtendBlockBeg;LeftOfLine;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkRightOfLine
+  ExtendBlockBeg;RightOfLine;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkTopOfScreen
+  ExtendBlockBeg;TopOfScreen;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkBottomOfScreen
+  ExtendBlockBeg;BottomOfScreen;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkHomeCursor
+  ExtendBlockBeg;HomeCursor;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkEndCursor
+  ExtendBlockBeg;EndCursor;ExtendBlockEnd;HighlightBlock;
+END;
+
+MACRO MacSetBlockBeg
+	HideBlock;SetBlockBeg;HighlightBlock;
+END;
+
+MACRO MacSetBlockEnd
+	HideBlock;SetBlockEnd;HighlightBlock;
+END;
+
+MACRO MacMarkLine
+		HideBlock;SetTempPos;RightOfLine;
+			CursorCharRight;SetBlockEnd;
+			CursorCharLeft;LeftOfLine;SetBlockBeg;
+			HighlightBlock;MoveToTempPos;
+END;
+
+MACRO MacMarkWord
+		HideBlock;SetTempPos;CursorRight;WordLeft;
+			RightOfWord;SetBlockEnd;WordLeft;
+			SetBlockBeg;HighlightBlock;MoveToTempPos;
+			
+END;
+
+MACRO MacMoveToBlockBeg
+	SetPrevPos;MoveToBlockBeg;CenterFixScreenPos;
+END;
+
+MACRO MacMoveToBlockEnd
+	SetPrevPos;MoveToBlockEnd;CenterFixScreenPos;
+END;
+
+MACRO MacMoveToPrevPos
+	SwapPrevPos;CenterFixScreenPos;
+END;
+
+MACRO MacCopyBlock
+		CopyBlock;HighlightBlock;CenterFixScreenPos;
+			
+END;
+
+MACRO MacMoveBlock
+		MoveBlock;HighlightBlock;CenterFixScreenPos;
+			
+END;
+
+MACRO MacDeleteBlock
+	DeleteBlock;CenterFixScreenPos;HideBlock;
+END;
+
+
+MACRO MacBreakLine
+		LiteralChar(13);CursorCharLeft;
+END;
+
+
+MACRO MacGoto0
+		SetPrevPos;MoveToMark(0); CenterFixScreenPos;
+END;
+
+MACRO MacGoto1
+		SetPrevPos;MoveToMark(1); CenterFixScreenPos;
+END;
+
+MACRO MacGoto2
+		SetPrevPos;MoveToMark(2); CenterFixScreenPos;
+END;
+
+MACRO MacGoto3
+		SetPrevPos;MoveToMark(3); CenterFixScreenPos;
+END;
+
+MACRO MacGoto4
+		SetPrevPos;MoveToMark(4); CenterFixScreenPos;
+END;
+
+MACRO MacGoto5
+		SetPrevPos;MoveToMark(5); CenterFixScreenPos;
+END;
+
+MACRO MacGoto6
+		SetPrevPos;MoveToMark(6); CenterFixScreenPos;
+END;
+
+MACRO MacGoto7
+		SetPrevPos;MoveToMark(7); CenterFixScreenPos;
+END;
+
+MACRO MacGoto8
+		SetPrevPos;MoveToMark(8); CenterFixScreenPos;
+END;
+
+MACRO MacGoto9
+		SetPrevPos;MoveToMark(9); CenterFixScreenPos;
+END;
+
+MACRO MacMatchPairForward
+		SetPrevPos;MatchPairForward;
+END;
+
+MACRO MacMatchPairBackward
+		SetPrevPos;MatchPairBackward;
+END;
+
+MACRO MacGetFindString
+		SetPrevPos;GetFindString;
+END;
+
+MACRO MacRepeatSearch
+		SetPrevPos;RepeatSearch;
+END;
+
+MACRO MacReplace
+		SetPrevPos;Replace;
+END;
+
+/**** key bindings ******/
+Esc : NullCmd;
+ctrl-A : MacWordLeft;
+ctrl-C : MacPageDown;
+ctrl-D : CursorSwitchedRight;
+ctrl-E : CursorUp;
+ctrl-F : MacWordRight;
+ctrl-G : DeleteChar;
+ctrl-H : BackspaceDelete;
+ctrl-I : SmartTab;
+ctrl-L : MacRepeatSearch;
+ctrl-N : MacBreakLine;
+ctrl-P : LiteralChar;
+ctrl-R : MacPageUp;
+ctrl-S : CursorSwitchedLeft;
+ctrl-T : DeleteWord;
+ctrl-V : ToggleInsert;
+ctrl-W : MacScrollDown;
+ctrl-X : CursorDown;
+ctrl-Y : MacDeleteLine;
+ctrl-Z : MacScrollUp;
+
+/* ---- Function and special keys */
+
+/* the following three keys refer to the ones on the numeric keypad */
+star: MacInsertStar;
+minus: MacInsertMinus;
+plus: MacInsertPlus;
+
+bksp : BackspaceDelete;
+shift-bksp : BackspaceDelete;
+lfar : CursorSwitchedLeft;
+rgar : CursorSwitchedRight;
+upar : CursorUp;
+dnar : CursorDown;
+pgup : MacPageUp;
+pgdn : MacPageDown;
+end : MacRightOfLine;
+home : MacLeftOfLine;
+ins : ToggleInsert;
+del : DeleteChar;
+ctrl-lfar : WordLeft;
+ctrl-rgar : WordRight;
+ctrl-end : MacBottomOfScreen;
+ctrl-home : MacTopOfScreen;
+ctrl-pgdn : MacEndCursor;
+ctrl-pgup : MacHomeCursor;
+shift-tab : BackSpaceDelete;
+tab : SmartTab;
+shift-del : ClipCut;
+ctrl-del : MacDeleteBlock;
+ctrl-ins : ClipCopy;
+shift-ins :ClipPaste;  
+
+shift-lfar : MacMarkCursorSwitchedLeft;
+shift-rgar : MacMarkCursorSwitchedRight;
+shift-upar : MacMarkCursorUp;
+shift-dnar : MacMarkCursorDown;
+shift-pgup : MacMarkPageUp;
+shift-pgdn : MacMarkPageDown;
+shift-end : MacMarkRightOfLine;
+shift-home : MacMarkLeftOfLine;
+
+
+/* ---- Control K sequences ------------------ */
+
+ctrl-K+^B : MacSetBlockBeg;
+ctrl-K+^C : MacCopyBlock;
+ctrl-K+^D : Menu;
+ctrl-K+^H : ToggleHideBlock;
+ctrl-K+^I : IndentBlock;
+ctrl-K+^K : MacSetBlockEnd;
+ctrl-K+^L : MacMarkLine;
+ctrl-K+^P : PrintBlock;
+ctrl-K+^Q : Menu;
+ctrl-K+^R : ReadBlock;
+ctrl-K+^S : SaveFile;
+ctrl-K+^T : MacMarkWord;
+ctrl-K+^U : OutdentBlock;
+ctrl-K+^V : MacMoveBlock;
+ctrl-K+^W : WriteBlock;
+ctrl-K+^Y : MacDeleteBlock;
+ctrl-K+0 : SetMark(0);
+ctrl-K+1 : SetMark(1);
+ctrl-K+2 : SetMark(2);
+ctrl-K+3 : SetMark(3);
+ctrl-K+4 : SetMark(4);
+ctrl-K+5 : SetMark(5);
+ctrl-K+6 : SetMark(6);
+ctrl-K+7 : SetMark(7);
+ctrl-K+8 : SetMark(8);
+ctrl-K+9 : SetMark(9);
+
+/* ---- Control Q sequences ------------------ */
+
+ctrl-Q+^A : MacReplace;
+ctrl-Q+^B : MacMoveToBlockBeg;
+ctrl-Q+^C : MacEndCursor;
+ctrl-Q+^D : RightOfLine;
+ctrl-Q+^E : MacTopOfScreen;
+ctrl-Q+^F : MacGetFindString;
+ctrl-Q+^K : MacMoveToBlockEnd;
+ctrl-Q+^P : MacMoveToPrevPos;
+ctrl-Q+^R : MacHomeCursor;
+ctrl-Q+^S : LeftOfLine;
+ctrl-Q+^X : MacBottomOfScreen;
+ctrl-Q+^Y : DeleteToEol;
+ctrl-Q+0 : MacGoto0;
+ctrl-Q+1 : MacGoto1;
+ctrl-Q+2 : MacGoto2;
+ctrl-Q+3 : MacGoto3;
+ctrl-Q+4 : MacGoto4;
+ctrl-Q+5 : MacGoto5;
+ctrl-Q+6 : MacGoto6;
+ctrl-Q+7 : MacGoto7;
+ctrl-Q+8 : MacGoto8;
+ctrl-Q+9 : MacGoto9;
+ctrl-Q+[ : MacMatchPairForward;
+ctrl-Q+] : MacMatchPairBackward;
+
+/* ---- Control O sequences ------------------ */
+
+ctrl-O+^F : ToggleOptimalFillMode;
+ctrl-O+^I : ToggleAutoIndent;
+ctrl-O+^O : MacOpenLine;
+ctrl-O+^R : ToggleCursorThroughTabMode;
+ctrl-O+^T : ToggleTabbingMode;
+ctrl-O+^U : ToggleAutoOutdent;

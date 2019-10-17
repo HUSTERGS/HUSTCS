@@ -1,0 +1,1114 @@
+/*-----------------------------------------------------------------------*
+ * filename - vprinter.cas
+ *
+ * function(s)
+ *        Hex4       - converts int to 4 hex digits
+ *        __vprinter - sends formatted output
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <stdio.h>
+#include <asmrules.h>
+#include <_printf.h>
+
+#define I asm
+
+#define BREAKPOINT      asm int 3
+
+static  char    NullString[] = "(null)";
+
+/*-----------------------------------------------------------------------*
+
+Name            Hex4 - converts int to 4 hex digits
+
+Usage           static void near pascal Hex4( void )
+
+Description     Convert 16 bit parameter (in dx) to 4 hex digits at ES: [di].
+
+                NOTE: TC does not realize that "stosb" implies DI, so DI is
+                not pushed/popped.  That is nice, but one day it may cease
+                to be true...
+
+                The calling code expects di to be incremented by 4 as a
+                side effect of this function.
+
+*------------------------------------------------------------------------*/
+I _TEXT    segment
+I  Hex4    proc near
+I          mov     al,dh
+I          call    Byte2Ascii
+I          mov     al,dl
+
+I Byte2Ascii:                         /* convert byte in al to ASCII */
+I          db      0d4h,10h           /* AAM trick to separate nibbles in al */
+I          xchg    ah,al
+I          call    Nibble2Ascii
+I          xchg    ah,al
+
+I Nibble2Ascii:                       /* convert hex digit in al to ASCII */
+I          add     al,90h
+I          daa
+I          adc     al,40h
+I          daa
+I          stosb
+I          ret
+I          endp
+I          ends
+
+/*-----------------------------------------------------------------------*
+
+__vprinter is a table-driven design, for speed and flexibility. There are
+two tables.  The first table classifies all 7-bit ASCII chars and then the
+second table is the switch table which points to the function blocks which
+handle the various classes of characters.
+
+All characters with the 8th bit set are currently classed as don't cares,
+which is the class of character also used for normal alphabetics.  All
+characters less than ' ' (0x20) are also classed as don't cares.
+
+*------------------------------------------------------------------------*/
+
+typedef
+        enum
+        {
+                _si,    /* sign fill +/-        */
+                _af,    /* alternate form       */
+                _ar,    /* format (width or precision) by argument */
+                _lj,    /* left justify         */
+
+                _pr,    /* precision            */
+                _nu,    /* numeral              */
+                _lo,    /* long                 */
+                _ld,    /* long double          */
+                _sh,    /* short                */
+                _fz,    /* fill zeros           */
+
+                _de,    /* decimal              */
+                _oc,    /* octal                */
+                _un,    /* unsigned decimal     */
+                _he,    /* hexadecimal          */
+
+                _pt,    /* pointer              */
+                _fl,    /* float                */
+                _ch,    /* char                 */
+                _st,    /* string               */
+
+                _ns,    /* number sent          */
+                _zz,    /* terminator           */
+                _dc,    /* don't care           */
+                _pc,    /* percent              */
+
+                _ne,    /* near pointer         */
+                _fa,    /* far pointer          */
+        } characterClass;
+
+        /*  Here is the table of classes, indexed by character. */
+
+static unsigned char printCtype [96] =
+{
+/*       SP   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /  */
+        _si,_dc,_dc,_af,_dc,_pc,_dc,_dc,_dc,_dc,_ar,_si,_dc,_lj,_pr,_dc,
+
+/*        0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?  */
+        _fz,_nu,_nu,_nu,_nu,_nu,_nu,_nu,_nu,_nu,_dc,_dc,_dc,_dc,_dc,_dc,
+
+/*        _   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O  */
+        _dc,_dc,_dc,_dc,_dc,_fl,_fa,_fl,_sh,_dc,_dc,_dc,_ld,_dc,_ne,_dc,
+
+/*        P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _  */
+        _dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_he,_dc,_dc,_dc,_dc,_dc,_dc,_dc,
+
+/*        `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o  */
+        _dc,_dc,_dc,_ch,_de,_fl,_fl,_fl,_sh,_de,_dc,_dc,_lo,_dc,_ns,_oc,
+
+/*        p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~ DEL  */
+        _pt,_dc,_dc,_st,_dc,_un,_dc,_dc,_he,_dc,_dc,_dc,_dc,_dc,_dc,_dc,
+};
+
+
+/*---------------------------------------------------------------------*
+
+Name            __vprinter - sends formatted output
+
+Usage           int   pascal __vprinter (putnF  *putter,
+                                         void   *outP,
+                                         const char   *formP,
+                                         void _ss *argP)
+
+Prototype in    _printf.h
+
+Description     The list of arguments *argP is combined with literal text in
+                the format string *formP according to format specifications
+                inside the format string.
+
+                The supplied procedure *putter is used to generate the output.
+                It is required to take the string S, which has been
+                constructed by __vprinter, and copy it to the destination
+                outP.  The destination may be a string, a FILE, or whatever
+                other class of construct the caller requires.  It is possible
+                for several calls to be made to *putter since the buffer S
+                is of limited size.
+
+                *putter is required to preserve  SI, DI.
+
+                The only purpose of the outP argument is to be passed through
+                to putter.
+
+                The object at *argP is a record of unknown structure, which
+                structure is interpreted with the aid of the format string.
+                Each field of the structure may be an integer, long, double,
+                or string (char *).  Chars may appear but occupy integer-sized
+                cells.  Floats, character arrays, and structures may not
+                appear.
+
+Return value    The result of the function is a count of the characters sent to
+                *outP.
+
+                There is no error indication.  When an incorrect conversion
+                spec is encountered __vprinter copies the format as a literal
+                (since it is assumed that alignment with the argument list has
+                been lost), beginning with the '%' which introduced the bad
+                format.
+
+                If the destination outP is of limited size, for example a
+                string or a full disk, __vprinter does not know.  Overflowing
+                the destination causes undefined results.  In some cases
+                *putter is able to handle overflows safely, but that is not
+                the concern of __vprinter.
+
+                The syntax of the format string is:
+
+                format ::=      ([literal] ['%' conversion ])* ;
+
+                conversion ::=  '%' | [flag]* [width] ['.' precision]
+                                      ['l'] type ;
+
+                flag ::=        '-' | '+' | ' ' | '#' | '0' ;
+
+                width ::=       '*' | number ;
+                precision ::=   '.' ('*' | number) ;
+
+                type ::=        'd'|'i'|'o'|'u'|'x'|'n'|'X'|'f'|'e'|'E'|
+                                'g'|'G'|'c'|'s'|'p'|'N'|'F'
+
+*---------------------------------------------------------------------*/
+int   pascal near __vprinter (putnF near *putter,
+                              void       *outP,
+                              const char *formP,
+                              void _ss   *argP)
+{
+
+#define Ssize 80
+
+        typedef
+                enum
+                {
+                flagStage, fillzStage, wideStage, dotStage, precStage,
+                ellStage, typeStage,
+                } syntaxStages;
+
+        typedef
+                enum
+                {
+                altFormatBit = 1,       /* the '#' flag                 */
+                leftJustBit  = 2,       /* the '-' flag                 */
+                notZeroBit   = 4,       /* 0 (octal) or 0x (hex) prefix */
+                fillZerosBit = 8,       /* zero fill width              */
+                isLongBit    = 16,      /* long-type argument           */
+                farPtrBit    = 32,      /* far pointers                 */
+                alt0xBit     = 64,      /* '#' confirmed for %x format  */
+                floatBit     = 128,     /* float arg 4 bytes not 8!     */
+                LongDoubleBit= 256      /* signal a long double argument*/
+                } flagBits;
+
+        flagBits flagSet;
+
+        unsigned aP;
+        char     fc;                    /* format char, from fmt string */
+        char     isSigned;              /* chooses signed/unsigned ints */
+        int      width;
+        int      precision;
+        char     plusSign;
+        int      leadZ;
+        unsigned abandonP;              /* posn of bad syntax in fmt str*/
+        char     tempStr [__CVTMAX__];  /* longest _realcvt or longtoa string*/
+        unsigned totalSent = 0;         /* characters sent to putter    */
+        unsigned Scount = Ssize;        /* free space remaining in S    */
+        char     S [Ssize];             /* temp working result buffer   */
+        int      eof_error = 0;         /* flag, TRUE is EOF error      */
+
+#if 0   /* the remaining variables are held entirely in registers       */
+
+        char    hexCase;                /* upper/lower Hex alphabet     */
+        long    tempL;
+        syntaxStages    stage; -- CH
+        char            c;
+        char            *cP;
+        int             *iP;
+#endif
+
+        SaveSI
+        SaveDI
+/*
+General outline of the method:
+
+First the string is scanned, and conversion specifications detected.
+
+The preliminary fields of a conversion (flags, width, precision, long)
+are detected and noted.
+
+The argument is fetched and converted, under the optional guidance of
+the values of the preliminary fields.  With the sole exception of the
+'s' conversion, the converted strings are first placed in the tempStr
+buffer.
+
+The contents of the tempStr (or the argument string for 's') are copied
+to the output, following the guidance of the preliminary fields in
+matters such as zero fill, field width, and justification.
+*/
+
+I       jmp short func_start    /* Skip over inline nested PROCs        */
+
+/***************************************************************************
+                local, nested functions are placed here
+                ES *must* be defined in all models.
+***************************************************************************/
+
+#define RETN    db      0xC3    /* "RETN" is used to force a near ret   */
+
+/* Get length of string pointed to by ES:DI, return result in CX.       */
+
+I vpr_strlen LABEL NEAR         /* scan string ES: [DI] up to \0        */
+I       push    di
+I       mov     cx, -1          /*   count the string length.           */
+I       xor     al, al
+I       repne   scasb
+I       not     cx              /* (not CX) == (-1 -CX)                 */
+I       dec     cx              /* scasb overshoots                     */
+I       pop     di
+I       RETN
+
+
+/* call *putter to flush S */
+/* Put character to next position in S, check for S full */
+
+I vpr_PutToS LABEL NEAR
+I       mov     BY0 (ss:[di]), al
+I       inc     di
+I       dec     BY0 (Scount)
+I       jnz     exit_PutToS
+
+I vpr_CallPutter LABEL NEAR
+I       push    bx
+I       push    cx
+I       push    dx
+I       push    ES
+I       lea     ax, S
+I       sub     di, ax          /* count chars in S */
+
+        if( !putter (S, _DI, outP) )
+          {
+          eof_error = 1;
+          }
+
+        Scount = Ssize;
+        totalSent += _DI;
+
+I       lea     di, S
+I       pop     ES
+I       pop     dx
+I       pop     cx
+I       pop     bx
+
+exit_PutToS :
+I       RETN                    /* 'shared' RET for both PROCs */
+
+/************************ end of embedded functions *******************/
+
+func_start:
+
+I       push    ES
+I       cld
+
+I       lea     di, S
+I       mov     aP, di
+
+/*
+This paragraph is arranged to give in-line flow to the most frequent
+case, literal transcription from *formP to *outP.
+*/
+
+vpr_NEXTap:
+I       mov     di, aP
+
+vpr_NEXT:                       /* loop to here when DI still valid */
+I       LES_    si, formP
+
+        for (;;)                /* resume here from this literal/space */
+        {
+vpr_nextCh :
+I               lods    BY0 (ES_ [si])  /* if (pattern[x] == '\0')      */
+I               or      al, al          /*      goto exit               */
+I               jz      vpr_respondJmp
+
+I               cmp     al, '%'         /* '%' char begins a conversion */
+I               je      vpr_CONV
+
+vpr_literal:                            /* but "%%" is just a literal '%'. */
+I               mov     ss:[di], al
+I               inc     di
+
+I               dec     BY0 (Scount)    /* if (--Scount)        */
+I               jg      vpr_nextCh      /*      continue;       */
+
+I               call    vpr_CallPutter  /* Compact way(smaller)         */
+        }
+
+vpr_respondJmp:
+I       jmp     vpr_respond
+
+/* If arrived here then a conversion specification has been encountered. */
+
+vpr_CONV:
+I       mov     W0 (abandonP), si       /* abandon will print from here */
+
+I       lods    BY0 (ES_ [si])          /* AL <- char at ES:SI          */
+I       cmp     al, '%'                 /* %% really means %            */
+I       je      vpr_literal
+
+I       mov     W0 (aP), di             /* keep result pointer safe     */
+
+I       xor     cx, cx                  /* CH is flagStage              */
+I       mov     W0 (leadZ), cx          /* leadZ     <- 0               */
+#if LDATA
+I       mov     W0 (flagSet), farPtrBit /* flagSet   <- pointers are FAR*/
+#else
+I       mov     W0 (flagSet), cx        /* flagSet   <- 0               */
+#endif
+I       mov     BY0 (plusSign), cl      /* plusSign  <- 0               */
+I       mov     W0 (width), -1          /* width     <- default         */
+I       mov     W0 (precision), -1      /* precision <- default         */
+I       jmp     short vpr_doSwitch
+
+                /*==================================*/
+                /* loop to here when scanning flags */
+                /*==================================*/
+
+vpr_nextSwitch:
+I       lods    BY0 (ES_ [si])          /* AL <- char at ES:SI          */
+
+/**************************************************************************
+ *                 Main character classification switch                   *
+ **************************************************************************/
+
+vpr_doSwitch:
+I       xor     ah, ah                  /* Remove any high order trash  */
+I       mov     dx, ax                  /* Duplicate original char in DL*/
+I       mov     bx, ax                  /* Duplicate original char in BL*/
+I       sub     bl, ' '                 /* Scale char in BL to 0-95     */
+I       cmp     bl, 128 - ' '           /* Weed out don't cares         */
+I       jae     vpr_jmpAbandon
+I       mov     bl, BY0 (printCtype [bx]) /* BL <- char type of the char*/
+
+        switch  (_BX)                   /* =-=>  clobbers AX, BX  <=-=  */
+        {
+
+vpr_jmpAbandon:                         /* Extend local jump range      */
+I       jmp     vpr_abandon
+
+case (_af):                             /* when '#' was seen            */
+I       cmp     ch, flagStage
+I       ja      vpr_jmpAbandon
+I       or      W0 (flagSet), altFormatBit
+I       jmp     vpr_nextSwitch
+
+case (_lj):                             /* when '-' was seen            */
+I       cmp     ch, flagStage
+I       ja      vpr_jmpAbandon
+I       or      W0 (flagSet), leftJustBit
+I       jmp     vpr_nextSwitch
+
+case (_si):                             /* when ' ' or '+' was seen     */
+I       cmp     ch, flagStage
+I       ja      vpr_jmpAbandon
+I       cmp     BY0 (plusSign), 2Bh     /* '+'                          */
+I       je      gtvp_nxt_swit           /* ' ' ignored if '+' already   */
+I       mov     plusSign, dl
+
+gtvp_nxt_swit:
+I       jmp     vpr_nextSwitch
+
+case (_ne):                             /* near pointer                 */
+I       and     W0 (flagSet), NOT farPtrBit
+I       jmp     short ell_stagetail
+
+case (_fa):                             /* far pointer                  */
+I       or      W0 (flagSet), farPtrBit
+ell_stagetail:
+I       mov     ch, ellStage
+I       jmp     vpr_nextSwitch
+
+
+case (_fz):                             /* leading width '0' is a flag  */
+I       cmp     ch, flagStage
+I       ja      case_nu                 /*   else it is just a digit    */
+I       test    W0 (flagSet), leftJustBit
+I       jnz     short   vpr_nextSwitchJmp
+I       or      W0 (flagSet), fillZerosBit
+I       mov     ch, fillzStage          /*   but it must be part of width */
+I       jmp     vpr_nextSwitch
+
+vpr_abandonJmp:                         /* Extend local jump range      */
+I       jmp     vpr_abandon
+
+case (_ar):                             /* when '*' was seen it causes  */
+I       mov     di, argP
+I       mov     ax, ss:[di]             /*    the next argument to be   */
+I       add     W0 (argP), 2            /*       taken, depending on    */
+I       cmp     ch, wideStage           /*          the stage, as the   */
+I       jnb     vpr_argPrec             /*             width, or...     */
+
+I       or      ax,ax                   /* is the width negative?       */
+I       jns     vpr_pos
+I       neg     ax
+I       or      W0 (flagSet), leftJustBit
+
+vpr_pos:
+I       mov     width, ax
+I       mov     ch, wideStage + 1
+vpr_nextSwitchJmp:
+I       jmp     vpr_nextSwitch
+
+vpr_argPrec:
+I       cmp     ch, precStage
+I       jne     vpr_abandonJmp
+I       mov     precision, ax           /*             the precision.   */
+I       inc     ch
+I       jmp     vpr_nextSwitch
+
+case (_pr):                             /* when '.' is seen, precision  */
+I       cmp     ch, precStage
+I       jnb     vpr_abandonJmp
+I       mov     ch, precStage           /* should follow                */
+I       inc     W0 (precision)          /* if no digits, ANSI says zero */
+I       jmp     vpr_nextSwitch
+
+/*
+        When a numeral is seen, it may be either part of a width, or
+        part of the precision, depending on the stage.
+*/
+case (_nu):                             /* when 0..9 seen               */
+case_nu:
+I       xchg    ax, dx                  /* move char back into AL       */
+I       sub     al, '0'                 /* turn '0'-'9' to 0-9          */
+I       cbw                             /* make it a word               */
+I       cmp     ch, wideStage           /* is it part of a width spec?  */
+I       ja      vpr_precNumeral         /* no, see if it's a precision  */
+
+I       mov     ch, wideStage
+I       xchg    ax, width
+I       or      ax, ax                  /* first width digit ?          */
+I       jl      vpr_nextSwitchJmp       /*   default width was -1       */
+I       shl     ax, 1                   /* *2                           */
+I       mov     dx, ax
+I       shl     ax, 1                   /* *4                           */
+I       shl     ax, 1                   /* *8                           */
+I       add     ax, dx                  /* (*2 + *8) = *10              */
+I       add     width, ax               /* width = (width * 10 + num)   */
+I       jmp     vpr_nextSwitch
+
+vpr_precNumeral:
+I       cmp     ch, precStage           /* is it part of precision spec */
+I       jne     vpr_abandonJmp          /* no, it's just a literal      */
+
+//  At this point we know that the precision specifier '.' has been seen,
+//  so we know that the precision is zero (set at '.') or greater.
+
+I       xchg    ax, precision           /* we only need to scale the    */
+I       or      ax, ax                  /* precision if it's non zero   */
+I       jz      vpr_nextSwitchJmp
+I       shl     ax, 1                   /* *2                           */
+I       mov     dx, ax
+I       shl     ax, 1                   /* *4                           */
+I       shl     ax, 1                   /* *8                           */
+I       add     ax, dx                  /* (*2 + *8) = *10              */
+I       add     precision, ax           /* prec = (prec * 10 + numeral) */
+I       jmp     vpr_nextSwitch
+
+
+case (_lo):                             /* 'l' was seen (long)          */
+I       or      W0 (flagSet), isLongBit
+I       jmp     ell_stagetail
+
+case (_ld):                             /* 'L' was seen (long double)   */
+I       or      W0 (flagSet), LongDoubleBit
+
+case (_sh):                             /* 'h' or 'H' was seen (short)  */
+I       and     W0 (flagSet), not isLongBit
+I       jmp     ell_stagetail
+
+/*--------------------------------------------------------------------------
+The previous cases covered all the possible flags.  Now the following
+cases deal with the different argument types.
+
+Remember DL contains a copy of the original character.
+--------------------------------------------------------------------------*/
+
+        /*==========================================================*/
+        /* The first group of cases is for the integer conversions. */
+        /*==========================================================*/
+
+case (_oc):                             /* octal                        */
+I       mov     bh, 8                   /* BH <- Base 8                 */
+I       jmp     short vpr_NoSign
+
+case (_un):                             /* unsigned                     */
+I       mov     bh, 10                  /* BH <- Base 10                */
+I       jmp     short vpr_UINT
+
+
+case (_he):                             /* hex                          */
+I       mov     bh, 10h                 /* BH <- Base 16                */
+I       mov     bl, 'A' - 'X'
+I       add     bl, dl                  /* Adjust for aAbBcC etc later  */
+
+vpr_NoSign:
+I       mov     BY0 (plusSign), 0       /* It's an unsigned operand     */
+/*      jmp     short   vpr_UINT */
+
+
+vpr_UINT:
+I       mov     fc, dl                  /* 'fc' <- orig fmt char        */
+I       xor     dx, dx                  /* zero extend by default       */
+I       mov     BY0 (isSigned), dl
+I       mov     di, argP
+I       mov     ax, ss:[di]             /* AX <- word arg at SS:DI      */
+I       jmp     short vpr_toAscii
+
+
+case (_de):                             /* decimal                      */
+I       mov     bh, 10                  /* BH <- Base 10                */
+vpr_INT:
+I       mov     BY0 (isSigned), 1
+I       mov     fc, dl                  /* 'fc' <- orig fmt char        */
+
+I       mov     di, argP                /* SS:DI -> argument word[0]    */
+I       mov     ax, ss:[di]             /* AX <- word arg at SS:DI      */
+I       cwd                             /* sign-extend by default       */
+
+vpr_toAscii:
+I       inc     di                      /* SS:DI -> next arg word       */
+I       inc     di
+
+I       mov     formP, si               /* remember progress through format */
+
+I       test    W0 (flagSet),isLongBit  /* short or long int ?          */
+I       je      vpr_shortInt            /* If the operand is a long     */
+I       mov     dx, ss:[di]             /* DX:AX holds long argument    */
+I       inc     di                      /* SS:DI -> next arg word       */
+I       inc     di
+
+vpr_shortInt:
+I       mov     argP, di                /* Save arg list pointer        */
+
+I       lea     di, tempStr [1]         /* (SS) DI <- &tempStr[1]       */
+
+I       or      ax, ax                  /* Is the value zero?           */
+I       jnz     vpr_flag_nz             /* No,                          */
+I       or      dx, dx                  /* Is the value zero?           */
+I       jnz     vpr_flag_nz             /* No,                          */
+
+/*-----------------------------------------------------------------------
+        Check for the special ANSI case of a zero value with an explicit
+        precision of zero.
+------------------------------------------------------------------------*/
+
+I       cmp     W0 (precision), 0       /* Is it the special case?      */
+I       jne     vpr_flag_zr             /* No, continue                 */
+I       mov     byte ptr SS:[di], 0     /* Otherwise, make empty string */
+I       mov     ax, di                  /* longtoa returns pointer      */
+I       jmp     vpr_converted
+
+
+/*-------------------------------------------------------------------------
+        "Normal" integer output cases wind up down here somewhere.
+-------------------------------------------------------------------------*/
+
+vpr_flag_nz:
+I       or      W0 (flagSet), notZeroBit /* flag non-zeroness           */
+vpr_flag_zr:
+
+vpr_doLtoA:
+I       push    dx                      /* Push long value (AX:DX)      */
+I       push    ax
+
+#if LDATA
+I       push    SS
+#endif
+I       push    di                      /*    ie. &tempStr[1]           */
+
+I       mov     al, bh                  /* AL <- numeric base/radix     */
+I       cbw                             /* Convert it to a word         */
+I       push    ax                      /* Push the radix               */
+
+I       mov     al, isSigned            /* Push the isSigned flag,      */
+I       push    ax                      /* AH should still be 0         */
+
+I       push    bx                      /* BL ==        , hexCase)      */
+
+/***    __longtoa(number, string, radix, signflag, hexcase)           ***/
+
+I       call    __longtoa               /* returns pointer to string    */
+
+vpr_converted:
+I       push    SS
+I       pop     ES                      /* ES_ [di] = cP == 1+tempStr   */
+                                        /* ES is needed in all models   */
+
+I       mov     dx, precision           /* Has precsion been set?       */
+I       or      dx, dx
+I       jge     vpr_countActualJmp      /* Yes.                         */
+I       jmp     vpr_testFillZeros       /* No.                          */
+
+vpr_countActualJmp:
+I       jmp     vpr_countActual
+
+/*
+The 'p' conversion takes either a near or a far pointer and puts
+it out in the usual Intel xxxx:xxxx hex style.
+*/
+case (_pt):                             /* pointer      */
+I       mov     fc, dl                  /* remember the type character. */
+I       mov     formP, si               /* remember progress through format */
+I       lea     di, tempStr
+
+I       mov     bx, argP
+I       push    ss:[bx]                 /* fetch the argument.w0 */
+I       inc     bx
+I       inc     bx
+I       mov     argP, bx
+
+I       test    W0 (flagSet), farPtrBit
+I       jz      vpr_ptrLSW
+
+I       mov     dx, ss:[bx]             /* fetch the argument.w1 */
+I       inc     bx
+I       inc     bx
+I       mov     argP, bx
+I       push    SS
+I       pop     ES
+I       call    Hex4
+
+/*      add     di, 4                   Hex4 does this          */
+
+I       mov     al, ':'
+I       stosb
+
+vpr_ptrLSW:
+I       push    SS
+I       pop     ES
+I       pop     dx
+I       call    Hex4
+
+/*      add     di, 4                   Hex4 does this          */
+
+I       mov     BY0 (ss:[di]), 0
+
+I       mov     BY0 (isSigned), 0
+I       and     W0 (flagSet), NOT notZeroBit
+
+I       lea     cx, tempStr
+I       sub     di, cx
+I       xchg    cx, di          /* CX = len,  DI = tempStr      */
+
+I       mov     dx, precision
+I       cmp     dx, cx
+I       jg      vpr_ptrEnd
+I       mov     dx, cx
+
+vpr_ptrEnd:
+I       jmp     vpr_testFillZeros
+
+
+/*
+The 'c' conversion takes a character as parameter.  Note, however,
+that the character occupies an (int) sized cell in the argument
+list.
+*/
+
+case (_ch):                     /* char         */
+I       mov     formP, si       /* remember progress through format */
+I       mov     fc, dl          /* remember the type character */
+
+I       mov     di, argP
+I       mov     ax, ss:[di]
+I       add     W0 (argP), 2
+
+I       push    SS
+I       pop     ES
+I       lea     di, tempStr [1]
+I       xor     ah, ah          /* terminate the temporary string. */
+I       mov     ss:[di], ax
+I       mov     cx, 1
+I       jmp     vpr_CopyLen
+
+/*
+The 's' conversion takes a string (char *) as argument and copies
+the string to the output buffer.
+*/
+
+case (_st):                     /* string       */
+I       mov     formP, si       /* remember progress through format */
+I       mov     fc, dl          /* remember the type character */
+
+I       mov     di, argP
+I       test    W0 (flagSet), farPtrBit
+I       jnz     vpr_farString
+#ifdef __HUGE__
+I       jmp     vpr_abandonJmp  /* DS can't be assumed in HUGE model */
+#else
+I       mov     di, ss:[di]     /* [di] = (DS:char *) *(argP++) */
+I       add     W0 (argP), 2
+I       push    DS
+I       pop     ES
+I       or      di, di
+I       jmp     short vpr_countString
+#endif
+vpr_farString:
+I       les     di, ss:[di]     /* ES: [di] = (char far *) *(argP++) */
+I       add     W0 (argP), 4
+I       mov     ax, es
+I       or      ax, di
+
+vpr_countString:
+I       jnz     NotaNullPtr
+I       push    DS
+I       pop     ES
+I       lea     di, NullString
+
+NotaNullPtr:
+I       call    vpr_strlen              /* CX = strlen (ES: [di]) */
+I       cmp     cx, precision
+I       jna     vpr_CopyLenJmp
+I       mov     cx, precision           /* precision may truncate string. */
+
+vpr_CopyLenJmp:
+I       jmp     vpr_CopyLen
+
+
+/* All real-number conversions are done by __realcvt. */
+
+case (_fl):                     /* float        */
+I       mov     formP, si       /* remember progress through format */
+I       mov     fc, dl          /* remember the type character */
+
+I       mov     di, argP
+
+I       mov     cx, precision
+I       or      cx, cx          /* is precision defaulted ? */
+I       jnl     vpr_cvtReal
+I       mov     cx, 6
+
+vpr_cvtReal:
+#if LDATA
+I       push    SS
+#endif
+I       push    di              /* (valueP */
+I       push    cx              /*      , ndec */
+#if LDATA
+I       push    SS
+#endif
+I       lea     bx, tempStr [1]
+I       push    bx                      /*      , cP */
+I       push    dx                      /*      , formCh */
+I       mov     ax, altFormatBit
+I       and     ax, W0 (flagSet)
+I       push    ax                      /*      , altFormat) */
+
+/*
+        Determine the argument type double/long double.
+        Save the size of the argument type.
+*/
+I       mov     ax, W0 (flagSet)
+
+try_long :
+I       test    ax, LongDoubleBit
+I       jz      its_plain_double
+I       mov     ax, F_10byteFloat
+I       add     W0 (argP), 10           /* argP += sizeof(long double) */
+I       jmp     short push_argtype
+
+its_plain_double :
+I       add     W0 (argP), 8            /* argP += sizeof(double) */
+I       mov     ax, F_8byteFloat
+
+push_argtype :
+I       push    ax
+
+I       call    __realcvt
+
+I       push    SS
+I       pop     ES
+I       lea     di, tempStr [1]         /* ES_ [di] = cP == 1+tempStr */
+
+vpr_testFillZeros:
+I       test    W0 (flagSet), fillZerosBit
+I       jz      vpr_NUMERIC
+I       mov     dx, width
+I       or      dx, dx
+I       jng     vpr_NUMERIC
+
+vpr_countActual:                        /* Get strlen of result string  */
+I       call    vpr_strlen              /* CX <- strlen (ES:[DI])       */
+I       cmp     BY0 (ES: [di]), '-'
+I       jne     vpr_noSignAdjust
+I       dec     cx                      /* Length too long because '-'  */
+vpr_noSignAdjust:
+I       sub     dx, cx                  /* DX <- leading 0 count(if any)*/
+I       jng     vpr_NUMERIC             /* leadZ defaulted to 0 before  */
+I       mov     leadZ, dx               /* leadZ <- (width or prec-len) */
+
+/*
+If arrived here, then tempStr contains the result of a numeric
+conversion.  It may be necessary the prefix the number with
+a mandatory sign or space.
+*/
+
+vpr_NUMERIC:                            /* ES must be well defined !    */
+I       cmp     BY0 (ES: [di]), '-'     /* If sign there then adjust    */
+I       je      vpr_AdjustLeadZ
+I       mov     al, plusSign            /* Do we need a sign?           */
+I       or      al, al
+I       jz      vpr_COPY                /* No, not required             */
+I       dec     di                      /* Back up 1 in the string      */
+I       mov     ES: [di], al            /*    and insert the sign       */
+vpr_AdjustLeadZ:
+I       cmp     W0 (leadZ), 0           /* If leadZ > 0 then leadZ--    */
+I       jle     vpr_COPY
+I       mov     cx, precision
+I       or      cx, cx
+I       jge     vpr_COPY                /* Don't adjust if precision set*/
+I       dec     W0 (leadZ)
+
+/*
+If arrived here then ES: [di] = cP points to the converted string,
+which must now be padded, aligned, and copied to the output.
+*/
+
+vpr_COPY:
+I       call    vpr_strlen              /* CX = strlen (ES: [di])       */
+
+vpr_CopyLen:                            /* comes from %c or %s section  */
+I       mov     si, di                  /* cP <- ES: [si]               */
+I       mov     di, aP
+
+I       mov     bx, width               /* BX <- width                  */
+
+I       mov     ax, notZeroBit + altFormatBit
+I       and     ax, W0 (flagSet)
+I       cmp     ax, notZeroBit + altFormatBit
+I       jne     goto_doLead
+I       mov     ah, fc                  /* AH <- original format char   */
+
+I       cmp     ah, 'o'                 /* Is it alternate octal form?  */
+I       jne     vpr_maybeAltHex         /* No, try the next one         */
+I       cmp     W0 (leadZ), 0           /* Yes, alternate mode w/octal  */
+I       jg      goto_doLead             /*   requires at least          */
+I       mov     W0 (leadZ), 1           /*     one leading zero.        */
+
+goto_doLead:
+I       jmp     vpr_doLead;
+
+vpr_maybeAltHex:
+I       cmp     ah, 'x'                 /* Is it alternate hex form?    */
+I       je      vpr_isAltHex            /* Yes, send                    */
+I       cmp     ah, 'X'                 /*    "0x" or "0X" prefix.      */
+I       jne     vpr_doLead              /* No, insert leading 0's       */
+
+vpr_isAltHex:
+I       or      W0 (flagSet), alt0xBit  /* flagSet |= alt0xBit;         */
+I       dec     bx                      /* width -= 2;                  */
+I       dec     bx
+I       sub     W0 (leadZ), 2           /* leadZ -= 2;                  */
+I       jnl     vpr_doLead              /* Still leading 0's?           */
+I       mov     W0 (leadZ), 0           /* No more leading 0's          */
+
+vpr_doLead:
+I       add     cx, leadZ               /* CX <- len + leadZ            */
+
+                /* Is result to be left justified? */
+
+I       test    W0 (flagSet), leftJustBit
+I       jnz     vpr_check0x
+I       jmp     short vpr_nextJust      /* (! leftJust) == leftFill */
+
+vpr_justLoop:
+I       mov     al, ' '
+I       call    vpr_PutToS
+I       dec     bx
+
+vpr_nextJust:
+I       cmp     bx, cx
+I       jg      vpr_justLoop
+
+vpr_check0x:
+I       test    W0 (flagSet), alt0xBit  /* Need alternate hex form?     */
+I       jz     vpr_checkLeadZ           /* No,                          */
+
+I       mov     al, '0'                 /* Yes, Send "0x" or "0X"       */
+I       call    vpr_PutToS
+I       mov     al, fc                  /* original 'fc' is 'x' or 'X'  */
+I       call    vpr_PutToS
+
+vpr_checkLeadZ:                         /* leading zero fill required ? */
+I       mov     dx, leadZ
+I       or      dx, dx
+I       jng     vpr_actualCopy
+
+I       sub     cx, dx                  /* len -= leadZ */
+I       sub     bx, dx                  /* width -= leadZ */
+
+I       mov     al, ES: [si]            /* any leading sign must be */
+I       cmp     al, '-'                 /*   copied before the      */
+I       je      vpr_leadSign            /*     leading zeros.       */
+I       cmp     al, ' '
+I       je      vpr_leadSign
+I       cmp     al, '+'
+I       jne     vpr_signedLead
+
+vpr_leadSign:
+I       lods    BY0 (ES: [si])          /* Get the 'sign'               */
+I       call    vpr_PutToS              /* Send the 'sign'              */
+I       dec     cx
+I       dec     bx                      /* anticipates actualCopy     */
+
+vpr_signedLead:
+I       xchg    cx, dx                  /* leading zeros follow sign */
+I       jcxz    vpr_leadDone
+
+vpr_leadZero:
+I       mov     al, '0'
+I       call    vpr_PutToS
+I       loop    vpr_leadZero
+
+vpr_leadDone:
+I       xchg    cx, dx
+
+
+/* Now we copy the actual converted string from tempStr to output. */
+
+vpr_actualCopy:
+
+I       jcxz    vpr_copied      /* Degenerate case?     */
+I       sub     bx, cx          /* No, width -= len;    */
+
+vpr_copyLoop:                   /* this is the high-point of __vprinter ! */
+I       lods    BY0 (ES: [si])          /* ES:SI -> tempStr     */
+I       mov     BY0 (SS: [di]), al      /* SS:DI -> S[xxx]      */
+I       inc     di
+I       dec     BY0 (Scount)
+I       jg      vpr_loopTest
+I       call    vpr_CallPutter
+vpr_loopTest:
+I       loop    vpr_copyLoop
+
+vpr_copied:
+
+/* Is the field to be right-filled ? */
+
+I       or      bx, bx          /* any remaining width ? */
+I       jng     vpr_done
+I       mov     cx, bx
+
+vpr_rightLoop:
+I       mov     al, ' '
+I       call    vpr_PutToS
+I       loop    vpr_rightLoop
+
+
+/* If arrive here, the conversion has been done and copied to output. */
+
+vpr_done:
+I       jmp     vpr_NEXT
+
+
+case (_ns) :                 /* number sent */
+I       mov     formP, si    /* remember progress through format */
+
+I       mov     di, argP
+I       test    W0 (flagSet), farPtrBit
+I       jnz     vpr_farCount
+#ifdef __HUGE__
+I       jmp     vpr_abandonJmp  /* DS can't be assumed in HUGE model */
+#else
+I       mov     di, ss:[di]  /* [di]=(DS:char *) *((int _ss *)argP++)*/
+I       add     W0 (argP), 2
+I       push    DS
+I       pop     ES
+I       jmp     short vpr_makeCount
+#endif
+vpr_farCount:
+I       les     di, ss:[di]  /* ES:[di] = (char far *) *((long _ss *)argP++) */
+I       add     W0 (argP), 4
+
+vpr_makeCount:
+I       mov     ax, Ssize
+I       sub     al, Scount
+I       add     ax, totalSent
+I       mov     ES: [di], ax
+I       test    W0(flagSet),isLongBit
+I       jz      vpr_shortN
+I       inc     di
+I       inc     di
+I       mov     word ptr ES: [di], 0
+vpr_shortN:
+I       jmp     vpr_NEXTap
+
+
+case (_zz):     /* \0 characters, unexpected end of format string       */
+case (_dc):     /* ordinary "don't care" chars in the wrong position    */
+case (_pc):     /* '%' percent characters in the wrong position         */
+;               /* goto vpr_abandon     */
+}               /* end switch */
+
+/*
+If the format goes badly wrong, then copy it literally to the output
+and abandon the conversion.
+*/
+
+vpr_abandon:
+I       mov     si, abandonP
+#if LDATA
+I       mov     ES, W1 (formP)
+#endif
+I       mov     di, aP
+I       mov     al, '%'
+
+vpr_abandLoop:
+I       call    vpr_PutToS
+I       lods    BY0 (ES_ [si])
+I       or      al, al
+I       jnz     vpr_abandLoop
+
+
+/* If arrived here then the function has finished (either correctly or not). */
+
+vpr_respond:
+I       cmp     BY0 (Scount), Ssize     /* anything waiting to be written ? */
+I       jnl     vpr_end
+I       call    vpr_CallPutter
+vpr_end:
+I       pop     ES
+
+    if( eof_error )  return( EOF );
+    else             return( totalSent );
+}

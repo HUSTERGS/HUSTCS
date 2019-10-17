@@ -1,0 +1,138 @@
+/*---------------------------------------------------------------------------
+ * filename - brk.cas
+ *
+ * function(s)
+ *        brk    - memory model dependent hook to _brk or __brk
+ *        sbrk   - memory model dependent hook to _sbrk or __sbrk
+ *        __brk  - changes data-segment space allocation on the near heap
+ *        __sbrk - changes data-segment space allocation on the near heap
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <alloc.h>
+#include <errno.h>
+
+
+#if (LDATA)
+#include <_fheap.h>
+
+/*--------------------------------------------------------------------------*
+   In the large data models brk and sbrk are hooks to _brk and
+   _sbrk respectively.  _brk and _sbrk work with the far heap.
+   _brk and _sbrk are found in fbrk.c
+*---------------------------------------------------------------------------*/
+
+int brk(void *addr)
+{
+        return(_brk((void huge *)addr));
+}
+
+void    *sbrk(int incr)
+{
+        return((void *)_sbrk((long)incr));
+}
+
+
+#else
+
+#include <_heap.h>
+
+
+
+/*--------------------------------------------------------------------------*
+
+Name            __brk - changes data-segment space allocation on the
+                        near heap
+
+Usage           int __brk(void *endds);
+
+Prototype in    alloc.h
+
+Description     __brk sets the break value to endds and changes the
+                allocated space accordingly
+
+Return value    success : 0
+                failure : -1 and errno set to ENOMEM (Not enough core)
+
+*---------------------------------------------------------------------------*/
+int near __brk(void *addr)
+{
+        asm     mov     ax,addr
+        asm     mov     dx,sp
+        asm     sub     dx,MARGIN
+        asm     cmp     ax,dx
+        asm     jnb     brkerr
+        asm     mov     word ptr __brklvl,ax
+        return(0);
+brkerr:
+        errno = ENOMEM;
+        return(-1);
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            __sbrk - changes data-segment space allocation on the
+                       near heap
+
+Usage           void *__sbrk(long incr);
+
+Prototype in    alloc.h
+
+Description     sbrk adds incr bytes to the break value and changes the
+                allocated space accordingly. incr can be negative, in
+                which case the amount of allocated space is decreased.
+
+Return value    success : the old break value
+                failure : -1 and errno set to ENOMEM (Not enough core)
+
+*---------------------------------------------------------------------------*/
+void * near __sbrk(long incr)
+{
+asm     mov     ax, W0(incr)
+asm     mov     dx, W1(incr)
+asm     add     ax, word ptr __brklvl
+asm     adc     dx, 0
+asm     mov     cx, ax
+asm     or      dx, dx
+asm     jnz     sbrkErr
+
+asm     add     cx, MARGIN
+asm     jc      sbrkErr
+asm     cmp     cx, sp
+asm     jnb     sbrkErr
+
+asm     xchg    word ptr __brklvl, ax
+        return (void *)_AX;
+sbrkErr:
+        errno = ENOMEM;
+        return((void *)-1);
+}
+
+
+/*--------------------------------------------------------------------------*
+   In the small data models brk and sbrk are hooks to __brk and
+   __sbrk respectively.  __brk and __sbrk work with the near heap
+   by altering the value of __brklvl, the break level.
+*---------------------------------------------------------------------------*/
+
+int brk(void *addr)
+{
+        return(__brk(addr));
+}
+
+void    *sbrk(int incr)
+{
+        return(__sbrk((long)incr));
+}
+#endif

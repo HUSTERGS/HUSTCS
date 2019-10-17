@@ -1,0 +1,44 @@
+/*------------------------------------------------------------------------
+ * filename - fabsl.cas
+ *
+ * function(s)
+ *        fabsl - absolute value of long double
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            fabsl - absolute value
+
+Usage           long double fabsl(long double x);
+
+Prototype in    math.h
+
+Description     fabsl calculates the absolute value of x, which may have any
+                value.
+
+Return value    fabsl returns the absolute value of x.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double fabsl(long double x)
+{
+asm     FLD     LONGDOUBLE (x)
+asm     FABS
+        return;
+}

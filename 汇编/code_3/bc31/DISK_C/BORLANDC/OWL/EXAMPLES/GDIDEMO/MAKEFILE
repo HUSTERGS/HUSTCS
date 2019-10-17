@@ -1,0 +1,32 @@
+#
+# ObjectWindows - (C) Copyright 1992 by Borland International
+#
+
+!if !$d(BCROOT)
+!include "..\bcroot.inc"
+!endif
+
+!include "..\makefile.inc"
+
+gdidemo.exe: turboc.cfg gdidemo.obj arty.obj bitblt.obj font.obj line.obj gdidemo.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) gdidemo arty bitblt font line,gdidemo,, @&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K gdidemo.res gdidemo.exe
+
+gdidemo.res : gdidemo.rc backgrnd.bmp ship.bmp monoship.bmp
+
+turboc.cfg: makefile ..\makefile.inc
+	echo -I$(INCLUDE) >turboc.cfg
+
+clean:
+	del *.obj
+	del *.exe
+	del *.res
+	del *.dll
+	del *.lib
+	del *.map
+	del *.sym
+        del turboc.cfg
+
+

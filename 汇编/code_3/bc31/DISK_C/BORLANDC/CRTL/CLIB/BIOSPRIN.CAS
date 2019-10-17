@@ -1,0 +1,44 @@
+/*---------------------------------------------------------------------------
+ * filename - biosprin.cas
+ *
+ * function(s)
+ *        biosprint - printer I/0
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <bios.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            biosprint - printer I/O
+
+Usage           int biosprint(int cmd, int abyte, int port);
+
+Prototype in    bios.h
+
+Description     interface to BIOS interrupt 0x17 printer controller
+                services.
+
+Return value    printer status byte as returned through the AH register
+                by interrupt 0x17.
+
+*---------------------------------------------------------------------------*/
+int biosprint(int cmd, int abyte, int port)
+{
+RealMode:
+asm     mov     ah,cmd
+asm     mov     al,abyte
+asm     mov     dx,port
+asm     int     17h
+Exit:
+        return  _AH;
+}

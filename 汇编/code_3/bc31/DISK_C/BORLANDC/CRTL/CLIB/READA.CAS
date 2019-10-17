@@ -1,0 +1,74 @@
+/*-----------------------------------------------------------------------*
+ * filename - reada.cas
+ *
+ * function(s)
+ *        _read - reads from file
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+#include <fcntl.h>
+#include <RtlData.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            _read - reads from file
+
+Usage           int _read(int handle, void *buf, unsigned nbyte);
+
+Prototype in    io.h
+
+Description     _read is a direct call to the MS-DOS read system call.
+                see read in READ.CAS
+
+Return value    Upon successful completion, a positive integer is
+                returned indicating the number of bytes placed in the buffer;
+                if the file was opened in text mode, read does not count
+                carriage returns or <Ctrl-Z> characters in the number of
+                bytes read.
+
+                On end-of-file, both functions return zero. On error, both
+                functions return -1 and errno is set to one of the following:
+
+                        EACCES  Permission denied
+                        EBADF   Bad file number
+
+*------------------------------------------------------------------------*/
+#ifdef _Windows
+extern int (*__ReadBufFPtr)(char *Buffer, unsigned Count);
+#endif
+
+int _CType _read( int fd, void *buf, unsigned len )
+{
+    if (_RTLInstanceData(_openfd)[fd] & O_WRONLY)
+        return __IOerror(e_accessDenied);
+
+#ifdef _Windows
+    if (__ReadBufFPtr)
+        if (isatty(fd))
+            return __ReadBufFPtr((char *)buf, len);
+#endif
+        pushDS_
+    asm mov ah,3fh
+    asm mov bx,fd
+    asm mov cx,len
+    asm LDS_    dx, buf
+    asm int 21h
+        popDS_
+    asm jc  _readFailed
+    return(_AX);
+
+_readFailed:
+    return __IOerror (_AX);
+}

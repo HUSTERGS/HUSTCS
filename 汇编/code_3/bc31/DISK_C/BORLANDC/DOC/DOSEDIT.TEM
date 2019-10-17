@@ -1,0 +1,112 @@
+/***********************************************************************
+
+         MS-DOS 5.0 Editor emulation for the Borland C++ IDE.
+
+	This file contains a Turbo Editor Macro Language (TEML)
+script which emulates the MS-DOS Editor in the Borland C++ IDE.
+A complete description of the TEML language and the Turbo
+Editor Macro Compiler (TEMC) can be found in the file "UTIL.DOC".
+
+	The TEMC compiler can be invoked from the DOS command line at
+follows:
+ 
+	  temc [-c] dosedit.tem <IDE configuration file>
+
+The optional -c switch can also be specified as /c, and can appear in
+any argument position on the command line. If you use this option,
+any existing command table in your configuration file is thrown away
+before the script file is merged with those already defined. The
+configuration file extensions is assumed to be .TC.  The configuration
+file need not exist. If it does not exist, it is created. 
+tcconfig.tc is the main configuration file.
+
+Most of the simple editor commands have been fully implemented.  Most
+of the complex commands have been either partially implemented or not
+implemented at all. Below is a list of the commands that have been
+fully or partially implemented.
+
+IDE Binding     MS-DOS Editor Command      Comments
+-----------     ---------------------      -------------------------
+Backspace       BackspaceDelete
+Ctrl-H          BackspaceDelete
+Del             DeleteChar
+Ctrl-G          DeleteChar
+Ctrl-T          DeleteWord                 In DOS editor cursor must
+                                           be under first letter
+Ins             ToggleInsert
+Ctrl-V          ToggleInsert
+Ctrl-LfAr       WordLeft
+Ctrl-RtAr       WordRight
+Home            LeftOfLine
+End             RightOfLine
+Ctrl-Q+E        TopOfScreen
+Ctrl-Q+X        BottomOfScreen
+Ctrl-W          CursorUp
+Ctrl-Z          CursorDown
+PgUp            MacPageUp
+PgDw            MacPageUp
+Ctrl-Home       HomeCursor
+Ctrl-Q+R        HomeCursor
+Ctrl-End        EndCursor
+Ctrl-Q+C        EndCursor
+
+**************************************************************************/
+
+/****** Macros *************************/
+
+MACRO MoveToNextLine
+  CursorDown;
+  LeftOfLine;
+END;
+
+MACRO MacPageUp
+    FixScreenPos;PageScreenUp;FixCursorPos;
+END;
+
+MACRO MacPageDown
+    FixScreenPos;PageScreenDown;FixCursorPos;
+END;
+
+MACRO ScrollLeftOneScreen
+    CursorLeft(9);
+END;
+
+
+/****** DOS EDIT Key Bindings **********/
+
+BkSp:       BackspaceDelete;
+Ctrl-H:     BackspaceDelete;
+
+Del:        DeleteChar;
+Ctrl-G:     DeleteChar;
+
+Ctrl-T:     DeleteWord;
+
+Ins:        ToggleInsert;
+Ctrl-V:     ToggleInsert;
+
+Ctrl-LfAr:  WordLeft;
+Ctrl-RgAr:  WordRight;
+Home:       LeftOfLine;
+End:        RightOfLine;
+
+Ctrl-Q+^E:  TopOfScreen;
+Ctrl-Q+^X:  BottomOfScreen;
+
+Ctrl-W:     CursorUp;
+Ctrl-Z:     CursorDown;
+
+PgUp:       MacPageUp;
+PgDn:       MacPageDown;
+
+Ctrl-Home:  HomeCursor;
+Ctrl-Q+R:   HomeCursor;
+
+Ctrl-End:   EndCursor;
+Ctrl-Q+C:   EndCursor;
+
+/*Ctrl-UpAr:  CursorUp;                 not implemented--invalid key */
+/*Ctrl-DnAr:  CursorDown;               not implemented--invalid key */
+/*Ctrl-Enter  MoveToNextLine            not implemented--invalid key */
+
+

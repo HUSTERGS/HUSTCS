@@ -1,0 +1,97 @@
+#
+# ObjectWindows - (C) Copyright 1992 by Borland International
+#
+
+!if !$d(BCROOT)
+!include "..\bcroot.inc"
+!endif
+
+!include "..\makefile.inc"
+
+APPS = step1.exe \
+       step2.exe \
+       step3.exe \
+       step4.exe \
+       step5.exe \
+       step6.exe \
+       step7.exe \
+       step8.exe \
+       step9.exe \
+       step10.exe
+
+all: turboc.cfg $(APPS)
+
+step1.exe: turboc.cfg step1.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step1,step1,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K step1.exe
+
+step2.exe: turboc.cfg step2.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step2,step2,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K step2.exe
+
+step3.exe: turboc.cfg step3.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step3,step3,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K step3.exe
+
+step4.exe: turboc.cfg step4.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step4,step4,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K step4.exe
+
+step5.exe: turboc.cfg step5.obj steps.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step5,step5,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K steps.res step5.exe
+
+step6.exe: turboc.cfg step6.obj steps.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step6,step6,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K steps.res step6.exe
+
+step7.exe: turboc.cfg step7.obj steps.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step7,step7,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K steps.res step7.exe
+
+step8.exe: turboc.cfg step8.obj steps.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step8,step8,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K steps.res step8.exe
+
+step9.exe: turboc.cfg step9.obj steps.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step9,step9,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K steps.res step9.exe
+
+step10.exe: turboc.cfg step10.obj helpwind.obj steps.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) step10 helpwind,step10,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,steps.def
+     $(RC) -30 -K steps.res step10.exe
+
+turboc.cfg: makefile ..\makefile.inc
+	echo -I$(INCLUDE) >turboc.cfg
+
+clean:
+	del *.obj
+	del *.exe
+	del *.res
+	del *.dll
+	del *.lib
+	del *.map
+	del *.sym
+        del turboc.cfg
+
+

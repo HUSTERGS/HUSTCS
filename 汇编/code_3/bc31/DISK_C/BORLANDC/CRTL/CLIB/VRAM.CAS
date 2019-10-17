@@ -1,0 +1,135 @@
+/*-----------------------------------------------------------------------*
+ * filename - vram.cas
+ *
+ * function(s)
+ *        vptr   - returns a pointer to a screen position.
+ *        __vram - moves bytes of video RAM and checks for snow
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <_video.h>
+#include <dos.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            vptr - returns a pointer to a screen position.
+
+Usage           void far * pascal __vptr(int x, int y)
+
+Prototype in    _video.h
+
+Description     returns a pointer to the position (x, y) on the screen
+
+*------------------------------------------------------------------------*/
+void far * pascal near __vptr(int x, int y)
+{
+  return MK_FP(_video.displayptr.u.seg,
+               (_video.displayptr.u.off+(y-1)*_video.screenwidth+(x-1))*2);
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            __vram - moves bytes of video RAM and checks for snow
+
+Usage           void pascal __vram(void far *dst, void far *src, int len)
+
+Prototype in    _video.h
+
+Description     moves len bytes of video RAM from src to dst and checks
+                for snow.
+
+*------------------------------------------------------------------------*/
+void pascal near __vram(void far *dst, void far *src, int len)
+{
+int snow;
+
+        snow = _video.snow;
+
+        asm     push    ds
+        asm     mov     cx, len         /* Length value into CX */
+        asm     jcxz    VRAMExit
+        asm     les     di, dst         /* Get pointers to data area */
+        asm     lds     si, src
+
+        asm     cld                     /* Setup move direction */
+        asm     cmp     si, di          /* Check for move direction */
+        asm     jae     VRAMSnowTest    /* Moving down?, then forward move ok */
+        asm     mov     ax, cx          /* Nope, then start at other end */
+        asm     dec     ax
+        asm     shl     ax, 1
+        asm     add     si, ax
+        asm     add     di, ax
+        asm     std
+
+VRAMSnowTest:
+        asm     cmp     word ptr snow, 0/* Does video card snow ? */
+        asm     jnz     VRAMStopSnow    /* Yes, wait for retrace */
+        asm     rep     movsw           /* Suppose to do both, do normal move */
+        asm     jmp     short VRAMExit  /* All done */
+
+VRAMStopSnow:
+
+        asm     mov     dx, 3DAh        /* Suppose to wait, Point DX to CGA status port */
+        asm     mov     ax, es          /* See if both are in video seg */
+        asm     mov     bx, ds
+        asm     cmp     ax, bx
+        asm     je      VIOStopSnow     /* Have to wait to and fro */
+
+VRAMWait4HRetrace:
+        asm     cli                     /* No ints during critical section */
+VRAMSynchronize:
+        asm     in      al, dx          /* Get 6845 status */
+        asm     ror     al, 1           /* In horizontal retrace ? */
+        asm     jc      VRAMSynchronize /* If on, wait for cycle to end */
+VRAMWaitForNext:
+        asm     in      al, dx          /* Get 6845 status */
+        asm     ror     al, 1           /* In horizontal retrace ? */
+        asm     jnc     VRAMWaitForNext /* No, wait for it to begin */
+        asm     movsw                   /* Move video ram word */
+        asm     sti                     /* Allow interrupts */
+        asm     loop    VRAMWait4HRetrace/* Next byte */
+        asm     jmp     short VRAMExit
+
+VIOStopSnow:
+VInWait4HRetrace:
+        asm     cli                     /* No ints during critical section */
+VInSynchronize:
+        asm     in      al, dx          /* Get 6845 status */
+        asm     ror     al, 1           /* In horizontal retrace ? */
+        asm     jc      VInSynchronize  /* If on, wait for cycle to end */
+VInWaitForNext:
+        asm     in      al, dx          /* Get 6845 status */
+        asm     ror     al, 1           /* In horizontal retrace ? */
+        asm     jnc     VInWaitForNext  /* No, wait for it to begin */
+        asm     lodsw                   /* Get word from video ram */
+        asm     sti                     /* Allow interrupts */
+        asm     mov     bx, ax          /* Save word
+        asm     cli                     /* No ints during critical section */
+VOutSynchronize:
+        asm     in      al, dx          /* Get 6845 status */
+        asm     ror     al, 1           /* In horizontal retrace ? */
+        asm     jc      VOutSynchronize /* If on, wait for cycle to end */
+VOutWaitForNext:
+        asm     in      al, dx          /* Get 6845 status */
+        asm     ror     al, 1           /* In horizontal retrace ? */
+        asm     jnc     VOutWaitForNext /* No, wait for it to begin */
+        asm     mov     ax, bx          /* Get word to store */
+        asm     stosw                   /* Put word in video ram */
+        asm     sti                     /* Allow interrupts */
+        asm     loop    VInWait4HRetrace/* Next byte */
+
+VRAMExit:
+        asm     cld                     /* Restore Direction Flag */
+        asm     pop     ds
+
+        return;
+}

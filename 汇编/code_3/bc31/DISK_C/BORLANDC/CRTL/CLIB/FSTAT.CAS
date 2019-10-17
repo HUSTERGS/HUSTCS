@@ -1,0 +1,183 @@
+/*---------------------------------------------------------------------------
+ * filename - fstat.cas
+ *
+ * function(s)
+ *        fstat - gets open file information
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <sys\stat.h>
+#include <fcntl.h>
+#include <io.h>
+#include <_io.h>
+#include <dos.h>
+#include <mem.h>
+#include <RtlData.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            fstat - gets open file information
+
+Usage           #include <sys\stat.h>
+                int fstat(int handle, struct stat *buff)
+
+Prototype in    sys\stat.h
+
+Description     Gather statistics about the nominated file and place
+                them in the buffer *bufP.
+
+                Not all of the fields are relevant to MSDOS.
+                The fields are set thus:
+
+                    st_dev      set to fildes if device, else set to
+                                drive holding the file.
+                    st_ino      0
+                    st_mode     Unix-style flag bits for file access rights
+                    st_nlink    1
+                    st_uid      0
+                    st_gid      0
+                    st_rdev     same as st_dev
+                    st_size     file size (0 if device).
+                    st_atime    time file last changed (seconds since 1970)
+                    st_mtime    same as st_atime
+                    st_ctime    same as st_atime
+
+                The file access rights flags may contain S_IFCHR or S_IFREG.
+                S_IREAD is always set and S_IWRITE is set only for devices,
+                since there is no method in PCDOS of inspecting the file
+                attributes without knowing the file name.  Programs which
+                need this information should use stat().
+
+                The file time fields are not available on MSDOS versions
+                prior to 2.0, or if the file is a character stream (S_IFCHR),
+                and will be set to zero in such cases.
+
+Return value    The return value is 0 if the call was successful, otherwise
+                -1 is returned and errno contains the reason.  The buffer is
+                not touched unless the call is successful.
+
+*---------------------------------------------------------------------------*/
+int _FARFUNC fstat (int fildes, struct stat *bufP)
+{
+    _QRTLDataBlock;
+
+asm     mov     bx, fildes
+asm     mov     ax, 4400h               /* IOCTL, get device information */
+asm     int     21h
+asm     jnc     ioctlOK
+asm     jmp     fstatFailed
+ioctlOK:
+asm     sub     si, si                  /* SI = file mode       */
+
+asm     or      dl, dl                  /* is it a character device ?   */
+asm     js      fst_isDevice
+/*
+  Arrive here if the fildes is for a regular file.
+*/
+        _SI |= S_IFREG + S_IREAD;
+
+asm     and     dx, 3Fh                 /* isolate the drive number     */
+asm     mov     di, dx                  /*     and keep it safe in DI   */
+
+    if (_QRTLInstanceData(_openfd)[fildes] & _O_WRITABLE)
+        _SI |= S_IWRITE;
+asm     mov     bx, fildes
+
+fst_findSize:
+    filelength (_BX);
+asm     or      dx, dx
+asm     jl      returnNeg1
+
+asm     push    dx
+asm     push    ax                      /* save the file size   */
+
+/*
+  File time-stamps can only be retrieved for MSDOS versions 2.0 or later.
+*/
+asm     mov     ax, 5700h               /* get date and time    */
+asm     int     21h
+asm     jc      fst_zeroTime
+/*
+  MSDOS time is a 32-bit record, which must be converted into the Unix
+  style of seconds since 1970.
+*/
+asm     push    dx                      /* date */
+asm     push    cx                      /* time */
+asm     call    __DOStimeToU
+asm     xchg    cx, ax                  /* result in DX:CX */
+asm     jmp     short   fst_construct
+
+/*
+  Arrive here if IOCTL reported the handle to be for a character device.
+*/
+fst_isDevice:
+        _SI |= S_IFCHR + S_IREAD + S_IWRITE;
+asm     mov     di, bx          /* use the fildes as device number */
+asm     sub     ax, ax
+asm     push    ax
+asm     push    ax              /* zero length, on stack        */
+
+fst_zeroTime:
+asm     sub     cx, cx
+asm     mov     dx, cx
+/*
+  Arrive here with SI = mode, DI = device, DX:CX = time, and
+  the file length on stack.
+*/
+fst_construct:
+asm     xchg    ax, di
+asm     LES_    di, bufP
+#if (! LDATA)
+asm     push    DS
+asm     pop     ES
+#endif
+asm     cld
+asm     stosw                   /* device       */
+asm     xchg    bx, ax          /* keep a copy  */
+asm     sub     ax, ax
+asm     stosw                   /* inode        */
+asm     xchg    ax, si
+asm     stosw                   /* mode */
+asm     mov     ax, 1
+asm     stosw                   /* number of links      */
+asm     xchg    ax, si          /* bring back the zero  */
+asm     stosw                   /* user (owner) id      */
+asm     stosw                   /* group id     */
+asm     xchg    ax, bx
+asm     stosw                   /* real device  */
+asm     pop     ax
+asm     stosw                   /* file..       */
+asm     pop     ax
+asm     stosw                   /*   ..size     */
+asm     xchg    ax, cx
+asm     stosw
+asm     xchg    ax, dx
+asm     stosw                   /* access time          */
+asm     xchg    ax, dx
+asm     stosw
+asm     xchg    ax, dx
+asm     stosw                   /* modification time    */
+asm     xchg    ax, dx
+asm     stosw
+asm     xchg    ax, dx
+asm     stosw                   /* status change time   */
+
+fst_end:
+    return  0;
+
+returnNeg1:
+    return  -1;
+
+fstatFailed:
+    return  __IOerror (_AX);
+}

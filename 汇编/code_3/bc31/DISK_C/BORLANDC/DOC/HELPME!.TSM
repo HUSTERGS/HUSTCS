@@ -1,0 +1,240 @@
+/*************************************************************************/
+                        TURBO ASSEMBLER 3.1
+                      MANUAL REFERENCE & CORRECTIONS
+
+CONTENTS:
+    Turbo Assembler 3.1: Answers to Common Questions  
+
+  The following are tips, tricks, and hints you may find useful
+  when using Turbo Assembler.
+
+ Q. When should I use the different assembly modes TASM provides
+    for existing assembly programs?
+ A. Mode                   Conditions for Use
+    -------------------------------------------------------------
+    Normal(MASM)         - Program assembles under MASM 4.00 or
+                           MASM 5.00.
+    Quirks               - Program assembles under MASM 4.00 or
+                           MASM 5.00, but won't assemble under
+                           TASM without MASM51 or QUIRKS.
+    Masm51               - Program requires MASM 5.1 for assembly.
+    Masm51 and Quirks    - Program requires MASM 5.1 for
+                           assembly, but will not assemble
+                           under TASM with only the MASM51
+                           switch set.
+
+ Q. Do I have to use MASM51 to assemble files written for MASM
+    5.1?
+ A. Most files will assemble even without using the MASM51
+    directive. However if your assembly code utilizes features
+    only found in MASM 5.1, you will need to use the MASM51 mode.
+    Check the table in the next Q&A to see which features of MASM51
+    emulation are enabled by combinations of MASM51 and QUIRKS
+    modes.
+
+ Q. What items are controlled by the QUIRKS and MASM51 modes?
+ A. The following table lists what the various combinations of
+    QUIRKS and MASM51 modes do:
+
+    Mode                   Operations
+    -------------------------------------------------------------
+    Quirks               - Allows FAR jumps to be generated as
+                           NEAR or SHORT if CS assumes agree.
+                         - Allows all instruction sizes to be
+                           determined in a binary operation solely
+                           by a register, if present.
+                         - Destroys OFFSET, segment override,
+                           etc., information on '=' or numeric 'EQU'
+                           assignments.
+                         - Forces EQU assignments to expressions
+                           that contain "PTR" or ":" to be text.
+
+    Masm51               - Instr, Catstr, Substr, Sizestr, and
+                           "\" line continuation are all enabled.
+                         - EQU's to keywords are made TEXT
+                           instead of ALIASes.
+                         - Leading whitespace is not discarded
+                           on %textmacro in macro arguments.
+
+    Masm51 and Quirks    - Everything listed under QUIRKS above.
+                         - Everything listed under MASM51 above.
+                         - @@, @F, and @B local labels are
+                           enabled.
+                         - Procedure names are PUBLIC'ed
+                           automatically in extended MODELs.
+                         - Near labels in PROCs are redefinable
+                           in other PROCs.
+                         - "::" operator is enabled to define
+                           symbols that can be reached outside of
+                           current proc.
+
+    Masm51 and Ideal     - Ideal mode syntax and the Masm51 text
+                           macro directives are supported, i.e.,
+                           Instr, Catstr, Substr, and Sizestr.
+
+  Q. When should I use the DOSSEG or .STACK directives?
+  A. When you're developing Turbo Assembler modules to link with
+     high-level languages like Turbo C++ and Turbo Pascal, you
+     don't need the DOSSEG or .STACK directives because these
+     compilers will handle segment-ordering and stack setup.
+     These directives define segment names and order that might
+     conflict with those used by the high-level language. You
+     only need, however, to define these once in any module of a
+     standalone assembler program. DOSSEG is only needed if you
+     want your segments to be ordered using Microsoft's
+     conventions. You can define your own segment-ordering by
+     ensuring that your segments are encountered by TLINK in the
+     order that you wish. See the TLINK section of the manual for
+     a full description of how this works.
+
+  Q. What options should I use when I use Turbo Assembler to
+     assemble the files that came with the Microsoft C Compiler?
+  A. When assembling the assembly language modules provided with the
+     Microsoft compilers, make sure to use the MASM51 and QUIRKS
+     modes. For example,
+
+       tasm /jmasm51 /jquirks filename
+
+  Q. How do I create a .COM file?
+  A. Your assembler source should be assembled in the tiny model
+     (.MODEL TINY) and should include an ORG 100h following the
+     opening of the code segment, as shown below:
+
+                .MODEL  TINY
+                .CODE
+                ORG     100h
+        start:
+                ....          ; body of program
+        END     start         ; defines the entry point as start
+
+     Don't include a .STACK directive in a program designed to be
+     a .COM.
+
+     TLINK will create a .COM file instead of an .EXE file if the /t
+     option is specified. For example,
+
+        tlink /t SHOW87
+
+     will create SHOW87.COM instead of SHOW87.EXE.
+
+     There are certain limitations in converting an .EXE file to a
+     .COM file. These limitations are documented in the IBM Disk
+     Operating System manual under EXE2BIN.
+
+  Q. How do I assemble multiple files with Turbo Assembler?
+  A. Turbo Assembler will assemble multiple files using wildcard
+     characters or separating them by the plus (+) character.
+     As an example, the following command line
+
+       tasm filt + o*
+
+     would assemble the file FILT.ASM, as well as all the .ASM
+     files beginning with the letter 'o'.
+
+  Q. How can I assemble multiple files if they don't all use the
+     same command-line options?
+  A. Turbo Assembler uses the semicolon (;) character as a
+     command-line separator so that you can actually have
+     multiple assembler command lines on a single DOS command
+     line. As an example, the following command line
+
+       tasm /zi filt; o*
+
+     would assemble the file FILT.ASM with debug information
+     turned on, then assemble all the .ASM files beginning with
+     the letter 'o' without debug information.
+
+  Q. Microsoft's Macro Assembler allows me to define environment
+     variables so I don't have to enter them on every command
+     line. Can I do this with Turbo Assembler as well?
+  A. No, but Turbo Assembler provides an even more flexible way
+     to eliminate typing in command-line options every time.
+     Whenever you run Turbo Assembler, it looks in the current
+     directory, then in the directory from which it was started
+     (DOS 3.x and greater) for a special file called TASM.CFG.
+     This file can contain anything that the command line
+     contains. This file is processed first and then the command
+     line so that the command-line options take priority over
+     those found in the TASM.CFG configuration file. If, for
+     instance, your command-line options are always
+
+       /t /ml /zi /jJUMPS /jLOCALS
+
+     you could create TASM.CFG file containing these lines
+
+       /t
+       /ml
+       /zi
+       /jJUMPS
+       /jLOCALS
+
+     Now, every time you run Turbo Assembler, those will be the
+     default options. This means that, if you need to, you can
+     have separate TASM.CFG files for each of your projects. If
+     you have multiple projects residing in a single subdirectory,
+     then you could create a separate configuration file for each
+     and use them as Turbo Assembler indirect command files.
+
+  Q. What are Turbo Assembler indirect command files?
+  A. These are files that contain partial or complete Turbo
+     Assembler command lines and are preceded with an at-sign (@)
+     on the command line. For example, if you have a file named
+     "FILE.CMD" that contains the following,
+
+       /t
+       /ml
+       /zi
+       /jJUMPS
+       /jLOCALS
+       file1 +
+       file2 +
+       file3 +
+       file4
+
+     then you could use the command line
+
+       tasm @FILE.CMD
+
+     instead of the command line
+
+       tasm /t /ml /zi /jJUMPS /jLOCALS file1+file2+file3+file4
+
+     Note that the at-sign (@) is not actually part of the file's
+     name. In fact, if you name a file with an at-sign at the
+     beginning, Turbo Assembler will treat it as an indirect
+     command file.
+
+  Q. I am linking my own assembly language functions with Turbo C.
+     Why does the linker report that all of my functions are
+     undefined?
+  A. Make sure you've put an underbar character (_) in front
+     of all assembly language function names to be called
+     by Turbo C. If you use simplified segmentation and include
+     the C language specifier on the .MODEL directive, Turbo
+     Assembler will pre-append the underbar automatically for you.
+     Your assembly language program should be assembled with Case
+     Sensitivity (/ML or /MX). 
+
+  Q. Can I use the backslash (\) instead of the slash (/) as a
+     option specifier?
+  A. NO! Turbo Assembler (and MASM) will treat that as a file
+     that resides in the root directory of the default drive.
+     Since both assemblers treat the space character ( ) as a
+     comma (,) this could result in the loss of files. If you
+     accidentally gave this command line,
+
+      tasm \zi prid&joy.asm
+
+     Turbo Assembler (and MASM) would treat this command line as
+     instructions to assemble a file called ZI.ASM that can be
+     found in the root directory and create an output file in the
+     current directory called PRID&JOY.ASM. (Note that the
+     assemblers think the default extension for the object file
+     of .OBJ has been explicitly overridden to .ASM.) The file
+     PRID&JOY.ASM will either be overwritten with the object file
+     or deleted if the file \ZI.ASM can't be found and success-
+     fully assembled. In either case, the original contents of
+     PRID&JOY.ASM are now lost.
+
+/**************************** END OF FILE ********************************/
+

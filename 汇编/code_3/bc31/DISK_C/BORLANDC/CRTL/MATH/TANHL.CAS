@@ -1,0 +1,134 @@
+/*------------------------------------------------------------------------
+ * filename - tanhl.cas
+ *
+ * function(s)
+ *        tanhl - long double hyperbolic tangent function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            tanhl - long double hyperbolic tangent function
+
+Usage           long double tanhl(long double x);
+
+Prototype in    math.h
+
+Description     tanhl calculates the hyperbolic tangent of the input.
+
+Return value    tanhl returns the hyperbolic tangent of the input value.
+                For large arguments (magnitude greater than 32) the result
+                will be +1.0 or -1.0.
+
+*---------------------------------------------------------------------------*/
+
+/*
+Algorithm.
+
+The usual formula is:
+        tanhl(x) = (exp(x) - exp(-x))/(exp(x) + exp(-x))/
+but there is a loss of precision in using this formula directly near 0.
+
+Since tanhl(-x) = -tanhl(x), compute tanhl(|x|) and adjust the sign later.
+
+If 0 <= x < 2^-33, return x.
+
+If x >= 32 return 1.
+
+If x >= .17325, use
+        y = exp(x)
+        tanhl(x) = (y - 1/y)/(y + 1/y)
+
+If 2^-33 <= x < .17325, use
+        y = exp(2x) - 1
+        sinh(x) = y/(2 + y)
+where special chip functions are used to get exp(2x)-1 accurately.
+
+*/
+
+#pragma warn -rvl
+long double _FARFUNC tanhl (long double  x)
+{
+asm     FLD     LONGDOUBLE (x)
+asm     sub     dh, dh
+asm     mov     cx, x [8]
+asm     shl     cx, 1
+asm     rcr     dh, 1                   /* DH = sign    */
+asm     cmp     cx, 8008h
+asm     FABS
+asm     ja      tanhl_extreme
+
+asm     cmp     cx, 7FF8h
+asm     jb      tanhl_small
+
+#ifdef _Windows
+        _f87_Exp();
+#else
+asm     _FAST_  (_FEXP_)                /* Exp (x)      */
+#endif
+
+asm     FLD1
+asm     FDIV    st, st(1)               /* Exp (-x)     */
+
+/*
+  tanhl = sinh / cosh = (exp(x) - exp(-x)) / (exp(x) + exp(-x))
+*/
+asm     FLD     st(1)
+asm     FSUB    st, st(1)
+asm     FXCH
+asm     FADD    st, st(2)
+asm     FDIVP   st(1), st
+asm     FSTP    st(1)
+
+tanhl_end:
+/* change sign if original argument was negative */
+asm     or      dh, dh
+asm     jns     tanhl_end2
+asm     FCHS
+tanhl_end2:
+        return;
+
+/*
+  tanhl is asymptotic to -1 for negative arguments and +1 for positives.
+  It approaches very fast, with exponentially increasing accuracy,
+  so it is 1.0 for IEEE accuracy when |x| > 23.
+*/
+tanhl_extreme:
+asm     FSTP    st(0)           /* pop stack    */
+asm     FLD1
+        goto tanhl_end;
+
+tanhl_small:
+asm     cmp     cx, 7FBCh
+asm     jb      tanhl_end
+asm     FLD1
+asm     FXCH
+asm     FSCALE
+asm     FLDL2E
+asm     FMUL
+asm     F2XM1
+/* TOS = y = exp(2x) - 1 */
+asm     FXCH
+asm     FLD1
+asm     FADD
+asm     FADD    st(0),st(1)
+/* stack = 2+y,y */
+asm     FDIV
+        goto tanhl_end;
+}
+#pragma warn .rvl

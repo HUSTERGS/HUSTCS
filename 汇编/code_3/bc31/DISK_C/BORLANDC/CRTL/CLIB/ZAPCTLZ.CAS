@@ -1,0 +1,186 @@
+/*-----------------------------------------------------------------------*
+ * filename - zapctrlz.cas
+ *
+ * function(s)
+ *        dosSeekFinalChar - seek to the final character in file
+ *        dosReadOne       - reads one byte from a file
+ *        __TrimCtlZ       - zaps a terminating control Z
+ *        __AppendCtlZ     - appends a control Z character to a file
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+
+#define _ctlZ  26
+
+/*-----------------------------------------------------------------------*
+
+   The ctrl-Z file terminator is a legacy of operating systems used
+   on the PDP-8, which were strongly influential on the CPM OS, which
+   in turn influenced the first version of DOS.  Some old programs
+   use it, but it is obsolete practice in DOS since DOS keeps track
+   of exact byte lengths of files (CPM kept count only of disk blocks,
+   hence the importance of ^Z).  ^Z can also conflict with other uses
+   of the ASCII character set since the standard meaning of 0x1A is
+   "SUB" (subscript).
+
+   With the advent of DOS networking the ^Z convention has become
+   impossible to implement safely.  The reason is the "deny read"
+   mode of file access, which can be used to enforce write-only access
+   to a shared file.  If the file cannot be read, the TC RTL cannot
+   decide whether or not a file is ^Z terminated.
+
+   If you need ^Z conventions, the simplest way is to place ^Z logic
+   in your application.  However, the TC RTL includes code for ^Z
+   which automatically appends and strips a single ^Z terminator for
+   text files.  To enable this code, you compile "open.cas" and "close.c"
+   with the symbol "CPM_ctlZ" defined,
+
+        tcc -DCPM_ctlz  ..etc.. open.cas close.c
+
+   The TC library as shipped does not have this code enabled.
+
+   Note that these algorithms DO NOT work safely if files are opened
+   for write-only access, which includes the fopen "a" append mode.
+   Let the user beware !
+
+*------------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------*
+
+Name            dosSeekFinalChar - seek to the final character in file
+
+Usage           static  void pascal near    dosSeekFinalChar (int fildes)
+
+Description     seeks to the end of file.
+
+Return value    Nothing.  DX:AX is left with the MSW:LSW of the
+                end-of-file position.
+
+*------------------------------------------------------------------------*/
+static void pascal near dosSeekFinalChar(int fildes)
+{
+asm     mov     bx, fildes
+asm     mov     cx, -1
+asm     mov     dx, cx
+asm     mov     ax, 4200h + SEEK_END
+asm     int     21h             /* DX:AX = lseek (BX, CX:DX, AL)        */
+
+        return;                     /* no error checking    */
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            dosReadOne - reads one byte from a file
+
+Usage           static  char pascal near    dosReadOne (int fildes)
+
+Description     reads one byte from a file
+
+Return value    the character read
+
+*------------------------------------------------------------------------*/
+static char pascal near dosReadOne(int fildes)
+{
+        char    c = 0;
+
+        pushDS_
+asm     mov     bx, fildes
+asm     mov     cx, 1
+#if LDATA
+asm     push    SS
+asm     pop     DS
+#endif
+asm     lea     dx, c
+asm     mov     ah, 3Fh
+asm     int     21h             /* dosRead (fildes, DS:DX, CX)  */
+        popDS_
+
+        return c;                   /* no error checking    */
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            __TrimCtlZ - zaps a terminating control Z
+
+Usage           void    pascal  __TrimCtlZ  (int fildes)
+
+Prototype in    _io.h
+
+Description     removes a terminating control Z from a file if it is
+                present.
+
+Return value    Nothing
+
+*-----------------------------------------------------------------------*/
+void pascal near __TrimCtlZ(int fildes)
+{
+        dosSeekFinalChar (fildes);
+asm     push    DX
+asm     push    AX              /* remember original position   */
+
+        if (dosReadOne (fildes) == _ctlZ)
+        {
+                dosSeekFinalChar (fildes);
+
+        asm     mov     bx, fildes
+        asm     sub     cx, cx  /* zero length causes truncation        */
+        asm     sub     dx, dx
+        asm     mov     ah, 40h
+        asm     int     21h     /* dosWrite (fildes, NULL, 0)           */
+        }
+
+asm     mov     bx, fildes
+asm     pop     dx
+asm     pop     cx              /* original position    */
+asm     mov     ax, 4200h + SEEK_SET
+asm     int     21h             /* DX:AX = lseek (BX, CX:DX, AL)        */
+
+        lseek (fildes, 0L, SEEK_SET);
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            __AppendCtlZ - appends a control Z character to a file
+
+Usage           void    pascal  __AppendCtlZ  (int fildes)
+
+Prototype in    _io.h
+
+Description     appends a control Z character to a file
+
+*------------------------------------------------------------------------*/
+void pascal near __AppendCtlZ(int fildes)
+{
+        char    c = _ctlZ;
+
+        dosSeekFinalChar (fildes);
+        if (dosReadOne (fildes) != _ctlZ)
+        {
+                pushDS_
+        asm     mov     bx, fildes
+        asm     mov     cx, 1
+#if LDATA
+        asm     push    SS
+        asm     pop     DS
+#endif
+        asm     lea     dx, c
+        asm     mov     ah, 40h
+        asm     int     21h     /* dosWrite (fildes, DS:DX, CX) */
+                popDS_
+        }
+}

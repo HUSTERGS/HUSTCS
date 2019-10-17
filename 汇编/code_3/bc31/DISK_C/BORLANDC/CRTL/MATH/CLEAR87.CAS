@@ -1,0 +1,79 @@
+/*------------------------------------------------------------------------
+ * filename - clear87.cas
+ *
+ * function(s)
+ *        _clear87 - clears floating-point status word
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+#pragma inline
+
+#include <float.h>
+#include <dos.h>
+#ifndef _Windows
+#include "emuvars.h"
+#endif
+
+/*--------------------------------------------------------------------------*
+
+Name            _clear87 - clears floating-point status word
+
+Usage           unsigned int _clear87(void);
+
+Prototype in    float.h
+
+Description     _clear87 clears the floating-point status word, which is a
+                combination of the 80x87 status word and other
+                conditions detected by the 80x87 exception handler.
+
+Return value    The bits in the value returned indicate the old floating-
+                point status. See float.h for a complete definition of the
+                bits returned by _clear87.
+
+Note:
+The C RTL controls the Denormal and Invalid exceptions, because certain
+of these errors can be repaired without damage.  If a call to _control87()
+attempted to mask these, then the bits are kept in memory instead of on
+the coprocessor.
+
+Denormal exceptions are never reported, as they can always be repaired.
+
+*---------------------------------------------------------------------------*/
+
+unsigned int _clear87 (void)
+{
+        volatile unsigned int Status;
+
+#ifndef _Windows
+#pragma warn -asm
+asm     emul
+#pragma warn .asm
+#endif
+
+/* get the chip status */
+asm     FSTSW   Status
+
+/* and the shadow status, clearing it */
+asm     sub     ax, ax
+
+#ifndef _Windows
+/*
+asm     xchg    al, byte ptr SS: _emu.control [1]
+*/
+asm     xchg    al, byte ptr SS: _emu.status2 [0]
+#endif
+
+/* clear the chip */
+asm     FCLEX
+
+asm     or      ax, Status
+        return _AX &
+                SW_INVALID+SW_ZERODIVIDE+SW_OVERFLOW+SW_UNDERFLOW+SW_INEXACT;
+}

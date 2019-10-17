@@ -1,0 +1,176 @@
+/*---------------------------------------------------------------------------
+ * filename - chsize.cas
+ *
+ * function(s)
+ *        chsize - change file size
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <fcntl.h>
+#include <_io.h>
+#include <RtlData.h>
+
+#define ZEROBUFSIZ      128             /* size of padding buffer */
+
+
+/*--------------------------------------------------------------------------*
+
+Name            chsize - change file size
+
+Usage           int chsize(int fildes, long newSize);
+
+Prototype in    io.h
+
+Description     forces the file's size to be newSize, either by
+                extending or by truncating.
+
+Return value    success :  0
+                failure : -1 and errno is set.
+
+*---------------------------------------------------------------------------*/
+int _FARFUNC chsize (register int fildes, long newSize)
+{
+        char    zerobuf[ZEROBUFSIZ];
+        long    posn;
+
+asm     mov     ax, 4201h               /* LSeek to current position    */
+asm     mov     bx, fildes
+asm     sub     cx, cx
+asm     mov     dx, cx
+asm     int     21h
+asm     jc      chsizeFailed
+
+asm     mov     W0 (posn), ax
+asm     mov     W1 (posn), dx           /* save current position        */
+
+asm     mov     ax, 4202h               /* seek to end of file          */
+asm     sub     cx, cx
+asm     mov     dx, cx
+asm     int     21h
+asm     jc      chsizeFailed
+
+/*
+  See whether we need to extend or truncate.
+*/
+
+asm     cmp     dx, W1 (newSize)
+asm     ja      chsizeTruncate
+asm     jb      chsizePad
+asm     cmp     ax, W0 (newSize)
+asm     jae     chsizeTruncate
+
+/*
+  Here we seek to the original end-of-file, and pad the file with zeros.
+*/
+chsizePad:
+
+asm     sub     W0 (newSize), ax        /* compute # of bytes to pad    */
+asm     sbb     W1 (newSize), dx
+asm     mov     cx, dx
+asm     xchg    dx, ax
+asm     mov     ax, 4200h               /* seek to old end-of-file      */
+asm     int     21h
+asm     jc      chsizeFailed
+
+/*
+  Fill our temp buffer with (ZEROBUFSIZ) zeros.
+*/
+
+asm     push    ss
+asm     pop     es
+asm     lea     di, zerobuf
+asm     xor     ax, ax
+asm     mov     cx, ZEROBUFSIZ / 2
+asm     cld
+asm     rep  stosw
+
+/*
+  Now write our "zero" buffer repeatedly to the file, until (newSize)
+  bytes have been written.
+*/
+
+writeLoop:
+
+asm     mov     cx, ZEROBUFSIZ          /* need more then full buffer ? */
+asm     cmp     W1(newSize), 0
+asm     jnz     writeChunk
+asm     cmp     cx, W0(newSize)
+asm     jbe     writeChunk
+asm     mov     cx, W0(newSize)
+writeChunk:
+asm     sub     W0(newSize), cx         /* update byte count            */
+asm     sbb     W1(newSize), 0
+asm     lea     dx, zerobuf
+#if     LDATA
+asm     push    ds
+asm     push    ss
+asm     pop     ds                      /* DS = segment of buffer       */
+#endif
+asm     push    cx
+asm     mov     ah, 40h
+asm     int     21h                     /* write zeros to file          */
+asm     pop     cx
+#if     LDATA
+asm     pop     ds
+#endif
+asm     jc      chsizeFailed
+asm     cmp     ax, cx                  /* make sure everything written */
+asm     jne     chsizeFailed
+
+/*
+  See if need to write more.
+*/
+
+asm     mov     ax, W0(newSize)
+asm     or      ax, W1(newSize)
+asm     jnz     writeLoop
+
+        goto    chsizeSeekback;         /* done --> restore file pos    */
+
+/*
+  Jump here if an error occurs (AX = DOS error code).
+*/
+
+chsizeFailed:
+        return __IOerror (_AX);
+
+/*
+  MSDOS truncates a file as a side-effect to function 40 when
+  a zero-length write is requested.
+*/
+chsizeTruncate:
+
+asm     mov     ax, 4200h               /* seek to new end-of-file      */
+asm     mov     bx, fildes
+asm     mov     dx, W0 (newSize)
+asm     mov     cx, W1 (newSize)
+asm     int     21h
+asm     jc      chsizeFailed
+
+asm     mov     ah, 40h                 /* truncate at desired position */
+asm     sub     cx, cx
+asm     int     21h
+asm     jc      chsizeFailed
+
+chsizeSeekback:
+asm     mov     dx, W0 (posn)
+asm     mov     cx, W1 (posn)
+asm     xchg    si, ax
+asm     mov     ax, 4200h               /* seek to original place       */
+asm     int     21h
+asm     jc      chsizeFailed
+
+        _RTLInstanceData(_openfd) [fildes] |= O_CHANGED;
+        return  0;
+}

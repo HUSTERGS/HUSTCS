@@ -1,0 +1,17 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+ELLIPSECURSOR     CURSOR ellipse.cur
+FILLCURSOR        CURSOR fill.cur
+FILLELLIPSECURSOR CURSOR fellipse.cur
+FILLRECTCURSOR    CURSOR frect.cur
+PENCURSOR         CURSOR pen.cur
+RECTCURSOR        CURSOR rect.cur
+
+ELLIPSETOOL       ICON   ellipse.ico
+FILLTOOL          ICON   fill.ico
+FILLELLIPSETOOL   ICON   fellipse.ico
+FILLRECTTOOL      ICON   frect.ico
+PENTOOL           ICON   pen.ico
+RECTTOOL          ICON   rect.ico
+PAINTICON         ICON   owlpaint.ico
+

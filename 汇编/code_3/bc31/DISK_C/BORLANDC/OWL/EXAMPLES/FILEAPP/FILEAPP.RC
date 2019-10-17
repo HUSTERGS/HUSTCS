@@ -1,0 +1,15 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include "windows.h"
+#include "owlrc.h"
+
+#include "inputdia.dlg"
+#include "filedial.dlg"
+#include "stdwnds.dlg"
+
+#include "editacc.rc"
+#include "fileacc.rc"
+
+#include "editmenu.rc"
+#include "filemenu.rc"
+

@@ -1,0 +1,135 @@
+/*------------------------------------------------------------------------
+ * filename - sinhl.cas
+ *
+ * function(s)
+ *        sinhl - long double hyperbolic sine function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            sinhl - long double hyperbolic sine function
+
+Usage           long double sinhl(long double x);
+
+Prototype in    math.h
+
+Description     sinhl computes the hyperbolic sine of the input value.
+
+Return value    sinhl returns the hyperbolic sine of the input value.
+                For  large arguments  (absolute value greater  than
+                ~11356.5) the result  will be  _LHUGE_VAL of
+                the appropriate sign and errno will be set to:
+                        ERANGE  Range error.
+
+*---------------------------------------------------------------------------*/
+
+/*
+Algorithm.
+
+The usual formula is:
+        sinhl(x) = .5*(expl(x) - expl(-x))
+but there is a loss of precision in using this formula directly near 0.
+
+Since sinhl(-x) = -sinhl(x), compute sinhl(|x|) and adjust the sign later.
+
+If 0 <= x < 2^-33, return x.
+
+If x >= 11356.5 call matherr.
+
+If x >= .3465, use
+        y = expl(x)
+        sinhl(x) = (y - 1/y)/2
+
+If 2^-33 <= x < .3465, use
+        y = expl(x) - 1
+        sinhl(x) = (y + y/(1 + y))/2
+where special chip functions are used to get expl(x)-1 accurately.
+
+*/
+
+#pragma warn -rvl
+long double _FARFUNC sinhl (long double  x)
+{
+asm     FLD1
+asm     mov     ax, 7FFFh
+asm     FCHS                    /* TOS = -1.0, used in FSCALE later */
+asm     mov     dx, x [8]
+asm     and     ax, dx          /* select exponent */
+
+asm     FLD     LONGDOUBLE (x)
+asm     cmp     ax, 3fffh+13    /* 2^13 is the near the limit */
+asm     jae     sinhl_tooBig
+
+asm     FABS
+asm     cmp     ax, 3FFDh       /* compare with .3465 */
+asm     jb      jb_sinhl_small  /* avoid "jmp out of range" error */
+asm     ja      sinhl_justFits
+asm     cmp     W0 (x [6]), 0B168h
+jb_sinhl_small:
+asm     jb      sinhl_small
+
+sinhl_justFits:
+        __expld();               /* TOS = expl(x) */
+
+asm     FLD1
+asm     FDIV    st, st(1)       /* Exp (-x)     */
+asm     FSUBP   st(1), st
+asm     FSCALE                  /* sinhl (x) = (exp(x) - exp(-x)) / 2   */
+
+sinhl_end:
+asm     FSTP    st(1)   /* discard the -1 */
+/* change sign if original argument was negative */
+asm     or      dh, dh
+asm     jns     sinhl_end2
+asm     FCHS
+sinhl_end2:
+        return;
+
+sinhl_tooBig:
+asm     ja      sinhl_over
+asm     cmp     W0 (x [6]), 0B172h
+asm     jb      sinhl_justFits
+
+sinhl_over:
+asm     FSTP    ST(0)                   /* pop two items off the stack */
+asm     FSTP    ST(0)
+
+#pragma warn -ret
+        return  __matherrl (OVERFLOW, "sinhl", &x, NULL,
+                            (_DX & 0x8000) ? - _LHUGE_VAL : _LHUGE_VAL);
+#pragma warn .ret
+
+sinhl_small:
+asm     cmp     ax, 3fffh-33            /* x < 2^-33 ? */
+asm     jb      sinhl_end               /* x tiny, return x */
+
+asm     FLDL2E
+asm     FMUL
+asm     F2XM1
+/* TOS = y = exp(x) - 1 */
+asm     FLD1
+asm     FADD    st(0),st(1)
+/* stack = 1+y,y,-1 */
+asm     FDIVR   st(0),st(1)
+asm     FADD
+asm     FSCALE
+        goto sinhl_end;
+}
+#pragma warn .rvl

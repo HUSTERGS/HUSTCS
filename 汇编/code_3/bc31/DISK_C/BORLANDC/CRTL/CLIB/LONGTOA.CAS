@@ -1,0 +1,174 @@
+/*-----------------------------------------------------------------------*
+ * filename - longtoa.cas
+ *
+ * function(s)
+ *        __longtoa - converts a long to a character string
+ *        __utoa            - converts an unsigned int to a decimal string
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <stdlib.h>
+#include <_printf.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            __longtoa - converts a long to a character string
+
+Usage           char *pascal __longtoa (long value, char *strP, int radix,
+                                        char maybeSigned, char hexStyle);
+
+Prototype in    _printf.h
+
+Description     This function converts a long value to a  null-terminated string
+                and  stores the result in  string strP.
+
+                radix specifies the base to be used in converting value. it
+                must be between  2 and 36 (inclusive).
+
+                maybeSigned is treated as a boolean. If false then value is
+                treated  as unsigned  long and  no sign  will be  placed in
+                *strP.
+
+                hexStyle  may take  the values  'a' or  'A' and  determines
+                whether lower or  upper case alphabetics are used  when the
+                radix is 11 or greater.
+
+                Note: The space  allocated for string must be  large enough
+                to hold the returned  string including the terminating null
+                character (\0).  itoa can return  up to 17  bytes; ltoa and
+                ultoa, up to 33 bytes.
+
+Return value    pointer to the string
+
+*------------------------------------------------------------------------*/
+char *pascal near __longtoa (long value, char *strP, int radix,
+                        char maybeSigned, char hexStyle)
+{
+        char    buf [34];
+
+        SaveSI
+        SaveDI
+
+asm     push    ES
+
+asm     LES_    di, strP
+#if (! LDATA)
+asm     push    DS
+asm     pop     ES
+#endif
+
+/* If the request is invalid, generate an empty result */
+
+asm     mov     bx, radix
+asm     cmp     bx, 36
+asm     ja      lta_end
+asm     cmp     bl, 2
+asm     jb      lta_end
+
+asm     mov     ax, W0 (value)
+asm     mov     cx, W1 (value)
+
+asm     or      cx, cx
+asm     jnl     lta_notSigned
+
+asm     cmp     BY0 (maybeSigned), 0
+asm     jz      lta_notSigned           /* Is the value signed or unsigned ? */
+
+asm     mov     BY0 (ES_ [di]), '-'
+asm     inc     di
+asm     neg     cx
+asm     neg     ax
+asm     sbb     cx, 0           /* negate CX:AX */
+
+
+/* Now loop, taking each digit as modulo radix, and reducing the value
+        by dividing by radix, until the value is zeroed.  Note that
+        at least one loop occurs even if the value begins as 0,
+        since we want "0" to be generated rather than "".
+*/
+
+lta_notSigned:                          /*  BX = radix,  CX:AX = value */
+asm     lea     si, buf
+asm     jcxz    lta_shortLoop
+
+lta_longLoop:
+asm     xchg    cx, ax
+asm     sub     dx, dx
+asm     div     bx
+asm     xchg    ax, cx
+asm     div     bx
+asm     mov     SS_ [si], dl
+asm     inc     si
+asm     jcxz    lta_shortTest           /* does the value fit in 16 bits ? */
+asm     jmp     short   lta_longLoop
+
+lta_shortLoop:
+asm     sub     dx, dx
+asm     div     bx
+asm     mov     SS_ [si], dl
+asm     inc     si
+lta_shortTest:
+asm     or      ax, ax
+asm     jnz     lta_shortLoop
+
+/* The value has now been reduced to zero and the digits are in the buffer. */
+asm     lea     cx, buf
+asm     neg     cx
+asm     add     cx, si          /* CX = length of numeral */
+
+/* The digits in the buffer must now be copied in reverse order into
+   the target string, translating to ASCII as they are moved.
+*/
+lta_copy:
+asm     cld
+
+lta_copyLoop:
+asm     dec     si
+asm     mov     al, SS_ [si]
+asm     sub     al, 10
+asm     jae     lta_alphaDigit
+asm     add     al, 10 + '0'
+asm     jmp     short   lta_storeDigit
+
+lta_alphaDigit:
+asm     add     al, hexStyle
+
+lta_storeDigit:
+asm     stosb
+asm     loop    lta_copyLoop
+
+/* terminate the output string with a zero. */
+
+lta_end:
+asm     mov     al, 0
+asm     stosb
+
+asm     pop     ES
+        return  strP;           /* return a pointer to the string */
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            __utoa - converts an unsigned int to a decimal string
+
+Usage           char *__utoa(unsigned value, char *buf)
+
+Prototype in    _printf.h
+
+Description     see __longtoa above.
+
+*------------------------------------------------------------------------*/
+char * pascal near __utoa(unsigned value, char *buf)
+{
+    return  __longtoa (((long)value) & 0xffffL, buf, 10, 0, 'a');
+}

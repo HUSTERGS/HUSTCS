@@ -1,0 +1,17 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include "windows.h"
+#include "owlrc.h"
+
+#include "filedial.dlg"
+
+BITMAPSCROLL  MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+  POPUP "&File"
+  BEGIN
+    MenuItem  "&Open...", CM_FILEOPEN
+    MenuItem  SEPARATOR
+    MenuItem  "E&xit", CM_EXIT
+  END
+END
+

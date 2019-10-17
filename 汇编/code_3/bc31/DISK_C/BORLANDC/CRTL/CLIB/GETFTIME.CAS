@@ -1,0 +1,77 @@
+/*---------------------------------------------------------------------------
+ * filename - getftime.cas
+ *
+ * function(s)
+ *        getftime - gets file date and time
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            getftime - gets file date and time
+
+Usage           #include <dos.h>
+                int getftime(int handle, struct ftime *ftimep);
+
+Related
+functions usage int setftime(int handle, struct ftime *ftimep);
+
+Prototype in    dos.h
+
+Description     getftime retrieves the file time and date for the
+                disk file associated with the open handle. The ftime
+                structure pointed to by ftimep is filled in with the
+                file's time and date.
+
+                setftime sets the file date and time of the disk file
+                associated with the open handle to the date and time in the
+                ftime structure pointed to by ftimep.
+
+                The ftime structure is defined as follows:
+
+                struct ftime {
+                        unsigned ft_tsec: 5;    (* Two seconds *)
+                        unsigned ft_min: 6;     (* Minutes *)
+                        unsigned ft_hour: 5;    (* Hours *)
+                        unsigned ft_day: 5;     (* Days *)
+                        unsigned ft_month: 4;   (* Months *)
+                        unsigned ft_year: 7;    (* Year - 1980 *)
+                };
+
+Return value    Both functions return 0 on success.
+
+                In the event of an error return, -1 is returned and the global
+                variable errno is set to one of the following:
+
+                        EINVFNC         Invalid function number
+                        EBADF           Bad file number
+
+*---------------------------------------------------------------------------*/
+int getftime(int fd, struct ftime *ftimep)
+{
+asm     mov     ax, 05700h
+asm     mov     bx, fd
+asm     int     021h
+asm     jc      getftimeFailed
+
+asm     LES_    di, ftimep
+asm     mov     ES_ [di], cx
+asm     mov     ES_ [di+2], dx
+        return (0);
+
+getftimeFailed:
+        return __IOerror (_AX);
+}

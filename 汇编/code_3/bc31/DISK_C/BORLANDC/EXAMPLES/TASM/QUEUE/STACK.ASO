@@ -1,0 +1,24 @@
+;--------------------------
+;-- Define Stack objects --
+;--------------------------
+
+INCLUDE list.aso
+
+GLOBAL PASCAL stack_insert:near
+GLOBAL PASCAL stack_delete:near
+GLOBAL PASCAL stack_first:near
+GLOBAL PASCAL stack_last:near
+GLOBAL PASCAL stack_pop:near
+
+;** Define Stack object **
+
+mystack STRUC GLOBAL list METHOD {
+  virtual insert:word = stack_insert		;(stack node insert routine)
+  virtual remove:word = stack_delete		;(stack node delete routine)
+  virtual first:word = stack_first		;(stack first node routine)
+  virtual last:word = stack_last		;(stack end node routine)
+  virtual pushnode:word = list_append		;stack push routine
+  virtual popnode:word = stack_pop		;stack pop routine
+  }
+ENDS
+

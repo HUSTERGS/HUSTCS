@@ -1,0 +1,220 @@
+/*-----------------------------------------------------------------------*
+ * filename - getc.cas
+ *
+ * function(s)
+ *    FlushOutStreams - flushes output streams
+ *    _ffill      - fill up the read-ahead buffer
+ *    fgetc       - gets character from stream
+ *    _fgetc      - gets character from stream
+ *    fgetchar    - gets character from stream
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <stdio.h>
+#include <io.h>
+#include <_io.h>
+#include <asmrules.h>
+#include <RtlData.h>
+
+/*---------------------------------------------------------------------*
+
+Name            FlushOutStreams - flushes output streams
+
+Usage           static  void pascal near FlushOutStreams(void);
+
+Description     flushes all open output streams
+
+Return value    nothing
+
+*---------------------------------------------------------------------*/
+static void pascal near FlushOutStreams( void )
+{
+    register FILE *fp;
+    register int  Ndx;
+
+    for( Ndx = FOPEN_MAX, fp = _RTLInstanceData(_streams); Ndx--; fp++ )
+        {
+        if( (fp->flags & (_F_TERM | _F_OUT)) == (_F_TERM | _F_OUT) )
+            fflush( fp );
+        }
+}
+
+
+/*---------------------------------------------------------------------*
+
+Name            _ffill - fill up the read-ahead buffer
+
+Usage           static  int near pascal _ffill  (FILE *fp)
+
+Description     Fill up the read-ahead buffer.  Trusts caller to have checked
+                permission to read before calling.  However, we do check
+                for invalid pointers here, since there is no noticeable
+                performance cost and it catches trouble before it causes too
+                much damage.
+
+Return value    -1 <carry set> if error,
+                zero <no carry> if correct.
+
+*---------------------------------------------------------------------*/
+static int near pascal _ffill( FILE *fp )
+{
+    if( fp->flags & _F_TERM )
+        FlushOutStreams();
+
+    if( (fp->level = __read( fp->fd, (fp->curp = fp->buffer), fp->bsize) ) > 0)
+        {
+        fp->flags &= ~_F_EOF;
+        return 0;
+        }
+    else
+        {
+        if( !fp->level )
+            {
+            fp->flags = (fp->flags & ~(_F_IN | _F_OUT)) | _F_EOF;
+            }
+        else
+            {
+            fp->level = 0;
+            fp->flags |= _F_ERR;
+            }
+        }
+
+    return -1;
+}
+
+
+/*---------------------------------------------------------------------*
+
+Name            _fgetc - gets character from stream
+
+Usage           int _fgetc(FILE *stream);
+
+Prototype in    stdio.h
+
+Description     this function is only called by the getc() macro. The
+                only purpose for this is to increment the level
+                indicator before calling fgetc().
+
+Return value    the character read, after converting it to an int
+                without sign extension.  On end-of-file or error,
+                fgetchar returns EOF
+
+*---------------------------------------------------------------------*/
+int _FARFUNC _fgetc( register FILE *fp )
+{
+    ++fp->level;
+
+    return( fgetc( fp ) );
+}
+
+
+/*---------------------------------------------------------------------*
+
+Name            fgetc - gets character from stream
+
+Usage           int fgetc(FILE *stream);
+
+Prototype in    stdio.h
+
+Description     behaves exactly like getc, except that it is a true
+                function while getc is a macro.
+
+Return value    the character read, after converting it to an int
+                without sign extension.  On end-of-file or error,
+                fgetchar returns EOF
+
+*---------------------------------------------------------------------*/
+asm _TEXT   segment
+asm         public __Nfgetc
+asm __Nfgetc    label near
+#if LPROG
+asm     pop ax
+asm     push    cs
+asm     push    ax
+#endif
+asm     ends
+
+int _FARFUNC fgetc( register FILE  *fp )
+{
+    static unsigned char    c;
+
+    if( fp == NULL)
+        return( EOF );
+
+    if( fp->level > 0 )
+        {
+        --fp->level;
+        return( (unsigned char)(*fp->curp++) );
+        }
+
+    if( fp->level < 0 || fp->flags & (_F_OUT | _F_ERR) || !(fp->flags & _F_READ) )
+        {
+        fp->flags |= _F_ERR;
+        return( EOF );          /* file is in writing mode  */
+        }
+
+    fp->flags |= _F_IN;
+
+    if( fp->bsize != 0 )        /* is the stream buffered ? */
+        {
+        if( _ffill( fp ) )
+            return( EOF );
+        --fp->level;
+        return( (unsigned char)(*fp->curp++) );
+        }
+    else                /* an unbuffered stream */
+        {
+        do
+            {
+            if( fp->flags & _F_TERM )
+                FlushOutStreams();
+
+            if( !__read( fp->fd, &c, 1 ) )
+                {
+                if( eof( fp->fd ) != 1 )
+                    {
+                    fp->flags |= _F_ERR;
+                    }
+                else
+                    {
+                    fp->flags = (fp->flags & ~(_F_IN | _F_OUT)) | _F_EOF;
+                    }
+
+                return( EOF );
+                }
+            }
+        while( c == '\r' && !(fp->flags & _F_BIN) );
+
+        fp->flags &= ~_F_EOF;
+        return( (unsigned char) c);
+    }
+}
+
+/*---------------------------------------------------------------------*
+
+Name            fgetchar - gets character from stream
+
+Usage           int fgetchar  (void);
+
+Prototype in    stdio.h
+
+Description     the same as fgetc(stdin).
+
+return value    the character read, after converting it to an int
+                without sign extension.  On end-of-file or error,
+                fgetchar returns EOF
+
+*---------------------------------------------------------------------*/
+int _FARFUNC fgetchar( void )
+{
+    return( fgetc( stdin ) );
+}

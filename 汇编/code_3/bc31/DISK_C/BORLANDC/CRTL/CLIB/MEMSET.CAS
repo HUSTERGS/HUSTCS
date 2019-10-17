@@ -1,0 +1,87 @@
+/*-----------------------------------------------------------------------*
+ * filename - memset.cas
+ *
+ * function(s)
+ *        memset - sets memory to value
+ *        setmem - sets memory to value
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <mem.h>
+
+#undef memset                  /* not an intrinsic */
+
+/*-----------------------------------------------------------------------*
+
+Name            setmem - sets memory to value
+
+Usage           void setmem(void *addr, unsigned len, char val);
+
+Prototype in    mem.h
+
+Description     sets the len bytes of the block pointed to by addr to
+                val
+
+Return value    nothing
+
+*------------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+void _FARFUNC setmem(void _FAR *addr, unsigned len, char val)
+{
+#if !(LDATA)
+    _ES = _DS;
+#endif
+asm LES_    di, addr
+asm mov cx, len
+asm mov al, val
+asm mov ah, al
+asm cld
+
+asm test    di, 1
+asm jz  isAligned
+asm jcxz    done
+asm stosb
+asm dec cx
+isAligned:
+asm shr cx, 1
+asm rep stosw
+asm jnc noOdd
+asm stosb
+noOdd:
+done: ;
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            memset - sets memory to value
+
+Usage           void *memset(void *src, int c, size_t n);
+
+Prototype in    mem.h
+
+Description     sets the n bytes of the block pointed to by src to
+                c.
+
+Return value    src
+
+*------------------------------------------------------------------------*/
+void * _CType _FARFUNC memset(void *src, int c, size_t n)
+{
+  setmem( src, n, c );
+  return( src );
+}
+

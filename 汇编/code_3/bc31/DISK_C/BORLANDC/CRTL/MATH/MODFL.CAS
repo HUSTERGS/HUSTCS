@@ -1,0 +1,65 @@
+/*------------------------------------------------------------------------
+ * filename - modfl.cas
+ *
+ * function(s)
+ *        modfl - splits long double into mantissa and exponent
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            modfl - splits long double into mantissa and exponent
+
+Usage           long double  modfl(long double value, long double *wholeP);
+
+Prototype in    math.h
+
+Description     modfl breaks the long double value into two parts:  the integer
+                and the fraction.  It stores the integer in wholeP and
+                returns the fraction.
+
+Return value    modfl returns the fractional part of value.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC modfl (long double value, long double *wholeP)
+{
+asm     FLD     LONGDOUBLE (value)
+
+asm     mov     ax, value [8]
+asm     shl     ax, 1
+asm     cmp     ax, 0FFFEh              /* infinite exponent ?  */
+asm     jnb     mdf_infinite
+
+asm     FLD     st(0)                   /* duplicate ST */
+asm     mov     ch, 0Ch                 /* chop towards zero    */
+        __round();
+asm     FSUB    st(1), st               /* fraction = value - chop(value) */
+asm     LES_    bx, wholeP
+asm     FSTP    LONGDOUBLE (ES_ [bx])   /* *wholeP = chop (value)       */
+
+mdf_end:
+        return;
+
+mdf_infinite:                           /* infinity == rounded (infinity) */
+asm     LES_    bx, wholeP
+asm     FSTP    LONGDOUBLE (ES_ [bx])
+asm     FLDZ                            /* zero = infinity - infinity   */
+asm     jmp     short   mdf_end
+}
+#pragma warn .rvl

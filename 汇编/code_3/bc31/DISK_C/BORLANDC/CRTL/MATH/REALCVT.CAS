@@ -1,0 +1,519 @@
+/*------------------------------------------------------------------------
+ * filename - realcvt.cas
+ *
+ * function(s)
+ *      TrimTrailing  - suppresses trailing zeroes if needed
+ *      __realcvt       - converts a double value to an ASCIIZ string
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+#pragma  inline
+#include <asmrules.h>
+
+#include <_printf.h>
+
+#undef   EXTPROC
+#define  EXTPROC(x)  (x)
+
+#define I asm
+
+/*--------------------------------------------------------------------------*
+
+Name            TrimTrailing - suppresses trailing zeroes if needed
+
+Usage           void near TrimTrailing (void);
+
+Prototype in    local function
+
+Description     Following  rules derived  from combining  the altFormat and
+                formCh  parameters, backspace  to remove  unwanted trailing
+                characters.
+
+                        (altFormat || ~(G or g)) == trailing zeroes are wanted
+                        altFormat == trailing decimal point is wanted
+
+                Upon entry DL  must contain formCh, CX the  starting offset
+                of strP, and ES_:[bx] points at the end of the string.
+
+Return value    Upon  exit  ES_:[bx-1]  points  to  the  last  byte  of the
+                (trimmed ?) string.
+
+*---------------------------------------------------------------------------*/
+static  void    near    TrimTrailing (void)
+{
+I       mov     al, 5Fh         /* "upper case only" mask */
+I       and     al, dl          /* dl is formCh */
+I       cmp     al, 'G'
+I       jne     tt_trimPoint            /* only G/g removes trailing zeroes */
+
+tt_trimLoop:
+I       cmp     BY0 (ES_ [bx-1]), '0'
+I       jne     tt_trimPoint
+I       dec     bx
+I       cmp     bx, cx
+I       ja      tt_trimLoop
+I       jmp     short   tt_trimmed
+
+tt_trimPoint:
+I       cmp     BY0 (ES_ [bx-1]), '.'
+I       jne     tt_trimmed
+I       dec     bx
+
+tt_trimmed:
+        return;
+}
+
+/*--------------------------------------------------------------------------*
+
+Name            __realcvt - converts a double value to an ASCIIZ string
+
+Usage           void pascal __realcvt (double *valueP, int ndec,
+                                        char *strP, char formCh,
+                                        char altFormat);
+
+Prototype in    _printf.h
+
+Description     The double (value) is converted  to a decimal ASCIIZ string
+                (*bufP) either the F format:
+
+                [sign] [zeroes] [digit]* ['.'] [digit]
+
+                or the E format:
+
+                [sign] digit ['.'] [digit]* 'E' sign [digit] digit digit
+
+                Where the  leading sign is  inserted only if  negative, and
+                the decimal point is suppressed if ndec == 0, and the total
+                count of digits <= MIN (1, ndec).
+
+                The F format is used if formCh == 'f', or if 'g' or 'G' and
+                there  would  be  three  or  fewer  leading  zeroes  and no
+                trailing zeroes, otherwise the E format is used.
+
+                If formCh ==  'E' or 'G' then the character  'E' is used to
+                separate fraction from exponent, otherwise 'e' is used.
+
+                Trailing decimal points are usually suppressed, as also are
+                trailing fraction zeroes in the G/g format. If altFormat is
+                true  (not zero)  then  trailing  decimals remain,  and G/g
+                format will not trim zeroes.
+
+                If ndec > 18 the effect is as if ndec == 18.
+
+                If the  value was infinite  then the string  is "9E+999" or
+                "-9E+999".
+
+                The  basic  conversion  to  a  numeral  string  is  done by
+                __xcvt(), with  this function responsible  for "customizing"
+                the simple format which __xcvt() returns.
+
+Return value    There is no return value
+
+*---------------------------------------------------------------------------*/
+#pragma warn -use
+static void pascal near __realcvt (void *valueP, int ndec,
+                        char *strP, char formCh, char altFormat, int type)
+{
+        char    buf [__XCVTDIG__ + 4];
+        int     sign, realcnt;
+
+/* caller expects ES to be preserved! */
+I       push    ES
+
+#if (! LDATA)
+I       push    DS
+I       pop     ES
+#endif
+
+I       mov     ax, ndec
+I       cmp     ax, __XCVTDIG__
+I       jna     meaningful
+I       mov     ax, __XCVTDIG__ /* IEEE double is meaningless */
+I       mov     ndec, ax        /*      beyond "__XCVTDIG__" digits. */
+
+meaningful:
+I       mov     realcnt,ax      /* save *real* requested count */
+I       mov     dl, formCh
+I       and     dl, 0DFh        /* not ('a' - 'A'), mask case difference */
+I       cmp     dl, 'F'         /* F- or f-format. */
+I       jne     overallDigits
+
+/* F-format works with digits right of the decimal point, specified */
+/*      to __xcvt() as a negative number. */
+
+I       neg     ax
+I       jng     bounded         /* note "ndec" itself still +ve */
+I       sub     ax, ax          /* no decimals if -ve requested. */
+I       mov     ndec, ax
+I       jmp     short bounded
+
+/* E-format counts overall digits, as does g-format sometimes.  There */
+/*      must be at least one. */
+
+overallDigits:
+I       or      ax, ax
+I       jg      bounded
+I       mov     ax, 1
+I       jmp     short   decimalsDecided /* that one is left of '.'      */
+
+bounded:
+I       cmp     dl, 'E'         /* e format has digit left of '.' */
+I       jne     decimalsDecided
+I       inc     ax                      /* so ask __xcvt() for one more. */
+I       inc     W0 (ndec)
+
+decimalsDecided:
+
+/* __xcvt will do the difficult part, conversion to decimal, but the    */
+/*      format it returns must be worked on before it can be passed     */
+/*      to the caller.  Therefore put it into a temporary buffer.       */
+
+#if LDATA
+I       push    W1 (valueP)
+#endif
+I       push    W0 (valueP)     /* (valueP              */
+
+#if 0
+why was this here??
+/*RSS xx */
+I       cmp     ax,0
+I       jle     ok_cnt
+asm     mov     ax,realcnt
+ok_cnt:
+#endif
+
+I       push    ax                      /*      , realcnt       */
+#if LDATA
+I       push    SS
+#endif
+I       lea     bx, sign
+I       push    bx                      /*      , &sign */
+#if LDATA
+I       push    SS
+#endif
+I       lea     si, buf
+I       push    si                      /*      , buf  */
+
+I       mov     ax, W0 (type)   /*      , type )        */
+I       push    ax
+
+I       call    EXTPROC (__xcvt)/* returns exponent in AX */
+
+I       xchg    bx, ax  /* BX = exponent */
+
+/* Set up pointer to destination string */
+
+I       LES_    di, strP
+I       cld                     /* forward string direction */
+
+/* Check for Infinity and NAN numbers right up front */
+
+I       cmp     bx, INF_number
+I       je      infinities
+I       cmp     bx, NAN_number
+I       je      NANs
+I       jmp     short regular_number
+
+/*+---------------------------------------------------------------------+
+  | We have a NAN or Infinity here. Do +INF/-INF or +NAN/-NAN           |
+  +---------------------------------------------------------------------+*/
+infinities:
+I       mov     ax, 492BH               /* 'I+' stosw reverses          */
+I       cmp     W0 (sign), 0
+I       je      store_Isign
+I       inc     ax                      /* Change 'I+' to 'I-'          */
+I       inc     ax
+
+store_Isign:
+I       stosw
+
+I       mov     ax, 464EH               /* 'FN' stosw reverses          */
+I       stosw
+        goto end;
+
+                        /* Print a NAN  */
+NANs:
+I       mov     ax, 4E2BH               /* 'N+' stosw reverses          */
+I       cmp     W0 (sign), 0
+I       je      store_Nsign
+I       inc     ax                      /* Change 'N+' to 'N-'          */
+I       inc     ax
+
+store_Nsign:
+I       stosw
+
+I       mov     al, 'A'                 /* AX = 'NA' stosw reverses     */
+I       stosw
+        goto end;
+
+/*+---------------------------------------------------------------------+
+  |                     We're printing a regular number                 |
+  +---------------------------------------------------------------------+*/
+
+regular_number:
+
+/* Either format begins with optional sign. */
+
+I       cmp     BY0 (sign), 0
+I       je      signSet
+I       mov     al, '-'
+I       stosb
+signSet:
+
+/* Now that we have the basic string, decide what format the caller */
+/*      wants it to be put into. */
+
+I       mov     dl, formCh      /* possibilities are e, E, f, g, or G */
+I       and     dl, 5Fh         /* convert to upper case */
+I       cmp     dl, 'F'
+I       je      F_format
+I       cmp     dl, 'E'
+I       je      E_format
+
+/* G format can be either E or F, depending on circumstances. */
+
+I       cmp     bx, -3          /* Now decide between E and F formats. */
+I       jl      E_format
+I   mov ax, ndec    /* Zero digits in G format are taken as one */
+I   or  ax, ax
+I   jnz NotZero
+I   inc ax
+NotZero:
+I       cmp     bx, ax
+I       jg      E_format
+
+/* The F format has no written exponent and the decimal point can be at */
+/*      the left edge or any interior position, but not the right edge. */
+
+F_format:
+I       cmp     bx, __XCVTDIG__ /* refuse to do F format if more than */
+I       jg      E_format        /* __XCVTDIG__ integral digits can result. */
+
+I       or      bx, bx
+I       jg      FdigitStart
+
+/* No integral digits, begin with '0.'. */
+
+I       mov     ax, ('.' SHL 8) + '0'
+I       stosw
+I       mov     cx,1
+I       je      Fdigits
+
+/* If the exponent is negative then leading zeroes are required. */
+
+I       mov     al, '0'
+FleadZeroes:
+I       stosb
+I       inc     bx
+I       jnz     FleadZeroes
+
+/* Now write the regular digits, inserting a '.' if it is somewhere */
+/*      in the middle of the numeral. */
+
+FdigitStart:
+I       mov     cx,0
+Fdigits:
+I       lods    BY0 (SS_ [si])
+I       or      al, al
+I       jz      Fend
+
+I       stosb
+I       dec     bx
+I       jnz     Fdigits
+I       mov     al, '.'
+I       stosb
+I       inc     cx
+I       jmp     short   Fdigits
+
+/* remove any trailing zeroes, unless there is an implied decimal at */
+/*      the right edge. */
+
+Fend:
+I       mov     ax,ndec
+I       add     cx,realcnt
+I       cmp     ax,cx
+I       jbe     no_zero_pad
+
+I       sub     ax,cx
+I       mov     cx,ax
+I       add     bx,ax
+I       mov     al,'0'
+I       rep     stosb
+
+I       dec     bx
+I       jz      Fz
+
+no_zero_pad:
+I       dec     bx
+I       jz      Fz
+
+I       cmp     BY0 (altFormat), 0
+I       jne     Fz              /* altFormat implies no trimming */
+I       mov     dl, formCh
+I       mov     cx, W0 (strP)
+I       xchg    bx, di
+        TrimTrailing ();                /* backspaces BX to effect trimming */
+I       xchg    di, bx
+
+Fz:                             /* is the result an empty string ? */
+I       cmp     di, W0 (strP)
+I       jne     goto_end
+I       mov     al, '0'
+I       stosb                   /* if so, it is a form of zero. */
+goto_end:
+I       jmp     end             /* the string will be zero terminated */
+
+
+/* The E format always places one digit to the left of the decimal
+        point, followed by fraction digits, and then an 'E' followed
+        by a decimal exponent.  The exponent is always 2 digits unless
+        it is of magnitude > 99.
+*/
+E_format:
+I       lods    W0 (SS_ [si])           /* get two bytes together */
+I       stosb
+
+/* The decimal point appears only if followed by a digit. */
+
+I       mov     al, '.'
+I       or      ah, ah
+I       jnz     Edecimal                /* two digits so normal case */
+
+/* Only one digit so check whether alternate format requested */
+
+I       cmp     BY0 (altFormat), 0
+I       je      Eexp                    /* no altFormat, no decimal point */
+I       stosb
+I       jmp     Eexp                    /* altFormat, do decimal
+
+/* If arrived here then there are at least two digits so put in */
+/*      the decimal point and copy the fraction digits. */
+
+Edecimal:
+I       stosb
+I       mov     al, ah
+
+Edigits:
+I       stosb
+I       lods    BY0 (SS_ [si])
+I       or      al, al
+I       jnz     Edigits
+
+/* Trailing zeroes are removed from the fraction. */
+
+I       cmp     BY0 (altFormat), 0
+I       jne     Eexp            /* altFormat implies no trimming */
+I       mov     dl, formCh
+I       mov     cx, W0 (strP)
+I       xchg    bx, di
+        TrimTrailing ();                /* backspaces BX to effect trimming */
+I       xchg    di, bx
+
+/* Now put in the exponent.  Note that the exponent returned from __xcvt */
+/*      is one digit different, since __xcvt places the decimal point at */
+/*      the left edge. */
+
+Eexp:
+I       mov     al, 20h         /* the bit which distinguishes lower case */
+I       and     al, formCh      /*      e f g E G               -- cause */
+I       or      al, 'E'         /*      e e e E E               -- effect */
+I       stosb
+
+I       mov     ax, 2D2Bh       /* AX = "-+"    load up both possibilities  */
+I       dec     bx              /* BX is the exponent returned from __xcvt */
+I       jnl     EexpSigned
+I       xchg    al, ah          /* It was negative, switch signs */
+I       neg     bx              /* Make it positive for later */
+
+EexpSigned:
+I       stosb
+I       xchg    ax, bx
+
+/*
+        ANSI says that "The exponent always contains AT LEAST two digits".
+        If the exponent is bigger than 99 then we will use as many as are
+        required.
+*/
+I       mov     cx, 3030h               /* "00" this'll be handy later */
+
+I       cmp     ax, 99
+I       jna     EtwoDigits
+
+I       cmp     ax, 999
+I       jna     EthreeDigits
+
+EfourDigits:
+I       cwd                     /* Sign extend AX through DX */
+I       mov     bx, 1000
+I       div     bx
+I       add     al, cl
+I       stosb
+I       xchg    ax, dx
+
+EthreeDigits:
+I       mov     bl, 100
+I       div     bl
+I       add     al, cl
+I       stosb
+I       xchg    al, ah
+I       cbw
+
+EtwoDigits:
+I       mov     bl, 10
+I       div     bl
+I       add     ax, cx          /* '00' */
+I       stosw
+
+/* Both formats are terminated with \0. */
+
+end:
+I       xor     al,al
+I       stosb
+
+I       pop     ES
+
+        return;
+}
+#pragma warn .use
+
+
+/*--------------------------------------------------------------------------*
+
+Description     __realcvt is essentially used by printf family functions. In
+                order  to  include  the  real  conversion  function only if
+                needed (using %f, %e or  %g format), __realcvt is not called
+                directly but via a pointer to function which is declared in
+                the startup code  in an extra segment _CVTSEG.
+
+                This module  is included at link  time only if there  is at
+                least one floating point number, because in that case there
+                are external  references to the  fixups FI?RQQ which  force
+                the emulator to be linked  in. The emulator has an external
+                reference to the value  __turboCvt which forces this module
+                to be linked in.
+
+*---------------------------------------------------------------------------*/
+
+#define CodeSeg _TEXT
+#define cPtr    dw
+
+#pragma warn -rvl
+#pragma warn -use
+#pragma warn -asm
+static void near turboCvt(void)
+{
+I       CodeSeg ENDS
+I       PUBLIC  __turboCvt
+I       __turboCvt      equ     0
+I       _CVTSEG SEGMENT PUBLIC WORD 'DATA'
+I       cPtr    __realcvt
+I       _CVTSEG ENDS
+I       CodeSeg SEGMENT
+}

@@ -1,0 +1,156 @@
+/*---------------------------------------------------------------------------
+ * filename - findfirs.cas
+ *
+ * function(s)
+ *        findfirst - searches disk directory
+ *        findnext  - fetches files which match findfirst
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <dir.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            findfirst - searches disk directory
+
+Usage           int findfirst(const char *pathname, struct ffblk *ffblk,
+                              int attrib);
+
+Prototype in    dir.h
+
+Description     begins a search of a disk directory by using the
+                MS-DOS system call 0x4E.
+
+                pathname is a string with an optional drive specifier,
+                path and file name of the file to be found.   If a
+                matching file is found, the ffblk structure is filled
+                with the file-directory information.
+
+                attrib is an MS-DOS file-attribute byte used in selecting
+                eligible files for the search.  attrib can be one of the
+                following constants defined in dos.h
+
+                        FA_RDONLY  Read only
+                        FA_HIDDEN  Hidden file
+                        FA_SYSTEM  System file
+                        FA_LABEL   Volume label
+                        FA_DIREC   Directory
+                        FA_ARCH    Archive
+
+                For more detailed information about these attributes, refer
+                to the MS-DOS Programmer's Reference Manual.
+
+Return value    success : 0
+                else : -1 and errno is set to
+                        ENOENT  Path or file name not found
+                        ENMFILE No more files
+
+*---------------------------------------------------------------------------*/
+
+int _CType _FARFUNC findfirst(const char *pathname, struct ffblk *ffblk, int attrib)
+{
+asm     push    ds
+
+asm     mov     ah,2fh          /* get (and save) DTA */
+asm     int     21h
+asm     push    es
+asm     push    bx
+
+asm     mov     ah, 01Ah
+asm     LDS_    dx, ffblk
+asm     int     021h            /* Set the disk transfer address */
+
+asm     mov     ah, 04Eh
+asm     mov     cx, attrib
+asm     LDS_    dx, pathname
+asm     int     021h            /* Find first matching file */
+
+asm     pushf                   /* save state of carry flag */
+asm     pop     cx
+asm     xchg    ax, bx          /* save return code */
+
+asm     mov     ah, 01Ah        /* restore DTA */
+asm     pop     dx
+asm     pop     ds
+asm     int     21h
+
+asm     push    cx
+asm     popf
+asm     pop     ds
+
+asm     jc      findfirstFailed
+        return(0);
+
+findfirstFailed:
+        return __IOerror(_BX);
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            findnext - fetches files which match findfirst
+
+Usage           int findnext(struct ffblk *ffblk);
+
+Prototype in    dir.h
+
+Description     findnext is used to fetch subsequent files which
+                match the pathname given in findfirst.  ffblk is the
+                same block filled in by the findfirst call.  This
+                block contains necessary information for continuing
+                the search.  One file name for each call to findnext will
+                be returned until no more files are found in the directory
+                matching the pathname.
+
+Return value    success : 0
+                else : -1 and errno is set to
+                        ENOENT  Path or file name not found
+                        ENMFILE No more files
+
+*---------------------------------------------------------------------------*/
+int _CType _FARFUNC findnext(struct ffblk *ffblk)
+{
+asm     push    ds
+
+asm     mov     ah,2fh          /* get (and save) DTA */
+asm     int     21h
+asm     push    es
+asm     push    bx
+
+asm     mov     ah, 01Ah
+asm     LDS_    dx, ffblk
+asm     int     021h            /* Set the disk transfer address */
+
+asm     mov     ah, 04Fh
+asm     int     021h            /* Find next matching file */
+
+asm     pushf                   /* save state of carry flag */
+asm     pop     cx
+asm     xchg    ax, bx          /* save return code */
+
+asm     mov     ah, 01Ah        /* restore DTA */
+asm     pop     dx
+asm     pop     ds
+asm     int     21h
+
+asm     push    cx
+asm     popf
+asm     pop     ds
+
+asm     jc      findnextFailed
+        return(0);
+
+findnextFailed:
+        return __IOerror(_BX);
+}

@@ -1,0 +1,52 @@
+/*---------------------------------------------------------------------------
+ * filename - freemem.cas
+ *
+ * function(s)
+ *        freemem - frees a previously allocated DOS memory block
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            freemem - frees a previously allocated DOS memory block
+
+Usage           int freemem(unsigned seg);
+
+Prototype in    dos.h
+
+Description     frees a memory block allocated by a previous call to
+                allocmem.  seg is the segment address of that block.
+
+Return value    success : 0
+                else    : -1 and errno is set to
+
+                        ENOMEM  Insufficient memory
+
+*---------------------------------------------------------------------------*/
+
+
+int freemem(unsigned segx)
+{
+asm     mov     ah, 49h
+asm     mov     es, segx
+asm     int     21h
+asm     jc      freememFailed
+
+        return(0);
+
+freememFailed:
+        return __IOerror(_AX);
+}

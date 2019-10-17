@@ -1,0 +1,66 @@
+/*---------------------------------------------------------------------------
+ * filename - flength.cas
+ *
+ * function(s)
+ *        filelength - gets file size in bytes
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <io.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            filelength - gets file size in bytes
+
+Usage           long filelength(int handle);
+
+Prototype in    io.h
+
+Description     returns the length (in bytes) of the file associated
+                with handle
+
+Return value    success : length of the file
+                failure : -1L and errno is set to
+
+                        EBADF  Bad file number
+
+*---------------------------------------------------------------------------*/
+long _FARFUNC filelength (int handle)
+{
+        long    Position;
+
+asm     mov     ax,4201h
+asm     mov     bx,handle
+asm     xor     cx,cx
+asm     xor     dx,dx
+asm     int     21h
+asm     jc      filelengthFailed
+asm     push    dx
+asm     push    ax
+asm     mov     ax,4202h
+asm     xor     cx,cx
+asm     xor     dx,dx
+asm     int     21h
+asm     mov     word ptr Position, ax
+asm     mov     word ptr Position+2, dx
+asm     pop     dx
+asm     pop     cx
+asm     jc      filelengthFailed
+asm     mov     ax,4200h
+asm     int     21h
+asm     jc      filelengthFailed
+        return (Position);
+
+filelengthFailed:
+        return __IOerror (_AX);
+}

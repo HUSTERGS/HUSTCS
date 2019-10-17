@@ -1,0 +1,290 @@
+/*-----------------------------------------------------------------------*
+ * filename - open.cas
+ *
+ * function(s)
+ *        dosCreat     - creates a file
+ *        dosWriteNone - writes zero bytes to a file
+ *        open         - opens a file for reading or writing
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+
+#ifndef __PAS__
+
+#define __IN_OPEN
+
+#include <asmrules.h>
+#include <dos.h>
+#include <errno.h>
+#include <io.h>
+#include <_io.h>
+#include <fcntl.h>
+#include <sys\stat.h>
+#include <RtlData.h>
+
+#if !defined( _RTLDLL )
+extern  unsigned      _notUmask;
+#endif
+
+/*-----------------------------------------------------------------------*
+
+Name            dosCreat -  creates a file
+
+Usage           static  int pascal near  dosCreat (char *pathP,
+                                                   unsigned attrib);
+
+Description     creates a file using DOS function 0x3c
+
+Return value    file handle or -1 on error
+
+*------------------------------------------------------------------------*/
+static  int pascal near  dosCreat (char *pathP, unsigned attrib)
+{
+        pushDS_
+asm     mov     cx, attrib
+asm     mov     ah, 3Ch
+asm     LDS_    dx, pathP
+asm     int     21h     /* AX = creat (DS:DX, CX) */
+        popDS_
+asm     jc      dosCreatFailed
+
+        return _AX;
+
+dosCreatFailed:
+        return  __IOerror (_AX);
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            dosWriteNone - writes zero bytes to a file
+
+Usage           static  void pascal near    dosWriteNone (int handle);
+
+Description     write 0 bytes to a file
+
+Return value    Nothing
+
+*------------------------------------------------------------------------*/
+static  void pascal near    dosWriteNone (int handle)
+{
+asm             mov             bx, handle
+asm             sub             cx, cx   /* zero length causes truncation */
+asm             sub             dx, dx
+asm             mov             ah, 40h
+asm             int             21h      /* dosWrite (fildes, dont-care, 0) */
+
+                return;                    /* no error checking */
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            open - opens a file for reading or writing
+
+Usage           #include <fcntl.h>
+                #include<sys\stat.h>
+                int open(const char *pathname, int access [,unsigned permiss]);
+
+Related
+functions usage int _open(const char *pathname, int access);
+
+Prototype in    io.h
+
+Description     open opens the file specified by pathname, then
+                prepares it for reading and/or writing as determined by
+                the value of access.
+
+                For open, access is constructed by bitwise ORing flags
+                from the following two lists. Only one flag from the first
+                list may be used; the remaining flags may be used in any
+                logical combination.
+
+                List 1: Read/Write flags
+
+                O_RDONLY        Open for reading only.
+                O_WRONLY        Open for writing only.
+                O_RDWR          Open for reading and writing.
+
+
+                List 2: Other access flags
+
+                O_NDELAY        Not used; for UNIX compatibility.
+                O_APPEND        If set, the file pointer will be set
+                                to the end of the file prior to each
+                                write.
+                O_CREAT         If the file exists, this flag has no effect.
+                                If the file does not exist, the file is
+                                created, and the bits of permiss are used
+                                to set the file attribute bits, as in chmod.
+                O_TRUNC         If the file exists, its length is truncated
+                                to 0.
+                                The file attributes remain unchanged.
+                O_EXCL          Used only with O_CREAT. If the file already
+                                exists, an error is returned.
+                O_BINARY        This flag can be given to explicitly open
+                                the file in binary mode.
+                O_TEXT          This flag can be given to explicitly open
+                                the file in text mode.
+
+                These O_... symbolic constants are defined in fcntl.h.
+
+                If neither O_BINARY nor O_TEXT is given, the file is
+                opened in the translation mode set by the global variable
+                _fmode.
+
+                If the O_CREAT flag is used in constructing access, you need
+                to supply the permiss argument to open, from the following
+                symbolic constants defined in sys\stat.h.
+
+                Value of permiss        Access Permission
+
+                S_IWRITE                Permission to write
+                S_IREAD                 Permission to read
+                S_IREAD|S_IWRITE        Permission to read and write
+
+
+                For _open, the value of access in MS-DOS 2.x is limited to
+                O_RDONLY, O_WRONLY, and O_RDWR. For MS-DOS 3.x, the following
+                additional values can also be used:
+
+                O_NOINHERIT     Included if the file is not to be passed to
+                                child programs.
+                O_DENYALL       Allows only the current handle to have access to
+                                the file.
+                O_DENYWRITE     Allows only reads from any other open to the
+                                file.
+                O_DENYREAD      Allows only writes from any other open to the
+                                file.
+                O_DENYNONE      Allows other shared opens to the file.
+
+                Only one of the O_DENYxxx values may be included in a single
+                _open under DOS 3.x. These file-sharing attributes are in
+                addition to any locking performed on the files.
+
+                The maximum number of simultaneously open files is a system
+                configuration parameter.
+
+Return value    On successful completion, these routines return a
+                non-negative integer (the file handle), and the file pointer
+                (that marks the current position in the file) is set to the
+                beginning of the file. On error, they return -1 and errno is
+                set to one of the following:
+
+                        ENOENT  Path or file name not found
+                        EMFILE  Too many open files
+                        EACCES  Permission denied
+                        EINVACC Invalid access code
+
+*------------------------------------------------------------------------*/
+/* open declared old style since prototype has ... */
+
+int  _FARFUNC open(pathP, oflag, mode)
+    const char *pathP; register int oflag; unsigned mode;
+/*
+  Open a new file or replace an existing file with the given pathname.
+  The opened file's read/write permission will be (pmode && !_notUmask),
+  unless the file already exists in which case its present mode is kept.
+*/
+{
+        unsigned  attrib;
+        unsigned  devstat;
+        register int  fildes;
+        _QRTLDataBlock;
+
+        if (! (oflag & (O_TEXT | O_BINARY)))
+                oflag |= _QRTLInstanceData(_fmode) & (O_TEXT | O_BINARY);
+
+        attrib = _chmod (pathP, 0);
+        if (oflag & O_CREAT)
+        {
+                if (((mode &= _QRTLInstanceData(_notUmask)) & (S_IREAD | S_IWRITE)) == 0)
+                        __IOerror (1);
+
+                if (attrib == ~0U)      /* couldn't get file attributes? */
+                {
+                        /* If it's any error other than 'file not found',
+                         * return immediately.  This prevents multiple
+                         * accesses on non-existent drives.
+                         */
+                        if (_doserrno != e_fileNotFound)
+                                return (__IOerror(_doserrno));
+                        attrib = (mode & S_IWRITE) ? _A_NORMAL : _A_RDONLY;
+
+                }
+                else
+                {
+                        if (oflag & O_EXCL)
+                                return(__IOerror (e_fileExists));
+                        else  /* ignore O_CREAT if file exists */
+                                goto OpenExisting;
+                }
+
+/* Are any sharing/inheritance bits specified ?  If so, then we need to use
+   _open(), so  we must create, close,  then reopen it. Since  the creation
+   may be read only mode, but we may need read-write access, we must create
+   it with      write access to  allow us to  reopen for write,  and then later
+   change the mode after a successful open.
+*/
+                if (oflag & 0xF0)               /* any sharing/inheritance ? */
+                {
+                        if ((fildes = dosCreat ((char *)pathP, 0)) < 0)
+                                return(fildes);
+                        _close (fildes);
+                        goto OpenExisting;
+                }
+                else
+                        if ((fildes = dosCreat ((char *)pathP, attrib)) < 0)
+                                return(fildes);
+        }
+        else
+        {
+OpenExisting:
+                if ((fildes = _open (pathP, oflag)) >= 0)
+                {
+
+                        if ( (devstat = ioctl (fildes, 0)) & 0x80)
+                        {
+                                oflag |= O_DEVICE;
+/* Set mode to Binary */
+                                if (oflag & O_BINARY)
+                                        ioctl(fildes, 1, (void *)((devstat & 0xff) | 0x20));
+                        }
+                        else
+                        {
+                                if ((oflag & O_TRUNC))
+                                        dosWriteNone (fildes);
+#if CPM_ctlZ    /* see commentary in file "zapctlz.cas" */
+                                else
+                                        if (! (oflag & (O_BINARY | O_RDONLY)))
+                                                __TrimCtlZ (fildes);
+#endif
+                        }
+
+                        /* set shared file to read-only */
+                        if ((attrib & _A_RDONLY) && (oflag & O_CREAT) && (oflag & 0xF0))
+                        {
+                                _chmod (pathP, 1, _A_RDONLY);
+                        }
+                }
+        }
+
+        if (fildes >= 0)
+            {
+            _QRTLInstanceData(_openfd) [fildes] = (oflag & ~_O_RUNFLAGS) |
+                       ((oflag & (O_CREAT | O_TRUNC)) ? O_CHANGED : 0)|
+                       ((attrib & _A_RDONLY) ? 0 : _O_WRITABLE);
+            }
+        return( fildes );
+}
+
+#endif

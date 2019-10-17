@@ -1,0 +1,2646 @@
+FILES ON DISKS
+--------------
+
+DISK 1
+------
+INSTALL   EXE - Installation program
+UNZIP     EXE - Program to unzip the .ZIP files
+README    COM - Reads the readme file
+ACLOCK    ZIP - 
+   ACLOCK    CPP - File for OWL example program
+   ACLOCK      H - File for OWL example program
+   ACLOCK    PRJ - File for OWL example program
+   ACLOCK     RC - File for OWL example program
+   BITMAP      H - File for OWL example program
+   CUCKOO1   BMP - File for OWL example program
+   CUCKOO2   BMP - File for OWL example program
+   CUCKOO3   BMP - File for OWL example program
+   CUCKOO4   BMP - File for OWL example program
+   CUCKOO5   BMP - File for OWL example program
+   CUCKOO6   BMP - File for OWL example program
+   CUCKOO7   BMP - File for OWL example program
+   CUCKOO8   BMP - File for OWL example program
+   FACE_BMP  BMP - File for OWL example program
+   MAKEFILE      - File for OWL example program
+
+CLASSSRC  ZIP - Source files to C++ class library
+   ABSTARRY  CPP - Abstract array class definitions
+   ARRAY     CPP - Source file for classlibs
+   ASSOC     CPP - Association class (used by dictionary class)
+   BABSTARY  CPP - Source file for classlibs
+   BDICT     CPP - Source file for Classlibs
+   BIDS      DEF - Source file for classlibs
+   BSORTARY  CPP - Source file for classlibs
+   BTREE     CPP - Source file for classlibs
+   BTREEINN  CPP - Source file for classlibs
+   BTREELFN  CPP - Source file for classlibs
+   CLASMAIN  CPP - Source file for classlibs
+   COLLECT   CPP - Ordered collection class definitions
+   CONTAIN   CPP - Container class definitions
+   DBLLIST   CPP - Doubly linked list class definitions
+   DEQUE     CPP - Source file for classlibs
+   DICT      CPP - Dictinary class definitiions
+   HASHTBL   CPP - Hash table class definitions
+   LDATE     CPP - Date class definitions
+   LIST      CPP - List class definitions
+   LTIME     CPP - Time class definitions
+   MEMMGR    CPP - Source file for classlibs
+   OBJECT    CPP - Base class for other objects
+   SORTARRY  CPP - Sorted array class definitions
+   STACK     CPP - Source file for classlibs
+   STRNG     CPP - String class definitions
+   TCLASS    DEF - Definition file for classlibs
+   TIMER     CPP - Source file for classlibs
+   TMPLINST  CPP - Source file for classlibs
+
+CLIBSRC   ZIP - RTL source files
+   ABS       CAS - Source file for the C++ Library
+   ASSERT      C - Source file for the C++ Library
+   BCD2      CPP - Source file for the C++ Library
+   BDOS      CAS - Source file for the C++ Library
+   BIOSCOM   CAS - Source file for the C++ Library
+   BIOSPRIN  CAS - Source file for the C++ Library
+   CHDIR     CAS - Source file for the C++ Library
+   CLEARERR    C - Source file for the C++ Library
+   CLIB      MAK - Makefile for the C++ Library
+   CLIBOBJ   MAK - Makefile for the C++ Library
+   CLREOL      C - Source file for the C++ Library
+   CLRSCR      C - Source file for the C++ Library
+   CONSTREA  CPP - Source file for the C++ Library
+   CPUTS       C - Source file for the C++ Library
+   CURSOR      C - Source file for the C++ Library
+   DEL       CPP - Source file for the C++ Library
+   DELF      CPP - Source file for the C++ Library
+   ERRORMSG    C - Source file for the C++ Library
+   EXECLPE     C - Source file for the C++ Library
+   EXECVE      C - Source file for the C++ Library
+   F_PCMP    ASM - Source file for the C++ Library
+   F_SCOPY   ASM - Source file for the C++ Library
+   FARFUNCS  MAK - Makefile for the C++ Library
+   FDDVT     ASM - Source file for the C++ Library
+   FDOPEN      C - Source file for the C++ Library
+   FFMALLOC    C - Source file for the C++ Library
+   FGETPOS     C - Source file for the C++ Library
+   FILES2      C - Source file for the C++ Library
+   FMODE       C - Source file for the C++ Library
+   FPRINTF     C - Source file for the C++ Library
+   FPSTKLEN    C - Source file for the C++ Library
+   FREEMEM   CAS - Source file for the C++ Library
+   FREOPEN     C - Source file for the C++ Library
+   FSETPOS     C - Source file for the C++ Library
+   GETPSP      C - Source file for the C++ Library
+   GETW        C - Source file for the C++ Library
+   GEXIT       C - Source file for the C++ Library
+   GFREEMEM    C - Source file for the C++ Library
+   GGETMEM     C - Source file for the C++ Library
+   GOTOXY      C - Source file for the C++ Library
+   H_LLSH    ASM - Source file for the C++ Library
+   H_LRSH    ASM - Source file for the C++ Library
+   H_LURSH   ASM - Source file for the C++ Library
+   H_PSBH    ASM - Source file for the C++ Library
+   HEAPLEN     C - Source file for the C++ Library
+   ISATTY    CAS - Source file for the C++ Library
+   KEEP        C - Source file for the C++ Library
+   LABS        C - Source file for the C++ Library
+   LOCALE      C - Source file for the C++ Library
+   LROTL     CAS - Source file for the C++ Library
+   LROTR     CAS - Source file for the C++ Library
+   N_PCMP    ASM - Source file for the C++ Library
+   N_SCOPY   ASM - Source file for the C++ Library
+   NEW       CPP - Source file for the C++ Library
+   NEWF      CPP - Source file for the C++ Library
+   PRINTF      C - Source file for the C++ Library
+   PUREERR   CPP - Source file for the C++ Library
+   PUTCH       C - Source file for the C++ Library
+   READU     ASM - Source file for the C++ Library
+   REALCVT   ASM - Source file for the C++ Library
+   REWIND      C - Source file for the C++ Library
+   ROTL      CAS - Source file for the C++ Library
+   ROTR      CAS - Source file for the C++ Library
+   SCANTOD   ASM - Source file for the C++ Library
+   SETDTA    CAS - Source file for the C++ Library
+   SETFTIME  CAS - Source file for the C++ Library
+   SETUPIO     C - Source file for the C++ Library
+   SIGDATA     C - Source file for the C++ Library
+   SRCHPATH    C - Source file for the C++ Library
+   STKLEN      C - Source file for the C++ Library
+   STRCOLL     C - Source file for the C++ Library
+   STRSET      C - Source file for the C++ Library
+   STRXFRM     C - Source file for the C++ Library
+   TASM      CFG - Config file for the C++ Library
+   TELL        C - Source file for the C++ Library
+   TMPNAM      C - Source file for the C++ Library
+   TURBOC    CFG - Config file for the C++ Library
+   VFPRINTF    C - Source file for the C++ Library
+   VFSCANF     C - Source file for the C++ Library
+   VNEWVF    CPP - Source file for the C++ Library
+   VNEWVN    CPP - Source file for the C++ Library
+   VPRINTF     C - Source file for the C++ Library
+   VSCANF      C - Source file for the C++ Library
+   WILD      ASM - Source file for the C++ Library
+   WILDARGS  ASM - Source file for the C++ Library
+   WRITEU    ASM - Source file for the C++ Library
+   WSCROLL     C - Source file for the C++ Library
+   XCLOSE      C - Source file for the C++ Library
+   XFCLOSE     C - Source file for the C++ Library
+   XFFLUSH     C - Source file for the C++ Library
+
+CLIBSRC1  ZIP - RTL source files
+   _FSOPEN     C - Source file for the C++ Library
+   _STPCPY     C - Source file for the C++ Library
+   ACCESS      C - Source file for the C++ Library
+   ALLOCMEM  CAS - Source file for the C++ Library
+   ATEXIT      C - Source file for the C++ Library
+   BDOSPTR   CAS - Source file for the C++ Library
+   BIOS_COM  CAS - Source file for the C++ Library
+   BIOS_DSK  CAS - Source file for the C++ Library
+   BIOS_PRN  CAS - Source file for the C++ Library
+   BIOSDISK  CAS - Source file for the C++ Library
+   CALLOC      C - Source file for the C++ Library
+   CHDRIVE     C - Source file for the C++ Library
+   CHMOD       C - Source file for the C++ Library
+   CHMODA    CAS - Source file for the C++ Library
+   CLOSE       C - Source file for the C++ Library
+   CLOSEA    CAS - Source file for the C++ Library
+   CLOSEALL    C - Source file for the C++ Library
+   CORELEFT  CAS - Source file for the C++ Library
+   COUNTRY   CAS - Source file for the C++ Library
+   CSCANF      C - Source file for the C++ Library
+   DIVT      CAS - Source file for the C++ Library
+   DOSALLOC    C - Source file for the C++ Library
+   DOSCLOSE    C - Source file for the C++ Library
+   DOSDFREE    C - Source file for the C++ Library
+   DOSEXT    CAS - Source file for the C++ Library
+   DOSFREE     C - Source file for the C++ Library
+   DOSGDRIV    C - Source file for the C++ Library
+   DOSGFTIM    C - Source file for the C++ Library
+   DOSKEEP     C - Source file for the C++ Library
+   DOSREAD   CAS - Source file for the C++ Library
+   DOSSETBL    C - Source file for the C++ Library
+   DOSSFTIM    C - Source file for the C++ Library
+   DOSWRITE  CAS - Source file for the C++ Library
+   F_LXMUL   ASM - Source file for the C++ Library
+   FCLOSE      C - Source file for the C++ Library
+   FCORELFT    C - Source file for the C++ Library
+   FFLUSH      C - Source file for the C++ Library
+   FGETS       C - Source file for the C++ Library
+   FILES       C - Source file for the C++ Library
+   FLENGTH   CAS - Source file for the C++ Library
+   FLUSHALL    C - Source file for the C++ Library
+   FPUTS       C - Source file for the C++ Library
+   FSCANF      C - Source file for the C++ Library
+   GETCBRK     C - Source file for the C++ Library
+   GETCURDI  CAS - Source file for the C++ Library
+   GETDISK     C - Source file for the C++ Library
+   GETDTA    CAS - Source file for the C++ Library
+   GETS        C - Source file for the C++ Library
+   GETSWIT     C - Source file for the C++ Library
+   GREGISTR    C - Source file for the C++ Library
+   H_PADD    ASM - Source file for the C++ Library
+   H_PSBP    ASM - Source file for the C++ Library
+   H_SPUSH   ASM - Source file for the C++ Library
+   INSLINE     C - Source file for the C++ Library
+   KBHIT     CAS - Source file for the C++ Library
+   LOCK      CAS - Source file for the C++ Library
+   MEMCHR    CAS - Source file for the C++ Library
+   MEMCMP    CAS - Source file for the C++ Library
+   MEMCPY    CAS - Source file for the C++ Library
+   MEMICMP     C - Source file for the C++ Library
+   MEMSET    CAS - Source file for the C++ Library
+   MKDIR     CAS - Source file for the C++ Library
+   MOVEDATA  CAS - Source file for the C++ Library
+   MOVETEXT    C - Source file for the C++ Library
+   MULTBYTE    C - Source file for the C++ Library
+   N_LXMUL   ASM - Source file for the C++ Library
+   OPENA     CAS - Source file for the C++ Library
+   PEEK        C - Source file for the C++ Library
+   PUTS        C - Source file for the C++ Library
+   PUTW        C - Source file for the C++ Library
+   RAND        C - Source file for the C++ Library
+   REMOVE    CAS - Source file for the C++ Library
+   RENAME    CAS - Source file for the C++ Library
+   RMDIR     CAS - Source file for the C++ Library
+   RMTMP       C - Source file for the C++ Library
+   SCANF       C - Source file for the C++ Library
+   SEGREAD   CAS - Source file for the C++ Library
+   SETBLOCK  CAS - Source file for the C++ Library
+   SETDATE   CAS - Source file for the C++ Library
+   SETMODE     C - Source file for the C++ Library
+   SLEEP       C - Source file for the C++ Library
+   SOPEN       C - Source file for the C++ Library
+   SOUND     CAS - Source file for the C++ Library
+   STACK     ASM - Source file for the C++ Library
+   STIME       C - Source file for the C++ Library
+   STPCPY      C - Source file for the C++ Library
+   STRCPY    CAS - Source file for the C++ Library
+   STRCSPN     C - Source file for the C++ Library
+   STRDUP      C - Source file for the C++ Library
+   STRLEN    CAS - Source file for the C++ Library
+   STRLWR    CAS - Source file for the C++ Library
+   STRNCAT     C - Source file for the C++ Library
+   STRNSET     C - Source file for the C++ Library
+   STRPBRK     C - Source file for the C++ Library
+   STRRCHR     C - Source file for the C++ Library
+   STRSPN      C - Source file for the C++ Library
+   STRUPR    CAS - Source file for the C++ Library
+   SWAB      CAS - Source file for the C++ Library
+   TMPFILE     C - Source file for the C++ Library
+   TOLOWER     C - Source file for the C++ Library
+   TOUPPER     C - Source file for the C++ Library
+   UMASK       C - Source file for the C++ Library
+   UNLINK    CAS - Source file for the C++ Library
+   VIDINFO     C - Source file for the C++ Library
+
+FILELIST  DOC - File List
+GDIDEMO   ZIP - GDIDEMO example program
+   ARTY      CPP - Source file for Gdidemo example program
+   ARTY        H - Header file for Gdidemo example program
+   ARTYPRIV    H - Header file for Gdidemo example program
+   BACKGRND  BMP - Bitmap for Gdidemo example program
+   BITBLT    CPP - Source file for Gdidemo example program
+   BITBLT      H - Header file for Gdidemo example program
+   DEMOBASE    H - Header file for Gdidemo example program
+   FONT      CPP - Source file for Gdidemo example program
+   FONT        H - Header file for Gdidemo example program
+   GDIDEMO   CPP - Source file for Gdidemo example program
+   GDIDEMO   PRJ - Project file for Gdidemo example program
+   GDIDEMO    RC - Resource file for Gdidemo example program
+   LINE      CPP - Source file for Gdidemo example program
+   LINE        H - Header file for Gdidemo example program
+   MAKEFILE      - Makefile for Gdidemo example program
+   MONOSHIP  BMP - Bitmap for Gdidemo example program
+   SHIP      BMP - Bitmap for Gdidemo example program
+
+INCLUDE   ZIP - Borland C++ Header files
+   _DEFS       H - Definitions of _FAR, _Cdecl, _CType, _CLASSTYPE
+   _NFILE      H - Borland C++ RTL Header file
+   _NULL       H - Definition of NULL
+   ALLOC       H - Borland C++ RTL Header file
+   ASSERT      H - Borland C++ RTL Header file
+   BCD         H - Borland C++ RTL Header file
+   BIOS        H - Borland C++ RTL Header file
+   COMPLEX     H - Borland C++ RTL Header file
+   CONIO       H - Borland C++ RTL Header file
+   CONSTREA    H - Borland C++ RTL Header file
+   CTYPE       H - Borland C++ RTL Header file
+   DIR         H - Borland C++ RTL Header file
+   DIRECT      H - Borland C++ RTL Header file
+   DIRENT      H - Borland C++ RTL Header file
+   DOS         H - Borland C++ RTL Header file
+   ERRNO       H - Borland C++ RTL Header file
+   FCNTL       H - Borland C++ RTL Header file
+   FLOAT       H - Borland C++ RTL Header file
+   FSTREAM     H - Borland C++ RTL Header file
+   GENERIC     H - Borland C++ RTL Header file
+   GRAPHICS    H - Borland C++ RTL Header file
+   IO          H - Borland C++ RTL Header file
+   IOMANIP     H - Borland C++ RTL Header file
+   IOSTREAM    H - Borland C++ RTL Header file
+   LIMITS      H - Borland C++ RTL Header file
+   LOCALE      H - Borland C++ RTL Header file
+   LOCKING     H - Borland C++ RTL Header file
+   MALLOC      H - Borland C++ RTL Header file
+   MATH        H - Borland C++ RTL Header file
+   MEM         H - Borland C++ RTL Header file
+   MEMORY      H - Borland C++ RTL Header file
+   NEW         H - Borland C++ RTL Header file
+   PROCESS     H - Borland C++ RTL Header file
+   SEARCH      H - Borland C++ RTL Header file
+   SETJMP      H - Borland C++ RTL Header file
+   SHARE       H - Borland C++ RTL Header file
+   SIGNAL      H - Borland C++ RTL Header file
+   STAT        H - Borland C++ RTL Header file
+   STDARG      H - Borland C++ RTL Header file
+   STDDEF      H - Borland C++ RTL Header file
+   STDIO       H - Borland C++ RTL Header file
+   STDIOSTR    H - Borland C++ RTL Header file
+   STDLIB      H - Borland C++ RTL Header file
+   STRING      H - Borland C++ RTL Header file
+   STRSTREA    H - Borland C++ RTL Header file
+   TIME        H - Borland C++ RTL Header file
+   TIMEB       H - Borland C++ RTL Header file
+   TYPES       H - Borland C++ RTL Header file
+   UTIME       H - Borland C++ RTL Header file
+   VALUES      H - Borland C++ RTL Header file
+   VARARGS     H - Borland C++ RTL Header file
+
+MATHSRC   ZIP - RTL source files
+   _MATHERL    C - Source file for math library
+   _MATHERR    C - Source file for math library
+   _POW10    CAS - Source file for math library
+   ACOSASIN  CAS - Source file for math library
+   ACOSSINL  CAS - Source file for math library
+   ATAN      CAS - Source file for math library
+   ATAN2     CAS - Source file for math library
+   ATAN2L    CAS - Source file for math library
+   ATANL     CAS - Source file for math library
+   ATOF        C - Source file for math library
+   ATOLD       C - Source file for math library
+   CEIL      CAS - Source file for math library
+   CEILL     CAS - Source file for math library
+   CLEAR87   CAS - Source file for math library
+   COS       CAS - Source file for math library
+   COSH      CAS - Source file for math library
+   COSHL     CAS - Source file for math library
+   COSL      CAS - Source file for math library
+   CTRL87    CAS - Source file for math library
+   DIFFTIME    C - Source file for math library
+   EFCVT       C - Source file for math library
+   EMUVARS   ASM - Source file for math library
+   EMUVARS     H - Header file for math library
+   EXP       CAS - Source file for math library
+   EXPL      CAS - Source file for math library
+   EXPLD     CAS - Source file for math library
+   FABS      CAS - Source file for math library
+   FABSL     CAS - Source file for math library
+   FBSTP     ASM - Source file for math library
+   FLAGS87   ASM - Source file for math library
+   FLOOR     CAS - Source file for math library
+   FLOORL    CAS - Source file for math library
+   FMOD      CAS - Source file for math library
+   FMODL     CAS - Source file for math library
+   FPERR       C - Source file for math library
+   FPRESET     C - Source file for math library
+   FREXP     CAS - Source file for math library
+   FREXPL    CAS - Source file for math library
+   FTOL      ASM - Source file for math library
+   GCVT        C - Source file for math library
+   HUGEVAL     C - Source file for math library
+   HYPOT     CAS - Source file for math library
+   HYPOTL    CAS - Source file for math library
+   LDEXP     CAS - Source file for math library
+   LDEXPL    CAS - Source file for math library
+   LDTRUNC   CAS - Source file for math library
+   LOG       CAS - Source file for math library
+   LOG10     CAS - Source file for math library
+   LOG10L    CAS - Source file for math library
+   LOGL      CAS - Source file for math library
+   MATH      MAK - Make file for math library
+   MATHERR     C - Source file for math library
+   MATHERRL    C - Source file for math library
+   MATHOBJ   MAK - Make file for math library
+   MATHWHY     C - Source file for math library
+   MODF      CAS - Source file for math library
+   MODFL     CAS - Source file for math library
+   POLY      CAS - Source file for math library
+   POLYL     CAS - Source file for math library
+   POW       CAS - Source file for math library
+   POW10D      C - Source file for math library
+   POW10L      C - Source file for math library
+   POWL      CAS - Source file for math library
+   REALCVT   CAS - Source file for math library
+   ROUND     CAS - Source file for math library
+   SCANTOD   CAS - Source file for math library
+   SIN       CAS - Source file for math library
+   SINH      CAS - Source file for math library
+   SINHL     CAS - Source file for math library
+   SINL      CAS - Source file for math library
+   SQRT      CAS - Source file for math library
+   SQRTL     CAS - Source file for math library
+   STAT87    CAS - Source file for math library
+   STRTOD      C - Source file for math library
+   TAN       CAS - Source file for math library
+   TANH      CAS - Source file for math library
+   TANHL     CAS - Source file for math library
+   TANL      CAS - Source file for math library
+   WINTRANS  ASM - Source file for math library
+   XCVT      CAS - Source file for math library
+
+OLESRVR   ZIP - 
+   OLESRVR   CPP - File for OWL example program
+   OLESRVR     H - File for OWL example program
+   OLESRVR    RC - File for OWL example program
+   OLESRVR   PRJ - File for OWL example program
+   MAKEFILE      - File for OWL example program
+   OBJECT    CPP - File for OWL example program
+   SERVER    CPP - File for OWL example program
+   DOCUMENT  CPP - File for OWL example program
+
+OWL       ZIP - 
+   BUILDOWL  BAT - Batch file for building container class libraries and
+                   ObjectWindows
+
+RTLINSRC  ZIP - RTL source files
+   _DIR        H - Source file for RTLinc
+   _FARFUNC    H - Source file for RTLinc
+   _FHEAP      H - Source file for RTLinc
+   _GRAPH      H - Source file for RTLinc
+   _HEAP       H - Source file for RTLinc
+   _HEAP     INC - Source file for RTLinc
+   _IO         H - Source file for RTLinc
+   _MATH       H - Source file for RTLinc
+   _PRINTF     H - Source file for RTLinc
+   _PROCESS    H - Source file for RTLinc
+   _SCANF      H - Source file for RTLinc
+   _STDIO      H - Source file for RTLinc
+   _VECTOR     H - Source file for RTLinc
+   _VIDEO      H - Source file for RTLinc
+   _WIN        H - Source file for RTLinc
+   ASMRULES    H - Source file for RTLinc
+   FAKEIEEE    H - Source file for RTLinc
+   FILESYS     H - Source file for RTLinc
+   INSTDATA    H - Source file for RTLinc
+   IOCONFIG    H - Source file for RTLinc
+   MATHERR   ASI - Source file for RTLinc
+   RTLDATA     H - Source file for RTLinc
+   RULES     ASI - Source file for RTLinc
+   RULES       H - Source file for RTLinc
+   SUBALLOC    H - Source file for RTLinc
+   USER        H - Source file for RTLinc
+
+TD        CA2 - Split File of TD.ZIP
+TDW       CA2 - Split File of TDW.ZIP
+WHELP2    CAB - Split File of WHELP2.ZIP
+WINLBSRC  ZIP - RTL source files
+   ABORT       C - Source file for WINLIB
+   ASMMEM    ASM - Source file for WINLIB
+   ASSERT      C - Source file for WINLIB
+   BCRTL     DEF - Config file for WINLIB
+   EASYWIN   CPP - Source file for WINLIB
+   ERREXIT     C - Source file for WINLIB
+   EWCONIO     C - Source file for WINLIB
+   EWINPROC  CPP - Source file for WINLIB
+   FARHEAP   CPP - Source file for WINLIB
+   FHEAP     CPP - Source file for WINLIB
+   FPERR     ASM - Source file for WINLIB
+   FPINIT    ASM - Source file for WINLIB
+   GDI       DEF - Config file for WINLIB
+   H_CHKSTK  ASM - Source file for WINLIB
+   HEAP      CPP - Source file for WINLIB
+   IMPORT    MAK - Make file for WINLIB
+   INDEP     MAK - Make file for WINLIB
+   INSTDATA  CPP - Source file for WINLIB
+   INT86     CAS - Source file for WINLIB
+   INTDOS    CAS - Source file for WINLIB
+   INTR      CAS - Source file for WINLIB
+   IOCTL     CAS - Source file for WINLIB
+   KERNEL    DEF - Config file for WINLIB
+   KEYBOARD  DEF - Config file for WINLIB
+   NECP        C - Source file for WINLIB
+   PROFC     ASM - Source file for WINLIB
+   PTABLE    ASM - Source file for WINLIB
+   RTLDATA   CPP - Source file for WINLIB
+   RTLMAIN     C - Source file for WINLIB
+   SETARGV     C - Source file for WINLIB
+   SETARGV0    C - Source file for WINLIB
+   SETENV      C - Source file for WINLIB
+   SETENVRN    C - Source file for WINLIB
+   SETJMP    ASM - Source file for WINLIB
+   SIGNAL      C - Source file for WINLIB
+   SOUND     DEF - Config file for WINLIB
+   SUBALLOC  CPP - Source file for WINLIB
+   TASM      CFG - Config file for WINLIB
+   TCDLL     CFG - Config file for WINLIB
+   TURBOC    CFG - Config file for WINLIB
+   USER      DEF - Config file for WINLIB
+   WCFNCPTR  CPP - Source file for WINLIB
+   WEP         C - Source file for WINLIB
+   WIN31     DEF - Source file for WINLIB
+   WIN87EM   DEF - Config file for WINLIB
+   WINDLL    MAK - Make file for WINLIB
+   WINLIB    MAK - Make file for WINLIB
+   WINMAIN     C - Source file for WINLIB
+   WINMEM    ASM - Source file for WINLIB
+   WINOBJ    MAK - Make file for WINLIB
+   WREALCVT  ASM - Source file for WINLIB
+   WSCANTOD  ASM - Source file for WINLIB
+
+README        - File contains last minute information
+
+DISK 2
+------
+BGI       ZIP - Graphics drivers
+   ATT       BGI - Graphics driver for ATT400 graphics card
+   BGIDEMO     C - Graphics demonstration program
+   BGIOBJ    EXE - Conversion program for fonts and drivers
+   BOLD      CHR - Font for Bold char set
+   CGA       BGI - Graphics driver for CGA
+   EGAVGA    BGI - Graphics driver for EGA and VGA
+   EURO      CHR - Font for European char set
+   GOTH      CHR - Font for gothic character set
+   HERC      BGI - Graphics driver for Hercules
+   IBM8514   BGI - Graphics driver for IBM 8514 graphics card
+   LCOM      CHR - Complex char font set
+   LITT      CHR - Font for small character set
+   PC3270    BGI - Graphics driver for PC3270
+   SANS      CHR - Font for sans serif character set
+   SCRI      CHR - Font for script char set
+   SIMP      CHR - Font for Simplex char set
+   TRIP      CHR - Font for triplex character set
+   TSCR      CHR - Font for tiny script char set
+
+CALC      ZIP - Calculator example program
+   CALC      CPP - Hex calculator example program
+   CALC      ICO - Icon for hex calculator example program
+   CALC      PRJ - Project file for CALC example program
+   CALC       RC - Resource file for hex calculator example program
+   MAKEFILE      - Makefile for building CALC example program
+
+CHESS     ZIP - 
+   BBISHOP   BMP - File for OWL example program
+   BKBRUSH   BMP - File for OWL example program
+   BKING     BMP - File for OWL example program
+   BKNGT     BMP - File for OWL example program
+   BMASK     BMP - File for OWL example program
+   BOARD     CPP - File for OWL example program
+   BPAWN     BMP - File for OWL example program
+   BQUEEN    BMP - File for OWL example program
+   BROOK     BMP - File for OWL example program
+   CHESS     ICO - File for OWL example program
+   COLORS    CPP - File for OWL example program
+   COLORS      H - File for OWL example program
+   DISPLAY   CPP - File for OWL example program
+   DRAG      CPP - File for OWL example program
+   EDIT      CPP - File for OWL example program
+   EDIT        H - File for OWL example program
+   EVALU     CPP - File for OWL example program
+   EXTERNS     H - File for OWL example program
+   INFO      CPP - File for OWL example program
+   INFO        H - File for OWL example program
+   KMASK     BMP - File for OWL example program
+   KTMASK    BMP - File for OWL example program
+   MAKEFILE      - File for OWL example program
+   MOVGEN    CPP - File for OWL example program
+   OPENING   LIB - File for OWL example program
+   PMASK     BMP - File for OWL example program
+   PVALUE    CPP - File for OWL example program
+   PVALUE      H - File for OWL example program
+   QMASK     BMP - File for OWL example program
+   RMASK     BMP - File for OWL example program
+   SAVEREST  CPP - File for OWL example program
+   SEARCH    CPP - File for OWL example program
+   SMALL     CPP - File for OWL example program
+   TALK      CPP - File for OWL example program
+   TIMELIB   CPP - File for OWL example program
+   WBISHOP   BMP - File for OWL example program
+   WCDEFS      H - File for OWL example program
+   WCHESS    CPP - File for OWL example program
+   WCHESS    DEF - File for OWL example program
+   WCHESS      H - File for OWL example program
+   WCHESS    PRJ - File for OWL example program
+   WCHESS     RC - File for OWL example program
+   WKING     BMP - File for OWL example program
+   WKNGT     BMP - File for OWL example program
+   WPAWN     BMP - File for OWL example program
+   WQUEEN    BMP - File for OWL example program
+   WROOK     BMP - File for OWL example program
+
+CLASSINC  ZIP - Include files for C++ class library
+   ABSTARRY    H - Header file for classlibs
+   ARRAY       H - Header file for classlibs
+   ARRAYS      H - Header file for classlibs
+   ASSOC       H - Header file for classlibs
+   BAG         H - Header file for classlibs
+   BAGS        H - Header file for classlibs
+   BTREE       H - Header file for classlibs
+   CHECKS      H - Header file for classlibs
+   CLSDEFS     H - Header file for classlibs
+   CLSTYPES    H - Header file for classlibs
+   COLLECT     H - Header file for classlibs
+   CONTAIN     H - Header file for classlibs
+   DBLLIST     H - Header file for classlibs
+   DEQUE       H - Header file for classlibs
+   DEQUES      H - Header file for classlibs
+   DICT        H - Header file for classlibs
+   DLISTIMP    H - Header file for classlibs
+   HASHTBL     H - Header file for classlibs
+   LDATE       H - Header file for classlibs
+   LIST        H - Header file for classlibs
+   LISTIMP     H - Header file for classlibs
+   LTIME       H - Header file for classlibs
+   MEMMGR      H - Header file for classlibs
+   OBJECT      H - Header file for classlibs
+   PRIORTYQ    H - Header file for classlibs
+   QUEUE       H - Header file for classlibs
+   QUEUES      H - Header file for classlibs
+   RESOURCE    H - Header file for classlibs
+   SET         H - Header file for classlibs
+   SETS        H - Header file for classlibs
+   SHDDEL      H - Header file for classlibs
+   SORTABLE    H - Header file for classlibs
+   SORTARRY    H - Header file for classlibs
+   STACK       H - Header file for classlibs
+   STACKS      H - Header file for classlibs
+   STDTEMPL    H - Header file for classlibs
+   STRNG       H - Header file for classlibs
+   TIMER       H - Header file for classlibs
+   VECTIMP     H - Header file for classlibs
+
+CLIBSRC3  ZIP - RTL source files
+   ABSREAD   CAS - Source file for the C++ Library
+   ALLOCA    ASM - Source file for the C++ Library
+   ATOL      CAS - Source file for the C++ Library
+   BCD1        C - Source file for the C++ Library
+   COLOR       C - Source file for the C++ Library
+   CPLX2     CPP - Source file for the C++ Library
+   CREATA    CAS - Source file for the C++ Library
+   CRTINIT   CAS - Source file for the C++ Library
+   CTIME       C - Source file for the C++ Library
+   DIRECT      C - Source file for the C++ Library
+   DOSCMMIT    C - Source file for the C++ Library
+   DOSFIND   CAS - Source file for the C++ Library
+   DOSTIMU   CAS - Source file for the C++ Library
+   EXEC      ASM - Source file for the C++ Library
+   EXECL       C - Source file for the C++ Library
+   EXECLE      C - Source file for the C++ Library
+   EXECLP      C - Source file for the C++ Library
+   EXECV       C - Source file for the C++ Library
+   EXECVP      C - Source file for the C++ Library
+   EXECVPE     C - Source file for the C++ Library
+   EXIT        C - Source file for the C++ Library
+   FARHEAP   ASM - Source file for the C++ Library
+   FHEAPCHK  ASM - Source file for the C++ Library
+   FINDFIRS  CAS - Source file for the C++ Library
+   FOPEN       C - Source file for the C++ Library
+   FSEEK       C - Source file for the C++ Library
+   FSTAT     CAS - Source file for the C++ Library
+   FULLPATH    C - Source file for the C++ Library
+   GETC      CAS - Source file for the C++ Library
+   H_LDIV    ASM - Source file for the C++ Library
+   HARD        C - Source file for the C++ Library
+   HARDERR   CAS - Source file for the C++ Library
+   INT86     CAS - Source file for the C++ Library
+   INTDOS    CAS - Source file for the C++ Library
+   IOCTL     CAS - Source file for the C++ Library
+   IOERROR   CAS - Source file for the C++ Library
+   LDIVT     CAS - Source file for the C++ Library
+   LOCKING     C - Source file for the C++ Library
+   LONGTOA   CAS - Source file for the C++ Library
+   LSEARCH     C - Source file for the C++ Library
+   NEARHEAP  ASM - Source file for the C++ Library
+   NHEAPCHK  ASM - Source file for the C++ Library
+   OPEN      CAS - Source file for the C++ Library
+   PUTC        C - Source file for the C++ Library
+   PUTENV    CAS - Source file for the C++ Library
+   QSORT     CAS - Source file for the C++ Library
+   READ      CAS - Source file for the C++ Library
+   SCANNER   CAS - Source file for the C++ Library
+   SCANTOL   CAS - Source file for the C++ Library
+   SCREEN      C - Source file for the C++ Library
+   SEARCHP   CAS - Source file for the C++ Library
+   SETARGV   ASM - Source file for the C++ Library
+   SETBUF      C - Source file for the C++ Library
+   SETENVP   ASM - Source file for the C++ Library
+   SETJMP    CAS - Source file for the C++ Library
+   SETVBUF     C - Source file for the C++ Library
+   SIGNAL      C - Source file for the C++ Library
+   SPAWN     ASM - Source file for the C++ Library
+   SPAWNL      C - Source file for the C++ Library
+   SPAWNLE     C - Source file for the C++ Library
+   SPAWNLP     C - Source file for the C++ Library
+   SPAWNLPE    C - Source file for the C++ Library
+   SPAWNV      C - Source file for the C++ Library
+   SPAWNVE     C - Source file for the C++ Library
+   SPAWNVP     C - Source file for the C++ Library
+   SPAWNVPE    C - Source file for the C++ Library
+   SPLITPTH    C - Source file for the C++ Library
+   STAT      CAS - Source file for the C++ Library
+   STRNICMP  CAS - Source file for the C++ Library
+   STRTOL      C - Source file for the C++ Library
+   STRTOUL     C - Source file for the C++ Library
+   TZSET     CAS - Source file for the C++ Library
+   VDELF     CPP - Source file for the C++ Library
+   VNEWF     CPP - Source file for the C++ Library
+   VNEWN     CPP - Source file for the C++ Library
+   VPRINTER  CAS - Source file for the C++ Library
+   VRAM      CAS - Source file for the C++ Library
+   WRITE       C - Source file for the C++ Library
+   ZAPCTLZ   CAS - Source file for the C++ Library
+
+OWLINC    ZIP - Object Windows include files
+   APPDICT     H - Header file for application dictionary needed for DLLs
+   APPLICAT    H - Definition of TApplication class
+   BBUTTON     H - Header file for TBButton custom button.
+   BCHKBOX     H - Header file for TBCheckBox custom control.
+   BDIVIDER    H - Header file for TBDivider custom control.
+   BGRPBOX     H - Header file for TBGroupBox custom control.
+   BRADIO      H - Header file for TBRadioButton custom button.
+   BSTATBMP    H - Header file for TBStaticBmp custom button.
+   BSTATIC     H - Header file for TBStatic custom button.
+   BUTTON      H - Definition of TButton class
+   BWINDOW     H - Header file for TBWindow class
+   CHECKBOX    H - Definition of TCheckbox class
+   COMBOBOX    H - Definition of TComboBox class
+   CONTROL     H - Definition of TControl class
+   DIALOG      H - Definition of TDialog class
+   EDIT        H - Definition of TEdit class
+   EDITACC    RC - Definitions of accelerator resources for TEditWindow class
+   EDITMENU   RC - Menu resources for TEditWindow class
+   EDITWND     H - Definition of TEditWindow class
+   FILEACC    RC - Resource file for accelerators for TFileWindow class
+   FILEDIAL  DLG - Dialog resources for TFileDialog class
+   FILEDIAL    H - Definition of TFileDialog class
+   FILEMENU   RC - Menu resource definitions for TFileWindow class
+   FILEWND     H - Definition of TFileWindow class
+   GROUPBOX    H - Definition of TGroupBox class
+   INPUTDIA  DLG - Dialog resources for TInputDialog class
+   INPUTDIA    H - Definition of TInputDialog class
+   LISTBOX     H - Definition of TListBox class
+   MDI         H - Definition of TMDIWindow and related classes
+   MODULE      H - Declaration of TModule class
+   OBJSTRM     H - Header file for streamable object classes
+   OWL         H - Header file for basic ObjectWindows functionality
+   OWLDEFS     H - Header file for basic ObjectWindows definitions
+   OWLRC       H - Definition of constants used in ObjectWindow resource
+                   files
+   RADIOBUT    H - Definition of TRadioButton class
+   SAFEPOOL    H - Header file for the SafetyPool class
+   SCROLLBA    H - Definition of TScrollBar class
+   SCROLLER    H - Definition of TScroller class
+   STATIC      H - Definition of TStatic class
+   STDWNDS   DLG - Dialog resources for TFileWindow and TEditWindow classes
+   TCOLLECT    H - Header file internal collection classes used by Streamable
+                   objects
+   WINDOBJ     H - Definition of TWindowsObject class
+   WINDOW      H - Definition of TWindow class
+
+OWLSRC    ZIP - Object Windows Library source files
+   APPDICT   CPP - Source file for application dictionary needed for DLLs
+   APPLICAT  CPP - Implementation of TApplication class
+   BBUTTON   CPP - Source for TBButton custom button.
+   BCHKBOX   CPP - Source for TBCheckBox custom control.
+   BDIVIDER  CPP - Source for TBDivider custom control.
+   BGRPBOX   CPP - Source for TBGroupBox custom control.
+   BRADIO    CPP - Source for TBRadioButton custom button.
+   BSTATBMP  CPP - Source for TBStaticBmp custom button.
+   BSTATIC   CPP - Source for TBStatic custom button.
+   BUTTON    CPP - Implementation of TButton class
+   BWINDOW   CPP - Source file for TBWindow class
+   CHECKBOX  CPP - Implementation of TCheckBox class
+   COMBOBOX  CPP - Implementation of TComboBox class
+   CONTROL   CPP - Implementation of TControl class
+   DIALOG    CPP - Implementation of TDialog class
+   EDIT      CPP - Implementation of TEdit class
+   EDITWND   CPP - Implementation of TEditWindow class
+   FILEDIAL  CPP - Implementation of TFileDialog class
+   FILEWND   CPP - Implementation of TFileWindow class
+   GROUPBOX  CPP - Implementation of TGroupBox class
+   INPUTDIA  CPP - Implementation of TInputDialog class
+   LISTBOX   CPP - Implementation of TListBox class
+   MAKEFILE      - Makefile for building ObjectWindows libraries
+   MDICLIEN  CPP - Implementation of TMDIClient class
+   MDIFRAME  CPP - Implementation of TMDIWindow class
+   MODULE    CPP - Source for TModule class
+   OBJSTRM   CPP - Streamable object implementation
+   OWL       CPP - Source for common window procedures and instance handling
+   OWL       PRJ - Project file for building ObjectWindows libraries
+   OWLDLL    DEF - Module definition file for building OWL.DLL.
+   OWLMATH   CPP - Source file for math routines required by ObjectWindows
+   OWLWL     PRJ - Project file for building ObjectWindows libraries
+   OWLWM     PRJ - Project file for building ObjectWindows libraries
+   OWLWS     PRJ - Project file for building ObjectWindows libraries
+   RADIOBUT  CPP - Implementation of TRadioButton class
+   SAFEPOOL  CPP - Source code for the SafetyPool class
+   SCROLLBA  CPP - Implementation of TScrollBar class
+   SCROLLER  CPP - Implementation of TScroller class
+   STATIC    CPP - Implementation of TStatic class
+   SWINDOBJ  CPP - Source code for streamable object support for
+                   TWindowsObject class.
+   TCOLLECT  CPP - Implementation of TCollection class used by Streamable
+                   objects
+   TSORTCOL  CPP - Implementation of TSortedCollection class used by
+                   streamable objects
+   WINDOBJ   CPP - Implementation of TWindowsObject class
+   WINDOW    CPP - Implementation of TWindow class
+
+TVDEMOS   ZIP - Turbo Vision Demo files
+   ASCII     CPP - ASCII Table
+   ASCII       H - Header for ASCII Table
+   CALC      CPP - Calculator
+   CALC        H - Header for Calculator
+   CALENDAR  CPP - Calendar Window
+   CALENDAR    H - Header for Calendar Window
+   DATACOLL  CPP - Support Source file for TVforms Demo
+   DATACOLL    H - Support Header file for TVforms Demo
+   DEMOHELP    H - Header file for help context constants for TVDemo
+   DEMOHELP  HLP - Compiled helpfile for TVDemo
+   FIELDS    CPP - Support Source file for TVforms Demo
+   FIELDS      H - Support Header file for TVforms Demo
+   FILEVIEW  CPP - File View Window
+   FILEVIEW    H - Header for file View Window
+   FILEVIEW  PRJ - Project file for file View demo
+   FORMCMDS    H - Support Header file for TVforms Demo
+   FORMS     CPP - Support Source file for TVforms Demo
+   FORMS       H - Support Header file for TVforms Demo
+   FVIEWER   CPP - Main program for file View demo
+   GADGETS   CPP - Heap counter, clock
+   GADGETS     H - Header for heap counter, clock
+   GENFORM   CPP - Support Source file for TVforms Demo
+   GENFORMS  MAK - Make file to create forms for TVforms Demo
+   GENPARTS    H - Header file for Genform.cpp
+   GENPHONE    H - Header file for Genform.cpp
+   GRAPHAPP  CPP - Graphics utilities for BGI and TV demo
+   GRAPHAPP    H - Header file for Graphics utilities
+   HELLO     CPP - Main program for Hello demo
+   HELLO     PRJ - Project file for Hello demo
+   LISTDLG   CPP - Support Source file for TVforms Demo
+   LISTDLG     H - Support Header file for TVforms Demo
+   MOUSEDLG  CPP - Mouse Dialog
+   MOUSEDLG    H - Header for Mouse Dialog
+   PUZZLE    CPP - 15/16 Puzzle
+   PUZZLE      H - Header for 15/16 Puzzle
+   TVBGI     CPP - BGI and TV demo
+   TVBGI       H - Header for BGI and TV demo
+   TVBGI     PRJ - Project file for BGI and TV demo
+   TVCMDS      H - Header for TvDemo
+   TVDEMO      H - Header file for TVDemo.cpp
+   TVDEMO    PRJ - Project file for TVDemo
+   TVDEMO1   CPP - Main program for TVDemo
+   TVDEMO2   CPP - Support source file for TVDemo
+   TVDEMO3   CPP - Support source file for TVDemo
+   TVEDIT      H - Header file for TVEdit demo
+   TVEDIT    PRJ - Project file for TVEdit demo
+   TVEDIT1   CPP - Mail source file for TVEdit demo
+   TVEDIT2   CPP - Support source file for TVEdit demo
+   TVEDIT3   CPP - Support source file for TVEdit demo
+   TVFORMS   CPP - Main Source file for TVforms Demo
+   TVFORMS   PRJ - Project file for TVforms Demo
+   TVTXTDMO  CPP - Main source file for TVText demo
+   TVTXTDMO  PRJ - Project file for TVText demo
+
+TVINC     ZIP - Turbo Vision Header files
+   APP         H - Turbo Vision Header file
+   BUFFERS     H - Turbo Vision Header file
+   COLORSEL    H - Turbo Vision Header file
+   CONFIG      H - Turbo Vision Header file
+   DIALOGS     H - Turbo Vision Header file
+   DRAWBUF     H - Turbo Vision Header file
+   EDITORS     H - Turbo Vision Header file
+   HELP        H - Turbo Vision Header file
+   HELPBASE    H - Turbo Vision Header file
+   MENUS       H - Turbo Vision Header file
+   MSGBOX      H - Turbo Vision Header file
+   OBJECTS     H - Turbo Vision Header file
+   RESOURCE    H - Turbo Vision Header file
+   STDDLG      H - Turbo Vision Header file
+   SYSTEM      H - Turbo Vision Header file
+   TEXTVIEW    H - Turbo Vision Header file
+   TKEYS       H - Turbo Vision Header file
+   TOBJSTRM    H - Turbo Vision Header file
+   TTYPES      H - Turbo Vision Header file
+   TV          H - Turbo Vision Header file
+   TVOBJS      H - Turbo Vision Header file
+   UTIL        H - Turbo Vision Header file
+   VIEWS       H - Turbo Vision Header file
+
+WHELP2    CA9 - Split File of WHELP2.ZIP
+WHELP2    CAA - Split File of WHELP2.ZIP
+
+DISK 3
+------
+BATSRC    ZIP - Batch utilities to build RTL
+   ALL       BAT - Batch file to build RTL
+   BUILD     BAT - Batch file to build RTL
+   CRTL      DOC - Documentation for building custom C++ libraries
+   MAKEDIRS  BAT - Batch file to build directory structure for RTL builds
+   MAKEFILE      - Makefile to build RTL
+   RETURN    TXT - Return char for building custom C++ libraries
+   RULES     MAK - Makefile for building RTL
+   VARS      BAT - Batch file to build RTL
+
+CMDLINE   CA1 - Files in Borland C++ Compiler - Command-Line version
+   BCC       EXE - Command-line version of Borland C++ Compiler
+   BUILTINS  MAK - File containing default inference rules and macros for
+                   MAKE.EXE
+   CPP       EXE - Borland C++ preprocessor
+   MAKE      EXE - Protected mode version of program for managing projects
+   MAKER     EXE - Real mode version of program for managing projects
+   TLINK     EXE - Borland Turbo Linker
+
+WBIN      CA1 - Windows binary files
+   BC        ICO - Borland C++ Icon file
+   BC        PIF - PIF file for BC
+   BCW       EXE - Borland C++ for Windows IDE
+   BORTE     FON - Font file for BCW.EXE
+   BRC       EXE - RC compatible shell program
+   BRCC      EXE - Command Line Resource Compiler
+   BRCWIN    DLL - Resource compiler DLL
+   BUILDSYM  EXE - Program to build .SYS files from .EXE files
+   DFA       EXE - Program to process Winspctr's log files
+   EXEMAP    EXE - Borland .EXE to .MAP program
+   FCONVERT  EXE - ASCII <> ANSI conversion utility
+   GROUPS    EXE - Build Windows group for Borland's window compatible
+                   products
+   HC31      ERR - Win 3.1 help compiler error list
+   HC31      EXE - Win 3.1 help compiler
+   HC        BAT - batch file to call Win3.1  help compiler
+   HELP      ICO - Borland help icon
+   IMPLIBW   EXE - Utility to convert windows LIB files to DEF files
+   RC        EXE - Microsoft's Resource Compiler
+   RC2MSG    EXE - RC filter program for Programmer's Platform
+   RCPP      ERR - Microsoft's Resource Compiler error file
+   RCPP      EXE - Microsoft's Resource Compiler file
+   RLINK     EXE - Resource Linker
+   TBROWSER  DLL - Borland Class Browser for Window Apps
+   TCOLORCC  DLL - Borland Custom color control
+   TMAPSYM   EXE - Borland .MAP to .SYM program
+   TOOLHELP  DLL - Win 3.1 toolhelp file
+   WINHELP   EXE - Windows 3.1 help file program
+   WINSIGHT  EXE - WinSight program for Windows
+   WINSIGHT  HLP - Help for WinSight
+   WINSPCTR  EXE - Program to capture UAE's in the Windows Environment
+   WINSPCTR  HLP - WINSPCTR's help file
+   WINSTUB   EXE - Windows stub program
+   WORKOPT   DOS - Parameter file for Resource Compiler
+   WSIHOOK   DLL - Support DLL for WinSight
+   WSIWIN    DLL - Support DLL for WinSight
+
+WHELP2    CA7 - Split File of WHELP2.ZIP
+WHELP2    CA8 - Split File of WHELP2.ZIP
+
+DISK 4
+------
+BINDLL    ZIP - Borland C++ DLL package
+   BC30RTL   DLL - Borland run-time library DLL for Windows
+   BIDS31    DLL - Library file for C++ classes with templates
+   OWL31     DLL - ObjectWindows DLL
+   TCLASS31  DLL - Library file for C++ classes
+
+CHELP31   ZIP - 
+   CHELP       C - Windows 3.1 example file
+   CHELP     DEF - Windows 3.1 example file
+   CHELP     HLP - Windows 3.1 example file
+   CHELP     HPJ - Windows 3.1 example file
+   CHELP     PRJ - Windows 3.1 example file
+   CHELP      RC - Windows 3.1 example file
+   CHELP     RTF - Windows 3.1 example file
+   CHELPM      H - Windows 3.1 example file
+   CHELPR      H - Windows 3.1 example file
+
+CLASSLIB  ZIP - C++ class library
+   BIDSDBL   LIB - Library file for C++ classes with templates
+   BIDSDBS   LIB - Library file for C++ classes with templates
+   BIDSDLL   LIB - Library file for C++ classes with templates
+   BIDSL     LIB - Library file for C++ classes with templates
+   BIDSS     LIB - Library file for C++ classes with templates
+   TCLASDBL  LIB - Library file for C++ classes
+   TCLASDBS  LIB - Library file for C++ classes
+   TCLASDLL  LIB - Library file for C++ classes
+   TCLASSL   LIB - Library file for C++ classes
+   TCLASSS   LIB - Library file for C++ classes
+
+EXAMPLES  ZIP - Example programs
+   BARCHART    C - C example file
+   DEF2      CPP - C++ example - another version of DEF.CPP
+   DEF2        H - Header file for DEF.CPP
+   FILTER      H - Header file for TASM2MSG.C and GREP2MSG.C
+   GETOPT      C - Parses options in command line
+   GREP2MSG    C - Example program for Borland C++ filters
+   HELLO       C - Example Borland C++ program
+   IMPL2MSG    C - source for IMPLIB filter program
+   LIST2     CPP - Another version of LIST.CPP
+   LIST2       H - Header file for LIST2.CPP
+   MYFUNCS   CPP - C example file
+   MYFUNCS     H - C example Header file
+   MYMAIN    CPP - C example file
+   RC2MSG      C - Example program for Borland C++ filters
+   TASM2MSG    C - Example program for Borland C++ filters
+   VCIRC     CPP - C++ example program
+   VCIRC     PRJ - Project file for VCIRC.CPP
+   VPOINT    CPP - C++ example program
+   VPOINT      H - Header file for VPOINT.CPP
+
+TDWEXMPL  ZIP - Turbo Debugger Example Programs for Windows
+   BCWDEMO     C - C Program to Demonstrate Debugger Features of TDW
+   BCWDEMO   DEF - Definition file used to Build BCWDEMO*.C Programs
+   BCWDEMO   EXE - Executable file For C Program to run in TDW
+   BCWDEMO     H - Header file used to Build Sample BCWDEMO* Programs
+   BCWDEMO   ICO - Icon file used to attached to Sample BCWDEMO* Programs
+   BCWDEMO   PRJ - Makefile to Build Sample BCWDEMO.C Program
+   BCWDEMO    RC - Resource file used to Build BCWDEMO*.C Programs
+   BCWDEMOA    C - C Program to Demonstrate Debugger Features of TDW
+   BCWDEMOA  EXE - Executable file For C Program to run in TDW
+   BCWDEMOA  PRJ - Makefile to Build Sample BCWDEMOA.C Program
+   BCWDEMOB    C - C Program to Demonstrate Debugger Features of TDW
+   BCWDEMOB  EXE - Executable file For C Program to run in TDW
+   BCWDEMOB  PRJ - Makefile to Build Sample BCWDEMOB.C Program
+   TDODEMO   CPP - C Program to Demonstrate Debugger Features of TDW
+   TDODEMO   DEF - Definition file used to Build TDODEMO.CPP Program
+   TDODEMO   EXE - Executable file For C Program to run in TDW
+   TDODEMO     H - Header file used to Build Sample TDODEMO Programs
+   TDODEMO   ICO - Icon file used to attached to Sample TDODEMO Programs
+   TDODEMO   PRJ - Makefile to Build Sample TDODEMO.CPP Program
+   TDODEMO    RC - Resource file used to Build TDODEMO.CPP Programs
+   TDODEMOB  CPP - C Program to Demonstrate Debugger Features of TDW
+   TDODEMOB  EXE - Executable file For C Program to run in TDW
+   TDODEMOB    H - Header file used to Build Sample TDODEMOB Programs
+   TDODEMOB  PRJ - Makefile to Build Sample TDODEMOB.CPP Program
+
+WHELP2    CA6 - Split File of WHELP2.ZIP
+WHEREIS   ZIP - WHEREIS example program
+   BIOS      INC - Tasm example file
+   BIOSMAC   DOC - Tasm example file
+   DEMO1     BAT - Tasm example file
+   DOS       INC - Tasm example file
+   DOSMAC    DOC - Tasm example file
+   IASCIIZS  ASM - Tasm example file
+   IBIOS     MAC - Tasm example file
+   IBYTECPY  ASM - Tasm example file
+   IDELCHAR  ASM - Tasm example file
+   IDOS      INC - Tasm example file
+   IDOS      MAC - Tasm example file
+   IEXECDOS  ASM - Tasm example file
+   IFINDBYT  ASM - Tasm example file
+   IFINDFIL  ASM - Tasm example file
+   IFINDREP  ASM - Tasm example file
+   ILOCSTRG  ASM - Tasm example file
+   IMACROS   MAC - Tasm example file
+   IPARAM    ASM - Tasm example file
+   IPARSEFN  ASM - Tasm example file
+   ISKPWHIT  ASM - Tasm example file
+   IWHEREIS  ASM - Tasm example file
+   IWHGLOBL  INC - Tasm example file
+   IWRITEPS  ASM - Tasm example file
+   KBD       INC - Tasm example file
+   WHEREIS   DOC - Tasm example file
+   WHEREIS   MAK - Tasm example file
+   WHUSAGE   INC - Tasm example file
+
+WINLIB    CA1 - Window libraries
+   C0DC      OBJ - Compact model startup code - Windows DLL
+   C0DL      OBJ - Large model startup code - Windows DLL
+   C0DM      OBJ - Medium model startup code - Windows DLL
+   C0DS      OBJ - Small model startup code - Windows DLL
+   C0WC      OBJ - Compact model startup code - Windows EXE
+   C0WL      OBJ - Large model startup code - Windows EXE
+   C0WM      OBJ - Medium model startup code - Windows EXE
+   C0WS      OBJ - Small model startup code - Windows EXE
+   CRTLDLL   LIB - Import library for BC30RTL.DLL
+   CWC       LIB - Compact model run-time library - Windows
+   CWL       LIB - Large model run-time library - Windows
+   CWM       LIB - Medium model run-time library - Windows
+   CWS       LIB - Small model run-time library - Windows
+   MATHWC    LIB - Compact model windows math library
+   MATHWL    LIB - Large model windows math library
+   MATHWM    LIB - Medium model windows math library
+   MATHWS    LIB - Small model windows math library
+
+
+DISK 5
+------
+CHECKERS  ZIP - Checkers example program
+   BLACKKNG  BMP - Bitmap for Checkers example program
+   BLACKMAN  BMP - Bitmap for Checkers example program
+   BOARD     CPP - Source file for Checkers example program
+   BOARD       H - Header file for Checkers example program
+   CHECKERS  CPP - Source file for Checkers example program
+   CHECKERS    H - Header file for Checkers example program
+   CHECKERS  ICO - Icon for Checkers example program
+   CHECKERS  PRJ - Project file for Checkers example program
+   CHECKERS   RC - Resource file for Checkers example program
+   HAND      CUR - Cursor for Checkers example program
+   HANDPC    CUR - Cursor for Checkers example program
+   INFO      CPP - Source file for Checkers example program
+   INFO        H - Header file for Checkers example program
+   MAKEFILE      - Makefile for Checkers example program
+   REDKING   BMP - Bitmap for Checkers example program
+   REDMAN    BMP - Bitmap for Checkers example program
+
+CLIBSRC2  ZIP - RTL source files
+   BIOS_EQU  CAS - Source file for the C++ Library
+   BIOS_KEY  CAS - Source file for the C++ Library
+   BIOSEQU   CAS - Source file for the C++ Library
+   BIOSKEY   CAS - Source file for the C++ Library
+   BRK       CAS - Source file for the C++ Library
+   BSEARCH     C - Source file for the C++ Library
+   CASTMPTR  CPP - Source file for the C++ Library
+   CGETS       C - Source file for the C++ Library
+   CHAININT  ASM - Source file for the C++ Library
+   CHSIZE    CAS - Source file for the C++ Library
+   CLOCK     CAS - Source file for the C++ Library
+   CPLX1     CPP - Source file for the C++ Library
+   CPRINTF     C - Source file for the C++ Library
+   CREAT     CAS - Source file for the C++ Library
+   CTRLBRK     C - Source file for the C++ Library
+   CTYPE       C - Source file for the C++ Library
+   CVTFAK    ASM - Source file for the C++ Library
+   DDVT      ASM - Source file for the C++ Library
+   DELAY     CAS - Source file for the C++ Library
+   DOSCMD      C - Source file for the C++ Library
+   DOSCREAT  CAS - Source file for the C++ Library
+   DOSENV      C - Source file for the C++ Library
+   DOSFATTR  CAS - Source file for the C++ Library
+   DOSGDATE    C - Source file for the C++ Library
+   DOSLOCK     C - Source file for the C++ Library
+   DOSOPEN   CAS - Source file for the C++ Library
+   DOSSDATE    C - Source file for the C++ Library
+   DOSSEEK     C - Source file for the C++ Library
+   DOSVECT   CAS - Source file for the C++ Library
+   DUP2      CAS - Source file for the C++ Library
+   EOF       CAS - Source file for the C++ Library
+   FBRK        C - Source file for the C++ Library
+   FCALLOC   CAS - Source file for the C++ Library
+   FNMERGE     C - Source file for the C++ Library
+   FNSPLIT     C - Source file for the C++ Library
+   FREAD       C - Source file for the C++ Library
+   FTIME       C - Source file for the C++ Library
+   FWRITE      C - Source file for the C++ Library
+   GETCH     CAS - Source file for the C++ Library
+   GETCWD      C - Source file for the C++ Library
+   GETDATE     C - Source file for the C++ Library
+   GETDCWD   CAS - Source file for the C++ Library
+   GETENV    CAS - Source file for the C++ Library
+   GETFAT    CAS - Source file for the C++ Library
+   GETFTIME  CAS - Source file for the C++ Library
+   GETPASS     C - Source file for the C++ Library
+   GETVECT   CAS - Source file for the C++ Library
+   GETVERF   CAS - Source file for the C++ Library
+   GPTEXT      C - Source file for the C++ Library
+   H_PADA    ASM - Source file for the C++ Library
+   H_PINA    ASM - Source file for the C++ Library
+   INPORT    CAS - Source file for the C++ Library
+   INTR      CAS - Source file for the C++ Library
+   IS        CAS - Source file for the C++ Library
+   LOADPROG    C - Source file for the C++ Library
+   LSEEK     CAS - Source file for the C++ Library
+   LTOA1       C - Source file for the C++ Library
+   MAKEPATH    C - Source file for the C++ Library
+   MEMCCPY   CAS - Source file for the C++ Library
+   MKNAME      C - Source file for the C++ Library
+   MKTEMP      C - Source file for the C++ Library
+   MOVMEM    CAS - Source file for the C++ Library
+   OUTPORT   CAS - Source file for the C++ Library
+   PARSFNM   CAS - Source file for the C++ Library
+   PERROR      C - Source file for the C++ Library
+   POKE        C - Source file for the C++ Library
+   RANDBLK   CAS - Source file for the C++ Library
+   READA     CAS - Source file for the C++ Library
+   SCROLL      C - Source file for the C++ Library
+   SPRINTF     C - Source file for the C++ Library
+   SSCANF      C - Source file for the C++ Library
+   STKAVAIL  ASM - Source file for the C++ Library
+   STRCAT    CAS - Source file for the C++ Library
+   STRCHR    CAS - Source file for the C++ Library
+   STRCMP    CAS - Source file for the C++ Library
+   STRDATE     C - Source file for the C++ Library
+   STRERROR    C - Source file for the C++ Library
+   STRICMP   CAS - Source file for the C++ Library
+   STRNCMP   CAS - Source file for the C++ Library
+   STRNCPY   CAS - Source file for the C++ Library
+   STRREV    CAS - Source file for the C++ Library
+   STRSTR    CAS - Source file for the C++ Library
+   STRTOK      C - Source file for the C++ Library
+   SYSTEM      C - Source file for the C++ Library
+   TEMPNAM     C - Source file for the C++ Library
+   TEXTMODE    C - Source file for the C++ Library
+   TIMECVT     C - Source file for the C++ Library
+   UNGETC    CAS - Source file for the C++ Library
+   UTIME       C - Source file for the C++ Library
+   VAPP      CPP - Source file for the C++ Library
+   VAPPV     CPP - Source file for the C++ Library
+   VDEL      CPP - Source file for the C++ Library
+   VDELN     CPP - Source file for the C++ Library
+   VNEW      CPP - Source file for the C++ Library
+   VNEWV     CPP - Source file for the C++ Library
+   WHEREXY     C - Source file for the C++ Library
+   WINDOW      C - Source file for the C++ Library
+   WRITEA    CAS - Source file for the C++ Library
+
+CMDLG31   ZIP - 
+   CMDLG       C - Windows 3.1 example file
+   CMDLG     DEF - Windows 3.1 example file
+   CMDLG       H - Windows 3.1 example file
+   CMDLG     PRJ - Windows 3.1 example file
+   CMDLG      RC - Windows 3.1 example file
+   CMDLGR      H - Windows 3.1 example file
+
+DOC       ZIP - Miscellaneous documentation
+   BRIEF     TEM - Sample Editor Macros file for Brief emulation
+   CMACROS   TEM - Sample Editor Macros file for C emulation
+   DBGBOARD   TD - Info about the TD hardware debugging interface
+   DEFAULTS  TEM - Sample Editor Macros file emulating alternate keyboard
+                   setup
+   DOSEDIT   TEM - Sample Editor Macros file for Dosedit emulation
+   EPSILON   TEM - Sample Editor Macros file for Epsilon emulation
+   H2ASH     TSM - Documentation for .H to .ASH conversion utility
+   HDWDEBUG   TD - How to use 386 hardware debugging features
+   HELPME!   DOC - Answers to commonly asked questions
+   HELPME!   PRF - Answers to commonly asked PROF questions
+   HELPME!    TD - Answers to commonly asked DEBUGGER questions
+   HELPME!   TSM - Answers to commonly asked TASM questions
+   MANUAL    BCA - Corrections to the manual
+   MANUAL    PRF - Additions and corrections to the PROF manuals
+   MANUAL     TD - Additions and corrections to the DEBUGGER manuals
+   MANUAL    TSM - Additions and corrections to the TASM manuals
+   SAMPLES   BCA - Samples documentation
+   TCREF     TSM - Info about the TASM TCREF utility
+   UTIL      DOC - Information about Borland C++ utilities
+   UTILS     PRF - Info about the TPROF TDRF utility
+   UTILS      TD - Info about various TD utilities
+   WIN31     DOC - Documentation for conversion to Windows 3.1
+   WINPEN    DOC - Documentation for Pen Windows
+   WINMEM    DOC - Information about windows specific memory manager
+   WINSPCTR  DOC - Documentation for Winspector
+
+HLIB      ZIP - Huge model libraries
+   C0H       OBJ - Huge model startup code
+   CH        LIB - Huge model run-time library
+   MATHH     LIB - Huge model math library
+
+RWCDEMO   ZIP - Compressed Borland C++ demo files
+   BITBNAPP    C - Demo app using bitmapped button DLL
+   BITBNAPP  RES - Bitmapped button application resources
+   BITBTN      C - Demo bitmapped button dll with custom control API
+   BITBTN    DEF - Bitmapped button dll linker definitions file
+   BITBTN    PRJ - Bitmapped button DLL IDE Project file
+   BITBTN    RES - Bitmapped button dll resources
+   BITBTNCO    H - Bitmapped button dll resource #defines
+   BTNBNAPP  PRJ - Bitmapped button application IDE project file
+   RWCDEMO   CPP - BCC Demo app
+   RWCDEMO   DEF - BCC Demo linker definitions file
+   RWCDEMO     H - BCC Demo app .h file
+   RWCDEMO   PRJ - Project file for building demo app with "standard" windows
+                   controls
+   RWCDEMO    RC - Demo resources using "standard" controls
+   RWCDEMO   RES - Demo resources using "standard" controls
+   RWCDEMOB  PRJ - Project file for building demo app with Borland Custom
+                   Controls
+   RWCDEMOB   RC - Demo resources using Borland Windows Custom Controls
+   RWCDEMOB  RES - Demo resources using Borland Windows Custom Controls
+   RWCDEMOC    H - Demo .h file for resource id's
+   RWCDLG    CPP - BCC Demo app dialogs
+   RWCDLG      H - BCC Demo app dialogs .h file
+   RWCWND    CPP - BCC Demo app windows
+   RWCWND      H - BCC Demo dialogs .h file
+   RWDEMO    CUR - Demo cursor file
+   RWDEMO    ICO - BCC demo icon
+   STATBAR   BMP - Demo status line bitmap
+   STATLINE  BMP - Demo status line bitmap
+
+TASMEXMP  ZIP - zip file
+   ASMPSCL   ASM - Tasm example file
+   AVERAGE   ASM - Tasm example file
+   BIOS      INC - Tasm example file
+   CALCAVG   CPP - Tasm example file
+   CALLCT    CPP - Tasm example file
+   CALLPROC  ASM - Tasm example file
+   CASMLINK  ASM - Tasm example file
+   COMPROG   ASM - Tasm example file
+   CONCISE   ASM - Tasm example file
+   COUNT     ASM - Tasm example file
+   COUNTADD  ASM - Tasm example file
+   COUNTADD  CPP - Tasm example file
+   COUNTLG   ASM - Tasm example file
+   CSPEC     ASM - Tasm example file
+   DBLCOLON  ASM - Tasm example file
+   DLLPROG   ASM - Tasm example file
+   DOS       INC - Tasm example file
+   DOTOTAL   ASM - Tasm example file
+   ENVMOD    ASM - Tasm example file
+   ENVSTR    PAS - Tasm example file
+   EXCHMOD   ASM - Tasm example file
+   EXEPROG   ASM - Tasm example file
+   FINDCHAR  ASM - Tasm example file
+   HELLO1    ASM - Tasm example file
+   HELLO2    ASM - Tasm example file
+   HELLO3    ASM - Tasm example file
+   HEX       ASM - Tasm example file
+   HEX       PAS - Tasm example file
+   HEXMOD    ASM - Tasm example file
+   KBD       INC - Tasm example file
+   LINK2ASM  CPP - Tasm example file
+   MBIOS     MAC - Tasm example file
+   MDOS      MAC - Tasm example file
+   MMACROS   MAC - Tasm example file
+   PRIMES    ASM - Tasm example file
+   PRMSTACK  ASM - Tasm example file
+   REVERSE   ASM - Tasm example file
+   SHOWTOT   CPP - Tasm example file
+   SOMESTR   ASM - Tasm example file
+   VAREXCH   ASM - Tasm example file
+   VAREXCH   PAS - Tasm example file
+   WINPROG   ASM - Tasm example file
+
+TDEXMPL   ZIP - Turbo Debugger Example Programs for DOS
+   BCDEMO      C - C Program to Demonstrate Debugger Features
+   BCDEMO    EXE - Executable file For C Program
+   BCDEMOB     C - C Program to Demonstrate Debugger Features
+   BCDEMOB   EXE - Executable file For C Program
+
+WEXAMPLE  ZIP - Windows example files
+   BITMAP    CPP - Windows sample app - source
+   BITMAP    DEF - Windows sample app - module definition file
+   BITMAP      H - Windows sample app - Header file
+   BITMAP    PRJ - Windows sample app - project file
+   BITMAP     RC - Windows sample app - resource file
+   BULLET    BMP - Help compiler example bitmap file
+   CHKBOFF   BMP - Help compiler example bitmap file
+   CHKBON    BMP - Help compiler example bitmap file
+   CODEC     BMP - Help compiler example bitmap file
+   CONTINUE  BMP - Help compiler example bitmap file
+   DDECLNT     C - Windows sample app - source
+   DDECLNT     H - Windows sample app - Header file
+   DDESRVR     C - Windows sample app - source
+   DDESRVR     H - Windows sample app - Header file
+   DLLDEMO   CPP - Windows sample app - source
+   DLLDEMO   DEF - Windows sample app - module definition file
+   DLLDEMO   ICO - Windows sample app - icon file
+   DLLDEMO   PRJ - Windows sample app - project file
+   DLLDEMO    RC - Windows sample app - resource file
+   DLLDEMO1  BMP - Windows sample app - bitmap file
+   DLLDEMO2  BMP - Windows sample app - bitmap file
+   DLLSHELL  CPP - Windows sample app - source
+   DONE      BMP - Help compiler example bitmap file
+   FFIND       C - Windows sample app - Source
+   FFIND     DEF - Windows sample app - Module definition file
+   FFIND       H - Windows sample app - Header file
+   FFIND     ICO - Windows sample app - icon file
+   FFIND     PRJ - Windows sample app - project file
+   FFIND      RC - Windows sample app - resource file
+   HDUMP       C - Windows sample app - source
+   HDUMP     DEF - Windows sample app - module definition file
+   HDUMP       H - Windows sample app - Header file
+   HDUMP     ICO - Windows sample app - icon file
+   HDUMP     PRJ - Windows sample app - project file
+   HDUMP      RC - Windows sample app - resource file
+   HELP      CUR - Help compiler example file
+   HELPEX      C - Help compiler example source file
+   HELPEX    DEF - Help compiler example module definition file
+   HELPEX    DLG - Help compiler example dialog file
+   HELPEX      H - Help compiler example Header file
+   HELPEX    HPJ - Help compiler example file
+   HELPEX    PRJ - Project file for help compiler examples
+   HELPEX     RC - Help compiler example resource file
+   HELPEX    RTF - Help compiler example file
+   HELPICON  BMP - Help compiler example bitmap file
+   HELPIDS     H - Help compiler example Header file
+   KEYS      RTF - Help compiler example file
+   MSGPROC     C - Windows sample app - source
+   MSGPROC     H - Windows sample app - Header file
+   MSGWND      C - Windows sample app - source
+   MSGWND    DEF - Windows sample app - module definition file
+   MSGWND      H - Windows sample app - Header file
+   MSGWND    ICO - Windows sample app - icon file
+   MSGWND    PRJ - Windows sample app - project file
+   MSGWND     RC - Windows sample app - resource file
+   TERMS     RTF - Help compiler example bitmap file
+   TODO      DEF - Windows sample app - Module definition file
+   TODO      PRJ - Windows sample app - Project file
+   TODODEFS    H - Windows sample app - Header file
+   TODODLGS  CPP - Windows sample app - Source
+   TODODLGS    H - Windows sample app - Header file
+   TODOLIST  CPP - Windows sample app - Source
+   TODOLIST    H - Windows sample app - Header file
+   TODOWIN   CPP - Windows sample app - Source
+   TODOWIN     H - Windows sample app - Header file
+   TODOWIN    RC - Windows sample app - Resource file
+   TSTAPP      C - Windows sample app - source
+   TSTAPP    DEF - Windows sample app - module definition file
+   TSTAPP      H - Windows sample app - Header file
+   TSTAPP    ICO - Windows sample app - icon file
+   TSTAPP    PRJ - Windows sample app - project file
+   TSTAPP     RC - Windows sample app - resource file
+   WHELLO    CPP - Windows sample app - Source
+   WHELLO    DEF - Windows sample app - Module definition file
+   WHELLO    ICO - Windows sample app - icon file
+   WHELLO    MAK - Windows sample app - make file
+   WHELLO    PRJ - Windows sample app - project file
+   WHELLO     RC - Windows sample app - resource file
+
+WHELP2    CA4 - Split File of WHELP2.ZIP
+WHELP2    CA5 - Split File of WHELP2.ZIP
+
+DISK 6
+------
+CLIB      ZIP - Compact model libraries
+   C0C       OBJ - Compact model startup code
+   CC        LIB - Compact model run-time library
+   MATHC     LIB - Compact model math library
+
+CLIOLE    ZIP - 
+   CLIOLE      C - Windows 3.1 example file
+   CLIOLE    DEF - Windows 3.1 example file
+   CLIOLE      H - Windows 3.1 example file
+   CLIOLE    PRJ - Windows 3.1 example file
+   CLIOLE     RC - Windows 3.1 example file
+   CLIOLEER    C - Windows 3.1 example file
+   CLIOLEER    H - Windows 3.1 example file
+   CLIOLERC    H - Windows 3.1 example file
+
+DDEML     ZIP - 
+   DDECLI    CPP - File for OWL example program
+   DDECLI      H - File for OWL example program
+   DDECLI    PRJ - File for OWL example program
+   DDECLI     RC - File for OWL example program
+   DDECLIR     H - File for OWL example program
+   DDESVR    CPP - File for OWL example program
+   DDESVR      H - File for OWL example program
+   DDESVR    PRJ - File for OWL example program
+   MAKEFILE      - File for OWL example program
+
+DDEML31   ZIP - 
+   DDECLNT     C - Windows 3.1 example file
+   DDECLNT   DEF - Windows 3.1 example file
+   DDECLNT   DOC - Windows 3.1 example file
+   DDECLNT     H - Windows 3.1 example file
+   DDECLNT   ICO - Windows 3.1 example file
+   DDECLNT   PRJ - Windows 3.1 example file
+   DDECLNT    RC - Windows 3.1 example file
+   DDESRVR     C - Windows 3.1 example file
+   DDESRVR   DEF - Windows 3.1 example file
+   DDESRVR     H - Windows 3.1 example file
+   DDESRVR   ICO - Windows 3.1 example file
+   DDESRVR   PRJ - Windows 3.1 example file
+   DDESRVR    RC - Windows 3.1 example file
+
+LLIB      ZIP - Large model libraries
+   C0L       OBJ - Large model startup code
+   CL        LIB - Large model run-time library
+   MATHL     LIB - Large model math library
+
+OWLDEMOS  ZIP - Misc Object Windows demo programs
+   BSCRLAPP  CPP - Bitmap scroller example
+   BSCRLAPP  PRJ - Project file for BSCRLAPP example program
+   BSCRLAPP   RC - Resource file for BSCRLAPP example program
+   BTNTEST   CPP - BTNTEST documentation demo program
+   BTNTEST   PRJ - Project file for BTNTEST example program
+   CALLDLL   CPP - Example showing use of OWL in DLL
+   CALLDLL     H - Header file for CALLDLL example
+   CALLDLL   PRJ - Project file for CALLDLL example program
+   CALLDLL    RC - Resource file for CALLDLL example
+   CBOXTEST  CPP - CBOXTEST documentation demo program
+   CBOXTEST  PRJ - Project file for CBOXTEST example program
+   CBXTTEST  CPP - Example demonstrating use of combobox transfer mechanism
+   CBXTTEST  PRJ - Project file for CBXTTEST example program
+   CCTLTEST  CPP - Custom control example
+   CCTLTEST    H - Header file for custom control example
+   CCTLTEST  PRJ - Project file for CCTLTEST example program
+   CCTLTEST   RC - Resource file for custom control example
+   CDLGDLL   CPP - Source file for DLL for USECDLL example program.
+   CDLGDLL   DEF - Module definition file for DLL for USECDLL example
+                   program.
+   CDLGDLL     H - Header file for DLL for USECDLL example program.
+   CDLGDLL   PRJ - Project file for CDLGDLL example program
+   CDLGDLL    RC - Resource file for DLL for USECDLL example program.
+   COLORDLG  CPP - Implementation of TColorControl for CCTLTEST example
+                   program.
+   COLORDLG  DLG - Dialog used in CCTLTEST example program.
+   COLORDLG    H - Header for CCTLTEST example program.
+   COLORDLG  RCH - Header file for resources for CCTLTEST example program
+   CURSAPP   CPP - Example program demonstrating changing cursor of main
+                   window
+   CURSAPP   PRJ - Project file for CURSAPP example program
+   DCTLTEST  CPP - Drawable control example
+   DCTLTEST    H - Header file for drawable control example
+   DCTLTEST  PRJ - Project file for DCTLTEST example program
+   DCTLTEST   RC - Resource file for drawable control example
+   DIALTEST  CPP - DIALTEST documentation demo program
+   DIALTEST    H - Header file for DIALTEST example program
+   DIALTEST  PRJ - Project file for DIALTEST example program
+   DIALTEST   RC - Resource file for DIALTEST documentation demo program
+   DLLHELLO  CPP - Source for DLL portion of CALLDLL example
+   DLLHELLO  DEF - Module definition file for DLLHELLO example DLL
+   DLLHELLO    H - Header file for DLL portion of CALLDLL example
+   DLLHELLO  PRJ - Project file for DLLHELLO example program
+   EDITAPP   CPP - TEditWindow example program
+   EDITAPP   PRJ - Project file for EDITAPP example program
+   EDITAPP    RC - Resources for TFileWindow and TEditWindow classes
+   EDITTEST  CPP - EDITTEST documentation demo program
+   EDITTEST  PRJ - Project file for EDITTEST example program
+   EWNDTEST  CPP - EWNDTEST documentation demo program
+   EWNDTEST    H - Header file for EWNDTEST example program
+   EWNDTEST  PRJ - Project file for EWNDTEST example program
+   EWNDTEST   RC - Resource file for EWNDTEST documentation demo program
+   GBOXTEST  CPP - Example of group box functionality
+   GBOXTEST  PRJ - Project file for GBOXTEST example program
+   HELLOAPP  CPP - Hello Windows example program
+   HELLOAPP  PRJ - Project file for HELLOAPP example program
+   INSTTEST  CPP - Example of first and additional instances
+   INSTTEST  PRJ - Project file for INSTTEST example program
+   LBOXTEST  CPP - LBOXTEST documentation demo program
+   LBOXTEST  PRJ - Project file for LBOXTEST example program
+   LBXTTEST  CPP - Example demonstrating use of listbox transfer mechanism
+   LBXTTEST  PRJ - Project file for LBXTTEST example program
+   MAKEFILE      - Makefile for building ObjectWindows example programs
+   MAKEFILE  INC - Included makefile for all example programs.
+   MDIAPP    CPP - MDI example program
+   MDIAPP    PRJ - Project file for MDIAPP example program
+   MDIAPP     RC - Resources for MDIAPP example program
+   MDITEST   CPP - MDITEST documentation demo program
+   MDITEST     H - Header file for MDITEST example program
+   MDITEST   PRJ - Project file for MDITEST example program
+   MDITEST    RC - Resource file for MDITEST documentation demo program
+   MLBXTTST  CPP - Source file for MLBXTTST example program
+   MLBXTTST  PRJ - Project file for MLBXTTST example program
+   NOTITEST  CPP - Source file for NOTITEST example program
+   NOTITEST    H - Header file for NOTITEST example program
+   NOTITEST  PRJ - Project file for NOTITEST example program
+   NOTITEST   RC - Resource file for NOTITEST example program
+   PALTEST   CPP - PALTEST documentation demo program
+   PALTEST   DLG - Dialog resource file for PALTEST example program
+   PALTEST     H - Header file for PALTEST example program
+   PALTEST   PRJ - Project file for PALTEST example program
+   PALTEST    RC - Resource file for PALTEST example program
+   POPUP     CPP - Source file for POPUP example program
+   POPUP     PRJ - Project file for POPUP example program
+   POPUP      RC - Resource file for POPUP example program
+   SBARTEST  CPP - SBARTEST documentation demo program
+   SBARTEST  PRJ - Project file for SBARTEST example program
+   SCRIBAPP  CPP - Scribble application example program
+   SCRIBAPP  PRJ - Project file for SCRIBAPP example program
+   SCROLAPP  CPP - Scroller example program
+   SCROLAPP  PRJ - Project file for SCROLAPP example program
+   STATTEST  CPP - STATTEST documentation demo program
+   STATTEST  PRJ - Project file for STATTEST example program
+   TRANTEST  CPP - Example showing transfer of data from controls
+   TRANTEST    H - Header file for TRANTEST example program
+   TRANTEST  PRJ - Project file for TRANTEST example program
+   TRANTEST   RC - Resources for TRANTEST example program
+   USECDLL   CPP - Source file for USECDLL example program.
+   USECDLL     H - Header file for USECDLL example program.
+   USECDLL   PRJ - Project file for USECDLL example program
+   USECDLL    RC - Resource file for USECDLL example program.
+   USECDLL2  CPP - Source file for USECDLL2 example program
+   USECDLL2    H - Header file for USECDLL2 example program
+   USECDLL2  PRJ - Project file for USECDLL2 example program
+   USECDLL2   RC - Resource file for USECDLL2 example program
+   VDLGAPP   CPP - Dialog example program
+   VDLGAPP   PRJ - Project file for VDLGAPP example program
+   VDLGAPP    RC - Resources for dialog example program
+
+OWLDOC    ZIP - On-Line documentation for Object Windows Library
+   BWCC-OWL  DOC - BWCC classes documentation
+   OWL31     DOC - Windows 3.1 documentation for OWL
+   HELPME!   DOC - List of helpful hints on common problems
+   OWL       DOC - ObjectWindows documentation
+   OWLDLL    DOC - ObjectWindows Dynamic Link Library documentation
+
+STARTUP   ZIP - Startup code files
+   BUILD-C0  BAT - Batch file for building the startup code modules
+   C0        ASM - Assembler source for startup code
+   C0D       ASM - Assembler source  for startup code - Windows DLL
+   C0W       ASM - Assembler source for startup code - Windows EXE
+   RULES     ASI - Assembler include file for interfacing with Borland C++
+
+SWAT      ZIP - File for OWL example program
+   BOARD     BMP - File for OWL example program
+   BOARD2    BMP - File for OWL example program
+   CRITTER   ICO - File for OWL example program
+   CRITTER2  ICO - File for OWL example program
+   DEAD      BMP - File for OWL example program
+   DEAD2     BMP - File for OWL example program
+   GAMEOVE2  BMP - File for OWL example program
+   GAMEOVER  BMP - File for OWL example program
+   LIVE      BMP - File for OWL example program
+   LIVE2     BMP - File for OWL example program
+   MAKEFILE      - FIle for OWL example program
+   MALET     CUR - File for OWL example program
+   MALET2    CUR - File for OWL example program
+   MALETDO2  CUR - File for OWL example program
+   MALETDOW  CUR - File for OWL example program
+   SWAT      CPP - File for OWL example program
+   SWAT        H - File for OWL example program
+   SWAT      PRJ - File for OWL example program
+   SWAT       RC - File for OWL example program
+   SWAT2      RC - File for OWL example program
+
+TFEXMPL   ZIP - Packed example files for Turbo Profiler
+   CALLTEST    C - C Program to Demonstrate Turbo Profiler Features
+   CALLTEST  EXE - Executable file For C Pascal Program
+   PLOST       C - C Program to Demonstrate Turbo Profiler Features
+   PLOST     EXE - Executable file For C Program
+   PRIME0      C - C Program to Demonstrate Turbo Profiler Features
+   PRIME0    EXE - Executable file For C Program
+   PRIME1      C - C Program to Demonstrate Turbo Profiler Features
+   PRIME1    EXE - Executable file For C Program
+   PRIME2      C - C Program to Demonstrate Turbo Profiler Features
+   PRIME2    EXE - Executable file For C Program
+   PRIME3      C - C Program to Demonstrate Turbo Profiler Features
+   PRIME3    EXE - Executable file For C Program
+   PRIME4      C - C Program to Demonstrate Turbo Profiler Features
+   PRIME4    EXE - Executable file For C Program
+   PRIME5      C - C Program to Demonstrate Turbo Profiler Features
+   PRIME5    EXE - Executable file For C Program
+   PRIME6      C - C Program to Demonstrate Turbo Profiler Features
+   PRIME6    EXE - Executable file For C Program
+   PTOLL       C - C Program to Demonstrate Turbo Profiler Features
+   PTOLL     EXE - Executable file For C Program
+
+WHELP2    CA3 - Split File of WHELP2.ZIP
+WIN31DEV  CA1 - 
+   COMMDLG   DLL - Common dialog dll
+   MARS      DLL - Pen windows character recognition dll
+   MARS      MOB - Pen windows character recognition file
+   DDEML     DLL - Dynamic data exchange dll
+   DIB       DRV - device independent bitmap driver
+   EXPAND    EXE - LZ technology expansion program
+   MSMOUSE   DRV - mouse driver(pen windows)
+   OLECLI    DLL - Object linking and embedding dll
+   OLESVR    DLL - Object linking and embedding dll
+   PENWIN    DLL - pen windows dll
+   PENWIN    INI - Pen Windows configuration file
+   REGLOAD   EXE - registration database support
+   SHELL     DLL - 
+   STRESS    DLL - stress testing dll
+   VGAP      DRV - VGA driver(pen windows)
+   YESMOUSE  DRV - mouse driver(pen windows)
+
+WINCLUDE  ZIP - Windows Header files
+   BWCC        H - Header file for interface to Borland Window's Custom
+                   Controls
+   CDERR       H - Borland C++ RTL Header file
+   COLORDLG    H - Borland C++ RTL Header file
+   COMMDLG     H - Borland C++ RTL Header file
+   CPL         H - Borland C++ RTL Header file
+   CUSTCNTL    H - Borland C++ RTL Header file
+   DDE         H - Borland C++ RTL Header file
+   DDEML       H - Borland C++ RTL Header file
+   DLGS        H - Borland C++ RTL Header file
+   DRIVINIT    H - Borland C++ RTL Header file
+   LZEXPAND    H - Borland C++ RTL Header file
+   MMSYSTEM    H - Borland C++ RTL Header file
+   MMSYSTEM  INC - Borland C++ RTL Header file
+   OLE         H - Borland C++ RTL Header file
+   PENWIN      H - Borland C++ RTL Header file
+   PENWOEM     H - Borland C++ RTL Header file
+   PRINT       H - Borland C++ RTL Header file
+   SHELLAPI    H - Borland C++ RTL Header file
+   STRESS      H - Borland C++ RTL Header file
+   TOOLHELP    H - Borland C++ RTL Header file
+   TOOLHELP  INC - Borland C++ RTL Header file
+   VER         H - Borland C++ RTL Header file
+   WFEXT       H - Borland C++ RTL Header file
+   WIN30       H - Borland C++ RTL Header file (for Windows 3.0 development
+                   only)
+   WINDOWS     H - Borland C++ RTL Header file
+   WINDOWS   INC - Borland C++ RTL Header file
+   WINDOWSX    H - Borland C++ RTL Header file
+
+
+DISK 7
+------
+BWCC      ZIP - Compressed BWCC.DLL
+   BWCC      DLL - Custom controls dynamic link library
+
+CLASSEXM  ZIP - C++ class library example files
+   DIRECTRY  CPP - Directory class example file
+   DIRECTRY    H - Header file for DIRECTRY.CPP
+   DIRECTRY  PRJ - Project file for DIRECTRY.CPP
+   FILEDATA  CPP - FileData class example file
+   FILEDATA    H - Header  file for FILEDATA.CPP
+   LOOKUP    CPP - Lookup table example
+   LOOKUP    PRJ - Project file for LOOKUP.CPP
+   QUEUETST  CPP - Queue class example file
+   QUEUETST  PRJ - Project file for QUEUETST.CPP
+   REVERSE   CPP - String class example file
+   REVERSE   PRJ - Project file for REVERSE.CPP
+   STRNGMAX  CPP - String class example file
+   STRNGMAX  PRJ - Project file for STRNGMAX.CPP
+   TESTDIR   CPP - Directory example file
+
+CURSOR    ZIP - CURSOR example program
+   CURSOR    CPP - Cursor demo program
+   CURSOR      H - Header file for cursor demo program
+   CURSOR    ICO - Icon for cursor demo program
+   CURSOR    PRJ - Project file for cursor demo program
+   CURSOR     RC - Resource file for cursor demo program
+   MAKEFILE      - Makefile for cursor demo program
+
+EMUSRC    ZIP - EMU source files
+   E87TRANS  ASM - Source file for emulibs
+   EMURULES  ASI - Source file for emulibs
+   EMUVARS   ASI - Source file for emulibs
+   EQUATES   ASI - Source file for emulibs
+   FPINIT    ASM - Source file for emulibs
+
+FILT      ZIP - zip file
+   CONVERT1  INC - Tasm example file
+   CONVERT2  INC - Tasm example file
+   DEMO2     BAT - Tasm example file
+   DEMO3     BAT - Tasm example file
+   FILT      ASM - Tasm example file
+   FILT      DOC - Tasm example file
+   FILT      MAK - Tasm example file
+   FILT      RSP - Tasm example file
+   GLOBALS   INC - Tasm example file
+   OBYTEHI   ASM - Tasm example file
+   OBYTELOW  ASM - Tasm example file
+   OBYTENRM  ASM - Tasm example file
+   OCMDNUM   ASM - Tasm example file
+   OERREXIT  ASM - Tasm example file
+   OFCREATE  ASM - Tasm example file
+   OFILALOC  ASM - Tasm example file
+   OFILCLOS  ASM - Tasm example file
+   OFILEFIL  ASM - Tasm example file
+   OFILFREE  ASM - Tasm example file
+   OFILREAD  ASM - Tasm example file
+   OFILWRIT  ASM - Tasm example file
+   OFLFLUSH  ASM - Tasm example file
+   OFOPENR   ASM - Tasm example file
+   OFOPENW   ASM - Tasm example file
+   OLOCASE   ASM - Tasm example file
+   OPARSCMD  ASM - Tasm example file
+   OPRCBYTE  ASM - Tasm example file
+   OPROCDOC  ASM - Tasm example file
+   OPROCLIN  ASM - Tasm example file
+   OSETOPTN  ASM - Tasm example file
+   OSPACES   ASM - Tasm example file
+   OSTORSPC  ASM - Tasm example file
+   OSTORTAB  ASM - Tasm example file
+   OTABCLR   ASM - Tasm example file
+   OTABNEXT  ASM - Tasm example file
+   OTABRSET  ASM - Tasm example file
+   OTABSET   ASM - Tasm example file
+   OUPCASE   ASM - Tasm example file
+   SHOW87    ASM - Tasm example file
+   SHOW87    DOC - Tasm example file
+   VIDEO1    INC - Tasm example file
+   VIDEO2    INC - Tasm example file
+
+HEAP      ZIP - HEAP example program
+   DEMO_MEM  BAT - Tasm example file
+   DISPLAY   ASM - Tasm example file
+   DISPLAY   INC - Tasm example file
+   MEM       ASM - Tasm example file
+   MEM       INC - Tasm example file
+   MEMTEST   ASM - Tasm example file
+   MEMTEST   MAK - Tasm example file
+   VMTUTIL   INC - Tasm example file
+
+IOSTRSRC  ZIP - RTL source files
+   FSCLOSE   CPP - Source file for iostream
+   FSCTR1    CPP - Source file for iostream
+   FSCTR2    CPP - Source file for iostream
+   FSCTR3    CPP - Source file for iostream
+   FSCTR4    CPP - Source file for iostream
+   FSDTR     CPP - Source file for iostream
+   FSSBUF    CPP - Source file for iostream
+   IFSCTR1   CPP - Source file for iostream
+   IFSCTR2   CPP - Source file for iostream
+   IFSCTR3   CPP - Source file for iostream
+   IFSCTR4   CPP - Source file for iostream
+   IFSDTR    CPP - Source file for iostream
+   IOFSCTR1  CPP - Source file for iostream
+   IOFSCTR2  CPP - Source file for iostream
+   IOFSCTR3  CPP - Source file for iostream
+   IOFSCTR4  CPP - Source file for iostream
+   IOFSDTR   CPP - Source file for iostream
+   IOSRCTR1  CPP - Source file for iostream
+   IOSRDTR   CPP - Source file for iostream
+   IOSTCTR1  CPP - Source file for iostream
+   IOSTCTR2  CPP - Source file for iostream
+   IOSTCTR3  CPP - Source file for iostream
+   IOSTDTR1  CPP - Source file for iostream
+   IOSTDTR2  CPP - Source file for iostream
+   IOSTOBJ   MAK - Make file for iostream
+   IOSTREAM  MAK - Make file for iostream
+   ISRCTR1   CPP - Source file for iostream
+   ISRCTR2   CPP - Source file for iostream
+   ISRDTR    CPP - Source file for iostream
+   ISTCTR1   CPP - Source file for iostream
+   ISTCTR2   CPP - Source file for iostream
+   ISTCTR3   CPP - Source file for iostream
+   ISTCTR4   CPP - Source file for iostream
+   ISTDTR1   CPP - Source file for iostream
+   ISTDTR2   CPP - Source file for iostream
+   ISTESCHR  CPP - Source file for iostream
+   ISTEUCHR  CPP - Source file for iostream
+   ISTMANIP  CPP - Source file for iostream
+   ISTSKOFF  CPP - Source file for iostream
+   ISTSKPOS  CPP - Source file for iostream
+   ISTTELLG  CPP - Source file for iostream
+   ISTWS     CPP - Source file for iostream
+   OFSCTR1   CPP - Source file for iostream
+   OFSCTR2   CPP - Source file for iostream
+   OFSCTR3   CPP - Source file for iostream
+   OFSCTR4   CPP - Source file for iostream
+   OFSDTR    CPP - Source file for iostream
+   OSRCTR2   CPP - Source file for iostream
+   OSRDTR    CPP - Source file for iostream
+   OSTCTR1   CPP - Source file for iostream
+   OSTCTR2   CPP - Source file for iostream
+   OSTCTR3   CPP - Source file for iostream
+   OSTDTR1   CPP - Source file for iostream
+   OSTDTR2   CPP - Source file for iostream
+   OSTENDL   CPP - Source file for iostream
+   OSTENDS   CPP - Source file for iostream
+   OSTFLUSH  CPP - Source file for iostream
+   OSTMANIP  CPP - Source file for iostream
+   OSTMFLSH  CPP - Source file for iostream
+   OSTSKPOS  CPP - Source file for iostream
+   SDBDTR    CPP - Source file for iostream
+   SDBPBFL   CPP - Source file for iostream
+   SDCTR     CPP - Source file for iostream
+   SDDTR     CPP - Source file for iostream
+   SRBCTR1   CPP - Source file for iostream
+   SRBCTR2   CPP - Source file for iostream
+   SRBCTR4   CPP - Source file for iostream
+   SRBFREEZ  CPP - Source file for iostream
+   SRBSTR    CPP - Source file for iostream
+   SRCTR1    CPP - Source file for iostream
+   SRCTR2    CPP - Source file for iostream
+   SRDTR     CPP - Source file for iostream
+   STBALC    CPP - Source file for iostream
+   STBCTR1   CPP - Source file for iostream
+   STBDNEXT  CPP - Source file for iostream
+   STBDTR    CPP - Source file for iostream
+   STBOFLOW  CPP - Source file for iostream
+   STBPBFL   CPP - Source file for iostream
+   STBSBUF   CPP - Source file for iostream
+   STBSETG   CPP - Source file for iostream
+   STBSETP   CPP - Source file for iostream
+   STBSKOFF  CPP - Source file for iostream
+   STBSKPOS  CPP - Source file for iostream
+   STBSYNC   CPP - Source file for iostream
+   STBTALC   CPP - Source file for iostream
+   STCLEAR   CPP - Source file for iostream
+   STCTR1    CPP - Source file for iostream
+   STCTR2    CPP - Source file for iostream
+   STDEC     CPP - Source file for iostream
+   STFLAGS   CPP - Source file for iostream
+   STHEX     CPP - Source file for iostream
+   STOCT     CPP - Source file for iostream
+   STSETST   CPP - Source file for iostream
+   STUNSET   CPP - Source file for iostream
+   STXALC    CPP - Source file for iostream
+   TCDLL     CFG - Config file for iostream
+
+OWLPEN    ZIP - 
+   MAKEFILE      - File for OWL example program
+   OWLPEN    CPP - File for OWL example program
+   OWLPEN      H - File for OWL example program
+   OWLPEN    PRJ - File for OWL example program
+   OWLPEN     RC - File for OWL example program
+
+PAINT     ZIP - PAINT example program
+   ELLIPSE   CUR - Cursor for Paint example program
+   ELLIPSE   ICO - Icon for Paint example program
+   FELLIPSE  CUR - Cursor for Paint example program
+   FELLIPSE  ICO - Icon for Paint example program
+   FILL      CUR - Cursor for Paint example program
+   FILL      ICO - Icon for Paint example program
+   FRECT     CUR - Cursor for Paint example program
+   FRECT     ICO - Icon for Paint example program
+   MAKEFILE      - Makefile for Paint example program
+   OWLPAINT  ICO - Icon for Paint example program
+   PAINT     CPP - Source file for Paint example program
+   PAINT     PRJ - Project file for Paint example program
+   PAINT      RC - Resource file for Paint example program
+   PEN       CUR - Cursor for Paint example program
+   PEN       ICO - Icon for Paint example program
+   RECT      CUR - Cursor for Paint example program
+   RECT      ICO - Icon for Paint example program
+
+RWDOC     ZIP - Compressed Resource Workshop documentation files
+   BWCCAPI    RW - Borland Custom Control API documentation
+   BWCCSTYL   RW - Borland custom control style guidelines
+   CUSTCNTL   RW - custom control api documentation
+   MANUAL     RW - manual corrections
+
+TASM      CA1 - Turbo Assembler 3.0 and Utilities
+   H2ASH     EXE - Utility to convert .h files to .ash files
+   TASM      EXE - Turbo Assembler 3.0 DOS
+   TASM      TAH - Turbo Assembler Help text file
+   TASMX     EXE - Turbo Assembler 3.0 with DPMI Support
+   TCREF     EXE - Turbo Assembler cross-reference utility
+
+WHELP2    CA2 - Split File of WHELP2.ZIP
+WIN31BIN  CA1 - 
+   COMPRESS  EXE - Dos version of LZ compression utility
+   MARKMIDI  EXE - 
+   MCISTRWH  HLP - Win 3.1 media control interface help file
+   MRBC      EXE - 
+   PENAPIWH  HLP - Win 3.1 pen api help file
+   SHED      EXE - Program to manage HotSpots within dialogs(MS)
+   SHED      HLP - Helpfile for HotSpots within dialogs(MS)
+   TOOLHELP  DLL - Win 3.1 toolhelp file
+   WIN31MWH  HLP - Win 3.1 multimedia help file
+
+XLIB      ZIP - Math and utility libraries
+   BWCC      LIB - Import library for Borland Window's Custom Controls
+   C0FC      OBJ - Compact model startup code - assume SS=DS
+   C0FH      OBJ - Huge model startup code - assume SS=DS
+   C0FL      OBJ - Large model startup code - assume SS=DS
+   C0FM      OBJ - Medium model startup code - assume SS=DS
+   C0FS      OBJ - Small model startup code - assume SS=DS
+   C0FT      OBJ - Tiny model startup code - assume SS=DS
+   EMU       LIB - 8087 emulator library
+   FILES       C - Source file for open files configuration
+   FILES2      C - Source file for open files configuration
+   FP87      LIB - 8087 library
+   GRAPHICS  LIB - Graphics library
+   IMPORT    LIB - Windows imports library
+   MATHERR     C - Source code for handling math library exceptions
+   OVERLAY   LIB - Overlays library
+   WILDARGS  OBJ - Object code for module to expand wildcard arguments
+
+
+DISK 8
+------
+CMDLGAP   ZIP - 
+   CMDLGAP   CPP - File for OWL example program
+   CMDLGAP     H - File for OWL example program
+   CMDLGAP   PRJ - File for OWL example program
+   CMDLGAP    RC - File for OWL example program
+   CMDLGAPR    H - File for OWL example program
+   MAKEFILE      - File for OWL example program
+
+DLOBJ     ZIP - 
+   OWLMATH   OBJ - Object file for large model library
+   SWINDOBJ  OBJ - Object file for large model library
+   VERSION   OBJ - Defines version number for large model dynamic library
+
+DRAG      ZIP - 
+   DRAGDROP    C - Windows 3.1 example file
+   DRAGDROP  DEF - Windows 3.1 example file
+   DRAGDROP  PRJ - Windows 3.1 example file
+   DRAGDROP   RC - Windows 3.1 example file
+
+FILEAPP   ZIP - FILEAPP example program
+   FILEAPP   CPP - Example program of TFileWindow
+   FILEAPP   PRJ - Project file for FILEAPP example program
+   FILEAPP    RC - Resource file for FILEAPP example program
+   MAKEFILE      - Makefile for building FILEAPP example program
+
+IDE       ZIP - Files in Borland C++ Compiler - IDE version
+   GREP2MSG  EXE - GREP filter program for IDE
+   IMPL2MSG  EXE - IMPLIB filter program for Programmer's Platform
+   PRJCNVT   EXE - Utility to convert from Turbo C 2.x project files to
+                   Borland C++ project files
+   TASM2MSG  EXE - TASM filter program for IDE
+   TEMC      EXE - Turbo editor macro compiler
+
+IOSTRSR1  ZIP - RTL source files
+   FSATTCH   CPP - Source file for iostream
+   FSBATTCH  CPP - Source file for iostream
+   FSBCLOSE  CPP - Source file for iostream
+   FSBCTR1   CPP - Source file for iostream
+   FSBCTR2   CPP - Source file for iostream
+   FSBCTR3   CPP - Source file for iostream
+   FSBDTR    CPP - Source file for iostream
+   FSBOFLOW  CPP - Source file for iostream
+   FSBOPEN   CPP - Source file for iostream
+   FSBSBUF   CPP - Source file for iostream
+   FSBSKOFF  CPP - Source file for iostream
+   FSBSYNC   CPP - Source file for iostream
+   FSBUFLOW  CPP - Source file for iostream
+   FSOPEN    CPP - Source file for iostream
+   IOSRCTR2  CPP - Source file for iostream
+   IOSTASN1  CPP - Source file for iostream
+   IOSTASN2  CPP - Source file for iostream
+   IOSTSTD   CPP - Source file for iostream
+   ISTASN1   CPP - Source file for iostream
+   ISTASN2   CPP - Source file for iostream
+   ISTDGET   CPP - Source file for iostream
+   ISTDIPFX  CPP - Source file for iostream
+   ISTEATWH  CPP - Source file for iostream
+   ISTEBUF   CPP - Source file for iostream
+   ISTECHP   CPP - Source file for iostream
+   ISTEDBL   CPP - Source file for iostream
+   ISTEFLT   CPP - Source file for iostream
+   ISTEINT   CPP - Source file for iostream
+   ISTELDBL  CPP - Source file for iostream
+   ISTELNG   CPP - Source file for iostream
+   ISTESH    CPP - Source file for iostream
+   ISTEUINT  CPP - Source file for iostream
+   ISTEULNG  CPP - Source file for iostream
+   ISTEUSH   CPP - Source file for iostream
+   ISTGBUF   CPP - Source file for iostream
+   ISTGET    CPP - Source file for iostream
+   ISTGLINE  CPP - Source file for iostream
+   ISTGSCHR  CPP - Source file for iostream
+   ISTGSTR   CPP - Source file for iostream
+   ISTGUCHR  CPP - Source file for iostream
+   ISTIGN    CPP - Source file for iostream
+   ISTPBACK  CPP - Source file for iostream
+   ISTREAD   CPP - Source file for iostream
+   ISTX      CPP - Source file for iostream
+   MNRSTFLG  CPP - Source file for iostream
+   MNSBASE   CPP - Source file for iostream
+   MNSETFLG  CPP - Source file for iostream
+   MNSETW    CPP - Source file for iostream
+   MNSFILL   CPP - Source file for iostream
+   MNSPREC   CPP - Source file for iostream
+   OSRCTR1   CPP - Source file for iostream
+   OSTASN1   CPP - Source file for iostream
+   OSTASN2   CPP - Source file for iostream
+   OSTFLOAT  CPP - Source file for iostream
+   OSTIBUF   CPP - Source file for iostream
+   OSTINT    CPP - Source file for iostream
+   OSTISCHR  CPP - Source file for iostream
+   OSTOPFX   CPP - Source file for iostream
+   OSTOSFX   CPP - Source file for iostream
+   OSTOUTST  CPP - Source file for iostream
+   OSTPTR    CPP - Source file for iostream
+   OSTSKOFF  CPP - Source file for iostream
+   OSTTELLP  CPP - Source file for iostream
+   OSTWRITE  CPP - Source file for iostream
+   OSTX      CPP - Source file for iostream
+   SDBCTR    CPP - Source file for iostream
+   SDBOFLOW  CPP - Source file for iostream
+   SDBSKOFF  CPP - Source file for iostream
+   SDBSYNC   CPP - Source file for iostream
+   SDBUFLOW  CPP - Source file for iostream
+   SRBCTR3   CPP - Source file for iostream
+   SRBCTR5   CPP - Source file for iostream
+   SRBDALC   CPP - Source file for iostream
+   SRBDTR    CPP - Source file for iostream
+   SRBINIT   CPP - Source file for iostream
+   SRBOFLOW  CPP - Source file for iostream
+   SRBSBUF   CPP - Source file for iostream
+   SRBSKOFF  CPP - Source file for iostream
+   SRBSYNC   CPP - Source file for iostream
+   SRBUFLOW  CPP - Source file for iostream
+   STBCTR2   CPP - Source file for iostream
+   STBDBP    CPP - Source file for iostream
+   STBDSGTN  CPP - Source file for iostream
+   STBDSPTN  CPP - Source file for iostream
+   STBSETB   CPP - Source file for iostream
+   STBSGETN  CPP - Source file for iostream
+   STBSPUTN  CPP - Source file for iostream
+   STBSTB1   CPP - Source file for iostream
+   STBUFLOW  CPP - Source file for iostream
+   STDTR     CPP - Source file for iostream
+   STINIT    CPP - Source file for iostream
+   STIWORD   CPP - Source file for iostream
+   STPWORD   CPP - Source file for iostream
+   STSETF1   CPP - Source file for iostream
+   STSETF2   CPP - Source file for iostream
+   STSKIP    CPP - Source file for iostream
+   STSYNC    CPP - Source file for iostream
+   STTIE     CPP - Source file for iostream
+   STUSIZE   CPP - Source file for iostream
+
+MFILEAPP  ZIP - MFILEAPP example program
+   MAKEFILE      - Makefile for building MFILEAPP example program
+   MFILEAPP  CPP - MDI TFileWindow example program
+   MFILEAPP    H - Header file for MFILEAPP example program
+   MFILEAPP  PRJ - Project file for MFILEAPP example program
+   MFILEAPP   RC - Resources for MFILEAPP example program
+
+MLIB      ZIP - Medium model libraries
+   C0M       OBJ - Medium model startup code
+   CM        LIB - Medium model run-time library
+   MATHM     LIB - Medium model math library
+
+OLE       ZIP - 
+   MAKEFILE      - File for OWL example program
+   OLECLNT   CPP - File for OWL example program
+   OLECLNT     H - File for OWL example program
+   OLECLNT     H - File for OWL example program
+   OLECLNT   PRJ - File for OWL example program
+   OLECLNT    RC - File for OWL example program
+   OLECLNTE  CPP - File for OWL example program
+   OLECLNTE    H - File for OWL example program
+   OLECLNTR    H - File for OWL example program
+
+OWLHELP   ZIP - 
+   MAKEFILE      - File for OWL example program
+   OWLHELP   CPP - File for OWL example program
+   OWLHELP     H - File for OWL example program
+   OWLHELP   HLP - File for OWL example program
+   OWLHELP   HPJ - File for OWL example program
+   OWLHELP   PRJ - File for OWL example program
+   OWLHELP    RC - File for OWL example program
+   OWLHELP   RTF - File for OWL example program
+   OWLHELPM    H - File for OWL example program
+   OWLHELPR    H - File for OWL example program
+
+OWLLIB    CA1 - 
+   OWL       DEF - Module definition file for ObjectWindows programs
+   OWL       LIB - Import library for ObjectWindows DLL
+   OWLDLL    DEF - Module definition file for creating ObjectWindows DLL
+   OWLWL     LIB - Large model ObjectWindows library
+   OWLWM     LIB - Medium model ObjectWindows library
+   OWLWS     LIB - Small model ObjectWindows library
+
+OWLPRINT  ZIP - 
+   IDS         H - File for OWL example program
+   MAKEFILE      - File for OWL example program
+   MYCOMBO   CPP - File for OWL example program
+   MYCOMBO     H - File for OWL example program
+   PRINTER   CPP - File for OWL example program
+   PRINTER     H - File for OWL example program
+   RULER     CPP - File for OWL example program
+   RULER     PRJ - File for OWL example program
+   RULER      RC - File for OWL example program
+
+PROGTALK  ZIP - PROGTALK example program
+   DDECLIEN  CPP - Source of PROGTALK example program
+   DDECLIEN    H - Header file for PROGTALK example program
+   MAKEFILE      - Makefile for PROGTALK example program
+   PROGTALK  CPP - Source of PROGTALK example program
+   PROGTALK    H - Header file for PROGTALK example program
+   PROGTALK  PRJ - Project file for PROGTALK example program
+   PROGTALK   RC - Resource file for PROGTALK example program
+
+RW        CA1 - Compressed Resource Workshop files
+   LOADBWCC  EXE - Loads bwcc.dll for custom apps
+   WORKED1   DLL - Menu editor
+   WORKED2   DLL - Icon, cursor, bitmap, and font editors
+   WORKED3   DLL - Dialog editor
+   WORKED4   DLL - Stringtable editor
+   WORKED5   DLL - Accelerator table editor
+   WORKHELP  HLP - Help file
+   WORKLIB1  DLL - Resource compiler, resource data base
+   WORKLIB2  DLL - Custom controls
+   WORKSHOP  EXE - Main program
+
+SCRNSAVE  ZIP - 
+   MAKEFILE      - File for OWL example program
+   OWLSCRN   CPP - File for OWL example program
+   OWLSCRN   DEF - File for OWL example program
+   OWLSCRN     H - File for OWL example program
+   OWLSCRN   PRJ - File for OWL example program
+   OWLSCRN    RC - File for OWL example program
+   TSCRNSAV  CPP - File for OWL example program
+   TSCRNSAV    H - File for OWL example program
+
+SHELLAPI  ZIP - 
+   MAKEFILE      - File for OWL example program
+   SHELLAPI  CPP - File for OWL example program
+   SHELLAPI  PRJ - File for OWL example program
+
+SLIB      ZIP - Small model libraries
+   C0S       OBJ - Small model startup code
+   C0T       OBJ - Tiny model startup code
+   CS        LIB - Small model run-time library
+   MATHS     LIB - Small model math library
+
+SOUNDER   ZIP - 
+   SOUNDER     C - Windows 3.1 example file
+   SOUNDER   DEF - Windows 3.1 example file
+   SOUNDER     H - Windows 3.1 example file
+   SOUNDER   PRJ - Windows 3.1 example file
+   SOUNDER    RC - Windows 3.1 example file
+   SOUNDER   WAV - Windows 3.1 example file
+
+SOUNDPLY  ZIP - 
+   MAKEFILE      - File for OWL example program
+   SOUNDPLY  CPP - File for OWL example program
+   SOUNDPLY    H - File for OWL example program
+   SOUNDPLY  PRJ - File for OWL example program
+   SOUNDPLY   RC - File for OWL example program
+   SOUNDPLY  WAV - File for OWL example program
+
+STEPS     ZIP - STEPS example programs
+   HELPWIND  CPP - HELPWIND implemenation for STEP1-STEP10 documentation demo
+   HELPWIND    H - Header file for help system of STEP1-STEP10 documentation
+                   demo program
+   MAKEFILE      - Makefile for building STEPn example program
+   STEP1     CPP - STEP1 documentation demo program
+   STEP1     PRJ - Project file for STEP1 example program
+   STEP10    CPP - step10 documentation demo program
+   STEP10    PRJ - Project file for STEP10 example program
+   STEP2     CPP - STEP2 documentation demo program
+   STEP2     PRJ - Project file for STEP2 example program
+   STEP3     CPP - STEP3 documentation demo program
+   STEP3     PRJ - Project file for STEP3 example program
+   STEP4     CPP - STEP4 documentation demo program
+   STEP4     PRJ - Project file for STEP4 example program
+   STEP5     CPP - STEP5 documentation demo program
+   STEP5     PRJ - Project file for STEP5 example program
+   STEP6     CPP - STEP6 documentation demo program
+   STEP6     PRJ - Project file for STEP6 example program
+   STEP7     CPP - STEP7 documentation demo program
+   STEP7     PRJ - Project file for STEP7 example program
+   STEP8     CPP - STEP8 documentation demo program
+   STEP8     PRJ - Project file for STEP8 example program
+   STEP9     CPP - STEP9 documentation demo program
+   STEP9     PRJ - Project file for STEP9 example program
+   STEPS     DEF - Module definition file for STEPS example programs
+   STEPS       H - Header file for STEPS example programs
+   STEPS      RC - Resource file for STEPS example programs
+
+SYSINFO   ZIP - 
+   MAKEFILE      - Makefile for sysinfo demo program
+   SYSINFO   CPP - Sysinfo demo program
+   SYSINFO     H - Header file for sysinfo demo program
+   SYSINFO   PRJ - Project file for sysinfo demo program
+   SYSINFO    RC - Resource file for sysinfo demo program
+
+TCALC     ZIP - Tcalc sources and doc
+   TCALC       C - TurboCalc main program source code
+   TCALC     DOC - TurboCalc documentation
+   TCALC       H - The Header file for TurboCalc
+   TCALC     PRJ - The TurboCalc project file
+   TCDISPLY    C - TurboCalc screen display source code
+   TCINPUT     C - TurboCalc input routines source code
+   TCOMMAND    C - TurboCalc commands source code
+   TCPARSER    C - TurboCalc input parser source code
+   TCUTIL      C - TurboCalc utilities source code
+
+TTFONT    ZIP - 
+   FONT      DLG - File for OWL example program
+   MAKEFILE      - File for OWL example program
+   TTFONT    CPP - File for OWL example program
+   TTFONT      H - File for OWL example program
+   TTFONT    ICO - File for OWL example program
+   TTFONT    PRJ - File for OWL example program
+   TTFONT     RC - File for OWL example program
+
+TTT       ZIP - TTT example program
+   MAKEFILE      - Makefile for TTT example program
+   TTT       CPP - Source file for TTT example program
+   TTT         H - Header file for TTT example program
+   TTT       ICO - Icon for TTT example program
+   TTT       PRJ - Project file for TTT example program
+   TTT        RC - Resource file for TTT example program
+
+TVHELP    ZIP - Turbo Vision help compiler files
+   DEMOHELP  TXT - Sample help text file
+   TVHC      CPP - Main Source file for TV Help Compiler
+   TVHC      EXE - Turbo Vision Help Compiler
+   TVHC        H - Header file for TVHC.CPP
+   TVHC      MAK - Makefile for TV Help Compiler
+   TVHC      PRJ - Project file for TV Help Compiler
+
+WLOBJ     ZIP - 
+   OWLMATH   OBJ - Object file for large model library
+   SWINDOBJ  OBJ - Object file for large model library
+   VERSION   OBJ - Defines version number for large model static library
+
+WMOBJ     ZIP - 
+   OWLMATH   OBJ - Object file for medium model library
+   SWINDOBJ  OBJ - Object file for medium model library
+   VERSION   OBJ - Defines version number for medium model static library
+
+WSOBJ     ZIP - 
+   OWLMATH   OBJ - Defines version number for small model static library
+   SWINDOBJ  OBJ - Defines version number for small model static library
+   VERSION   OBJ - Defines version number for small model static library
+
+
+DISK 9
+------
+BIN       ZIP - Miscellaneous binary files
+   DPMI16BI  OVL - Borland C++ DPMI Server
+   DPMIINST  EXE - Borland C++ DPMI Configuration program
+   DPMILOAD  EXE - Borland C++ DPMI loader
+   DPMIMEM   DLL - Borland C++ DPMI memory manager
+   DPMIRES   EXE - Borland C++ DPMI resident loader(user executable)
+   EMSTEST   COM - Utility program for detecting expanded memory
+   GREP      COM - Turbo GREP program
+   IMPDEF    EXE - Utility to convert DEF files to LIB files
+   IMPLIB    EXE - Utility to convert LIB files to DEF files
+   OBJXREF   COM - Object file cross-reference utility
+   PATCH     COM - Patch program
+   PRJ2MAK   EXE - Utility to convert a BC project file into a BCC make file
+   PRJCFG    EXE - Utility to convert a BC project file into a TURBOC.CFG
+                   file
+   SERVER    DIF - Patch file for EMM386
+   TLIB      EXE - Borland Turbo Librarian
+   TOUCH     COM - Program that updates a file's date and time
+   TRANCOPY  EXE - Utility to copy Transfer items between .PRJ files
+   TRIGRAPH  EXE - Trigraph conversion utility
+
+BINSRC    ZIP - 
+   MAKERSP   EXE - Tool for building response files
+
+TASM      CA2 - Split File of TASM.ZIP
+TDUTIL    ZIP - Turbo Debugger Utility Programs for DOS
+   TD286INS  EXE - Kernel Configuration Program for Installing TD286.EXE
+   TDDEV     EXE - Program to Display Currently Active Device Drivers
+   TDH386    SYS - Device Driver for TD386.EXE
+   TDHELP    TDH - Help file for the TD, TD286, and TD386 Debuggers
+   TDINST    EXE - Custom Configuration Program for TD, TD286, TD386
+   TDMAP     EXE - Converts .MAP files Generated for CodeView to TD Format
+   TDMEM     EXE - Utility to Display Current Memory Mapping and Usage
+   TDNMI     COM - Program to Clear NMI switch
+   TDREMOTE  EXE - Remote Debugging Utility for use at DOS w/ TD.EXE/TDRF.EXE
+   TDRF      EXE - Remote file Transfer Utility for use with TDREMOTE.EXE
+   TDSTRIP   EXE - Utility to Strip Debug Information from .EXE files
+   TDUMP     EXE - Dumps Symbolic Information from .EXE/.OBJ files
+
+TVSRC     ZIP - Turbo Vision Source files
+   COLORSEL  CPP - Turbo Vision Source file
+   DRIVERS   CPP - Turbo Vision Source file
+   DRIVERS2  CPP - Turbo Vision Source file
+   EDITS     ASM - Turbo Vision Source file
+   EDITS     ASM - Turbo Vision Source file
+   EDITSTAT  CPP - Turbo Vision Source file
+   FRAMELIN  ASM - Turbo Vision Source file
+   GENINC    CPP - Turbo Vision Source file
+   GRP       CPP - Turbo Vision Source file
+   HELP      CPP - Turbo Vision Source file
+   HELPBASE  CPP - Turbo Vision Source file
+   HISTLIST  CPP - Turbo Vision Source file
+   MAKEFILE      - Batch file for building Turbo Vision Library
+   MAPCOLOR  CPP - Turbo Vision Source file
+   MENU      CPP - Turbo Vision Source file
+   MISC      CPP - Turbo Vision Source file
+   MSGBOX    CPP - Turbo Vision Source file
+   NEW       CPP - Turbo Vision Source file
+   NEWSTR    CPP - Turbo Vision Source file
+   NMBKGRND  CPP - Static names for TBkgrnd.cpp
+   NMBUTTON  CPP - Static names for TButton.cpp
+   NMCHDRDL  CPP - Static names for TChdrdlg.cpp
+   NMCHKBOX  CPP - Static names for TCheckbo.cpp
+   NMCLRSEL  CPP - Static names for Colorsel.cpp
+   NMCLUSTR  CPP - Static names for TCluster.cpp
+   NMCOLLCT  CPP - Static names for TCollect.cpp
+   NMDIALOG  CPP - Static names for TDialog.cpp
+   NMDIRBOX  CPP - Static names for TDirlist.cpp
+   NMDIRCOL  CPP - Static names for TDircoll.cpp
+   NMDSKTOP  CPP - Static names for TDesktop.cpp
+   NMEDITOR  CPP - Static names for Editors.cpp
+   NMFILCOL  CPP - Static names for TFilecol.cpp
+   NMFILDLG  CPP - Static names for TFildlg.cpp
+   NMFILLST  CPP - Static names for TFillist.cpp
+   NMFRAME   CPP - Static names for TFrame.cpp
+   NMGROUP   CPP - Static names for TGroup.cpp
+   NMHIST    CPP - Static names for THistory.cpp
+   NMINPTLN  CPP - Static names for TInputli.cpp
+   NMLABEL   CPP - Static names for TLabel.cpp
+   NMLSTBOX  CPP - Static names for TListBox.cpp
+   NMLSTVWR  CPP - Static names for TLstView.cpp
+   NMMNUBAR  CPP - Static names for TMenuBar.cpp
+   NMMNUBOX  CPP - Static names for TMenuBox.cpp
+   NMMNUVW   CPP - Static names for TMnuView.cpp
+   NMPRMTXT  CPP - Static names for TParamTe.cpp
+   NMRBTNS   CPP - Static names for TRadioBu.cpp
+   NMRESCOL  CPP - Static names for TResColl.cpp
+   NMSCOLL   CPP - Static names for TSortCol.cpp
+   NMSCRBAR  CPP - Static names for TScrlBar.cpp
+   NMSCROLL  CPP - Static names for TScrolle.cpp
+   NMSTCTXT  CPP - Static names for TStatict.cpp
+   NMSTDDLG  CPP - Static names for stddlg.cpp
+   NMSTLINE  CPP - Static names for TStatusl.cpp
+   NMSTRCOL  CPP - Static names for TStrColl.cpp
+   NMSTRLST  CPP - Static names for TStrList.cpp
+   NMVIEW    CPP - Static names for TView.cpp
+   NMWINDOW  CPP - Static names for TWindow.cpp
+   PALETTE   CPP - Turbo Vision Source file
+   SBKGRND   CPP - Turbo Vision Source file
+   SBUTTON   CPP - Turbo Vision Source file
+   SCHDRDLG  CPP - Turbo Vision Source file
+   SCHECKBO  CPP - Turbo Vision Source file
+   SCLRSEL   CPP - Turbo Vision Source file
+   SCLUSTER  CPP - Turbo Vision Source file
+   SDESKTOP  CPP - Turbo Vision Source file
+   SDIALOG   CPP - Turbo Vision Source file
+   SDIRCOLL  CPP - Turbo Vision Source file
+   SDIRLIST  CPP - Turbo Vision Source file
+   SEDITORS  CPP - Turbo Vision Source file
+   SFILCOLL  CPP - Turbo Vision Source file
+   SFILDLG   CPP - Turbo Vision Source file
+   SFILELST  CPP - Turbo Vision Source file
+   SFINFPNE  CPP - Turbo Vision Source file
+   SFINPUTL  CPP - Turbo Vision Source file
+   SFRAME    CPP - Turbo Vision Source file
+   SGROUP    CPP - Turbo Vision Source file
+   SHISTORY  CPP - Turbo Vision Source file
+   SINPUTLI  CPP - Turbo Vision Source file
+   SLABEL    CPP - Turbo Vision Source file
+   SLISTBOX  CPP - Turbo Vision Source file
+   SLSTVIEW  CPP - Turbo Vision Source file
+   SMENUBAR  CPP - Turbo Vision Source file
+   SMENUBOX  CPP - Turbo Vision Source file
+   SMNUVIEW  CPP - Turbo Vision Source file
+   SPARAMTE  CPP - Turbo Vision Source file
+   SRADIOBU  CPP - Turbo Vision Source file
+   SRESCOLL  CPP - Turbo Vision Source file
+   SSCRLBAR  CPP - Turbo Vision Source file
+   SSCROLLE  CPP - Turbo Vision Source file
+   SSTATICT  CPP - Turbo Vision Source file
+   SSTATUSL  CPP - Turbo Vision Source file
+   SSTRCOLL  CPP - Turbo Vision Source file
+   SSTRLST   CPP - Turbo Vision Source file
+   STDDLG    CPP - Turbo Vision Source file
+   STRMSTAT  CPP - Turbo Vision Source file
+   SVIEW     CPP - Turbo Vision Source file
+   SWAPST    ASM - Turbo Vision Source file
+   SWINDOW   CPP - Turbo Vision Source file
+   SYSERR    CPP - Turbo Vision Source file
+   SYSINT    ASM - Turbo Vision Source file
+   TAPPLICA  CPP - Turbo Vision Source file
+   TBKGRND   CPP - Turbo Vision Source file
+   TBUTTON   CPP - Turbo Vision Source file
+   TCHDRDLG  CPP - Turbo Vision Source file
+   TCHECKBO  CPP - Turbo Vision Source file
+   TCLUSTER  CPP - Turbo Vision Source file
+   TCMDSET   CPP - Turbo Vision Source file
+   TCOLLECT  CPP - Turbo Vision Source file
+   TDESKTOP  CPP - Turbo Vision Source file
+   TDIALOG   CPP - Turbo Vision Source file
+   TDIRCOLL  CPP - Turbo Vision Source file
+   TDIRLIST  CPP - Turbo Vision Source file
+   TEDITOR1  CPP - Turbo Vision Source file
+   TEDITOR2  CPP - Turbo Vision Source file
+   TEDITWND  CPP - Turbo Vision Source file
+   TEVENT    CPP - Turbo Vision Source file
+   TEXTVIEW  CPP - Turbo Vision Source file
+   TFILDLG   CPP - Turbo Vision Source file
+   TFILECOL  CPP - Turbo Vision Source file
+   TFILEDTR  CPP - Turbo Vision Source file
+   TFILLIST  CPP - Turbo Vision Source file
+   TFRAME    CPP - Turbo Vision Source file
+   TGRMV     ASM - Turbo Vision Source file
+   TGROUP    CPP - Turbo Vision Source file
+   THISTORY  CPP - Turbo Vision Source file
+   THISTWIN  CPP - Turbo Vision Source file
+   THSTVIEW  CPP - Turbo Vision Source file
+   TINDICTR  CPP - Turbo Vision Source file
+   TINPUTLI  CPP - Turbo Vision Source file
+   TLABEL    CPP - Turbo Vision Source file
+   TLISTBOX  CPP - Turbo Vision Source file
+   TLSTVIEW  CPP - Turbo Vision Source file
+   TMEMO     CPP - Turbo Vision Source file
+   TMENUBAR  CPP - Turbo Vision Source file
+   TMENUBOX  CPP - Turbo Vision Source file
+   TMNUVIEW  CPP - Turbo Vision Source file
+   TMOUSE    CPP - Turbo Vision Source file
+   TOBJECT   CPP - Turbo Vision Source file
+   TOBJSTRM  CPP - Turbo Vision Source file
+   TPARAMTE  CPP - Turbo Vision Source file
+   TPOINT    CPP - Turbo Vision Source file
+   TPROGRAM  CPP - Turbo Vision Source file
+   TRADIOBU  CPP - Turbo Vision Source file
+   TRESCOLL  CPP - Turbo Vision Source file
+   TRESFILE  CPP - Turbo Vision Source file
+   TSCREEN   CPP - Turbo Vision Source file
+   TSCRLBAR  CPP - Turbo Vision Source file
+   TSCROLLE  CPP - Turbo Vision Source file
+   TSORTCOL  CPP - Turbo Vision Source file
+   TSTATICT  CPP - Turbo Vision Source file
+   TSTATUSL  CPP - Turbo Vision Source file
+   TSTRCOLL  CPP - Turbo Vision Source file
+   TSTRLIST  CPP - Turbo Vision Source file
+   TTPRVLNS  ASM - Turbo Vision Source file
+   TVCURSOR  ASM - Turbo Vision Source file
+   TVEXPOSD  ASM - Turbo Vision Source file
+   TVIEW     CPP - Turbo Vision Source file
+   TVLIB     RSP - Response file for building Turbo Vision Library
+   TVTEXT1   CPP - Turbo Vision Source file
+   TVTEXT2   CPP - Turbo Vision Source file
+   TVWRITE   ASM - Turbo Vision Source file
+   TVWRITE   INC - Turbo Vision Source file
+   TWINDOW   CPP - Turbo Vision Source file
+
+WHELP1    CA1 - DOS help files
+   OWLHELP   TCH - Help file for Object Windows Library
+   TCHELP    TCH - C++ help file for command-line tools
+   THELP     COM - Pop-up help utiity program
+   TVCHELP   TCH - Help file for Turbo Vision
+
+WHELP3    CA1 - 
+   WINHELP   TCH - Windows API help file for command-line tools
+
+
+DISK 10
+-------
+DRAGDROP  ZIP - 
+   DRAGDROP  CPP - File for OWL example program
+   DRAGDROP  PRJ - File for OWL example program
+   DRAGDROP   RC - File for OWL example program
+   MAKEFILE      - File for OWL example program
+
+INDEPSRC  ZIP - WINLIB source files
+   NOTIMP    CPP - Source file for WINLIB
+   NOTIMP    EXE - Source file for WINLIB
+   NOTIMP    LST - Source file for WINLIB
+
+QUEUE     ZIP - QUEUE example program
+   LIST      ASM - Turbo Assembler queue example file
+   LIST      ASO - Turbo Assembler queue example file
+   NODE      ASM - Turbo Assembler queue example file
+   NODE      ASO - Turbo Assembler queue example file
+   OOP       ASM - Turbo Assembler queue example file
+   QUEUE     ASM - Turbo Assembler queue example file
+   QUEUE     ASO - Turbo Assembler queue example file
+   STACK     ASM - Turbo Assembler queue example file
+   STACK     ASO - Turbo Assembler queue example file
+
+TD        CA1 - Turbo Debugger Programs for DOS Debugging
+   TD        EXE - Turbo Debugger Program for DOS
+   TD286     EXE - Protected Mode Turbo Debugger
+   TD386     EXE - Utility for 80386/80486 Virtual Mode Debugging
+
+TDW       CA1 - Turbo Debugger Programs and Utilities for Windows
+                Debugging
+   TDDEBUG   386 - Device driver for 80386/80486 processors
+   TDW       EXE - Turbo Debugger Program for Windows
+   TDWHELP   TDH - Help file for the TDW Debugger
+   TDWINST   EXE - Custom configuration Program for TDW
+   WREMOTE   EXE - Remote Debugging Utility for use in MS-Windows w/ TD.EXE
+   WRSETUP   EXE - Utility to set Parameters in MS-Windows for WREMOTE.EXE
+
+TRUETYPE  ZIP - 
+   TRUETYPE    C - Windows 3.1 example file
+   TRUETYPE  DEF - Windows 3.1 example file
+   TRUETYPE  DLG - Windows 3.1 example file
+   TRUETYPE    H - Windows 3.1 example file
+   TRUETYPE  ICO - Windows 3.1 example file
+   TRUETYPE  PRJ - Windows 3.1 example file
+   TRUETYPE   RC - Windows 3.1 example file
+
+WHELP2    CA1 - Windows help file
+   TCWHELP   HLP - Help file with Windows API
+
+WHELP3    CA5 - Split File of WHELP3.ZIP
+
+DISK 11
+-------
+BC        CA1 - Borland C++ compiler - IDE version
+   BC        EXE - Borland C++ compiler (IDE)
+
+BC        CA2 - Split File of BC.ZIP
+CLASSBLD  ZIP - 
+   MAKEFILE      - Makefile for building class library
+
+TPROFW    ZIP - Turbo Profiler for Windows files
+   TFWHELP   TFH - Help file for TPROFW.EXE
+   TPROFW    EXE - Turbo Profiler program for Windows
+
+TVLIB     ZIP - Turbo Vision Library files
+   TV        LIB - Turbo Vision library
+
+WHELP3    CA4 - Split File of WHELP3.ZIP
+
+DISK 12
+-------
+TPROF     ZIP - Turbo Profiler Programs and Utilities
+   TDH386    SYS - Device Driver for TD386.EXE
+   TF386     EXE - Utility For 80386/80486 Virtual Profiling
+   TFHELP    TFH - Help file for TPROF.EXE
+   TFINST    EXE - Configuration Customization Program for TPROF.EXE
+   TFREMOTE  EXE - Remote Profiling Kernel for TPROF
+   TPROF     EXE - Turbo Profiler program
+
+WBIN      CA2 - Split File of WBIN.ZIP
+WBIN      CA3 - Split File of WBIN.ZIP
+WHELP3    CA3 - Split File of WHELP3.ZIP
+
+DISK 13
+-------
+CMDLINE   CA2 - Split File of CMDLINE.ZIP
+WBIN      CA4 - Split File of WBIN.ZIP
+WHELP1    CA3 - Split File of WHELP1.ZIP
+WHELP3    CA2 - Split File of WHELP3.ZIP
+WINLIB    CA2 - Split File of WINLIB.ZIP
+
+DISK 14
+-------
+RW        CA2 - Split File of RW.ZIP
+RW        CA3 - Split File of RW.ZIP
+WHELP1    CA2 - Split File of WHELP1.ZIP
+WHELP1    CA4 - Split File of WHELP1.ZIP
+WIN31BIN  CA2 - Split File of WIN31BIN.ZIP
+
+DISK 15
+-------
+OWLLIB    CA2 - Split File of OWLLIB.ZIP
+TDDLL     ZIP - 
+   DUAL8514  DLL - Super VGA support for TDW and TPROFW with an 8514 video
+                   card
+   STB       DLL - Super VGA support for TDW and TPROFW with an STB video
+                   card
+   TDVESA    DLL - Super VGA support for TDW and TPROFW with an VESA video
+                   card
+   VESATEST  EXE - Program to test for VESA video card
+   ATI       DLL - Super VGA support for TDW and TPROFW with an ATI video
+                   card
+   TDWIN     DLL - DLL for Turbo Debugger for Windows
+   TSENG     DLL - Super VGA support for TDW and TPROFW with a TSENG based
+                   video card
+   ULTRA     DLL - Super VGA support for TDW and TPROFW with an ULTRA video
+                   card
+
+TVDOCDEM  ZIP - Turbo Vision Demo files
+   TVG17B    CPP - Source file for TVG17B
+   TVG17B    PRJ - Project file for TVG17B
+   TVGUID01  CPP - Source file for TVGUID01
+   TVGUID01  PRJ - Project file for TVGUID01
+   TVGUID02  CPP - Source file for TVGUID02
+   TVGUID02  PRJ - Project file for TVGUID02
+   TVGUID03  CPP - Source file for TVGUID03
+   TVGUID03  PRJ - Project file for TVGUID03
+   TVGUID04  CPP - Source file for TVGUID04
+   TVGUID04  PRJ - Project file for TVGUID04
+   TVGUID05  CPP - Source file for TVGUID05
+   TVGUID05  PRJ - Project file for TVGUID05
+   TVGUID06  CPP - Source file for TVGUID06
+   TVGUID06  PRJ - Project file for TVGUID06
+   TVGUID07  CPP - Source file for TVGUID07
+   TVGUID07  PRJ - Project file for TVGUID07
+   TVGUID08  CPP - Source file for TVGUID08
+   TVGUID08  PRJ - Project file for TVGUID08
+   TVGUID09  CPP - Source file for TVGUID09
+   TVGUID09  PRJ - Project file for TVGUID09
+   TVGUID10  CPP - Source file for TVGUID10
+   TVGUID10  PRJ - Project file for TVGUID10
+   TVGUID11  CPP - Source file for TVGUID11
+   TVGUID11  PRJ - Project file for TVGUID11
+   TVGUID12  CPP - Source file for TVGUID12
+   TVGUID12  PRJ - Project file for TVGUID12
+   TVGUID13  CPP - Source file for TVGUID13
+   TVGUID13  PRJ - Project file for TVGUID13
+   TVGUID14  CPP - Source file for TVGUID14
+   TVGUID14  PRJ - Project file for TVGUID14
+   TVGUID15  CPP - Source file for TVGUID15
+   TVGUID15  PRJ - Project file for TVGUID15
+   TVGUID16  CPP - Source file for TVGUID16
+   TVGUID16  PRJ - Project file for TVGUID16
+   TVGUID17  CPP - Source file for TVGUID17
+   TVGUID17  PRJ - Project file for TVGUID17
+   TVGUID18  CPP - Source file for TVGUID18
+   TVGUID18  PRJ - Project file for TVGUID18
+   TVGUID19  CPP - Source file for TVGUID19
+   TVGUID19  PRJ - Project file for TVGUID19
+   TVGUID20  CPP - Source file for TVGUID20
+   TVGUID20  PRJ - Project file for TVGUID20
+   TVGUID21  CPP - Source file for TVGUID21
+   TVGUID21  PRJ - Project file for TVGUID21
+
+WBIN      CA5 - Split File of WBIN.ZIP
+WIN31DEV  CA2 - Split File of WIN31DEV.ZIP

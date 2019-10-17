@@ -1,0 +1,144 @@
+/*------------------------------------------------------------------------
+ * filename - ldtrunc.cas
+ *
+ * function(s)
+ *        __ldtrunc - internal function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+#pragma inline
+#pragma warn -rvl
+#pragma warn -ret
+#include <errno.h>
+#include <_scanf.h>
+
+
+/*----------------------------------------------------------*
+double near pascal __ldtrunc(int flag, long double x, double xhuge);
+
+__ldtrunc() is an internal TC library function which truncates a
+long double to a float (flag=0) or a double (flag=1), within the
+constraints of what can be done in a library function.  The
+argument is checked for underflow, which is flushed to 0, and
+overflowed, which is changed to xhuge.  In either case, the sign
+of x is attached to the result.  Otherwise, x is returned
+unchanged.  The global errno is set to ERANGE, if an overflow or
+underflow would have occurred.  No overflow or underflow
+exceptions are generated.
+
+If flag = 0, it is suggested that xhuge = 1./0.
+If flag = 1, it is suggested that yhuge = HUGE_VAL.
+
+*-----------------------------------------------------------*/
+
+/*
+
+Method:
+
+The exponent (biased) in long double format is used to determine
+whether an overflow or underflow will occur.  This is quick and
+reliable, except for a few subtleties involving roundoff at the
+extreme exponents.
+
+cutoff values:
+
+largest normal double has biased exponent 43FEh in 10-byte format.
+smallest normal double has biased exponent 3C01h in 10-byte format.
+smallest denormal double has biased exponent 3BCDh in 10-byte format.
+
+largest normal float has biased exponent 407Eh in 10-byte format.
+smallest normal float has biased exponent 3F81h in 10-byte format.
+smallest denormal float has biased exponent 3F6Ah in 10-byte format.
+
+*/
+
+
+
+double near pascal __ldtrunc(int flag, long double x, double xhuge)
+{
+        volatile unsigned cword, cword2;
+        _CX = 0;
+
+/* AX = overflow threshold, BX = underflow threshold */
+asm     mov     ax, 43FEh
+asm     mov     bx, 3BCDh
+asm     cmp     word ptr flag, 0
+asm     jne     start
+asm     mov     ax, 407Eh
+asm     mov     bx, 3F6Ah
+start:
+
+asm     mov     dx, x[8]
+asm     shl     dx, 1
+asm     rcl     cx, 1
+asm     shr     dx, 1
+/* CX = sign bit, DX = biased exponent */
+/* let INF, NAN pass */
+asm     cmp     dx, 7FFFh
+asm     je      ret
+/* test for overflow */
+asm     cmp     dx, ax
+asm     je      hugex
+asm     jle     notinf
+/* overflow to HUGE_VAL with appropriate sign */
+asm     fld     qword ptr xhuge
+        goto ret1;
+
+hugex:
+/* chop in borderline infinite case, to avoid overflow */
+asm     fstcw   cword
+asm     mov     ax, 0C00h
+asm     fwait
+asm     or      ax, cword
+asm     mov     cword2, ax
+asm     fldcw   cword2
+asm     fld     tbyte ptr x
+asm     cmp     word ptr flag, 0
+asm     jne     s1
+asm     fstp    dword ptr xhuge
+asm     fld     dword ptr xhuge
+asm     jmp     short s2
+s1:
+asm     fstp    qword ptr xhuge
+asm     fld     qword ptr xhuge
+s2:
+/* restore previous control word */
+asm     fldcw   cword
+        return;
+
+notinf:
+/* test for +0 or -0 */
+asm     mov     ax, dx
+asm     or      ax, x[6]
+asm     or      ax, x[4]
+asm     or      ax, x[2]
+asm     or      ax, x[0]
+asm     jz      ret
+
+/* test for underflow */
+asm     cmp     dx, bx
+asm     jge     ret
+
+/* underflow to 0 with appropriate sign */
+asm     fldz
+ret1:
+asm     or      cx, cx
+asm     jz      ret0
+asm     fchs
+ret0:
+        errno = ERANGE;
+        return;
+ret:
+        return x;
+}
+
+/* to guarantee scantod.cas code gets linked */
+/* need this for atof(), strtod() */
+asm     extrn __turboFloat : ABS

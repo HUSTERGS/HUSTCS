@@ -1,0 +1,116 @@
+/*-----------------------------------------------------------------------*
+ * filename - strnicmp.cas
+ *
+ * function(s)
+ *        strnicmp  -  compare  one  string  to  another  without case
+ *                     sensitivity
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            strnicmp  -  compare  one  string  to  another  without case
+                             sensitivity
+
+Usage           int strnicmp(const char *str1, const char *str2, size_t maxlen);
+
+Prototype in    string.h
+
+Description     Case-independent  comparison of  *str1 with  *str2. Compare
+                the strings, but act as  if upper and lower case characters
+                were  always  upper-case,  returning  a  negative, zero, or
+                positive integer  according to whether *str1  is less than,
+                equal, or greater than *str2, respectively.
+
+                At most "maxlen" bytes will  be compared before stopping. A
+                zero "maxlen"  results in an  equal strnicmp, i.e.  returns
+                zero.
+
+                The strings *str1 and *str2 are not changed.
+
+                When  comparing to  punctuation characters  alphabetics are
+                always treated as upper-case.
+
+Return value    strcmp returns an integer value such as:
+                        < 0     if str1 is less than str2
+                        = 0     if str1 is the same as str2
+                        > 0     if str2 is greater than str2
+
+*------------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+int _CType _FARFUNC strnicmp(const char *str1, const char *str2, size_t maxlen)
+{
+        pushDS_
+#if !(LDATA)
+        _ES = _DS;
+#endif
+asm     cld
+
+asm     LDS_    si, str1
+asm     LES_    di, str2
+asm     mov     cx, maxlen
+
+/*
+  AH and BH will stay zero during this process. This'll be handy when its
+  time for a final subtract later.  Setting up the 'az' constant in DX can
+  have a slight payoff for strings greater than 3-4 chars in length(which
+  should be the usual case).
+*/
+asm     xor     ax, ax          /* AX <- 0      */
+asm     mov     bx, ax          /* BX <- 0      */
+asm     mov     dx, 617aH       /* DH <- 'a', DL <- 'z' */
+
+nci_nextCh:
+asm     jcxz    nci_end         /* length limited?  */
+asm     lodsb                   /* AL <- str1[i]    */
+asm     mov     bl, ES_ [di]    /* BL <- str2[i]    */
+asm     or      al, al          /* end of string?   */
+asm     jz      nci_end
+asm     scasb                   /* str1[i] == str2[i]?, advance DI  */
+asm     loope   nci_nextCh
+
+nci_alUpper:
+asm     cmp     al, dh          /* str1[i] < 'a'    */
+asm     jb      nci_blUpper
+asm     cmp     al, dl          /* str1[i] > 'z'    */
+asm     ja      nci_blUpper
+asm     sub     al, 'a' - 'A'   /* upper case str1[i]   */
+
+nci_blUpper:
+asm     cmp     bl, dh          /* str2[i] < 'a'    */
+asm     jb      nci_finalDif
+asm     cmp     bl, dl          /* str2[i] > 'z'    */
+asm     ja      nci_finalDif
+asm     sub     bl, 'a' - 'A'   /* upper case str2[i]   */
+
+nci_finalDif:
+asm     cmp     al, bl          /* compare after conversion */
+asm     je      nci_nextCh
+
+nci_end:
+/*
+  We need to do the full word subtract here because ANSI requires unsigned
+  comparisons. A simple byte subtract with a CBW would produce the wrong
+  result in some cases. Remember that AH, BH are still zero.
+*/
+asm     sub     ax, bx  /* Get the result. Note: AH & BH are still zero */
+
+        popDS_
+
+        return  _AX;
+}

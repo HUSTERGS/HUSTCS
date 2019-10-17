@@ -1,0 +1,141 @@
+/*---------------------------------------------------------------------------
+ * filename - getch.cas
+ *
+ * function(s)
+ *        getch   - gets character from console
+ *        getche  - gets character from console
+ *        ungetch - ungets character to console
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <conio.h>
+#include <stdio.h>
+#include <dos.h>
+#include <asmrules.h>
+
+/* The following two variables are now located in kbhit.cas. */
+
+extern unsigned char _cFlag;    /* Flag presence of un-gotten char */
+extern unsigned char _cChar;    /* The ungotten char               */
+
+/*
+   if these routines are split into separate files, each
+   must extern char _unflag & _unchar, _unflag & _unchar must not be static.
+*/
+
+/*--------------------------------------------------------------------------*
+
+Name            getch - gets character from console
+
+Usage           int getch(void);
+
+Prototype in    conio.h
+
+Description     getch is a function that reads a single character directly
+                from the console, without echoing.
+
+Return value    getch and getche return the character read. There is no
+                error return for these two functions.
+
+*---------------------------------------------------------------------------*/
+int getch(void)
+{
+        if (_cFlag)
+        {
+                _cFlag = 0;     /* Reset the flag       */
+                _AL = _cChar;   /* Get the un-got char  */
+        }
+      else
+        {
+                _AX = 0x0700;           /* Console input (no echo)      */
+                geninterrupt(0x21);
+        }
+
+        _AH = 0;                        /* Force it to be unsigned      */
+        return _AX;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            getche - gets character from console
+
+Usage           int getche(void);
+
+Prototype in    conio.h
+
+Description     getche is a function that reads and echoes a single
+                character from the console.
+
+Return value    getch and getche return the character read. There is no
+                error return for these two functions.
+
+*---------------------------------------------------------------------------*/
+asm _TEXT       segment
+asm             public __Ngetche
+asm __Ngetche   label near
+#if LPROG
+asm             pop     ax
+asm             push    cs
+asm             push    ax
+#endif
+asm             ends
+
+int getche(void)
+{
+        int ch;
+
+        if (_cFlag)                     /* Prevent possible double echoing */
+                ch = getch();
+        else
+                putch(ch = getch());
+
+        return ch;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            ungetch - ungets character to console
+
+Usage           int ungetch(int c);
+
+Prototype in    conio.h
+
+Description     ungetch pushes the character c back to the console,
+                causing c to be the next character read. The ungetch
+                function fails if it is called more than once before
+                the next read.
+
+Return value    ungetch returns the character c if it is successful.
+                return value of EOF indicates an error.
+
+*---------------------------------------------------------------------------*/
+asm _TEXT       segment
+asm             public __Nungetch
+asm __Nungetch  label near
+#if LPROG
+asm             pop     ax
+asm             push    cs
+asm             push    ax
+#endif
+asm             ends
+
+int ungetch(int c)
+{
+        if (_cFlag)
+                return(EOF);
+
+        _cFlag = 1;
+        _cChar = (unsigned char) c;
+        return _cChar;
+}

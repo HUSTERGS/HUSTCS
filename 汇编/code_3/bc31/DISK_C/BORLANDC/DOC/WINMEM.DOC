@@ -1,0 +1,1044 @@
+Online document
+___________________________________________________________________________
+
+                                                  Windows memory management
+
+
+
+
+
+
+
+CONTENTS
+___________________________________________________________________________
+
+
+
+
+
+           Windows memory              Mixed-model programming: Addressing
+           management              1   modifiers . . . . . . . . . . . .  7
+Running out of memory  . . . . . . 1     Segment pointers  . . . . . . .  8
+Memory models  . . . . . . . . . . 1     Declaring far objects . . . . .  9
+  The '86 registers  . . . . . . . 2     Declaring functions to be near or
+    General-purpose registers  . . 2     far . . . . . . . . . . . . . .  9
+    Segment registers  . . . . . . 2     Declaring pointers to be near,
+    Special-purpose registers  . . 2     far, or huge  . . . . . . . . . 10
+    The flags register . . . . . . 3       Pointing to a given
+  Memory segmentation  . . . . . . 3       segment:offset address  . . . 11
+  Pointers . . . . . . . . . . . . 4     Using library files . . . . . . 12
+    Near pointers  . . . . . . . . 4     Linking mixed modules . . . . . 12
+    Far pointers . . . . . . . . . 4
+    Huge pointers  . . . . . . . . 5   Index                             14
+  The four memory models . . . . . 5
+
+
+
+
+
+
+                    This document covers
+
+    See Chapter 8,  o What to do when you receive "Out of memory" errors.
+       "Building a
+           Windows  o What memory models are: how to choose one, and why
+  application," in    you would (or wouldn't) want to use a particular
+  the User's Guide    memory model.
+for information on
+ choosing a memory
+ model for Windows
+          modules.
+
+
+
+===========================================================================
+Running out of memory
+===========================================================================
+
+                    Borland C++ does not generate any intermediate data
+                    structures to disk when it is compiling (Borland C++
+                    writes only .OBJ files to disk); instead it uses RAM
+                    for intermediate data structures between passes.
+                    Because of this, you might encounter the message "Out
+                    of memory" if there is not enough memory available for
+                    the compiler.
+
+                    The solution to this problem is to make your functions
+                    smaller, or to split up the file that has large
+                    functions.
+
+
+
+===========================================================================
+Memory models
+===========================================================================
+
+                    Borland C++ gives you four memory models, each suited
+                    for different program and code sizes. Each memory model
+                    uses memory differently. What do you need to know to
+                    use memory models? To answer that question, we have to
+
+
+
+                                   - 1 -
+
+
+
+
+
+
+  See page 5 for a  take a look at the computer system you're working on.
+   summary of each  Its central processing unit (CPU) is a microprocessor
+     memory model.  belonging to the Intel iAPx86 family; an 80286, 80386,
+                    or 80486. For now, we'll just refer to it as an '86.
+
+
+ The '86 registers  =======================================================
+
+                    These are some of the registers found in the '86
+                    processor. There are other registers--but they can't be
+                    accessed directly, so they're not shown here.
+
+                                  Figure not available online
+   '86 registers
+
+
+------------------  The general-purpose registers are the ones used most
+   General-purpose  often to hold and manipulate data. Each has some
+         registers  special functions that only it can do. For example,
+------------------
+                    o Some math operations can only be done using AX.
+
+                    o BX can be used as an index register.
+
+                    o CX is used by LOOP and some string instructions.
+
+                    o DX is implicitly used for some math operations.
+
+                    But there are many operations that all these registers
+                    can do; in many cases, you can freely exchange one for
+                    another.
+
+
+------------------  The segment registers hold selectors which reference
+ Segment registers  segment descriptors. These descriptors provide
+------------------  information about the starting address of the segment,
+                    size, access control, and use.
+
+------------------  The '86 also has some special-purpose registers:
+   Special-purpose
+         registers  o The SI and DI registers can do many of the things the
+------------------    general-purpose registers can, plus they are used as
+                      index registers. They're also used by Borland C++ for
+                      register variables.
+
+                    o The SP register points to the current top-of-stack
+                      and is an offset into the stack segment.
+
+                    o The BP register is a secondary stack pointer, usually
+                      used to index into the stack in order to retrieve
+                      arguments or automatic variables.
+
+                    Borland C++ functions use the base pointer (BP)
+                    register as a base address for arguments and automatic
+
+
+
+                                   - 2 -
+
+
+
+
+
+
+                    variables. Parameters have positive offsets from BP,
+                    which vary depending on the memory model. BP points to
+                    the saved previous BP value if there is a stack frame.
+                    Functions that have no arguments will not use or save
+                    BP if the Standard Stack Frame option is Off.
+
+                    Automatic variables are given negative offsets from BP.
+                    The offsets depend on how much space has already been
+                    assigned to local variables.
+
+
+------------------  The 16-bit flags register contains all pertinent
+The flags register  information about the state of the '86 and the results
+------------------  of recent instructions.
+
+                    For example, if you wanted to know whether a
+                    subtraction produced a zero result, you would check the
+                    zero flag (the Z bit in the flags register) immediately
+                    after the instruction; if it were set, you would know
+                    the result was zero. Other flags, such as the carry and
+                    overflow flags, similarly report the results of
+                    arithmetic and logical operations.
+
+                                  Figure not available online
+  Flags register
+      of the '86    Other flags control modes of operation of the '86. The
+                    direction flag controls the direction in which the
+                    string instructions move, and the interrupt flag
+                    controls whether external hardware, such as a keyboard
+                    or modem, is allowed to halt the current code temporar-
+                    ily so that urgent needs can be serviced. The trap flag
+                    is used only by software that debugs other software.
+
+                    The flags register isn't usually modified or read
+                    directly. Instead, the flags register is generally
+                    controlled through special assembler instructions (such
+                    as CLD, STI, and CMC) and through arithmetic and
+                    logical instructions that modify certain flags.
+                    Likewise, the contents of certain bits of the flags
+                    register affect the operation of instructions such as
+                    JZ, RCR, and MOVSB. The flags register is not really
+                    used as a storage location, but rather holds the status
+                    and control data for the '86.
+
+
+            Memory  =======================================================
+      segmentation
+
+
+
+
+
+
+
+
+
+
+                                   - 3 -
+
+
+
+
+
+
+                    The Intel '86 microprocessor has a segmented memory
+                    architecture. It has a total address space of 16MB, but
+     The 80386 and  it is designed to directly address only 64K of memory
+  80486 processors  at a time.
+   actually have a
+     total address  o The '86 keeps track of four different segments: code,
+     space of four    data, stack, and extra. The code segment is where the
+     gigabytes and    machine instructions are; the data segment, where
+    their segments    information is; the stack is, of course, the stack;
+     needn't be as    and the extra segment is also used for extra data.
+ small as 64K, but
+       Windows 3.x  o The '86 has four 16-bit segment registers (one for
+doesn't change the    each segment) named CS, DS, SS, and ES; these point
+     segment size.    to the code, data, stack, and extra segments,
+                      respectively.
+
+
+          Pointers  =======================================================
+
+                    Although you can declare a pointer or function to be a
+                    specific type regardless of the model used, by default
+                    the type of memory model you choose determines the
+                    default type of pointers used for code and data.
+                    Pointers come in four flavors: near (16 bits), far (32
+                    bits), huge (also 32 bits), and segment (16 bits).
+
+
+------------------  A near pointer (16 bits) relies on one of the segment
+     Near pointers  registers to
+------------------  specify the address. For example, a pointer to a
+                    function would take on the segment of the code segment
+                    (CS) register. In a similar fashion, a near data
+                    pointer contains an offset to the data segment (DS)
+                    register. Near pointers are easy to manipulate, since
+                    any arithmetic (such as addition) can be done without
+                    worrying about the segment.
+
+
+------------------  A far pointer (32 bits) contains not only the offset
+      Far pointers  within the segment, but also the segment address (as
+------------------  another 16-bit value). By using far pointers, you can
+                    have multiple code segments; that, in turn, allows you
+                    to have programs larger than 64K. You can also address
+                    more than 64K of data.
+
+                    The equals (==) and not-equal (!=) operators use the
+                    32-bit value as an unsigned long. The comparison
+                    operators (<=, >=, <, and >) use just the offset.
+
+                    The == and != operators need all 32 bits, so the
+                    computer can compare to the NULL pointer (0000:0000).
+                    If you used only the offset value for equality
+
+
+
+
+
+                                   - 4 -
+
+
+
+
+
+
+                    checking, any pointer with 0000 offset would be equal
+                    to the NULL pointer, which is not what you want.
+
+        Important!  If you add values to a far pointer, only the offset is
+                    changed. If you add enough to cause the offset to
+                    exceed FFFF (its maximum possible value), the pointer
+                    just wraps around back to the beginning of the segment.
+                    For example, if you add 1 to 150D:FFFF, the result
+                    would be 150D:0000. Likewise, if you subtract 1 from
+                    150D:0000, you would get 150D:FFFF.
+
+                    If you want to do pointer comparisons, it's safest to
+                    use either near pointers--which all use the same
+                    segment address--or huge pointers, described next.
+
+
+------------------  Huge pointers are also 32 bits long. Like far pointers,
+     Huge pointers  they contain both a segment address and an offset.
+------------------  Unlike far pointers, when doing address calculations,
+                    the segment is adjusted if necessary.
+
+
+   The four memory  =======================================================
+            models
+                    Borland C++ gives you four memory models: small,
+                    medium, compact, and large. Your program requirements
+               -->  determine which one you pick. (See Chapter 8, "Building
+                    a Windows application," in the User's Guide for
+                    information on choosing a memory model for Windows
+                    modules.) Here's a brief summary of each:
+
+    This is a good  Small. The code and data segments are different and
+  size for average  don't overlap, so you have 64K of code and 64K of data
+     applications.  and stack. Near pointers are always used.
+
+    Best for large  Medium. Far pointers are used for code, but not for
+  programs without  data. As a result, data plus stack are limited to 64K,
+      much data in  but code is limited only to the amount of directly
+           memory.  addressable memory.
+
+   Best if code is  Compact. The inverse of medium: Far pointers are used
+small but needs to  for data, but not for code. Code is then limited to
+  address a lot of  64K, while data is limited only to the amount of
+             data.  directly addressable memory. Static data and the stack
+                    are still limited to 64K.
+
+   Large is needed  Large. Far pointers are used for both code and data,
+     only for very  giving both a range limited only by the amount of
+             large  directly addressable memory. Static data and the stack
+     applications.  are still limited to 64K.
+
+                    Figures 1.3 through 1.6 show how memory in the '86 is
+                    apportioned for the Borland C++ memory models. To
+                    select these memory models, you can either use menu
+
+
+
+                                   - 5 -
+
+
+
+
+
+
+                    selections from the IDE, or you can type options
+                    invoking the command-line compiler version of Borland
+                    C++.
+
+
+                                  Figure not available online
+     Small model
+          memory
+    segmentation                  Figure not available online
+    Medium model
+          memory
+    segmentation                  Figure not available online
+   Compact model
+                  
+                                  Figure not available online
+ CS points to only
+    one sfile at a  Table 1.1 summarizes the different models and how they
+              time  compare to one another. The models are often grouped
+                    according to whether their code or data models are
+                    small (64K) or large (16 MB); these groups correspond
+                    to the rows and columns in Table 1.1.
+ CS points to only
+    one sfile at a
+              time  -------------------------------------------------------
+ small code models                               Code size
+       because, by   Data size --------------------------------------------
+     default, code                  64K                 16MB/4GB
+pointers are near;
+ likewise, compact  -------------------------------------------------------
+     and large are
+ large data models
+       because, by   64K    Small (no overlap;    Medium (small data,
+     default, data          total size = 128K)    large code)
+ pointers are far.
+                    -------------------------------------------------------
+
+
+                     16MB   Compact (large data,  Large (large data,
+                     /4GB   small code)           large code)")
+
+
+                    -------------------------------------------------------
+
+        Important!  When you compile a module (a given source file with
+                    some number of routines in it), the resulting code for
+                    that module cannot be greater than 64K, since it must
+                    all fit inside of one code segment. This is true even
+                    if you're using one of the larger code models (medium
+                    or large). If your module is too big to fit into one
+                    (64K) code segment, you must break it up into different
+                    source code files, compile each file separately, then
+                    link them together.
+
+
+
+
+
+                                   - 6 -
+
+
+
+
+
+
+===========================================================================
+Mixed-model programming: Addressing modifiers
+===========================================================================
+
+                    Borland C++ introduces eight new keywords not found in
+                    standard ANSI C (near, far, huge, _cs, _ds, _es, _ss,
+                    and _seg) that can be used as modifiers to pointers
+                    (and in some cases, to functions), with certain
+                    limitations and warnings.
+
+                    In Borland C++, you can modify the declarations of
+                    pointers, objects, and functions with the keywords
+                    near, far, or huge. We explained near, far, and huge
+                    data pointers earlier in this chapter. You can declare
+                    far objects using the far keyword. near functions are
+                    invoked with near calls and exit with near returns.
+                    Similarly, far functions are called far and do far
+                    returns. huge functions are like far functions, except
+                    that huge functions set DS to a new value, while far
+                    functions do not.
+
+                    There are also four special near data pointers: _cs,
+                    _ds, _es, and _ss. These are 16-bit pointers that are
+                    specifically associated with the corresponding segment
+                    register. For example, if you were to declare a pointer
+                    to be
+
+                       char _ss *p;
+
+                    then p would contain a 16-bit offset into the stack
+                    segment.
+
+                    Functions and pointers within a given program default
+                    to near or far, depending on the memory model you
+                    select. If the function or pointer is near, it is
+                    automatically associated with either the CS or DS
+                    register.
+
+                    The next table shows just how this works. Note that the
+                    size of the pointer corresponds to whether it is
+                    working within a 64K memory limit (near, within a
+                    segment) or inside the general 1 MB memory space (far,
+                    has its own segment address).
+
+ Pointer results
+                    -------------------------------------------------------
+                     Memory model        Function pointers   Data pointers
+                    -------------------------------------------------------
+
+                       Small                 near, _cs         near, _ds
+                       Medium                far               near, _ds
+                       Compact               near, _cs         far
+                       Large                 far               far
+
+
+
+
+                                   - 7 -
+
+
+
+
+
+
+                    -------------------------------------------------------
+
+
+  Segment pointers  =======================================================
+
+                    Use _seg in segment pointer type declarators. The
+                    resulting pointers are 16-bit segment pointers. The
+                    syntax for _seg is:
+
+                       datatype _seg *identifier;
+
+                    For example,
+
+                       int _seg *name;
+
+                    Any indirection through identifier has an assumed
+                    offset of 0. In arithmetic involving segment pointers
+                    the following rules hold true:
+
+                    1. You can't use the ++, - -, +=, or -= operators with
+                       segment pointers.
+
+                    2. You cannot subtract one segment pointer from
+                       another.
+
+                    3. When adding a near pointer to a segment pointer, the
+                       result is a far pointer that is formed by using the
+                       segment from the segment pointer and the offset from
+                       the near pointer. Therefore, the two pointers must
+                       either point to the same type, or one must be a
+                       pointer to void. There is no multiplication of the
+                       offset regardless of the type pointed to.
+
+                    4. When a segment pointer is used in an indirection
+                       expression, it is also implicitly converted to a far
+                       pointer.
+
+                    5. When adding or subtracting an integer operand to or
+                       from a segment pointer, the result is a far pointer,
+                       with the segment taken from the segment pointer and
+                       the offset found by multiplying the size of the
+                       object pointed to by the integer operand. The
+                       arithmetic is performed as if the integer were added
+                       to or subtracted from the far pointer.
+
+                    6. Segment pointers can be assigned, initialized,
+                       passed into and out of functions, compared and so
+                       forth. (Segment pointers are compared as if their
+                       values were unsigned integers.) In other words,
+                       other than the above restrictions, they are treated
+                       exactly like any other pointer.
+
+
+
+
+
+
+                                   - 8 -
+
+
+
+
+
+
+     Declaring far  =======================================================
+           objects
+                    You can declare far objects in Borland C++. For
+                    example,
+
+                      int far x = 5;
+                      int far z;
+                      extern int far y = 4;
+                      static long j;
+
+                    The command-line compiler options -zE, -zF, and -zH
+                    (which can also be set using #pragma option) affect the
+                    far segment name, class, and group, respectively. When
+                    you change them with #pragma option, you can change
+                    them at any time and they apply to any ensuing far
+                    object declarations. Thus you could use the following
+                    sequence to create a far object in a specific segment:
+
+                      #pragma option -zEmysegment -zHmygroup -zFmyclass
+                      int far x;
+                      #pragma option -zE* -zH* -zF*
+
+                    This will put x in segment MYSEGMENT 'MYCLASS' in the
+                    group 'MYGROUP', then reset all of the far object items
+                    to the default values.
+
+
+         Declaring  =======================================================
+   functions to be
+       near or far  On occasion, you'll want (or need) to override the
+                    default function type of your memory model shown in
+                    Table 1.1 (page 6).
+
+                    For example, suppose you're using the large memory
+                    model, but you have a recursive (self-calling) function
+                    in your program, like this:
+
+                      double  power(double x,int exp)
+                      {
+                         if (exp <= 0)
+                            return(1);
+                         else
+                            return(x * power(x, exp-1));
+                      }
+
+                    Every time power calls itself, it has to do a far call,
+                    which uses more stack space and clock cycles. By
+                    declaring power as near, you eliminate some of the
+                    overhead by forcing all calls to that function to be
+                    near:
+
+                       double  near power(double x,int exp)
+
+
+
+
+
+                                   - 9 -
+
+
+
+
+
+
+                    This guarantees that power is callable only within the
+                    code segment in which it was compiled, and that all
+                    calls to it are near calls.
+
+                    This means that if you are using a large code model
+                    (medium or large), you can only call power from within
+                    the module where it is defined. Other modules have
+                    their own code segment and thus cannot call near
+                    functions in different modules. Furthermore, a near
+                    function must be either defined or declared before the
+                    first time it is used, or the compiler won't know it
+                    needs to generate a near call.
+
+                    Conversely, declaring a function to be far means that a
+                    far return is generated. In the small code models, the
+                    far function must be declared or defined before its
+                    first use to ensure it is invoked with a far call.
+
+                    Look back at the power example. It is wise to also
+                    declare power as static, since it should only be called
+                    from within the current module. That way, being a
+                    static, its name will not be available to any functions
+                    outside the module.
+
+
+Declaring pointers  =======================================================
+  to be near, far,
+           or huge  You've seen why you might want to declare functions to
+                    be of a different model than the rest of the program.
+                    Why might you want to do the same thing for pointers?
+                    For the same reasons given in the preceding section:
+                    either to avoid unnecessary overhead (declaring near
+                    when the default would be far) or to reference
+                    something outside of the default segment (declaring far
+                    or huge when the default would be near).
+
+                    There are, of course, potential pitfalls in declaring
+                    functions and pointers to be of nondefault types. For
+                    example, say you have the following small model
+                    program:
+
+    Note that this    void myputs(s)
+  program uses the    char *s;
+  EasyWin library.    {
+                      }
+
+                      main()
+                      {
+                         char near *mystr;
+
+                         mystr = "Hello, world\n";
+                         myputs(mystr);
+                      }
+
+
+
+
+                                  - 10 -
+
+
+
+
+
+
+                    This program works fine. In fact, the near declaration
+                    on mystr is redundant, since all pointers, both code
+                    and data, will be near.
+
+                    But what if you recompile this program using the
+                    compact (or large) memory model? The pointer mystr in
+                    main is still near (it's still a 16-bit pointer).
+                    However, the pointer s in myputs is now far, since
+                    that's the default. This means that myputs will pull
+                    two words out of the stack in an effort to create a far
+                    pointer, and the address it ends up with will certainly
+                    not be that of mystr.
+
+                    How do you avoid this problem? The solution is to
+                    define myputs in modern C style, like this:
+
+                      void myputs(char *s)
+                      {
+                        int i;
+
+                        for (i = 0; s[i] != 0; i++)
+                          putc(s[i]);
+                      }
+
+If you're going to  Now when Borland C++ compiles your program, it knows
+explicitly declare  that myputs expects a pointer to char; and since you're
+ pointers to be of  compiling under the large model, it knows that the
+ type far or near,  pointer must be far. Because of that, Borland C++ will
+    be sure to use  push the data segment (DS) register onto the stack
+          function  along with the 16-bit value of mystr, forming a far
+prototypes for any  pointer.
+    functions that
+   might use them.  How about the reverse case: Arguments to myputs
+                    declared as far and compiling with a small data model?
+                    Again, without the function prototype, you will have
+                    problems, since main will push both the offset and the
+                    segment address onto the stack, but myputs will only
+                    expect the offset. With the prototype-style function
+                    definitions, though, main will only push the offset
+                    onto the stack.
+
+
+------------------  How do you make a far pointer point to a given memory
+     Pointing to a  location (a specific segment:offset address)? You can
+             given  use the macro MK_FP, which takes a segment and an
+    segment:offset  offset and returns a far pointer. For example,
+           address
+------------------     MK_FP(segment_value, offset_value)
+
+                    Given a far pointer, fp, you can get the segment
+                    component with FP_SEG(fp) and the offset component with
+                    FP_OFF(fp). For more information about these three
+                    Borland C++ library routines, refer to the Library
+                    Reference.
+
+
+
+                                  - 11 -
+
+
+
+
+
+
+     Using library  =======================================================
+             files
+                    Borland C++ offers a version of the standard library
+                    routines for each of the six memory models. Borland C++
+                    is smart enough to link in the appropriate libraries in
+                    the proper order, depending on which model you've
+                    selected. However, if you're using the Borland C++
+                    linker, TLINK, directly (as a standalone linker), you
+                    need to specify which libraries to use. See Chapter 4,
+                    "TLINK: The Turbo linker" in the Tools and Utilities
+                    Guide for details on how to do so.
+
+
+     Linking mixed  =======================================================
+           modules
+                    What if you compiled one module using the small memory
+                    model, and another module using the large model, then
+                    wanted to link them together? What would happen?
+
+                    The files would in some cases link together fine, but
+                    the problems you would encounter would be similar to
+                    those described in the earlier section, "Declaring
+                    functions to be near or far." If a function in the
+                    small module called a function in the large module, it
+                    would do so with a near call, which would probably be
+                    disastrous. Furthermore, you could face the same
+                    problems with pointers as described in the earlier
+                    section, "Declaring pointers to be near, far, or huge,"
+                    since a function in the small module would expect to
+                    pass and receive near pointers, while a function in the
+                    large module would expect far pointers.
+
+                    The solution, again, is to use function prototypes.
+                    Suppose that you put myputs into its own module and
+                    compile it with the large memory model. Then create a
+                    header file called myputs.h (or some other name with a
+                    .h extension), which would have the following function
+                    prototype in it:
+
+                       void far myputs(char far *s);
+
+                    Now, if you put main into its own module (called
+                    MYMAIN.C), set things up like this:
+
+    Note that this    #include <stdio.h>
+  program uses the    #include "myputs.h"
+  EasyWin library.
+                      main()
+                      {
+                         char near *mystr;
+
+                         mystr = "Hello, world\n";
+
+
+
+
+
+                                  - 12 -
+
+
+
+
+
+
+                         myputs(mystr);
+                      }
+
+                    When you compile this program, Borland C++ reads in the
+                    function prototype from myputs.h and sees that it is a
+                    far function that expects a far pointer. Because of
+                    that, it will generate the proper calling code, even if
+                    it's compiled using the small memory model.
+
+                    What if, on top of all this, you need to link in
+                    library routines? Your best bet is to use one of the
+                    large model libraries and declare everything to be far.
+                    To do this, make a copy of each header file you would
+                    normally include (such as stdio.h), and rename the copy
+                    to something appropriate (such as fstdio.h).
+
+                    Then edit each function prototype in the copy so that
+                    it is explicitly far, like this:
+
+                       int far cdecl printf(char far * format, ...);
+
+                    That way, not only will far calls be made to the
+                    routines, but the pointers passed will be far pointers
+                    as well. Modify your program so that it includes the
+                    new header file:
+
+    Note that this    #include <fstdio.h>
+  program uses the
+  EasyWin library.    main()
+                      {
+                         char near *mystr;
+                         mystr = "Hello, world\n";
+                         printf(mystr);
+                      }
+
+                    Compile your program with the command-line compiler BCC
+                    then link it with TLINK, specifying a large model
+                    library, such as CWL.LIB. Mixing models is tricky, but
+                    it can be done; just be prepared for some difficult
+                    bugs if you do things wrong.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                  - 13 -
+
+
+
+
+
+
+INDEX
+___________________________________________________________________________
+
+
+
+
+
+'86 processors                          _es (keyword) 7
+  registers 2-3                         ES register 4
+                                        extra segment 4
+
+A
+auxiliary carry flag 3                  F
+AX register 2                           far (keyword) 4, 7, 13
+                                        flags
+                                          register 2, 3
+B                                       FP_OFF 11
+base address register 2                 FP_SEG 11
+BP register 2                           functions
+BX register 2                             declaring
+                                            as near or far 9
+                                          far
+C                                           declaring 10
+carry flag 3                                memory model size and 9
+code segment 4                            near
+command-line compiler                       declaring 10
+  options                                   memory models and 9
+    data segment                          recursive
+      name 9                                memory models and 9
+    far objects (-zE
+      -zF
+        and -zH) 9                      H
+    -zX (code and data segments) 9      huge (keyword) 4, 7
+_cs (keyword) 7
+CS register 4
+CX register 2                           I
+                                        interrupts
+                                          flag 3
+D                                       IP (instruction pointer) register 2
+data segment
+  naming and renaming 9
+data segments 4                         L
+descriptors                             linker
+  segment 2                               mixed modules and 12
+DI register 2                             using directly 12
+direction flag 3
+_ds (keyword) 7
+DS register 4                           M
+DX register 2                           macros
+                                          far pointer creation 11
+                                          MK_FP 11
+E                                       memory
+errors                                    Borland C++'s usage of 1
+  out of memory 1                         memory models and 6
+
+
+
+Index                                                                    14
+
+
+
+
+
+
+memory addresses                          comparing 5
+  calculating 2                           default data 6
+  far pointers and 4                      far
+  near pointers and 4                       adding values to 5
+  pointing to 11                            declaring 10-11
+memory models 6, 1-13                       function prototypes and 11
+  changing 11                               memory model size and 10
+  compact 5                                 registers and 4
+  comparison 6                            far memory model and 4
+  defined 5                               huge 5
+  illustrations 6                           declaring 10-11
+  large 5                                 huge memory model and 4
+  medium 5                                memory models and 4, 7
+  memory apportionment and 6              to memory addresses 11
+  mixing 12                               modifiers 7
+    function prototypes and 12            near
+  pointers and 4, 7                         declaring 10-11
+  small 5                                   function prototypes and 11
+  Windows and 5                             memory model size and 10
+mixed modules                               registers and 4
+  linking 12                              near memory model and 4
+MK_FP (run-time library macro) 11         normalized 5
+modifiers                                 segment 7, 8
+  pointers 8                              stack 2
+modules                                 positive offsets 3
+  linking mixed 12                      #pragma directives
+  size limit 6                            option pragma
+                                            far objects and 9
+                                        prototypes
+N                                         far and near pointers and 11
+near (keyword) 4, 7                       mixing modules and 12
+negative offsets 3
+
+                                        R
+O                                       RAM
+objects                                   Borland C++'s use of 1
+  far                                   recursive functions
+    class names 9                         memory models and 9
+    declaring 9                         registers
+    option pragma and 9                   '86 2-3
+offsets                                   AX 2
+  component of a pointer 11               base point 2
+option pragma                             BP 2
+  far objects and 9                       BX 2
+out of memory error 1                     CS 4
+overflows                                 CX 2
+  flag 3                                  DI 2
+                                          DS 4
+                                          DX 2
+P                                         ES 4
+parity flag 3                             flags 2, 3
+pointers                                  index 2
+  arithmetic 5                            IP (instruction pointer) 2
+  changing memory models and 11           LOOP and string instruction 2
+
+
+
+                                  - 15 -
+
+
+
+
+
+
+  math operations 2                     SP register 2
+  segment 2, 4                          special-purpose registers ('86) 2
+  SI 2                                  SS register 4
+  SP 2                                  _ss (keyword) 7
+  special-purpose 2                     stack
+  SS 4                                    pointers 2
+                                          segment 4
+                                        strings
+S                                         instructions
+_seg (keyword) 7, 8                         registers 2
+segment descriptors 2
+segment:offset address notation
+  making far pointers from 11           T
+segmented memory architecture 4         TLINK (linker)
+segments 5                                using directly 12
+  component of a pointer 11             trap flag 3
+  memory 4
+  pointers 7, 8
+  registers 2, 4                        Z
+selectors 2                             zero flag 3
+SI register 2                           -zX options (code and data
+sign                                      segments) 9
+  flag 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Index                                                                    16
+

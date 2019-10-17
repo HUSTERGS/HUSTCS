@@ -1,0 +1,51 @@
+/*-----------------------------------------------------------------------*
+ * filename - kbhit.cas
+ *
+ * function(s)
+ *        kbhit - checks for recent keystrokes
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <conio.h>
+
+/* The following variables are used in getch.cas */
+
+unsigned char _cFlag = 0;       /* Flag presence of un-gotten char */
+unsigned char _cChar = 0;       /* The ungotten char               */
+
+/*-----------------------------------------------------------------------*
+
+Name            kbhit - checks for recent keystrokes
+
+Usage           int kbhit(void);
+
+Prototype in    conio.h
+
+Description     kbhit checks to see if a keystroke is currently
+                available. Any available keystrokes can be retrieved with
+                getch or getche.
+
+Return value    If a keystroke is available, kbhit returns a
+                non-zero integer. If not, it returns 0.
+
+*------------------------------------------------------------------------*/
+int kbhit( void )
+{
+        if (_cFlag)             /* has a character been ungetch'd? */
+                return (1);
+
+asm     mov     ah, 0Bh
+asm     int     21h
+asm     cbw
+
+        return( _AX );
+}

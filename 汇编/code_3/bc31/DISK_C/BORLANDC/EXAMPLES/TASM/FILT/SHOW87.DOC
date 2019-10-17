@@ -1,0 +1,67 @@
+
+
+                                 SHOW87
+                                 ------
+    Copyright (c) 1988, 1989 Borland International  All Rights Reserved
+
+TABLE OF CONTENTS
+-----------------
+
+1. What is SHOW87?
+2. Starting SHOW87
+3. What SHOW87 Displays
+
+
+1. WHAT IS SHOW87?
+------------------
+
+  SHOW87 is a memory-resident program that displays the entire state of an 
+  installed 8087 coprocessor chip when an 8087 is present. This is useful 
+  when you're debugging code that contains 8087 instructions.
+
+
+2. STARTING SHOW87
+------------------
+
+  SHOW87 has two modes of installation. The default is the shell mode in 
+  which SHOW87 executes a DOS shell, rather than making itself truly resident.
+  This allows you to de-install SHOW87 by typing EXIT at any DOS prompt. The
+  disadvantage of the shell mode is that a second command processor must be 
+  invoked, which uses an extra 3,000 to 4,000 bytes of memory. The other 
+  installation mode is the resident mode, which is specified by the /R 
+  parameter. SHOW87 uses less memory in this mode, but cannot be removed. 
+  SHOW87 alone uses about 5,700 bytes of memory.
+
+  Once installed, SHOW87 can be invoked at any time by pressing Alt-7. 
+  Invoking SHOW87 causes most of the upper half of the screen to display the 
+  flags, registers, and other information regarding the 8087. Pressing any key
+  exits you from the display and restores the screen. Normally, you would 
+  install SHOW87 before debugging 8087 code and then remove SHOW87 when it's 
+  no longer needed.
+
+  If SHOW87 cannot properly install itself, it will display an error message 
+  and terminate. The most common reasons for such an error are insufficient 
+  memory, COMMAND.COM not found, or no 80x87 is detected. COMMAND.COM is only 
+  needed when SHOW87 is run in shell mode. SHOW87 finds the COMMAND.COM file 
+  by looking for the COMSPEC parameter in the environment (see your DOS manual).
+
+
+3. WHAT SHOW87 DISPLAYS
+-----------------------
+
+  SHOW87 displays all 8087 information, including the instruction pointer, the
+  operand pointer, the operation code; the control, status, and tag words; the
+  precision, rounding, and infinity control settings; the stack top; the 
+  condition codes and their various interpretations; the exception settings 
+  and interrupt mask settings; and the register values.
+
+  The condition code settings represent C3, C2, C1, and C0 respectively. 
+  The Comp, Test, and Exam fields display the meaning of the condition codes 
+  as returned by the FCOM, FTST, and FXAM instructions.
+
+  Register values are displayed in one of two ways. If the number has a tag 
+  setting of VALID, the number is displayed in decimal format. If the number
+  has a tag setting of SPECIAL or EMPTY, a hexadecimal dump of the number is
+  displayed. After the mantissa and exponent, the type of value (as 
+  interpreted by the FXAM instruction) is displayed.
+ 

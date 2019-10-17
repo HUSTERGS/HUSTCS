@@ -1,0 +1,73 @@
+/*-----------------------------------------------------------------------*
+ * filename - memcmp.cas
+ *
+ * function(s)
+ *        memcmp - compare two memory arrays
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <mem.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            memcmp - compare two memory arrays
+
+Usage           int memcmp(const void *s1, const void *s2, size_t n);
+
+Prototype in    mem.h & string.h
+
+Description     memcmp compares two  memory areas, s1 and s2,  for a length
+                of  exactly  n  bytes.  This  function  compares  bytes  as
+                unsigned chars, so
+                        memcmp ("\0xFF", "\0x7F", 1)
+                returns a positive value.
+
+Return value    < 0     if s1 is less than s2
+                = 0     if s1 is the same as s2
+                > 0     if s1 is greater than s2
+
+*------------------------------------------------------------------------*/
+#undef memcmp                  /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+int _FARFUNC memcmp(const void *s1, const void *s2, size_t n)
+{
+        pushDS_
+asm     mov     ax, n
+asm     mov     cx, ax
+asm     jcxz    mcm_end
+asm     LDS_    si, s1
+asm     LES_    di, s2
+#if !(LDATA)
+asm     mov     ax, ds
+asm     mov     es, ax
+#endif
+asm     cld
+asm     rep     cmpsb
+
+/*      The result is the UNsigned difference of the final character pair,
+        be they equal or different.
+*/
+asm     mov     al, [si-1]
+asm     xor     ah, ah
+asm     mov     cl, ES_ [di-1]
+asm     xor     ch, ch
+
+mcm_end:
+        popDS_
+
+        return( _AX - _CX );
+}

@@ -1,0 +1,229 @@
+/*-----------------------------------------------------------------------*
+ * filename - harderr.cas
+ *
+ * function(s)
+ *        __harderr   - establishes a hardware error handler (Borland)
+ *        _harderr    - establishes a hardware error handler (MSC compatible)
+ *        _hardresume - hardware error handler function
+ *        _hardretn   - hardware error handler function
+ *        hentry      - calls user error handler
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+
+#ifdef __TINY__
+#define FARINT(f) ((void interrupt far (*)())MK_FP(_CS,f))
+#else
+#define FARINT(f) f
+#endif
+
+static  int Hsav;
+static  int (*Hfunc)(unsigned di, unsigned ax, unsigned bp, unsigned si);
+static  void (far *MSCfunc)(unsigned deverror, unsigned errcode,
+                                unsigned far *devhdr);
+static  int IsMSC;      /* true if we must use MSCfunc instead of Hfunc */
+
+/*-----------------------------------------------------------------------*
+
+Name            hentry     - calls user error handler
+
+Usage           static void interrupt far hentry(bp, di, si, ds, es,
+                                                 dx, cx, bx, ax);
+
+Description     calls the user hardware error handler
+
+Return value    nothing
+
+*------------------------------------------------------------------------*/
+#pragma argsused
+#pragma option -O-b     // turn off dead store optimization
+
+static void interrupt far hentry(bp, di, si, ds, es, dx, cx, bx, ax)
+{
+        Hsav = _SP;     /* save the stack pointer */
+        if (IsMSC)
+                (*MSCfunc)(ax, di, MK_FP(bp,si));
+        else
+                ax = (*Hfunc)(di & 0xff, ax, bp, si);
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            __harderr - establishes a hardware error handler
+                _harderr - Microsoft C compatible version
+
+Usage           void __harderr(int (*fptr)());
+                void _harderr(void (far *fptr)());
+
+Related
+functions usage void _hardresume(int rescode);
+                void _hardretn(int errcode);
+
+Prototype in    dos.h
+
+Description     __harderr establishes a hardware error handler for the
+                current program. This handler is invoked whenever an interrupt
+                0x24 occurs. (See the MS-DOS Programmer's Reference Manual for a
+                discussion of the interrupt.)  The harderr macro in dos.h maps
+                to the __harderr function.
+
+                The function pointed to by fptr will be called when such an
+                interrupt occurs. The handler function will be called with the
+                following arguments:
+
+                   handler(int errval, int ax, int bp, int si);
+
+                errval is the error code set in the DI register by MS-DOS.
+                ax, bp, and si are the values MS-DOS sets for the AX,
+                BP, and SI registers, respectively.
+
+                ax indicates whether a disk error or other device error was
+                encountered. If ax is non-negative, a disk error was
+                encountered; otherwise, the error was a device error. For a
+                disk error, ax ANDed with 0x00FF will give the failing drive
+                number (1 = A, 2 = B, etc.).
+
+                bp and si together point to the device driver header of
+                the failing driver.
+
+                The named function is not called directly. __harderr establishes
+                a DOS interrupt handler that calls the function.
+
+                peek and peekb can be used to retrieve device information from
+                this driver header. bp is the segment address, and si is
+                the offset.
+
+                The handler may issue bdos calls 1 through 0xC, but any other
+                bdos call will corrupt MS-DOS. In particular, any of the C
+                standard I/O or UNIX-emulation I/O calls may not be used.
+
+                The driver header may not be altered via poke or pokeb.
+
+                The error handler may return or call _hardresume to return to
+                MS-DOS. The return value of the handler or rescode (result code)
+                of _hardresume contains an abort (2), retry (1), or ignore (0)
+                indicator. The abort is accomplished by invoking DOS interrupt
+                0x23, the control-break interrupt.
+
+                The error handler may return directly to the application
+                program by calling _hardretn.
+
+                The Microsoft-compatible _harderr function is similar
+                to __harderr, except that the handler is always a far
+                function, the handler is called with slightly different
+                parameters, and the handler is not expected to return
+                a value:
+
+                        void far handler (unsigned deverror, unsigned errcode,
+                                        unsigned far *devhdr);
+
+
+Return value    The handler must return 0 for ignore, 1 for retry,
+                2 for abort, and 3 for fail (DOS 3.0 or later).  __harderr
+                itself does not return a value.
+
+Portability     Unique to MS-DOS.
+
+See also        peek, poke, setjmp
+
+*------------------------------------------------------------------------*/
+void    __harderr(int (*fptr)())        /* Borland version */
+{
+        Hfunc = fptr;
+        IsMSC = 0;
+        setvect(0x24, FARINT(hentry));
+}
+
+void    _harderr(void (far *fptr)())    /* Microsoft C version */
+{
+        MSCfunc = fptr;
+        IsMSC = 1;
+        setvect(0x24, FARINT(hentry));
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            _hardresume - hardware error handler function
+
+Usage           void _hardresume(int rescode);
+
+Prototype in    dos.h
+
+Description     see __harderr
+
+*------------------------------------------------------------------------*/
+void    _hardresume(int axret)
+{
+        _AX = axret;
+        _SP = Hsav;
+asm     pop     bp
+asm     pop     di
+asm     pop     si
+asm     pop     ds
+asm     pop     es
+asm     pop     dx
+asm     pop     cx
+asm     pop     bx
+asm     inc     sp;             /* Don't restore ax */
+asm     inc     sp;
+asm     iret
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            _hardretn - hardware error handler function
+
+Usage           void _hardretn(int errcode);
+
+Prototype in    dos.h
+
+Description     see __harderr
+
+*------------------------------------------------------------------------*/
+void _hardretn(int retn)
+{
+        bdos(0x54,0,0);         /* Clean up DOS */
+        _SI = retn;             /* Save return code */
+        _BP = _SP = Hsav + 24;  /* Restore stack and make it addressable */
+asm     pop     ax              /* Get user's AX (AH = DOS function) */
+        if (_AH < 0x38)         /* Old-style DOS function? */
+        {
+                /* If it's a function that can return an error condition,
+                 * set AL to 0xFF and ignore return code (retn).
+                 */
+                if ((_AH >= 0x0f && _AH <= 0x13) || _AH == 0x16 || _AH == 0x17
+                  || _AH == 0x23 || _AH == 0x29)
+                        _AL = 0xff;
+        }
+        else
+        {
+                /* It's a new-style function.  Set the carry flag
+                 * and put the return code in AL.
+                  */
+asm             or      byte ptr 22[bp], 1      /* Set carry flag */
+                _AX = _SI;                      /* Copy retn to AL */
+        }
+asm     pop     bx
+asm     pop     cx
+asm     pop     dx
+asm     pop     si
+asm     pop     di
+asm     pop     bp
+asm     pop     ds
+asm     pop     es
+asm     iret                    /* Hop back to user */
+}
+

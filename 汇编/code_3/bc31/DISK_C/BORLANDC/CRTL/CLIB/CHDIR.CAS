@@ -1,0 +1,51 @@
+/*---------------------------------------------------------------------------
+ * filename - chdir.cas
+ *
+ * function(s)
+ *        chdir   - changes working directory
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dir.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            chdir - changes working directory
+
+Usage           int chdir(const char *path);
+
+Prototype in    dir.h
+
+Description     causes the directory specified by path to become the
+                current working directory.
+
+Return value    success : 0
+                failure : -1 and errno is set to ENOENT (Path or file
+                name not found)
+
+*---------------------------------------------------------------------------*/
+int _CType chdir(const char *pathP)
+{
+        pushDS_
+asm     mov     ah, 03Bh
+asm     LDS_    dx, pathP
+asm     int     021H
+        popDS_
+asm     jc      chdirFailed
+
+        return(0);
+
+chdirFailed:
+        return __IOerror(_AX);
+}

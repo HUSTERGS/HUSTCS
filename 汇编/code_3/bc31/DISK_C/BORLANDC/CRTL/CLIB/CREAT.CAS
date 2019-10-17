@@ -1,0 +1,97 @@
+/*---------------------------------------------------------------------------
+ * filename - creat.cas
+ *
+ * function(s)
+ *        dosCreat - Create or truncate a file
+ *        creat - creates a new file or rewrites an existing one
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+#include <sys\stat.h>
+#include <fcntl.h>
+#include <RtlData.h>
+
+extern  void    (*_exitopen)();
+extern  void    _xclose();
+
+extern  unsigned _notUmask;
+
+
+/*--------------------------------------------------------------------------*
+
+Name            dosCreat - Create or truncate a file
+
+Description     interface to interrupt 0x21 function 0x3C - Create or
+                truncate file.
+
+Return          success : the file handle
+                else : -1
+
+*---------------------------------------------------------------------------*/
+static int pascal near dosCreat(const char *pathP, unsigned attrib)
+{
+        pushDS_
+asm     LDS_    dx, pathP
+asm     mov     ah, 3Ch
+asm     mov     cx, attrib
+asm     int     21h             /* AX = creat (DS:DX, CX)       */
+        popDS_
+asm     jc      dosCreatFailed
+        return _AX;
+
+dosCreatFailed:
+        return  __IOerror (_AX);
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            creat - creates a new file or rewrites an existing one
+
+Usage           int creat(const char *filename, int permiss);
+
+Prototype in    io.h
+
+Description     creates a new file or prepares to rewrite an existing
+                file named by the string pointed to by filename. permiss
+                only applies to newly created files.
+
+Return value    success : the new file handle
+                else : -1 and errno is set to one of the following:
+
+                        ENOENT  Path or file name not found
+                        EMFILE  Too many open files
+                        EACCESS Permission denied
+
+*---------------------------------------------------------------------------*/
+int _CType _FARFUNC creat(const char *path, register int mode)
+{
+    register int    fd;
+    _QRTLDataBlock;
+
+    mode &= _QRTLInstanceData(_notUmask);
+    fd = dosCreat (path, (mode & S_IWRITE) ? 0 : 1);
+
+    if (fd >= 0)
+    {
+        _exitopen = _xclose;
+        _QRTLInstanceData(_openfd) [fd] =
+            _QRTLInstanceData(_fmode) | O_RDWR | O_CHANGED |
+            ((ioctl (fd, 0) & 0x80) ? O_DEVICE : 0) |
+            (mode & S_IWRITE ? _O_WRITABLE : 0);
+    }
+
+    return fd;
+}

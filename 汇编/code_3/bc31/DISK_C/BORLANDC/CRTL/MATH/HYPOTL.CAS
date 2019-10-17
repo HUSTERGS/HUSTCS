@@ -1,0 +1,77 @@
+/*------------------------------------------------------------------------
+ * filename - hypotl.cas
+ *
+ * function(s)
+ *        hypotl - calculates hypotlenuse of right angle (long double)
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            hypotl - calculates hypotlenuse of right angle
+
+Usage           long double hypotl(long double x, long double y);
+
+Prototype in    math.h
+
+Description     hypotl calculates the value z where
+                        z^2 = x^2 + y^2
+
+                This is  equivalent to the length of the hypotenuse of a
+                right triangle, if  the lengths of the two sides are x and
+                y.
+
+Return value    hypotl returns sqrt (x^2 + y^2). On error (such as an
+                overflow), hypotl  returns the value _LHUGE_VAL, and
+                sets errno to:
+                        ERANGE  Value out of range
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -ret
+long double  hypotl (long double x, long double y)
+{
+asm     FLD     LONGDOUBLE (x)
+asm     mov     ax, x [8]               /* fetch exponent               */
+asm     and     ax, 07fffh
+asm     cmp     ax,1fffh+3fffh          /* exponent >= 1fffH (biased)?  */
+asm     jae     hyp_infiniteX
+asm     FMUL    st, st
+
+asm     FLD     LONGDOUBLE (y)
+asm     mov     ax, y [8]               /* fetch exponent               */
+asm     and     ax, 07fffh
+asm     cmp     ax,1fffh+3fffh          /* exponent >= 1fffH (biased)?  */
+asm     jae     hyp_infiniteY
+asm     FMUL    st, st
+
+asm     FADD
+asm     FSQRT
+
+        return;
+
+hyp_infiniteY:
+asm     FSTP    st(0)                   /* pop y off stack      */
+hyp_infiniteX:
+asm     FSTP    st(0)                   /* pop x off stack      */
+
+         return  __matherrl (OVERFLOW, "hypotl", &x, &y, _LHUGE_VAL);
+}
+#pragma warn .ret
+#pragma warn .rvl
+

@@ -1,0 +1,10 @@
+
+;  This patches out a jump around two calls to a function that allocates
+;  all EMS pages and frees them.  The function is called twice prior to
+;  allocating  VCPI pages, when a VCPI server is present.  This is
+;  necessary to safeguard against a problem with allocating VCPI pages
+;  from EMM386.exe from Windows 3.1.
+
+5225: eb 5c eb 07 48 41 43 4b 45 4d 53
+      eb 5c eb 0d 48 41 43 4b 45 4d 53
+

@@ -1,0 +1,168 @@
+/*---------------------------------------------------------------------------
+ * filename - atol.cas
+ *
+ * function(s)
+ *        atol  - converts a string to a long
+ *        atoi  - converts a string to an int
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#undef   atoi           /* macro in stdlib */
+
+
+
+/*--------------------------------------------------------------------------*
+
+Name            atol - converts a string to an integer
+
+Usage           long atol(const char *nptr);
+
+Prototype in    stdlib.h
+
+Description     Convert a string to a long integer.  The syntax of
+                the string must be:
+
+                        long     ::= [isspace]* [sign] digit [digit]*
+
+                Only decimal integers are acceptable.
+
+                Error handling is poor.  The function will protect
+                itself (crash-proof) but there is no defined method
+                to return an error indication to the caller.  The
+                result is undefined if the input string is invalid.
+
+Return value    converted long value of the input string.  If the string
+                cannot be converted to a long, the return value is 0.
+
+*---------------------------------------------------------------------------*/
+
+long _CType _FARFUNC atol(const char *strP)
+{
+#if LDATA
+asm     push    ES
+#endif
+asm     push    bp
+
+asm     LES_    si, strP
+
+#ifdef __HUGE__
+asm     mov     ax, seg _ctype
+asm     mov     DS, ax
+#endif
+
+asm     cld
+asm     sub     ax, ax
+asm     cwd                     /* default result in DX:AX = 0:0.       */
+
+asm     mov     cx, 10          /* decimal radix        */
+
+/*      Skip any isspace (ctype) characters at the start. */
+asm     mov     bh, 0
+asm     mov     di, 1 + offset (ES_ _ctype)     /* avoid assuming DS    */
+atl_skipSpace:
+asm     mov     bl, ES_ [si]
+asm     inc     si
+asm     test    BY0 ([bx+di]), _IS_SP           /* (1 + _ctype) [bx]    */
+asm     jnz     atl_skipSpace
+
+/*      Remember if a negative sign is encountered */
+asm     mov     bp, 0           /* BP holds sign, 0 = positive  */
+asm     cmp     bl, '+'
+asm     je      atl_signSeen
+asm     cmp     bl, '-'
+asm     jne     atl_inspectDigit
+asm     inc     bp              /*               1 = negative   */
+atl_signSeen:
+
+/*      accumulate digits in AX until more than 16 bits. */
+atl_digitOnWord:
+asm     mov     bl, ES_ [si]
+asm     inc     si
+
+atl_inspectDigit:
+asm     cmp     bl, '9'
+asm     ja      atl_end
+asm     sub     bl, '0'
+asm     jb      atl_end
+
+asm     mul     cx
+asm     add     ax, bx
+asm     adc     dl, dh
+asm     jz      atl_digitOnWord
+asm     jmp     short   atl_nextDigit
+
+/*      Accumulate digits in DX:AX, overflow may occur but is ignored
+        (as per SVID norm).
+*/
+atl_digitOnLong:
+asm     mov     di, dx          /* copy DX to safety in DI      */
+asm     mov     cx, 10
+asm     mul     cx
+asm     xchg    ax, di
+asm     xchg    dx, cx
+asm     mul     dx
+asm     xchg    dx, ax
+asm     xchg    ax, di          /* function result should be in DX:AX   */
+asm     add     ax, bx
+asm     adc     dx, cx
+/*      overflows are discarded: result is undefined */
+atl_nextDigit:
+asm     mov     bl, ES_ [si]
+asm     inc     si
+asm     cmp     bl, '9'
+asm     ja      atl_end
+asm     sub     bl, '0'
+asm     jnb     atl_digitOnLong
+
+/*      the result may be signed. */
+atl_end:
+asm     dec     bp              /* was '-' negative seen ?      */
+asm     jl      atl_exit
+asm     neg     dx
+asm     neg     ax
+asm     sbb     dx, 0           /* negate (DX:AX)       */
+
+atl_exit:
+asm     pop     bp
+#if LDATA
+asm     pop     ES
+#endif
+    return( MK_LONG );
+}
+
+/*--------------------------------------------------------------------------*
+
+Name            atoi - converts a string to an integer
+
+Usage           int atoi(char *nptr);
+
+Prototype in    stdlib.h
+
+Description     Convert ASCII string to word integer.
+
+                The only difference between this and the atol
+                function is whether the result is truncated.
+
+Return value    converted long value of the input string.  If the string
+                cannot be converted to an int, the return value is 0.
+
+*---------------------------------------------------------------------------*/
+
+int _CType _FARFUNC atoi (const char *strP)
+{
+        return (int) atol (strP);
+}
+

@@ -1,0 +1,64 @@
+/*-----------------------------------------------------------------------*
+ * filename - strlen.cas
+ *
+ * function(s)
+ *        strlen - calculates the length of a string
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            strlen - calculates the length of a string
+
+Usage           size_t strlen(const char *str);
+
+Prototype in    string.h
+
+Description     returns the length of a null terminated string
+
+*------------------------------------------------------------------------*/
+#undef strlen                  /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+size_t _CType _FARFUNC strlen(const char *str)
+{
+  #if !(LDATA)
+  asm     mov     ax,ds
+  asm     mov     es,ax
+  asm     mov     di,str
+  asm     xor     ax,ax
+  #else
+  asm     les     di,str
+  asm     xor     ax,ax
+  asm     cmp     ax,W1(str)
+  asm     jne     start
+  asm     cmp     ax,di
+  asm     je      out
+  #endif
+
+  start:
+  asm     cld
+  asm     mov     cx, -1
+  asm     repne   scasb
+  asm     xchg    ax,cx
+  asm     not     ax
+  asm     dec     ax
+
+  out:
+  return(_AX);
+}

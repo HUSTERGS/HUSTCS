@@ -1,0 +1,28 @@
+;-------------------------------------
+;-- Define Linked-List Node objects --
+;-------------------------------------
+
+GLOBAL PASCAL node_construct:far
+GLOBAL PASCAL node_destroy:far
+GLOBAL PASCAL node_init:far
+GLOBAL PASCAL node_deinit:far
+GLOBAL PASCAL node_adv:near
+GLOBAL PASCAL node_back:near
+
+;This object is designed to be inherited by any actual data object that is
+;placed in the Linked-List, on the Queue or the Stack defined in this module.
+
+;** Define Linked-List Node object **
+
+node STRUC GLOBAL METHOD {
+  construct:dword = node_construct		;node constructor routine
+  destroy:dword = node_destroy			;node destructor routine
+  init:dword = node_init			;node initialization routine
+  deinit:dword = node_deinit			;node deinitialization routine
+  virtual next:word = node_adv			;next node routine
+  virtual prev:word = node_back			;previous node routine
+  }
+  node_next	dd ?				;next node pointer
+  node_prev	dd ?				;prev node pointer
+ends
+

@@ -1,0 +1,412 @@
+// (C) Copyright 1991, 1992 by Borland International
+
+#ifndef WORKSHOP_INVOKED
+#include <windows.h>
+#endif
+
+#include "rwcdemoc.h"
+
+men_Main MENU 
+BEGIN
+	POPUP "&File"
+	BEGIN
+		MENUITEM "&New", cm_New
+		MENUITEM "&Open...", cm_Open
+		MENUITEM SEPARATOR
+		MENUITEM "&Save", cm_Save
+		MENUITEM "Save &as...", cm_SaveAs
+		MENUITEM SEPARATOR
+		MENUITEM "&Print...", cm_Print
+		MENUITEM SEPARATOR
+		MENUITEM "E&xit", cm_Exit
+	END
+
+	POPUP "&Edit"
+	BEGIN
+		MENUITEM "&Undo      Alt+Backspace", cm_Undo, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Cu&t         Shift+Del", cm_Cut, GRAYED
+		MENUITEM "&Copy      Ctrl+Ins", cm_Copy, GRAYED
+		MENUITEM "&Paste     Shift+Ins", cm_Paste, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "Cl&ear     ", cm_Clear, GRAYED
+		MENUITEM "D&elete", cm_Delete, GRAYED
+	END
+
+	POPUP "&Options"
+	BEGIN
+		MENUITEM "&Directories...", cm_Directories
+		MENUITEM SEPARATOR
+		POPUP "&Environment"
+		BEGIN
+			MENUITEM "&Preferences...", cm_Preferences
+			MENUITEM "&Mouse...", cm_Mouse
+		END
+
+		MENUITEM SEPARATOR
+		MENUITEM "&Open...", cm_Options_Open, GRAYED
+		MENUITEM "&Save", cm_Options_Save, GRAYED
+		MENUITEM "Save &as...", cm_Options_SaveAs, GRAYED
+	END
+
+	POPUP "&Window"
+	BEGIN
+		MENUITEM "&Tile", cm_Tile
+		MENUITEM "&Cascade", cm_Cascade
+		MENUITEM "Arrange &icons", cm_ArrangeIcons
+		MENUITEM "Close &all", cm_CloseAll, GRAYED
+	END
+
+	POPUP "&Help"
+	BEGIN
+		MENUITEM "&Index               Shift+F1", cm_Index, GRAYED
+		MENUITEM "&Topic Search    Ctrl+F1", cm_Topic_Search, GRAYED
+		MENUITEM "&Glossary", cm_Glossary, GRAYED
+		MENUITEM "Using &Help", cm_Using_Help, GRAYED
+		MENUITEM SEPARATOR
+		MENUITEM "&About RWCDemo...", 145
+	END
+
+END
+
+dlg_Open DIALOG 5, 17, 165, 158
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Open"
+FONT 8, "Helv"
+BEGIN
+	LTEXT "File &name:", -1, 5, 5, 38, 12
+	CONTROL "", id_FName, "COMBOBOX", CBS_DROPDOWN | WS_GROUP | WS_TABSTOP, 46, 4, 110, 44
+	LTEXT "Path:", -1, 8, 21, 16, 8
+	LTEXT "", 103, 29, 21, 127, 9, SS_LEFT | WS_GROUP
+	LTEXT "&Files:", -1, 12, 32, 16, 8
+	CONTROL "", id_FList, "LISTBOX", LBS_STANDARD | WS_TABSTOP, 6, 43, 70, 59
+	LTEXT "&Directories", -1, 96, 33, 51, 9
+	CONTROL "", id_DList, "LISTBOX", LBS_STANDARD | WS_TABSTOP, 92, 43, 70, 59
+	CONTROL "Options", -1, "button", BS_GROUPBOX | WS_GROUP, 8, 105, 150, 25
+	CONTROL "&Text", id_Text, "BUTTON", BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP, 17, 115, 37, 12
+	CONTROL "&Scribble", id_Scribble, "BUTTON", BS_AUTORADIOBUTTON, 68, 115, 36, 12
+	CONTROL "&Graph", id_Graph, "BUTTON", BS_AUTORADIOBUTTON, 118, 115, 35, 12
+	CONTROL "OK", IDOK, "BUTTON", BS_DEFPUSHBUTTON | WS_GROUP | WS_TABSTOP, 11, 137, 28, 14
+	PUSHBUTTON "Cancel", IDCANCEL, 68, 137, 28, 14, BS_PUSHBUTTON | WS_TABSTOP
+	PUSHBUTTON "Help", id_help, 125, 137, 28, 14
+END
+dlg_SaveAs DIALOG 10, 18, 129, 147
+CAPTION "'"
+FONT 8, "Helv"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	LTEXT "File &name:", -1, 8, 6, 38, 12
+	CONTROL "", 100, "COMBOBOX", CBS_DROPDOWN | WS_VSCROLL | WS_GROUP | WS_TABSTOP, 48, 6, 76, 38
+	LTEXT "Path:", -1, 9, 25, 16, 8
+	LTEXT "", 101, 29, 25, 92, 8
+	LTEXT " &Directories", -1, 11, 38, 68, 9
+	CONTROL "", 103, "LISTBOX", LBS_STANDARD| WS_TABSTOP, 11, 48, 70, 59
+	DEFPUSHBUTTON "OK", IDOK, 6, 127, 28, 14, BS_DEFPUSHBUTTON | WS_TABSTOP
+	PUSHBUTTON "Cancel", IDCANCEL, 50, 127, 28, 14, BS_PUSHBUTTON | WS_TABSTOP
+	PUSHBUTTON "Help", id_help, 94, 127, 28, 14
+END
+dlg_Print DIALOG 35, 25, 163, 133
+CAPTION "Print"
+FONT 8, "Helv"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	LTEXT "Copies:", -1, 5, 12, 28, 8, SS_LEFT
+	CONTROL "", -1, "static", SS_BLACKFRAME, 35, 10, 16, 10
+	CONTROL "", 211, "STATIC", SS_LEFT | WS_TABSTOP, 37, 11, 13, 8
+	CONTROL " Pages ", -1, "button", BS_GROUPBOX | WS_GROUP, 4, 24, 155, 30
+	CONTROL "&All", 212, "BUTTON", BS_AUTORADIOBUTTON | WS_TABSTOP, 36, 29, 28, 12
+	CONTROL "&Partial", 213, "BUTTON", BS_AUTORADIOBUTTON, 36, 42, 35, 8
+	LTEXT "From:", -1, 75, 42, 19, 8, SS_LEFT
+	CONTROL "", 214, "static", SS_GRAYFRAME | WS_GROUP, 98, 41, 12, 10
+	LTEXT "To:", -1, 114, 42, 16, 8, SS_LEFT
+	CONTROL "", 215, "static", SS_GRAYFRAME, 134, 41, 11, 10
+	LTEXT " Printers", -1, 3, 61, 31, 8, SS_LEFT
+	CONTROL "", 216, "LISTBOX", LBS_STANDARD | WS_TABSTOP, 4, 70, 155, 39
+	DEFPUSHBUTTON "P&rint", 217, 5, 114, 24, 14, WS_TABSTOP
+	PUSHBUTTON "Printer &setup...", 218, 37, 114, 51, 14, WS_TABSTOP
+	PUSHBUTTON "Cancel", IDCANCEL, 97, 114, 27, 14, WS_TABSTOP
+	PUSHBUTTON "Help", id_help, 133, 114, 24, 14, WS_TABSTOP
+END
+
+acc_Main ACCELERATORS 
+BEGIN
+	VK_BACK, cm_Undo, VIRTKEY, ALT
+	VK_DELETE, cm_Cut, VIRTKEY, SHIFT
+	VK_INSERT, cm_Copy, VIRTKEY, CONTROL
+	VK_INSERT, cm_Paste, VIRTKEY, SHIFT
+	VK_F1, cm_Index, VIRTKEY, SHIFT
+	VK_F1, cm_Topic_Search, VIRTKEY, CONTROL
+END
+
+
+
+dlg_About DIALOG 85, 29, 121, 88
+CAPTION "About RWCDemo"
+FONT 8, "Helv"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	LTEXT "Resource Workshop Demo", -1, 6, 5, 108, 11, SS_CENTER | WS_GROUP
+	LTEXT "Copyright (c) 1991, Borland International", -1, 25, 49, 70, 16, SS_CENTER | WS_GROUP
+	DEFPUSHBUTTON "OK", 1, 48, 69, 24, 14, BS_DEFPUSHBUTTON | WS_TABSTOP
+	ICON ico_RWCDemo, -1, 52, 25, 16, 16, SS_ICON
+END
+
+
+
+dlg_Directories DIALOG 11, 18, 177, 79
+CAPTION "Directories"
+FONT 8, "Helv"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	LTEXT "&Scribble Directory", -1, 9, 5, 66, 10, SS_LEFT | WS_GROUP
+	CONTROL "", ID_ScribbleDirectory, "COMBOBOX", CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP, 80, 4, 95, 32
+	LTEXT "&Text Directory", -1, 9, 22, 64, 10, SS_LEFT | WS_GROUP
+	CONTROL "", id_TextDirectory, "COMBOBOX", CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP, 80, 22, 95, 32
+	LTEXT "&Graphics Directory", -1, 9, 40, 64, 8, SS_LEFT | WS_GROUP
+	CONTROL "", id_GraphicDirectory, "COMBOBOX", CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP, 80, 40, 95, 32
+	DEFPUSHBUTTON "OK", IDOK, 16, 61, 24, 14, BS_DEFPUSHBUTTON | WS_TABSTOP
+	PUSHBUTTON "Cancel", IDCANCEL, 68, 61, 26, 14, BS_PUSHBUTTON | WS_TABSTOP
+	PUSHBUTTON "Help", id_help, 122, 61, 24, 14
+END
+
+
+dlg_Preferences DIALOG 13, 21, 210, 88
+CAPTION "Preferences"
+FONT 8, "Helv"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL " Desktop file ", -1, "button", BS_GROUPBOX, 15, 7, 88, 52
+	CONTROL "&None", 222, "BUTTON", BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP, 21, 19, 78, 10
+	CONTROL "C&urrent directory", 223, "BUTTON", BS_AUTORADIOBUTTON, 21, 31, 78, 10
+	CONTROL "Conf&ig file directory", 224, "BUTTON", BS_AUTORADIOBUTTON, 21, 43, 78, 10
+	CONTROL " Autosave ", -1, "button", BS_GROUPBOX | WS_GROUP, 107, 7, 88, 52
+	CONTROL "&Editor files", 225, "BUTTON", BS_AUTOCHECKBOX | WS_TABSTOP, 112, 19, 60, 10
+	CONTROL "En&vironment", 226, "BUTTON", BS_AUTOCHECKBOX | WS_TABSTOP, 112, 31, 60, 10
+	CONTROL "&Desktop", 227, "BUTTON", BS_AUTOCHECKBOX | WS_TABSTOP, 112, 43, 60, 10
+	DEFPUSHBUTTON "&OK", 1, 28, 67, 37, 14
+	PUSHBUTTON "&Cancel", 2, 86, 67, 37, 14
+	PUSHBUTTON "Help", id_help, 144, 67, 37, 14
+END
+
+
+dlg_Mouse DIALOG 14, 19, 190, 97
+CAPTION "Mouse"
+FONT 8, "Helv"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL " Right mouse button ", -1, "button", BS_GROUPBOX, 8, 5, 77, 59
+	CONTROL "&Nothing", 228, "BUTTON", BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP, 18, 19, 58, 12
+	CONTROL "&Clear Window", 229, "BUTTON", BS_AUTORADIOBUTTON, 18, 33, 58, 12
+	CONTROL "&Inverse Color", 230, "BUTTON", BS_AUTORADIOBUTTON, 18, 47, 58, 12
+	LTEXT "&Mouse Click", -1, 93, 11, 90, 9
+	CONTROL "Fast", -1, "STATIC", SS_LEFT, 95, 22, 16, 8
+	CONTROL "Slow", -1, "STATIC", SS_LEFT, 161, 22, 16, 8
+	CONTROL "", 231, "scrollbar", SBS_HORZ | WS_TABSTOP, 95, 32, 86, 10
+	CONTROL "&Reverse mouse buttons", 232, "BUTTON", BS_AUTOCHECKBOX | WS_TABSTOP, 97, 48, 90, 9
+	DEFPUSHBUTTON "OK", IDOK, 11, 76, 30, 14, BS_DEFPUSHBUTTON | WS_TABSTOP
+	PUSHBUTTON "Cancel", IDCANCEL, 71, 76, 30, 14, BS_PUSHBUTTON | WS_TABSTOP
+	PUSHBUTTON "Help", id_help, 137, 76, 30, 14
+END
+
+
+RCDATA_1 RCDATA 
+BEGIN
+"\07\07Wake up!!\07\07\0"
+, "\11Hello world"
+, 25
+0x05f
+"\07"
+
+END
+
+CURSOR_1 CURSOR rwdemo.cur
+
+
+ico_RWCDemo ICON rwdemo.ico
+
+
+
+
+
+STRINGTABLE 
+BEGIN
+	sth_FileNew, "Help on New"
+	sth_FileOpen, "Help on Open"
+	sth_FileSave, "Help on Save"
+	sth_FileSaveAs, "Help on SaveAs"
+	sth_FilePrint, "Help on Print"
+	sth_FileExit, "Help on Exit"
+	sth_File, "Help on File"
+	sth_EditUndo, "Help on Undo"
+	sth_EditCut, "Help on Cut"
+	sth_EditCopy, "Help on Copy"
+	sth_EditPaste, "Help on Paste"
+	sth_EditClear, "Help on Clear"
+	sth_EditDelete, "Help on Delete"
+	sth_Edit, "Help on Edit"
+	sth_ViewAll, "Help on View All"
+	sth_ViewSome, "Help on View Some"
+	sth_ViewBy, "Help on View By"
+	sth_View, "Help on View"
+	sth_OptionsDirectory, "Help on Directories"
+	sth_OptionsEnvironment, "Help on Environment"
+	sth_OptionsOpen, "Help on Options Open"
+	sth_OptionsSave, "Help on Options Save"
+	sth_OptionsSaveAs, "Help on Options Save As"
+	sth_Option, "Help on Option"
+	sth_EnvironmentPreferences, "Help on Preferences"
+	sth_EnvironmentMouse, "Help on Mouse"
+	sth_WindowTile, "Help on Window Tile"
+	sth_WindowCascade, "Help on Window Cascade"
+	sth_WindowArrange, "Help on Window Arrange"
+	sth_WindowIcon, "Help on Window Icon"
+	sth_WindowCloseAll, "Help on Window CloseAll"
+	sth_Window, "Help on Window"
+	sth_HelpIndex, "Help on Index"
+	sth_HelpTopic, "Help on Topic"
+	sth_HelpSearch, "Help on Search"
+	sth_HelpGlossary, "Help on Glossary"
+	sth_HelpUsing, "Help on Using Help"
+	sth_HelpAbout, "Help on About "
+	sth_Help, "Help on Help"
+END
+
+
+
+dlg_FileNew DIALOG 37, 18, 130, 129
+CAPTION "New"
+FONT 8, "Helv"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+BEGIN
+	CONTROL "&Text", id_Text, "BUTTON", BS_AUTORADIOBUTTON | WS_TABSTOP, 40, 24, 41, 12
+	CONTROL "&Scribble", id_Scribble, "BUTTON", BS_AUTORADIOBUTTON | WS_TABSTOP, 40, 46, 40, 12
+	CONTROL "&Graphics", id_Graphics, "BUTTON", BS_AUTORADIOBUTTON | WS_TABSTOP, 40, 68, 41, 12
+	CONTROL "", -1, "button", BS_GROUPBOX, 30, 12, 66, 74
+	CONTROL "OK", IDOK, "BUTTON", BS_DEFPUSHBUTTON | WS_TABSTOP, 29, 102, 30, 14
+	CONTROL "Cancel", IDCANCEL, "BUTTON", BS_PUSHBUTTON | WS_TABSTOP, 69, 102, 31, 14
+END
+
+
+1000 MENU 
+BEGIN
+	POPUP "Color"
+	BEGIN
+		MENUITEM "Red", 1
+		MENUITEM "Green", 1
+		MENUITEM "Blue", 1
+	END
+
+	POPUP "Width"
+	BEGIN
+		MENUITEM "Thin", 108
+		MENUITEM "Normal", 1
+		MENUITEM "Thick", 1
+	END
+
+END
+
+1001 MENU 
+BEGIN
+	POPUP "Shape"
+	BEGIN
+		MENUITEM "Ellipse", 1
+		MENUITEM "Rectangle", 1
+	END
+
+	POPUP "Color"
+	BEGIN
+		MENUITEM "Red", 1
+		MENUITEM "Green", 1
+		MENUITEM "White", 1
+	END
+
+END
+
+
+
+
+
+
+
+
+
+
+
+
+bmp_StatusBar BITMAP 
+BEGIN
+'42 4D 16 01 00 00 00 00 00 00 76 00 00 00 28 00'
+'00 00 0A 00 00 00 14 00 00 00 01 00 04 00 00 00'
+'00 00 A0 00 00 00 00 00 00 00 00 00 00 00 00 00'
+'00 00 10 00 00 00 00 00 00 00 00 00 80 00 00 80'
+'00 00 00 80 80 00 80 00 00 00 80 00 80 00 80 80'
+'00 00 80 80 80 00 C0 C0 C0 00 00 00 FF 00 00 FF'
+'00 00 00 FF FF 00 FF 00 00 00 FF 00 FF 00 FF FF'
+'00 00 FF FF FF 00 88 88 88 88 88 08 88 00 77 7F'
+'87 77 77 00 00 00 88 8F 87 88 88 00 00 00 88 8F'
+'87 88 88 80 88 88 88 8F 87 88 88 44 00 04 88 8F'
+'87 88 88 00 00 00 88 8F 87 88 88 00 00 00 88 8F'
+'87 88 88 00 00 04 88 8F 87 88 88 00 10 00 88 8F'
+'87 88 88 00 00 40 88 8F 87 88 88 A0 82 02 88 8F'
+'87 88 88 00 00 00 88 8F 87 88 88 08 00 22 88 8F'
+'87 88 88 00 00 00 88 8F 87 88 88 00 00 00 88 8F'
+'87 88 88 00 00 00 88 8F 87 88 88 00 00 00 88 8F'
+'87 88 88 00 00 00 FF FF 8F FF FF 00 00 00 88 88'
+'88 88 88 00 00 00'
+
+END
+
+
+bmp_StatusLine BITMAP 
+BEGIN
+'42 4D F6 02 00 00 00 00 00 00 76 00 00 00 28 00'
+'00 00 40 00 00 00 14 00 00 00 01 00 04 00 00 00'
+'00 00 80 02 00 00 00 00 00 00 00 00 00 00 00 00'
+'00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 80'
+'00 00 00 80 80 00 80 00 00 00 80 00 80 00 80 80'
+'00 00 80 80 80 00 C0 C0 C0 00 00 00 FF 00 00 FF'
+'00 00 00 FF FF 00 FF 00 00 00 FF 00 FF 00 FF FF'
+'00 00 FF FF FF 00 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 87 77 77 77 77 77 77 77 77 77'
+'77 77 77 77 77 77 77 77 77 77 77 77 77 77 77 77'
+'77 77 77 77 77 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 87 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 F8 8F FF FF FF FF FF FF FF FF FF'
+'FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF'
+'FF FF FF FF FF F8 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88 88 88 88 88 88 88 88 88 88 88'
+'88 88 88 88 88 88'
+
+END
+

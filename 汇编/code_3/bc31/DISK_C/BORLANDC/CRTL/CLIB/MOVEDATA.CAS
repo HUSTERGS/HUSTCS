@@ -1,0 +1,58 @@
+/*-----------------------------------------------------------------------*
+ * filename - movedata.cas
+ *
+ * function(s)
+ *        movedata - copy bytes
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <mem.h>
+#include <dos.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            movedata - copy bytes
+
+Usage           void movedata(unsigned srcseg, unsigned srcoff,
+                              unsigned dstseg, unsigned dstoff, size_t n);
+
+Prototype in    mem.h & string.h
+
+Description     Copy of  n bytes from the  source address(srcseg:secoff) to
+                the destination address  (dstseg:dstoff) without checks and
+                as fast as possible. If the src and dst arrays overlap, the
+                effect is not defined.
+
+                Movedata is meant to be used to move far data in small data
+                programs.  In  large  model  programs,  you  can use memcpy
+                instead.
+
+Return value    There is no return value
+
+*------------------------------------------------------------------------*/
+void _FARFUNC movedata(unsigned srcseg, unsigned srcoff,
+              unsigned dstseg, unsigned dstoff, size_t n)
+{
+asm     cld
+asm     mov     cx,n
+asm     mov     di,dstoff
+asm     mov     es,dstseg
+asm     mov     si,srcoff
+asm     push    ds
+asm     mov     ds,srcseg
+asm     shr     cx,1
+asm     rep     movsw
+asm     jnc     mvd_end
+asm     movsb
+mvd_end:
+asm     pop     ds
+}

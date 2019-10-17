@@ -1,0 +1,208 @@
+/*------------------------------------------------------------------------
+ * filename - acosasin.cas
+ *
+ * function(s)
+ *        AcosAsin - compute acos or asin
+ *        acos     - trigonometric function
+ *        asin     - trigonometric function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+typedef unsigned short  bits16;
+
+#ifndef NULL
+#   define NULL ((void *)0)
+#endif
+
+static  unsigned short   NANINVTRIG [4] = {0,0,0x0440, 0x7FF8};
+
+/*---------------------------------------------------------------------*
+
+Name            AcosAsin - compute sin or cos
+
+Usage           double AcosAsin (char *whoS, bits16 flags, double *xP);
+
+Description     Computes acos or sin of the number pointed to by xP.
+
+Return value    Returns acos or asin of xP.
+
+*---------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+
+static double near AcosAsin (char *whoS, bits16 flags, double *xP)
+{
+        volatile bits16 status;
+        volatile int temp;
+
+asm     mov     dx, flags
+asm     mov     si, W0 (xP)
+
+asm     mov     cx, SS_ [si+6]
+asm     and     BY0 (SS_ [si+7]), 07Fh          /* absolute value */
+asm     fld     DOUBLE (SS_ [si])
+
+asm     shl     cx, 1
+asm     rcr     dh, 1                           /* DH = sign bit */
+asm     jcxz    acs_zero
+
+asm     cmp     cx, 7FE0h                       /* biased exponent of 1.0 */
+asm     jnb     acs_extreme
+/*
+  Use the trig identity asin (x) = atan (x / sqrt (1 - x^2)).
+*/
+asm     FLD1
+asm     FLD     ST(1)                   /* duplicate X */
+asm     FMUL    ST(0), ST(0)            /* square it */
+asm     FSUBP   ST(1), ST               /* 1 - X^2 */
+asm     FSQRT
+/*
+  We now have tangent = ST(1)/ST.  In order to use the FPATAN instruction
+  we must order them so that ST(1) < ST.  The special case of equality
+  (angle pi/4) must be treated separately.
+*/
+asm     FCOM
+asm     FSTSW   W0 (status)
+asm     mov     ah, 41h                 /* C3, C0 are the important bits */
+asm     FWAIT
+/*
+  At this stage note that acos (x) = atan (sqrt (1-x^2) / x), which is
+  the inverse of the tangent ratio used for asin (x).  That is why
+  DL, the inversion flag, started as 0FF for acos, and 0 for asin.
+*/
+asm     and     ah, BY1 (status)
+asm     jz      acs_atan
+asm     add     ah, ah
+asm     js      acs_pi_4
+asm     FXCH
+asm     not     dl                      /* remember the exchanged order */
+
+acs_atan:
+asm     FPATAN                          /* arctan (ST(1) / ST) */
+
+asm     or      dl, dl                  /* should ratio be inverted ? */
+asm     jz      acs_sign
+
+asm     mov     W0 (temp), -1
+asm     FILD    W0 (temp)
+asm     FLDPI
+asm     FSCALE                          /* pi/2 */
+asm     FSTP    ST(1)
+asm     FSUBRP  st(1), st               /* ST = pi/2 - ST */
+
+acs_sign:
+asm     or      dh, dh
+asm     jns     acs_end
+
+asm     FCHS
+
+asm     cmp     BY0 (flags), 0FFh       /* are we doing acos () ? */
+asm     jne     acs_end
+
+asm     FLDPI
+asm     FADDP   ST(1), ST
+
+acs_end:
+        return;
+
+/*
+  Special cases.
+*/
+acs_extreme:
+asm     ja      acs_domain
+asm     mov     ax, SS_ [si+4]          /* check for an exact value +- 1.0 */
+asm     or      ax, SS_ [si+2]
+asm     or      ax, SS_ [si]
+asm     jnz     acs_domain
+asm     jmp     short   acs_one
+
+acs_zero:
+asm     mov     dh, 0                   /* make zero unsigned. */
+asm     FSTP    ST(0)                   /* pop stack */
+asm     cmp     BY0 (flags), 0FFh       /* are we doing acos () ? */
+asm     je      acs_resultP2
+acs_resultZ:
+asm     FLDZ
+asm     jmp     short   acs_sign
+
+acs_one:
+asm     FSTP    ST(0)                   /* pop stack */
+asm     cmp     BY0 (flags), 0FFh       /* are we doing acos () ? */
+asm     je      acs_resultZ
+acs_resultP2:
+asm     mov     W0 (temp), -1
+asm     FILD    W0 (temp)
+asm     FLDPI
+asm     FSCALE                          /* pi/2 */
+asm     FSTP    ST(1)
+asm     jmp     short   acs_sign
+
+acs_pi_4:
+asm     FSTP    ST(0)                   /* pop two items off the stack */
+asm     FSTP    ST(0)
+asm     mov     W0 (temp), -2
+asm     FILD    W0 (temp)
+asm     FLDPI
+asm     FSCALE                          /* pi/4 */
+asm     FSTP    ST(1)
+asm     jmp     short   acs_sign
+
+/*
+  If the argument was outside [-1,+1] then it is a domain error.
+*/
+acs_domain:
+asm     or      BY0 (SS_ [si+7]), dh    /* put the sign back */
+asm     FSTP    ST (0)                  /* pop x from stack */
+
+#pragma warn -ret
+    return _matherr (DOMAIN, whoS, xP, NULL, *((double *) NANINVTRIG));
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use
+
+/*--------------------------------------------------------------------------*
+
+Name            acos & asin - trigonometric functions
+
+Usage           double acos(double x);
+                double asin(double x);
+
+Prototype in    math.h
+
+Description     asin,   acos  return   the  arc   sine,  and   arc  cosine,
+                respectively,  of the  input value.  Arguments to  asin and
+                acos must be  in the range -1 to 1.  Arguments outside that
+                range will cause asin or acos to return 0 and set errno to:
+                        EDOM    Domain error
+
+Return value    acos returns a value in the range 0 to pi.
+                asin returns a value in the range -pi/2 to pi/2.
+
+*---------------------------------------------------------------------------*/
+
+double _FARFUNC acos( double x )
+{
+        return  AcosAsin ("acos", 0xFF, &x);
+}
+
+
+double _FARFUNC asin( double x )
+{
+        return  AcosAsin ("asin", 0x00, &x);
+}

@@ -1,0 +1,69 @@
+/*-----------------------------------------------------------------------*
+ * filename - mkdir.cas
+ *
+ * function(s)
+ *        mkdir - creates a directory
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dir.h>
+#include <_io.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            mkdir - creates a directory
+
+Usage           int mkdir(const char *pathname);
+
+Related
+functions usage int rmdir(const char *pathname);
+
+Prototype in    dir.h
+
+Description     mkdir takes the given pathname and creates a new
+                directory with that name.
+
+                rmdir deletes the directory given by pathname. The
+                directory named by pathname
+
+                        must be empty
+
+                        must not be the current working directory
+
+                        must not be the root directory
+
+Return value    mkdir returns the value 0 if the new directory was
+                created.
+
+                rmdir returns 0 if the directory is successfully deleted.
+
+                With either function, a return value of -1 indicates an error,
+                and errno is set to one of the following values:
+
+                        EACCES  Permission denied
+                        ENOENT  Path or file name not found
+
+*------------------------------------------------------------------------*/
+int mkdir(const char *pathP)
+{
+        pushDS_
+asm     mov     ah, 039h
+asm     LDS_    dx, pathP
+asm     int     021H
+        popDS_
+asm     jc      mkdirFailed
+        return(0);
+
+mkdirFailed:
+        return __IOerror(_AX);
+}

@@ -1,0 +1,85 @@
+/*------------------------------------------------------------------------
+ * filename - ldexpl.cas
+ *
+ * function(s)
+ *        ldexpl - calculates value * 2^exp (long double version)
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            ldexpl - calculates value * 2^exp
+
+Usage           long double ldexpl(long double value, int exp);
+
+Prototype in    math.h
+
+Description     ldexpl calculates value * 2^exp
+
+Return value    ldexpl returns value * 2^exp
+                Overflows return HUGE_VAL * sign(value), underflows return 0.0,
+                in both cases with errno set to ERANGE.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC ldexpl (long double value, int scale)
+{
+        long double     yVal;               /* used in error exits */
+
+asm     FILD    W0 (scale)
+/*
+  While that is loading, we should check for range error.
+*/
+asm     mov     ax, 7FFFh
+asm     and     ax, value [8]
+
+asm     FLD     LONGDOUBLE (value)
+asm     jz      ldx_zero
+
+asm     add     ax, scale
+asm     jo      ldx_overflow            /* exponent too large */
+asm     jle     ldx_underflow           /* exponent zero or negative */
+asm     cmp     ax,7FFFH                /* exponent is INF */
+asm     je      ldx_overflow
+
+asm     FSCALE
+ldx_zero:
+asm     FSTP    st(1)                   /* remove the scale from the stack */
+
+ldx_end:
+        return;
+
+
+ldx_overflow:
+asm     mov     si, OVERFLOW
+asm     jmp     short   ldx_err
+
+
+ldx_underflow:
+asm     mov     si, UNDERFLOW
+
+ldx_err:
+asm     FSTP    st(0)                   /* pop value from stack */
+asm     FSTP    LONGDOUBLE (yVal)       /* yVal = scale         */
+
+#pragma warn -ret
+        return  __matherrl (_SI, "ldexpl", &value, &yVal,
+                (OVERFLOW == _SI) ? _LHUGE_VAL : 0.0);
+#pragma warn .ret
+}
+#pragma warn .rvl

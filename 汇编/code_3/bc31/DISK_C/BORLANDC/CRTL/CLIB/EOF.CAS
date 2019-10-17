@@ -1,0 +1,94 @@
+/*---------------------------------------------------------------------------
+ * filename - eof.cas
+ *
+ * function(s)
+ *        eof - detects end-of-file
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <io.h>
+#include <fcntl.h>
+#include <_io.h>
+#include <RtlData.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            eof - detects end-of-file
+
+Usage           int eof(int handle);
+
+Prototype in    io.h
+
+Description     determines whether the file associated with handle has
+                reached end-of-file
+
+Return value    1 on end of file; otherwise 0.  A return value of -1
+                indicates an error; and errno is set to:
+
+                        EBADF  Bad file number
+
+*---------------------------------------------------------------------------*/
+int     _FARFUNC eof(int handle)
+{
+        long    endPosn;
+
+        if ((unsigned)handle >= _nfile)
+                return __IOerror(e_badHandle);
+
+        if (_O_EOF & _RTLInstanceData(_openfd )[handle])
+           return 1;      /* ^Z has been seen */
+
+asm     mov     ax,4400h
+asm     mov     bx,handle
+asm     int     21h
+asm     jc      eofFailed
+asm     test    dl,080h
+asm     jnz     NotEof          /* Never EOF for devices */
+
+asm     mov     ax,04201h
+asm     xor     cx,cx
+asm     mov     dx,cx
+asm     int     21h             /* Get current endPosn */
+asm     jc      eofFailed
+
+asm     push    dx
+asm     push    ax
+asm     mov     ax,04202h
+asm     xor     cx,cx
+asm     mov     dx,cx
+asm     int     21h             /* Get end-of-file endPosn */
+asm     mov     word ptr endPosn, ax
+asm     mov     word ptr endPosn+2, dx
+asm     pop     dx
+asm     pop     cx
+asm     jc      eofFailed
+
+asm     mov     ax,04200h
+asm     int     21h             /* Restore current endPosn */
+asm     jc      eofFailed
+
+asm     cmp     dx, endPosn + 2
+asm     jb      NotEof
+asm     ja      IsEof
+asm     cmp     ax, endPosn
+asm     jb      NotEof
+
+IsEof:
+    return  1;
+
+NotEof:
+    return  0;
+
+eofFailed:
+    return __IOerror (_AX);
+}
+

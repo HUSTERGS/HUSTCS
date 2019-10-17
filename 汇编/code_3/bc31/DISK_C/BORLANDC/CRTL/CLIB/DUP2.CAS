@@ -1,0 +1,96 @@
+/*---------------------------------------------------------------------------
+ * filename - dup2.cas
+ *
+ * function(s)
+ *        dup  - duplicate a file handle
+ *        dup2 - duplicate a file handle
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <io.h>
+#include <_io.h>
+#include <RtlData.h>
+
+extern  void    (*_exitopen)();
+extern  void    _xclose();
+
+
+/*--------------------------------------------------------------------------*
+
+Name            dup - duplicate a file handle
+
+Usage           int   dup(int handle);
+                int   dup2(int oldhandle, int newhandle);
+
+Prototype in    io.h
+
+Description     dup and dup2 each return a new file handle that has the
+                following in common with the original file handle:
+
+                . same open file or device
+                . same file pointer(that is, changing the file pointer of
+                  one changes th other
+                . same access mode(read,write,read/write)
+
+                dup returns the next file handle available; dup2 returns
+                a new handle with the value of newhandle.  if the file
+                associated with newhandle is open when dup2 is called, it
+                is closed.
+
+Return value    Upon successful completion, dup returns the new file handle,
+                Otherwise it returns -1.
+
+                dup2 returns 0 on successful completion, -1 otherwise.
+
+                In the event of an error, errno is set to one of the
+                following:
+                    EMFILE  Too many open files
+                    EBADF   Bad file number
+
+*---------------------------------------------------------------------------*/
+int dup2 (register int oldhandle, register int newhandle)
+{
+    _QRTLDataBlock;
+asm mov ah,46h
+asm mov bx,oldhandle
+asm mov cx,newhandle
+asm int 21h
+asm jc  dup2Failed
+
+    _QRTLInstanceData(_openfd) [newhandle] =
+        _QRTLInstanceData(_openfd) [oldhandle];
+    _exitopen = _xclose;
+    return 0;
+
+dup2Failed:
+    return __IOerror (_AX);
+}
+
+
+int dup (int handle)
+{
+    register int     fd;
+    _QRTLDataBlock;
+
+asm mov ah,45h
+asm mov bx,handle
+asm int 21h
+asm jc  dupFailed
+    fd = _AX;
+
+    _QRTLInstanceData(_openfd) [fd] = _QRTLInstanceData(_openfd) [handle];
+    _exitopen = _xclose;
+    return (fd);
+
+dupFailed:
+    return __IOerror (_AX);
+}

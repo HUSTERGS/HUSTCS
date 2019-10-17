@@ -1,0 +1,94 @@
+/*------------------------------------------------------------------------
+ * filename - fmod.cas
+ *
+ * function(s)
+ *        fmod - calculates x modulo y, the remainder of x/y
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            fmod - calculates x modulo y, the remainder of x/y
+
+Usage           double fmod(double x, double y);
+
+Prototype in    math.h
+
+Description     fmod calculates  x - (y * chop (x / y));
+                This difference can be more accurately calculated using the
+                FPREM instruction in a repeat  loop, though it is slower if
+                x/y is large.
+
+                while (not finished)  result = fprem (x, y)
+
+Return value    fmod returns x modulo y as described
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+double  _FARFUNC fmod (double x, double y)
+{
+asm     FLD     DOUBLE (y)
+
+asm     mov     ax, y [6]
+asm     shl     ax, 1                   /* ignore the sign bit */
+asm     jz      mod_resultZero          /* if the divisor is zero */
+asm     cmp     ax, 0FFE0h
+asm     jnb     mod_isX                 /* if y is infinite */
+
+asm     FLD     DOUBLE (x)
+
+asm     mov     ax, x [6]
+asm     shl     ax, 1
+asm     jz      mod_xZero               /* if x is zero */
+asm     cmp     ax, 0FFE0h
+asm     jnb     mod_overflow            /* if x is infinite */
+
+mod_keepTrying:
+asm     FPREM
+asm     push    bx
+asm     mov     bx, sp
+asm     FSTSW   W0 (SS_ [bx])           /* C2 will be set if not yet finished */
+asm     FWAIT
+asm     pop     ax
+asm     sahf
+asm     jp      mod_keepTrying          /* C2 bit maps onto parity flag. */
+
+asm     FSTP    st(1)                   /* discard the divisor */
+
+mod_end:
+        return;
+
+/*
+  If the divisor is infinite then return the dividend.
+*/
+mod_isX:
+asm     FSTP    st(0)                   /* pop y off the stack */
+asm     FLD     DOUBLE (x)
+asm     jmp     short   mod_end
+
+/* All other forms of overflow are mapped onto zero.
+*/
+mod_xZero:
+mod_overflow:
+asm     FSTP    st(0)                   /* pop x off the stack */
+mod_resultZero:
+asm     FSTP    st(0)                   /* pop y off the stack */
+asm     FLDZ
+asm     jmp     short   mod_end
+}
+#pragma warn .rvl

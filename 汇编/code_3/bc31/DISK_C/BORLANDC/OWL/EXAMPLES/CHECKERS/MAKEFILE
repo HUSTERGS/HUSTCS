@@ -1,0 +1,36 @@
+#
+# ObjectWindows - (C) Copyright 1992 by Borland International
+#
+
+# Do not build this program in small or medium model.
+MODEL = l
+
+!if !$d(BCROOT)
+!include "..\bcroot.inc"
+!endif
+
+!include "..\makefile.inc"
+
+checkers.exe: turboc.cfg checkers.obj board.obj info.obj checkers.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) checkers board info,checkers,,@&&!
+$(BCROOT)\lib\bwcc.lib $(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K checkers.res checkers.exe
+
+checkers.res : checkers.rc blackkng.bmp blackman.bmp redking.bmp redman.bmp \
+     checkers.ico hand.cur handpc.cur checkers.h
+
+turboc.cfg: makefile ..\makefile.inc
+	echo -I$(INCLUDE) >turboc.cfg
+
+clean:
+	del *.obj
+	del *.exe
+	del *.res
+	del *.dll
+	del *.lib
+	del *.map
+	del *.sym
+        del turboc.cfg
+
+

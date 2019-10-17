@@ -1,0 +1,107 @@
+/*---------------------------------------------------------------------------
+ * filename - bios_equ.cas
+ *
+ * function(s)
+ *        _bios_equiplist  - checks equipment (MSC compatible)
+ *        _bios_memsize    - returns memory size (MSC compatible)
+ *        _bios_timeofday  - returns time of day (MSC compatible)
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <bios.h>
+#include <dos.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            _bios_equiplist - checks equipment
+
+Usage           unsigned _bios_equiplist(void);
+
+Prototype in    bios.h
+
+Description     interface to BIOS interrupt 0x11, equipment list service.
+                MSC compatible; identical to old biosequip() function,
+                except for the type of the return value.
+
+Return value    value returned through AX by interrupt 0x11
+
+*---------------------------------------------------------------------------*/
+unsigned int _bios_equiplist(void)
+{
+        geninterrupt(0x11);
+
+        return _AX;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _bios_memsize - returns memory size
+
+Usage           unsigned _bios_memsize(void);
+
+Prototype in    bios.h
+
+Description     Interface to BIOS interrupt 0x12, memory-size service.
+                MSC compatible; identical to older biosmemory() function,
+                except for the type of the return value.
+
+Return value    value returned through AX by interrupt 0x12, the size
+                of memory in 1K blocks.
+
+*---------------------------------------------------------------------------*/
+unsigned _bios_memsize(void)
+{
+asm     int     12h
+
+        return _AX;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _bios_timeofday - returns time of day
+
+Usage           unsigned _bios_timeofday(unsigned int cmd, long *timeval);
+
+Prototype in    bios.h
+
+Description     Interface to BIOS interrupt 0x1A, time-of-day services.
+                Gets or sets the time of day, according to cmd:
+
+                _TIME_GETCLOCK  Store the current time of day in *timeval.
+
+                _TIME_SETCLOCK  Set the current time of day to *timeval.
+
+                This function is MSC-compatible, and is not the same
+                as the older biostime() function.
+
+Return value    The value in AX after the BIOS interrupt.
+
+
+
+*---------------------------------------------------------------------------*/
+unsigned _bios_timeofday(unsigned cmd, long *timeval)
+{
+asm     mov     ah, cmd
+asm     LES_    bx, timeval
+asm     mov     cx, W1(ES_ [bx])
+asm     mov     dx, W0(ES_ [bx])
+asm     int     1ah
+asm     cmp     BY0(cmd), _TIME_GETCLOCK
+asm     jne     BiosTimeEnd
+asm     mov     W0(ES_ [bx]), dx
+asm     mov     W1(ES_ [bx]), cx
+BiosTimeEnd:
+        return  _AX;
+}

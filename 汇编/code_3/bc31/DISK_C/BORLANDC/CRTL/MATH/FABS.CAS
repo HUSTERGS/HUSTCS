@@ -1,0 +1,43 @@
+/*------------------------------------------------------------------------
+ * filename - fabs.cas
+ *
+ * function(s)
+ *        fabs - absolute value
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            fabs - absolute value
+
+Usage           double fabs(double x);
+
+Prototype in    math.h
+
+Description     fabs calculates the absolute value of x, which may have any
+                value.
+
+Return value    fabs returns the absolute value of x.
+
+*---------------------------------------------------------------------------*/
+double  fabs (double  x)
+{
+asm     FWAIT
+asm     and     BY0 (x [7]), 7Fh        /* remove any sign bit */
+        return  x;
+}

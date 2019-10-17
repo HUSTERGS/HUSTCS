@@ -1,0 +1,207 @@
+/*-----------------------------------------------------------------------*
+ * filename - int86.cas
+ *
+ * function(s)
+ *        int86  - general 8086 software interrupt interface
+ *        int86x - general 8086 software interrupt interface
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <_io.h>
+
+#if defined(_Windows)
+void far pascal AllocDStoCSAlias(void);
+void far pascal FreeSelector(void);
+void far pascal GlobalFix(void);
+void far pascal GlobalUnfix(void);
+#endif
+
+/*-----------------------------------------------------------------------*
+
+Name            int86  - general 8086 software interrupt interface
+
+Usage           int int86(int intr_num, union REGS *inregs,
+                          union REGS *outregs);
+
+Prototype in    dos.h
+
+Description     Both of these functions execute an 8086 software
+                interrupt specified by the argument intr_num.
+
+                Before executing the software interrupt, both functions
+                copy register values from inregs into the registers.
+
+                In addition, int86x copies the segregs->x.ds and
+                segregs->x.es values into the corresponding registers
+                before executing the software interrupt. This feature
+                allows programs that use far pointers, or that use a
+                large data memory model, to specify which segment is
+                to be used during the software interrupt.
+
+                After the software interrupt returns, both functions
+                copy the current register values to outregs, copy the
+                status of the system carry flag to the x.cflag field
+                in outregs, and copy the value of the 8086 flags register
+                to the x.flags field in outregs.  In addition, int86x
+                restores DS, and sets the segregs->es and segregs->ds
+                fields to the values of the corresponding segment
+                registers.
+
+                If the carry flag is set, it indicates that an error
+                occurred.
+
+                int86x allows you to invoke an 8086 software interrupt
+                that takes a value of DS different from the default data
+                segment, and/or that takes an argument in ES.
+
+                Note that inregs can point to the same structure that
+                outregs points to.
+
+Return value    int86 and int86x return the value of AX after completion
+                of the software interrupt. If the carry flag is set
+                (outregs->x.cflag != 0), indicating an error, these
+                functions set _doserrno to the error code.
+
+*------------------------------------------------------------------------*/
+int int86(int intno, union REGS *inregs, union REGS *outregs)
+{
+        struct  SREGS   s;
+
+        segread(&s);
+        return(int86x(intno, inregs, outregs, &s));
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            int86x  - general 8086 software interrupt interface
+
+Usage           int int86x(int intr_num, union REGS *inregs,
+                          union REGS *outregs,struct SREGS *segregs);
+
+Prototype in    dos.h
+
+Description     see int86 above.
+
+Return value    int86 and int86x return the value of AX after completion
+                of the software interrupt. If the carry flag is set
+                (outregs->x.cflag != 0), indicating an error, these
+                functions set _doserrno to the error code.
+
+*------------------------------------------------------------------------*/
+int int86x(int intno, union REGS *inregs, union REGS *outregs,
+           struct SREGS *segregs)
+{
+        void    (far * Vector)(void);
+        char    Code[10];
+
+        /* Save caller context */
+
+asm     push    ds
+
+        /* Prepare Interrupt call */
+
+asm     mov     byte ptr Code, 055h
+asm     mov     byte ptr Code+1, 0CDh
+asm     mov     ax, intno
+asm     mov     byte ptr Code+2, al
+asm     mov     word ptr Code+3, 0CB5Dh
+asm     cmp     al, 025h
+asm     jb      InitVector
+asm     cmp     al, 026h
+asm     ja      InitVector
+asm     mov     byte ptr Code+3, 036h
+asm     mov     word ptr Code+4, 0068Fh
+asm     mov     word ptr Code+6, cx
+asm     mov     word ptr Code+8, 0CB5Dh
+
+        /* Set up the vector to our interrupt function */
+
+InitVector:
+asm     lea     cx, Code
+asm     mov     word ptr Vector, cx
+
+#if !defined( _Windows )
+asm     mov     word ptr Vector+2, ss
+#else
+asm     push    ss
+        GlobalFix();
+asm     push    ss
+        AllocDStoCSAlias();
+asm     mov     word ptr Vector+2, ax
+#endif
+
+        /* Set registers with register structure content */
+
+asm     LDS_    si, segregs
+asm     push    [si].es
+asm     push    [si].ds
+asm     LDS_    si, inregs
+asm     mov     ax, [si].ax
+asm     mov     bx, [si].bx
+asm     mov     cx, [si].cx
+asm     mov     dx, [si].dx
+asm     mov     di, [si].di
+asm     mov     si, [si].si
+asm     pop     ds
+asm     pop     es
+
+        /* Call the interrupt routine */
+
+asm     push    bp          /* Just to be safe */
+        (* Vector)();
+asm     pop     bp
+
+        /* Set register structure with registers */
+
+asm     pushf
+asm     pushf
+asm     push    si
+asm     push    ds
+asm     push    es
+#if     !LDATA
+asm     mov     ds, [bp-20]
+#endif
+asm     LDS_    si, segregs
+asm     pop     [si].es
+asm     pop     [si].ds
+asm     LDS_    si, outregs
+asm     pop     [si].si
+asm     pop     [si].flags
+asm     pop     [si].cflag
+asm     and     word ptr [si].cflag, 1
+asm     mov     [si].di, di
+asm     mov     [si].dx, dx
+asm     mov     [si].cx, cx
+asm     mov     [si].bx, bx
+asm     mov     [si].ax, ax
+
+#if defined( _Windows )
+asm     pushf           /* save state of carry test */
+asm     push    ax      /* save AX */
+asm     push    word ptr Vector+2
+        FreeSelector();
+asm     push    ss
+        GlobalUnfix();
+asm     pop     ax      /* restore AX */
+asm     popf            /* restore state of carry test */
+#endif
+
+asm     pop     ds
+asm     jz      int86Ok
+asm     push    ax
+        __IOerror(_AX);
+asm     pop     ax
+
+int86Ok:
+        return(_AX);
+}

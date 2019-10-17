@@ -1,0 +1,21 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include <windows.h>
+#include <owlrc.h>
+#include "mditest.h"
+
+COMMANDS MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+  POPUP "&MDI Children"
+  BEGIN
+    MenuItem  "C&reate", CM_CREATECHILD
+    MenuItem  "&Cascade", CM_CASCADECHILDREN
+    MenuItem  "&Tile", CM_TILECHILDREN
+    MenuItem  "Arrange &Icons", CM_ARRANGEICONS
+    MenuItem  "C&lose All", CM_CLOSECHILDREN
+    MenuItem  "C&ount Children", CM_COUNTCHILDREN
+  END
+END
+
+
+

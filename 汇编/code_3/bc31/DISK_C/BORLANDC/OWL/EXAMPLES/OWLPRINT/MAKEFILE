@@ -1,0 +1,34 @@
+#
+# ObjectWindows - (C) Copyright 1992 by Borland International
+#
+
+!if !$d(BCROOT)
+!include "..\bcroot.inc"
+!endif
+
+!include "..\makefile.inc"
+
+ruler.exe: turboc.cfg ruler.obj mycombo.obj printer.obj ruler.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) ruler printer \
+              mycombo ,ruler,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K ruler.res ruler.exe
+
+ruler.res: ruler.rc ids.h
+
+turboc.cfg: makefile ..\makefile.inc
+	echo -I$(INCLUDE) >turboc.cfg
+
+clean:
+	del *.obj
+	del *.exe
+	del *.res
+	del *.dll
+	del *.lib
+	del *.map
+	del *.sym
+        del turboc.cfg
+
+
+

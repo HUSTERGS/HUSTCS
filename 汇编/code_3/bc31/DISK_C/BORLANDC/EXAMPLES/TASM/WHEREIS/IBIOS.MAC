@@ -1,0 +1,500 @@
+
+;   FILENAME: IBIOS.MAC
+;
+;   Copyright (c) 1988, 1990 by Borland International, Inc.
+;
+;   DESCRIPTION: This include file contains various macros that may
+;   be used to communicate with the IBM-PC's BIOS. This include file uses
+;   Ideal mode syntax. For documentation on the macros in this file see the
+;   file BIOSMAC.DOC.
+;
+;   NOTE: In order to use this macro file you must also include the files
+;   IMACROS.MAC and BIOS.INC in your module.
+
+
+
+macro   CallBIOS    Interrupt, Service
+    macro   ErrMsg
+        display "Caller must provide Interrupt and Service parameters to CallBIOS."
+        err
+    endm
+
+    ifb <Interrupt>
+        ErrMsg
+    else
+        ifb <Service>
+            ErrMsg
+        else
+            mov     ah, Service         ; Select the service
+            int     Interrupt           ; Do the interrupt
+        endif
+    endif
+endm
+
+
+macro   LoadBH  Value
+    ifb <Value>
+        xor     bh, bh
+    else
+        ifidni  <bh>, <Value>
+            ; Do nothing
+        else
+            mov     bh, Value
+        endif
+    endif
+endm
+
+
+macro   GotoXY  Row, Column, Page
+    macro   ErrMsg
+        display "The caller must provide the row and column parameters to GotoXY."
+        err
+    endm
+
+    ifb <Row>
+        ErrMsg
+    else
+        ifb <Column>
+            ErrMsg
+        else
+            LoadBH  <Page>
+            mov     dh, Row
+            mov     dl, Column
+            CallBIOS    <VIDEO_SERVICE>, <INT10_SET_CURSOR_POS>
+        endif
+    endif
+endm
+
+macro   WhereXY Page
+    LoadBH  <Page>
+    CallBIOS    <VIDEO_SERVICE>, <INT10_READ_CURSOR>
+endm
+
+
+macro   GetVideoMode
+    CallBIOS    <VIDEO_SERVICE>, <INT10_GET_MODE>
+endm
+
+macro   ScrollUp    LineCount, Attrib, x1, y1, x2, y2
+    macro   ErrMsg1
+        display "Caller must provide LineCount and Attribute parameters to ScrollUp."
+        err
+    endm
+
+    macro   ErrMsg2
+        display "Must provide all coordinate parameters to ScrollUp macro."
+        err
+    endm
+
+    ifb <LineCount>
+        ErrMsg1
+    else
+        mov     al, LineCount
+        ifb <Attrib>
+            ErrMsg1
+        else
+            LoadBH  <Attrib>
+        endif
+        ifb <x1>
+            mov     ch, 0               ; Use default screen coordinates
+            mov     cl, 0
+            mov     dh, 79d
+            ScreenRows                  ; Get current number of rows
+            mov     dl, al
+        else
+            ifb <y1>
+                ErrMsg2
+            else
+                ifb <x2>
+                    ErrMsg2
+                else
+                    ifb <y2>
+                        ErrMsg2
+                    else                ; All the parameters were provided
+                        mov     ch, x1  ; Define screen area to scroll.
+                        mov     cl, y1
+                        mov     dh, y2
+                        mov     dl, x2
+                    endif
+                endif
+            endif
+        endif
+        CallBIOS    <VIDEO_SERVICE>, <INT10_SCROLL_UP>
+    endif
+endm
+
+macro   ScrollDown    LineCount, Attrib, x1, y1, x2, y2
+    macro   ErrMsg1
+        display "Caller must provide LineCount and Attribute parameters to ScrollDown."
+        err
+    endm
+
+    macro   ErrMsg2
+        display "Must provide all coordinate parameters to ScrollDown macro."
+        err
+    endm
+
+    ifb <LineCount>
+        ErrMsg1
+    else
+        mov     al, LineCount
+        ifb <Attrib>
+            ErrMsg1
+        else
+            LoadBH  <Attrib>
+        endif
+        ifb <x1>
+            mov     ch, 0               ; Use default screen coordinates
+            mov     cl, 0
+            mov     dh, 79d
+            ScreenRows                  ; Get current number of rows
+            mov     dl, al
+        else
+            ifb <y1>
+                ErrMsg2
+            else
+                ifb <x2>
+                    ErrMsg2
+                else
+                    ifb <y2>
+                        ErrMsg2
+                    else                ; All the parameters were provided
+                        mov     ch, x1  ; Define screen area to scroll.
+                        mov     cl, y1
+                        mov     dh, y2
+                        mov     dl, x2
+                    endif
+                endif
+            endif
+        endif
+        CallBIOS    <VIDEO_SERVICE>, <INT10_SCROLL_DOWN>
+    endif
+endm
+
+macro SetVideoMode  Mode
+    ifb <Mode>
+        display "Caller must provide Mode parameter to SetVideoMode."
+        err
+    else
+        ifidni  <al>, <Mode>
+            ; Do nothing
+        else
+            mov     al, Mode
+        endif
+        CallBIOS    <VIDEO_SERVICE>, <INT10_SET_MODE>
+    endif
+endm
+
+macro   SetCursorShape  Starting, Ending
+    ifb <Starting>
+        display "You must specify the Starting and Ending parameters to the"
+        display "call to SetCursorShape."
+        err
+    endif
+    ifb <Ending>
+        display "You must supply the Ending scan line parameter to the call"
+        display "to SetCursorShape."
+        err
+    endif
+    ifidni  <ch>, <Starting>
+        ; Do nothing
+    else
+        mov     ch, Starting                ; Store starting scan line
+    endif
+    ifidni  <cl>, <Ending>
+        ; Do nothing
+    else
+        mov     cl, Ending                  ; Store ending scan line
+    endif
+    CallBIOS    <VIDEO_SERVICE>, <INT10_SET_CURSOR_SHAPE>
+endm
+
+macro   GetCursorShape
+    WhereXY                 ; Get cursor position and shape
+endm
+
+macro   GetLightPenPos
+    CallBIOS    <VIDEO_SERVICE>, <INT10_READ_LIGHT_PEN>
+endm
+
+macro   SetDisplayPage  Page
+    ifb <Page>
+        xor     al, al      ; Use default video page of 0
+    else
+        ifidni  <al>, <Page>
+            ; Do nothing
+        else
+            mov     al, Page
+        endif
+    endif
+    CallBIOS    <VIDEO_SERVICE>, <INT10_SELECT_DISPLAY_PAGE>
+endm
+
+macro   GetCharAttr Page
+    LoadBH  <Page>
+    CallBIOS    <VIDEO_SERVICE>, <INT10_READ_ATTR_CHAR>
+endm
+
+macro   PutCharAttr Character, Attribute, Count, Page
+    macro   ErrMsg
+        display "You must provide character/attribute and count parameters to PutCharAttr."
+        err
+    endm
+
+    ifb <Character>
+        ErrMsg
+    else
+        ifb <Attribute>
+            ErrMsg
+        else
+            ifb <Count>
+                ErrMsg
+            else
+                LoadBH  <Page>
+                mov     bl, Attribute
+                mov     al, Character
+                mov     cx, Count
+                CallBIOS    <VIDEO_SERVICE>, <INT10_WRITE_ATTR_CHAR>
+            endif
+        endif
+    endif
+endm
+
+macro   PutChar Character, Count, Page, Color
+    macro   ErrMsg
+        display "You must provide character and count parameters to PutChar."
+        err
+    endm
+
+    ifb <Character>
+        ErrMsg
+    else
+        ifb <Count>
+            ErrMsg
+        else
+            LoadBH  <Page>
+            ifb <Color>             ; Determine the attribute
+                GetCharAttr <bh>
+                mov     bl, ah
+            else
+                mov     bl, Color
+            endif
+            mov     al, Character
+            mov     cx, Count
+            CallBIOS    <VIDEO_SERVICE>, <INT10_WRITE_CHAR>
+        endif
+    endif
+endm
+
+macro   SetColorPalette Entry, Color
+    macro   ErrMsg
+        display "You must provide Entry and Color parameters to SetColorPalette."
+        err
+    endm
+
+    ifb <Entry>
+        ErrMsg
+    else
+        ifb <Color>
+            ErrMsg
+        else
+            LoadBH  <Entry>
+            mov     bl, Color
+            CallBIOS    <VIDEO_SERVICE>, <INT10_SET_COLOR_PALETTE>
+        endif
+    endif
+endm
+
+macro   PutPixel    X, Y, Color
+    macro   ErrMsg
+        display "You must provide coordinate and color parameters to PutPixel."
+        err
+    endm
+
+    ifb <X>
+        ErrMsg
+    else
+        ifb <Y>
+            ErrMsg
+        else
+            ifb <Color>
+                ErrMsg
+            else
+                mov     al, Color
+                mov     cx, X
+                mov     dx, Y
+                CallBIOS    <VIDEO_SERVICE>, <INT10_WRITE_PIXEL>
+            endif
+        endif
+    endif
+endm
+
+macro   GetPixel    X, Y
+    macro   ErrMsg
+        display "You must provide coordinate parameters to GetPixel."
+        err
+    endm
+
+    ifb <X>
+        ErrMsg
+    else
+        ifb <Y>
+            ErrMsg
+        else
+            mov     cx, X
+            mov     dx, Y
+            CallBIOS    <VIDEO_SERVICE>, <INT10_READ_PIXEL>
+        endif
+    endif
+endm
+
+macro   PutTTY  Character, Page, Color
+    macro   ErrMsg
+        display "You must provide character, page and color parameters to PutTTY."
+        err
+    endm
+
+    ifb <Character>
+        ErrMsg
+    else
+        ifb <Page>
+            ErrMsg
+        else
+            ifnb <Color>
+                mov     bl, Color
+            else
+                mov     al, Character
+                LoadBH  <Page>
+                CallBIOS    <VIDEO_SERVICE>, <INT10_WRITE_TTY>
+            endif
+        endif
+    endif
+endm
+
+macro   SetPaletteRegs    SubService, IndexIntensity, Color, ListSeg, ListOfs
+    local   RegToSet, BlinkIntensity, ListAddr, DoCall
+
+    macro   ErrMsg
+        display "You must provide the SubService, IndexIntensity, Color and"
+        display "address parameters to SetPaletteRegs."
+        err
+    endm
+
+    ifb <SubService>
+        ErrMsg
+    else
+        ifb <IndexIntensity>
+            ErrMsg
+        else
+            ifb <Color>
+                ErrMsg
+            else
+                ifb <ListSeg>
+                    ErrMsg
+                else
+                    ifb <ListOfs>
+                        ErrMsg
+                    else
+                        mov     al, SubService  ; Indicate palette service
+                        mov     bh, Color       ; Store color
+                        cmp     al, 00h         ; If al = 0 we are setting
+                                                ; a palette register
+                        jne     short ListAddr
+
+                        ; Indicate which palette register
+
+                        mov     bl, IndexIntensity
+                        jmp     short DoCall
+                    ListAddr:
+                        cmp     al, 02h ; If al = 2 we have a pointer to
+                                        ;a list
+                        jne     short BlinkIntensity
+                        LoadSegment <es>, <ListSeg>
+                        mov     dx, ListOfs
+                        jmp     short DoCall
+                    BlinkIntensity: ; Indicate blinking or intensity
+                        mov     bl, IndexIntensity
+                    DoCall:
+                        CallBIOS    <VIDEO_SERVICE>, <INT10_SET_PALETTE_REGS>
+                    endif
+                endif
+            endif
+        endif
+    endif
+endm
+
+macro   PutString   Mode, X, Y, StringSeg, StringOfs, Length, Page, Attribute
+    local   DoCall
+
+    macro   ErrMsg
+        display "Call to PutString requires appropriate parameters."
+        err
+    endm
+
+    ifb <Mode>                      ; Verify that parameters were provided
+        ErrMsg
+    else
+        ifb <X>
+            ErrMsg
+        else
+            ifb <Y>
+                ErrMsg
+            else
+                ifb <StringSeg>
+                    ErrMsg
+                else
+                    ifb <StringOfs>
+                        ErrMsg
+                    else
+                        ifb  <Length>
+                            ErrMsg
+                        else
+                            ifb <Page>  ; Neither Page or Attribute are
+                                        ; provided
+                                xor     bh, bh  ; Use default page of 0
+
+                                ; Using mode 2 or 3
+
+                            else
+                                ifnb <Attribute>
+
+                                    ; Using Mode 0 or 1
+
+                                    mov     bl, Attribute
+                                endif
+                                mov     bh, Page
+                            endif
+                            mov     cx, Length
+                            mov     dh, Y
+                            mov     dl, X
+                            LoadSegment <es>, <StringSeg>
+                            mov     bp, StringOfs
+                            mov     al, Mode
+                            CallBIOS    <VIDEO_SERVICE>, <INT10_WRITE_STRING>
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endif
+endm
+
+macro   ScreenRows
+    mov     dl, 25d                 ; Assume 25 lines
+    mov     al, 30h
+    CallBIOS    <VIDEO_SERVICE>, <INT10_FONT_SIZE>
+endm
+
+macro   GetChar
+    CallBIOS    <KEYBOARD_SERVICE>, <INT16_READ_CHAR>
+endm
+
+macro   GetKbdStatus
+    CallBIOS    <KEYBOARD_SERVICE>, <INT16_KBD_STATUS>
+endm
+
+macro   GetKbdFlags
+    CallBIOS    <KEYBOARD_SERVICE>, <INT16_KBD_FLAGS>
+endm
+
+

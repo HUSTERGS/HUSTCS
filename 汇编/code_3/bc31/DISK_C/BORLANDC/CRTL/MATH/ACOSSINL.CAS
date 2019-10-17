@@ -1,0 +1,210 @@
+/*------------------------------------------------------------------------
+ * filename - acossinl.cas
+ *
+ * function(s)
+ *        AcosAsinl - compute acosl or asinl
+ *        acosl     - long double trigonometric function
+ *        asinl     - long double trigonometric function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+typedef unsigned short  bits16;
+
+#ifndef NULL
+#   define NULL ((void *)0)
+#endif
+
+static  unsigned short  NANINVTRIGL [5] = {0,0,0,0xC022, 0x7FFF};
+
+/*---------------------------------------------------------------------*
+
+Name            AcosAsinl - compute sin or cos
+
+Usage           long double AcosAsinl (char *whoS, bits16 flags,
+                                       long double *xP);
+
+Description     Computes acosl or sinl of the number pointed to by xP.
+
+Return value    Returns acosl or asinl of xP.
+
+*---------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+
+static long double near AcosAsinl (char *whoS, bits16 flags, long double *xP)
+{
+        volatile bits16 status;
+        volatile int temp;
+
+asm     mov     dx, flags
+asm     mov     si, W0 (xP)
+
+asm     mov     cx, SS_ [si+8]
+asm     and     BY0 (SS_ [si+9]), 07Fh          /* absolute value */
+asm     fld     LONGDOUBLE (SS_ [si])
+
+asm     shl     cx, 1
+asm     rcr     dh, 1                           /* DH = sign bit */
+asm     jcxz    acs_zero
+
+asm     cmp     cx, 7FFEh                       /* biased exponent of 1.0 */
+asm     jnb     acs_extreme
+/*
+  Use the trig identity asin (x) = atan (x / sqrt (1 - x^2)).
+*/
+asm     FLD1
+asm     FLD     ST(1)                   /* duplicate X */
+asm     FMUL    ST(0), ST(0)            /* square it */
+asm     FSUBP   ST(1), ST               /* 1 - X^2 */
+asm     FSQRT
+/*
+  We now have tangent = ST(1)/ST.  In order to use the FPATAN instruction
+  we must order them so that ST(1) < ST.  The special case of equality
+  (angle pi/4) must be treated separately.
+*/
+asm     FCOM
+asm     FSTSW   W0 (status)
+asm     mov     ah, 41h                 /* C3, C0 are the important bits */
+asm     FWAIT
+/*
+  At this stage note that acos (x) = atan (sqrt (1-x^2) / x), which is
+  the inverse of the tangent ratio used for asin (x).  That is why
+  DL, the inversion flag, started as 0FF for acos, and 0 for asin.
+*/
+asm     and     ah, BY1 (status)
+asm     jz      acs_atan
+asm     add     ah, ah
+asm     js      acs_pi_4
+asm     FXCH
+asm     not     dl                      /* remember the exchanged order */
+
+acs_atan:
+asm     FPATAN                          /* arctan (ST(1) / ST) */
+
+asm     or      dl, dl                  /* should ratio be inverted ? */
+asm     jz      acs_sign
+
+asm     mov     W0 (temp), -1
+asm     FILD    W0 (temp)
+asm     FLDPI
+asm     FSCALE                          /* pi/2 */
+asm     FSTP    ST(1)
+asm     FSUBRP  st(1), st               /* ST = pi/2 - ST */
+
+acs_sign:
+asm     or      dh, dh
+asm     jns     acs_end
+
+asm     FCHS
+
+asm     cmp     BY0 (flags), 0FFh       /* are we doing acos () ? */
+asm     jne     acs_end
+
+asm     FLDPI
+asm     FADDP   ST(1), ST
+
+acs_end:
+        return;
+
+/*
+  Special cases.
+*/
+acs_extreme:
+asm     ja      acs_domain
+asm     mov     ax, SS_ [si+6]          /* check for an exact value +- 1.0 */
+asm     xor     ah, 80h
+asm     or      ax, SS_ [si+4]
+asm     or      ax, SS_ [si+2]
+asm     or      ax, SS_ [si]
+asm     jnz     acs_domain
+asm     jmp     short   acs_one
+
+acs_zero:
+asm     mov     dh, 0                   /* make zero unsigned. */
+asm     FSTP    ST(0)                   /* pop stack */
+asm     cmp     BY0 (flags), 0FFh       /* are we doing acos () ? */
+asm     je      acs_resultP2
+acs_resultZ:
+asm     FLDZ
+asm     jmp     short   acs_sign
+
+acs_one:
+asm     FSTP    ST(0)                   /* pop stack */
+asm     cmp     BY0 (flags), 0FFh       /* are we doing acos () ? */
+asm     je      acs_resultZ
+acs_resultP2:
+asm     mov     W0 (temp), -1
+asm     FILD    W0 (temp)
+asm     FLDPI
+asm     FSCALE                          /* pi/2 */
+asm     FSTP    ST(1)
+asm     jmp     short   acs_sign
+
+acs_pi_4:
+asm     FSTP    ST(0)                   /* pop two items off the stack */
+asm     FSTP    ST(0)
+asm     mov     W0 (temp), -2
+asm     FILD    W0 (temp)
+asm     FLDPI
+asm     FSCALE                          /* pi/4 */
+asm     FSTP    ST(1)
+asm     jmp     short   acs_sign
+
+/*
+  If the argument was outside [-1,+1] then it is a domain error.
+*/
+acs_domain:
+asm     or      BY0 (SS_ [si+9]), dh    /* put the sign back */
+asm     FSTP    ST (0)                  /* pop x from stack */
+
+#pragma warn -ret
+    return __matherrl (DOMAIN, whoS, xP, NULL, *((long double *) NANINVTRIGL));
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use
+
+/*--------------------------------------------------------------------------*
+
+Name            acosl & asinl - long double trigonometric functions
+
+Usage           long double acosl(long double x);
+                long double asinl(long double x);
+
+Prototype in    math.h
+
+Description     asinl,  acosl  return   the  arc   sine,  and   arc  cosine,
+                respectively,  of the  input value.  Arguments to  asinl and
+                acosl must be  in the range -1 to 1.  Arguments outside that
+                range will cause asinl or acosl to return 0 and set errno to:
+                        EDOM    Domain error
+
+Return value    acosl returns a value in the range 0 to pi.
+                asinl returns a value in the range -pi/2 to pi/2.
+
+*---------------------------------------------------------------------------*/
+long double _FARFUNC acosl (long double x)
+{
+        return  AcosAsinl ("acosl", 0xFF, &x);
+}
+
+
+long double _FARFUNC asinl (long double x)
+{
+        return  AcosAsinl ("asinl", 0x00, &x);
+}

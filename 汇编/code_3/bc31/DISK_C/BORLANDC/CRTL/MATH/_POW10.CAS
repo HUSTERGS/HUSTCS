@@ -1,0 +1,197 @@
+/*------------------------------------------------------------------------
+ * filename - _pow10.cas
+ *
+ * function(s)
+ *        __pow10 - long double power internal library function, 10^p
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+typedef unsigned short int  extend [5];     /* 80-bit constants */
+
+static  const   float   e0to7 [8] =
+{
+    1, 1.e1,  1.e2,  1.e3,  1.e4,  1.e5,  1.e6,  1.e7,
+};
+
+/* Exponents > 4932 become infinities.  Exponents < -4932 become 0. */
+
+/* These values have been calculated with extra precision to ensure  */
+/* that the last bit is rounded correctly.                           */
+static  const   float   e8    = 1.e8;
+static  const   double  e16   = 1.e16;
+static  const   extend  e32   = {0xB59E, 0x2B70, 0xADA8, 0x9DC5, 0x4069};
+static  const   extend  e64   = {0xA6D5, 0xFFCF, 0x1F49, 0xC278, 0x40D3};
+static  const   extend  e128  = {0x8CE0, 0x80E9, 0x47C9, 0x93BA, 0x41A8};
+static  const   extend  e256  = {0xDE8E, 0x9DF9, 0xEBFB, 0xAA7E, 0x4351};
+static  const   extend  e512  = {0x91C7, 0xA60E, 0xA0AE, 0xE319, 0x46A3};
+static  const   extend  e1024 = {0x0C17, 0x8175, 0x7586, 0xC976, 0x4D48};
+static  const   extend  e2048 = {0x5DE5, 0xC53D, 0x3B5D, 0x9E8B, 0x5A92};
+static  const   extend  e4096 = {0x979B, 0x8A20, 0x5202, 0xC460, 0x7525};
+static  const   float   eINF  = 1.0/0.0;
+
+
+/*--------------------------------------------------------------------------*
+
+Name            __pow10 - long double power function, 10^p
+
+Usage           long double near __pow10(int  p);
+
+Prototype in    math.h
+
+Description     Calculate 10 raised to power.  A lookup table  is used for
+                values  from  10  through  10^7,  then this is augmented by
+                multiplying with  table entries for  10^8/16/32/64/128/256,
+                512/1024/2048/4096 which allows any power up to the
+                implementation limit of 4932.
+
+                Negative powers are provided by a final division.
+
+                All registers  are preserved except   AX.  This  is done to
+                enable  use by  xcvt(), which  was designed  to assume  its
+                registers will be undisturbed.
+
+                This is an internal library function used by pow10 and
+                pow10l.
+
+Return value    __pow10 returns 10^p.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double pascal near __pow10  (int  p)
+{
+#define MAX_87_EXP      4932
+
+#ifdef __HUGE__
+asm     mov     ax, seg e0to7
+asm     mov     DS, ax
+#endif
+
+/*--------------------------------------------------------------------------
+        Take care of all the easy special cases up front.
+--------------------------------------------------------------------------*/
+asm     mov     ax, p
+        if ((int)_AX < -MAX_87_EXP)     /* Extremely small -> Zero      */
+                {
+asm             FLDZ
+asm             jmp     p10_end
+                }
+        if ((int)_AX >  MAX_87_EXP)     /* Extremely large -> Infinity  */
+                {
+asm             FLD     FLOAT(eINF)
+asm             jmp     p10_end
+                }
+        if ((int)_AX == 0)              /* 10^0 -> 1.0                  */
+                {
+asm             FLD1
+asm             jmp     p10_end
+                }
+
+/*--------------------------------------------------------------------------
+                The non-trivial cases require some calculation.
+--------------------------------------------------------------------------*/
+/*asm   mov     ax, p*/
+asm     or      ax, ax
+asm     jnl     p10_abs
+asm     neg     ax
+
+p10_abs:
+asm     mov     si, 7
+asm     and     si, ax
+asm     shl     si, 1
+asm     shl     si, 1
+asm     FLD     FLOAT (e0to7 [si])
+
+asm     shr     ax, 1
+asm     shr     ax, 1
+asm     shr     ax, 1
+
+p10_maybe8:
+asm     shr     ax, 1
+asm     jnc     p10_maybe16
+asm     FMUL    FLOAT (e8)
+
+p10_maybe16:
+asm     jnz     keep_going
+asm     jmp     p10_checkSign           /* optimization, skip if all done */
+keep_going:
+asm     shr     ax, 1
+asm     jnc     p10_maybe32
+asm     FMUL    DOUBLE (e16)
+
+p10_maybe32:
+asm     shr     ax, 1
+asm     jnc     p10_maybe64
+asm     FLD     LONGDOUBLE (e32)
+asm     FMUL
+
+p10_maybe64:
+asm     shr     ax, 1
+asm     jnc     p10_maybe128
+asm     FLD     LONGDOUBLE (e64)
+asm     FMUL
+
+p10_maybe128:
+asm     shr     ax, 1
+asm     jnc     p10_maybe256
+asm     FLD     LONGDOUBLE (e128)
+asm     FMUL
+
+p10_maybe256:
+asm     shr     ax, 1
+asm     jnc     p10_maybe512
+asm     FLD     LONGDOUBLE (e256)
+asm     FMUL
+
+p10_maybe512:
+asm     shr     ax, 1
+asm     jnc     p10_maybe1024
+asm     FLD     LONGDOUBLE (e512)
+asm     FMUL
+
+p10_maybe1024:
+asm     shr     ax, 1
+asm     jnc     p10_maybe2048
+asm     FLD     LONGDOUBLE (e1024)
+asm     FMUL
+
+p10_maybe2048:
+asm     shr     ax, 1
+asm     jnc     p10_maybe4096
+asm     FLD     LONGDOUBLE (e2048)
+asm     FMUL
+
+p10_maybe4096:
+asm     shr     ax, 1
+asm     jnc     p10_checkSign
+asm     FLD     LONGDOUBLE (e4096)
+asm     FMUL
+
+p10_checkSign:
+asm     test    BY1 (p), 80h
+asm     jz      p10_end
+
+/* 10^(-n) = 1 / 10^n, so we need the reciprocal of TOS. */
+
+asm     FDIVR   FLOAT (e0to7)           /* TOS = 1.0 / TOS */
+
+/* Now the value 10^p is on TOS. */
+
+p10_end:
+    return;
+}
+#pragma warn .rvl

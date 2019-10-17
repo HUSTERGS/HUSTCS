@@ -1,0 +1,734 @@
+/*------------------------------------------------------------------------
+ * filename - scantod.cas
+ *
+ * function(s)
+ *        scantod  - converts a string to floating-point number
+ *        scanpop  - Clean stack after conversion error
+ *        scanrslt - Get conversion result
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+
+#include <_scanf.h>
+#include <ctype.h>
+#include <_math.h>
+#include <math.h>
+#include <stdlib.h>
+
+#if LPROG
+#define  EXTPROC1(x)  asm call far ptr (x)
+#else
+#define  EXTPROC1(x)  asm call near ptr (x)
+#endif
+
+/*
+  Internal RTL function to perform double/float truncations.
+*/
+#define FLT     0
+#define DBL     1
+double near pascal __ldtrunc(int flag, long double x, double xhuge);
+
+/*--------------------------------------------------------------------------*
+
+Name            scantod - converts a string to floating-point number
+
+Usage           long double _scantod (int  near (* Get) (void *srceP),
+                                 void  near (* UnGet) (int ch, void *srceP),
+                                 const void  *srceP,
+                                 int     width,
+                                 int    *countP,
+                                 int    *statusP )
+
+Prototype in    _scanf.h
+
+Description     Convert a string to a long double precision real. The syntax
+                of the string must be:
+
+                float    ::= [isspace]* [sign] [realnum] [exponent]
+
+                isspace  ::= as per <ctype.h>:isspace
+
+                realnum  ::= {digit [digit]* ['.' [digit]* ]} |
+                             {'.' digit [digit]*}
+
+                exponent ::= 'e'|'E' [sign] digit [digit]*
+
+                "srceP"  is a  pointer to  some kind  of object  from which
+                         characters are  scanned. For example, it  may be a
+                         FILE  *. The  functions Get()  and UnGet() operate
+                         upon srceP to get  characters and possibly replace
+                         one character, allowing LR(1) scanning rules.
+
+                The digits must be decimal.
+
+                The width is the limit on the number of digits which may be
+                accepted. It includes the sign  character, if any, but does
+                not include any leading spaces.
+
+                The count  value returned to the  caller is a count  of all
+                the characters  consumed, including leading spaces  even if
+                no numerals are found. It is ADDED to the existing value of
+                count.
+
+                The status  returned is EOF  if EOF was  encountered before
+                conversion could begin, 0 if  no numerals were found before
+                some   other   character  occurred,  1  if  the  conversion
+                proceeded   correctly,  and  2  if  overflow  or  underflow
+                occurred.
+
+                If the source string is  not a valid floating point numeral
+                then the result value is zero and the next char left in the
+                source will be  the first char encountered which  could not
+                be part  of the number. If  the number is too  large or too
+                tiny then the result is signed HUGE_VAL or zero.
+
+Method          The conversion proceeds in two stages. Firstly, the decimal
+                strings for fraction and exponent must be captured.
+
+                The  fraction is  held as   a 63-bit  unsigned integer  (18
+                decimals of  precision), with separate sign.  Digits beyond
+                the 18th are truncated.
+
+                The exponent is  held as a short integer  in binary format,
+                and is adjusted  to note the position of  the decimal point
+                in the fraction so that  the "fraction" is normalized as an
+                integer with decimal point to the right.
+
+                When  both fraction  and exponent  have been  captured, the
+                second  stage is  to combine  them. This  is done  with the
+                formula:
+
+                        result = 10^(exponent) * fraction * sign.
+
+                If the  result overflows + or  - HUGE will be  returned. If
+                the result is an underflow, zero is returned.
+
+                The iNDP-87 is not used as  much as might be optimum if the
+                user has a coprocessor installed.  A balance is sought,  so
+                that the routine makes  strategic use of co-intructions but
+                not  frequent use  which would  be quite  slow if  software
+                emulation is used in place of a chip.
+
+                The following diagram may be helpful with understanding the
+                relations between the variables:
+
+                   000012345789012345.098765432109876E+99
+                      |---decimals-->|
+                      |--------------.----digits---->|   not counting the '.'
+
+                Decimals are  counted negative if   the '.' is  left of the
+                first digit.  Digits are positive unless  no non-zero digit
+                is ever seen.
+
+Return value    _scantod returns the converted value of the input string
+
+*---------------------------------------------------------------------------*/
+
+        /* +/- infinity, +/- NAN */
+
+static const float INF   =   1.0/0.0;
+static const float INFM  = -(1.0/0.0);
+static const float NAN   =   0.0/0.0;
+static const float NANM  = -(0.0/0.0);
+
+#pragma warn -rvl
+#pragma warn -use
+#pragma warn -sus
+static long double near _scantod (
+                        int  near (* Get) (void *srceP),
+                        void near (* UnGet) (int ch, void *srceP),
+                        const void  *srceP,
+                        int     width,
+                        int    *countP,
+                        int    *statusP )
+{
+        int     decimals;           /* register SI = 0x8000         */
+        int     digits;             /* register DI = -2             */
+        int     exponent;
+        char    sign    = 0;
+        char    FirstDigit = 1;
+        char    saw_sign= 0;
+        char    expSign = 0;
+        char    ExpOflow= 0;
+        int     ct      = 0;
+        int     status  = 1;
+
+        long double frac= 0.0;
+
+
+asm     mov     si, 8000h
+asm     mov     di, -2
+
+/*
+  Skip leading spaces on the input numeral.
+*/
+std_nextBlank:
+    ct ++;
+    Get (srceP);
+
+asm     or      ax, ax
+asm     jnl     not_instantEOF          /* No EOF the first time        */
+asm     jmp     std_EOF                 /* EOF happened first thing     */
+
+not_instantEOF:
+asm     cbw
+asm     xchg    bx, ax
+asm     test    bl, 80h
+asm     jnz     std_notSpace
+#if __HUGE__
+asm     mov     ax, seg _ctype
+asm     mov     ES, ax
+asm     test    BY0 (ES: _ctype [bx+1]), _IS_SP
+#else
+asm     test    BY0 (_ctype [bx+1]), _IS_SP
+#endif
+asm     jnz     std_nextBlank
+
+std_notSpace:
+asm     xchg    ax, bx
+asm     dec     W0 (width)
+asm     jl      std_fractionLimited
+
+/*
+  Is the numeral preceded by a sign ?
+*/
+asm     cmp     al, '+'
+asm     je      std_signSeen
+asm     cmp     al, '-'
+asm     jne     std_fracChar            /* AL must hold a fraction character. */
+asm     inc     BY0 (sign)              /* set flag to true == negative */
+
+std_signSeen:
+        saw_sign++;
+
+std_fracLoop:                   /* Pick up the next character of the fraction.  */
+asm     dec     W0 (width)
+asm     jl      std_fractionLimited
+
+        ct ++;
+        Get (srceP);
+
+/*-------------------------------------------------------------------------
+  We need to check for the special cases where +INF -INF +NAN -NAN
+  might be specified.
+-------------------------------------------------------------------------*/
+asm     cmp     BY0 (FirstDigit), 1
+asm     jne     std_fracChar            /* Its not 1st char, continue   */
+asm     cmp     BY0 (saw_sign), 0
+asm     je      std_fracChar            /* There was no sign, continue  */
+asm     cmp     al, 'I'
+asm     je      relPossibleINF          /* Maybe we have +/-INF         */
+asm     cmp     al, 'N'
+asm     je      relPossibleNAN          /* Maybe we have +/-NAN         */
+asm     jmp     short std_fracChar      /* Its not a special case       */
+
+relPossibleINF:
+asm     jmp     PossibleINF;            /* far jmp within relative range*/
+
+relPossibleNAN:
+asm     jmp     PossibleNAN;            /* far jmp within relative range*/
+
+std_fracChar:
+asm     mov     BY0 (FirstDigit), 0
+asm     cmp     al, '.'         /* Watch for decimal points     */
+asm     je      std_fracPoint
+asm     cmp     al, '9'
+asm     ja      std_fracEndJmp  /* All other non-numeric characters ..  */
+asm     cmp     al, '0'
+asm     jb      std_fracEndJmp  /* .. are fraction terminators. */
+
+asm     sub     al, '0'         /* convert digit to equivalent number.  */
+asm     cbw
+
+/*
+  Keep a count of the digits seen.
+*/
+asm     inc     di
+asm     jg      std_notFirst            /* was it the first digit ?     */
+
+/*
+  The first digit begins the fraction.  Leading zeros are noted by setting
+  digits -1, so that the fraction syntax is valid if no other digits
+  are seen, but following digits will still be treated as "firsts".
+  Leading non-zero digits cause digits to be set to 1.
+*/
+asm     mov     frac [0], al
+asm     mov     di, 1
+asm     or      al, al
+asm     jnz     std_fracLoop
+asm     neg     di
+asm     cmp     si, 8000h               /* has decimal point been seen ? */
+asm     je      std_fracLoop
+asm     dec     si                      /* if yes, move it to the left. */
+asm     jmp     short   std_fracLoop
+
+
+/*
+  Arrive here when fraction is width-limited but valid.
+*/
+std_fractionLimited:
+asm     mov     al, 'e'                 /* Behave as if exponent started. */
+
+jmp_to_fracEnd:                         /* Label within relative range  */
+asm     jmp     std_fracEnd             /* Width will limit exponent, too. */
+
+/*
+  Error action placed here for short jump range.
+*/
+std_EOF:
+    status = -1;
+asm     jmp     short   std_noResult
+
+
+std_fracEndJmp:                 /* extend jump range    */
+asm     jmp     std_fracEnd
+
+
+/*
+  A decimal point has been seen
+*/
+std_fracPoint:
+asm     cmp     si, 8000h               /* Has a previous decimal point been seen ?     */
+asm     jne     jmp_to_fracEnd          /* If so, the fraction is terminated.   */
+
+asm     sub     si, si                  /* result if '.' before any digit */
+asm     or      di, di
+asm     jng     std_fracLoop
+asm     mov     si, di                  /* decimals = digits    */
+asm     jmp     short   std_fracLoop
+
+/*
+  If a digit is seen, then multiply the existing fraction by 10 and
+  add in the new digit.  The special case of the first 5 digits is
+  treated separately for speed.
+*/
+std_notFirst:
+asm     cmp     di, 5
+asm     ja      std_beyond5
+
+asm     xchg    bx, ax
+asm     mov     ax, 10
+asm     mul     W0 (frac)
+asm     add     ax, bx
+asm     adc     dl, dh
+asm     mov     frac [0], ax
+asm     mov     frac [2], dx
+asm     jmp     std_fracLoop
+
+/*
+  Digits beyond the 6th are more rare in practice (even in 6-digit
+  numbers, 5 will be quick), so no further special cases are
+  justified.  Beyond 18 digits, ignore the digit values but
+  keep scanning.
+*/
+std_beyond5:
+asm     cmp     di, 18
+asm     ja      jmp_frac_loop
+
+asm     xchg    bx, ax
+asm     mov     ax, 10
+asm     mul     W0 (frac [6])
+asm     mov     (frac [6]), ax
+asm     mov     ax, 10
+asm     mul     W0 (frac [4])
+asm     mov     (frac [4]), ax
+asm     push    dx
+asm     mov     ax, 10
+asm     mul     W0 (frac [2])
+asm     mov     (frac [2]), ax
+asm     push    dx
+asm     mov     ax, 10
+asm     mul     W0 (frac [0])
+asm     add     ax, bx
+asm     mov     (frac [0]), ax
+asm     adc     (frac [2]), dx
+asm     pop     dx
+asm     adc     (frac [4]), dx
+asm     pop     dx
+asm     adc     (frac [6]), dx
+
+jmp_frac_loop:
+asm     jmp     std_fracLoop
+
+
+/*
+        error clauses placed here within short-jump range of whole routine.
+
+        Arrive here if an error occurred.
+*/
+std_noDigitSeen:
+        status = 0;
+
+std_noResult:
+        if (width >= 0)
+        {
+                UnGet (_AX, srceP);
+                ct --;
+        }
+asm     FLDZ                    /*     and a zero numeric result. */
+asm     jmp     std_end
+
+/**      end of error clauses.
+*/
+
+
+/*
+  The fraction was ended.  If it was valid, it must have had at least
+  one digit.  AL must hold the character which terminated the fraction.
+*/
+std_fracEnd:
+asm     cmp     di, -2
+asm     jz      std_noDigitSeen
+
+/*
+  If no decimal point was seen, then the decimal is assumed to be at
+  the rightmost edge.
+*/
+asm     cmp     si, 8000h
+asm     jne     std_exponent
+asm     mov     si, di                  /* decimals = digits    */
+
+/*
+  Now we must gather the exponent.  First, check for 'E' or 'e' to
+  introduce it, then if found gather the short integer.
+*/
+std_exponent:
+asm     mov     digits, di
+asm     mov     decimals, si
+asm     sub     di, di          /* DI = exponent  */
+
+asm     cmp     al, 'E'
+asm     je      std_present
+asm     cmp     al, 'e'
+asm     jne     std_combine
+
+std_present:
+asm     dec     W0 (width)
+asm     jl      std_exponentLimited
+
+        ct ++;
+        Get (srceP);
+
+asm     cmp     al, '+'
+asm     je      std_expNext
+asm     cmp     al, '-'         /* is exponent negative ?       */
+asm     jne     std_expGotNext
+
+        expSign ++;
+
+std_expNext:
+asm     dec     W0 (width)
+asm     jl     std_exponentLimited
+
+        ct ++;
+        Get (srceP);
+
+std_expGotNext:                 /* if no leading sign, must be leading digit. */
+asm     cmp     al, '9'
+asm     ja      std_combine
+asm     sub     al, '0'
+asm     jb      std_expNonDigit
+asm     cbw
+
+/*
+  The largest IEEE long doubles have exponents -4932 <= X <= +4932.
+  Numbers outside that range will be accepted as infinite or zero,
+  according to the sign of the exponent.
+*/
+std_expLoop:
+asm     xchg    ax, di
+asm     mov     dx, 10
+asm     mul     dx
+asm     add     di, ax                  /* DI = exponent        */
+
+asm     cmp     di, 4932                /* The upper limit on exponents */
+asm     jle     std_expNext
+
+asm     xor     di, di                  /* Exponent overflow, set flag */
+asm     mov     BY0 (ExpOflow), 1
+asm     jmp     short   std_expNext
+
+std_expNonDigit:
+asm     add     al, '0'                 /* restore original terminator  */
+
+/*
+  Arrive here when a valid syntax has been terminated.
+
+  AL must still contain the terminating character, unchanged.
+*/
+std_combine:
+        UnGet (_AX, srceP);
+        ct--;
+
+/*
+  Arrive here with valid termination but no terminator to be pushed back.
+*/
+std_exponentLimited:
+
+asm     test    BY0 (expSign), 0FFH     /* was the exponent signed ?    */
+asm     jz      skip_neg
+asm     neg     di
+/*
+  Normal stays normal, Infinity becomes 0 if exponent was hugely negative.
+*/
+asm     neg     BY0 (ExpOflow)
+
+skip_neg:
+
+/*
+  The special case when digits = -1 occurs when the fraction is zero.
+  In that case, the result is always zero, whatever the exponent.
+*/
+asm     mov     bx, digits
+asm     or      bx, bx
+asm     jnl     std_nonZero
+asm     FLDZ
+asm     jmp     std_end
+
+/*
+  Combine the decimal point position with the exponent.  The exponent
+  begins with a value that reflects the position of the decimal point.
+*/
+std_nonZero:
+asm     mov     cx, decimals
+asm     mov     ax, cx
+asm     add     ax, di          /* 1.0E(decimals+exponent) = upper bound */
+
+/*                                 0.1E(decimals+exponent) = lower bound
+  Convert underflows to zero and overflows to ld HUGE_VAL.
+*/
+asm     cmp     BY0 (ExpOflow), 1       /* big (+) exp -> ld HUGE_VAL */
+asm     je      std_isInfinite
+asm     cmp     BY0 (ExpOflow), -1      /* big (-) exp -> 0   */
+asm     jne     std_isNormal
+
+std_isZero:
+asm     FLDZ
+asm     jmp     short status2
+
+std_isInfinite:
+/*
+        Make 'frac' a long double HUGE_VAL
+*/
+asm     mov     ax, -1
+asm     mov     frac[0], ax
+asm     mov     frac[2], ax
+asm     mov     frac[4], ax
+asm     mov     frac[6], ax
+asm     mov     frac[8], 07FFEH
+
+asm     FLD     LONGDOUBLE( frac )
+status2:
+asm     mov     W0 (status), 2
+asm     jmp     std_end
+
+
+std_isNormal:           /* For normal numbers multiply fraction * 10^exponent */
+asm     mov     ax, bx
+asm     cmp     bx, 18
+asm     jna     std_usualPoint
+asm     mov     bx, 18          /* a maximum of 18 digits are used      */
+
+std_usualPoint:
+asm     add     ax, cx
+asm     sub     cx, bx
+
+std_beginExp:                   /* CX = decimal point contribution to exponent */
+asm     add     di, CX          /* DI = combined exponent       */
+
+asm     FILD    qword ptr (frac)
+
+asm     mov     ax, di          /* Calculate 10^(|exponent|).   */
+asm     or      ax, ax
+asm     jz      std_end         /* no multiply required if exponent is zero. */
+asm     jnl     std_pow
+asm     neg     ax
+
+std_pow:
+asm     push    ax
+        EXTPROC1 (pow10) /* leaves result in iNDP-87 ST(0) TOS   */
+asm     pop     ax
+
+asm     or      di, di
+asm     jnl     std_expPlus
+
+asm     FDIV                    /* negative exponent --> 1 / 10^|exponent|      */
+asm     jmp     short   std_end
+
+std_expPlus:
+asm     FMUL                    /* combine the exponent with the fraction. */
+
+std_end:
+        if (sign)
+        {
+asm             FCHS            /* negate the result    */
+        }
+
+std_returnPP:  /* update *(suffixPP) with the next character's position. */
+/*
+  Finally, of course, don't forget to return the converted number !
+*/
+std_exit:
+asm     LES_    di, countP
+asm     mov     bx, ct
+asm     add     ES_ [di], bx
+asm     LES_    di, statusP
+asm     mov     bx, status
+asm     mov     ES_ [di], bx
+        return;
+
+/*-------------------------------------------------------------------------
+                Special case code to scan +INF -INF +NAN -NAN
+  -------------------------------------------------------------------------
+  This special case code is positioned down here so that it won't mess up
+  relative jumps for the rest of the function.
+
+  One side effect here, if this ultimately isn't +INF -INF +NAN -NAN will be
+  that the apps input stream is now messed up because we needed to look
+  ahead more than 1 character to recognize INF or NAN. The 'unget' functions
+  are only guaranteed to be able to unget a maximum of one char. This means
+  on a worst case input like "+INX" there will be 3 characters we won't be
+  able to push back on the stream successfully.  There's not much that can
+  be done to prevent this.  The same kind of thing can happen when reading
+  E format numbers, for example "1.234E+Q".  By the time the 'Q' is seen
+  "E+" has gone by.
+--------------------------------------------------------------------------*/
+PossibleINF:
+        ct ++;
+        Get (srceP);
+asm     dec     W0 (width)
+asm     jl      Didnt_pan_out
+asm     cmp     al, 'N'
+asm     jne     Didnt_pan_out
+        ct ++;
+        Get (srceP);
+asm     dec     W0 (width)
+asm     jl      Didnt_pan_out
+asm     cmp     al, 'F'
+asm     jne     Didnt_pan_out
+        if (sign)
+        {
+asm     FLD     FLOAT( INFM )
+        }
+        else
+        {
+asm     FLD     FLOAT( INF )
+        }
+asm     jmp     std_returnPP
+
+PossibleNAN:
+        ct ++;
+        Get (srceP);
+asm     dec     W0 (width)
+asm     jl      Didnt_pan_out
+asm     cmp     al, 'A'
+asm     jne     Didnt_pan_out
+        ct ++;
+        Get (srceP);
+asm     dec     W0 (width)
+asm     jl      Didnt_pan_out
+asm     cmp     al, 'N'
+asm     jne     Didnt_pan_out
+        if (sign)
+        {
+asm     FLD     FLOAT( NANM )
+        }
+        else
+        {
+asm     FLD     FLOAT( NAN )
+        }
+asm     jmp     std_returnPP
+
+Didnt_pan_out:                          /* It wasn't +/-/INF/NAN        */
+        status = 0;
+asm     jmp     std_noDigitSeen
+}
+#pragma warn .rvl
+#pragma warn .use
+#pragma warn .sus
+
+/*--------------------------------------------------------------------------*
+
+Name            scanpop - Clean stack after conversion error
+
+Usage           void _scanpop(void);
+
+Description     This function is used to clean the stack after a conversion
+                error in _scanner function
+
+*---------------------------------------------------------------------------*/
+
+static  void  near _scanpop()
+        {
+asm     FSTP    ST(0)   /* pop math coprocessor stack    */
+        }
+
+/*--------------------------------------------------------------------------*
+
+Name            scanrslt - Get conversion result
+
+Usage           void _scanrslt(double *rsltP, int rsltType);
+
+Description     This function is  used to get the result  of the conversion
+                in _scanner function
+
+*---------------------------------------------------------------------------*/
+
+static  void  near  _scanrslt(void *rsltP, int rsltType)
+{
+        long double temp;
+
+asm     FSTP    LONGDOUBLE (temp)
+
+        if (rsltType & isLong)
+                *(double *)rsltP = __ldtrunc(DBL, temp, HUGE_VAL);
+        else if (rsltType & isLongDouble)
+                *(long double *)rsltP = temp;
+        else
+                *(float *)rsltP = __ldtrunc(FLT, temp, 1./0.);
+}
+
+/*--------------------------------------------------------------------------*
+
+Description     The functions described above are essentially used by scanf
+                functions family. As for  _realcvt, these functions are not
+                called  directly, but  via a  pointer to  function. This is
+                done  in  order  to  include  the  real  conversion only if
+                needed.
+
+                Each  time the  compiler needs  to build  a reference  to a
+                double or  float value, it generates  an external reference
+                to __turboFloat which forces this module to be linked in.
+
+*---------------------------------------------------------------------------*/
+
+#define CodeSeg _TEXT
+#define cPtr    dw
+
+#pragma warn -use
+#pragma warn -asm
+
+static  void    turboFloat()
+{
+asm     CodeSeg ENDS
+asm             PUBLIC  __turboFloat
+asm             PUBLIC  __floatconvert
+asm     __turboFloat      equ     8087h
+asm     __floatconvert    =       __turboFloat
+asm     _SCNSEG SEGMENT PUBLIC WORD 'DATA'
+asm             cPtr    _scantod
+asm             cPtr    _scanrslt
+asm             cPtr    _scanpop
+asm     _SCNSEG ENDS
+asm     CodeSeg SEGMENT
+}

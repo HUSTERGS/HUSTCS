@@ -1,0 +1,1666 @@
+
+FILENAME: DOSMAC.DOC
+
+DESCRIPTION: This file documents the macros implemented in the files IDOS.MAC
+and MDOS.MAC. Note that the only difference between the two macro files is that
+IDOS.MAC uses TASM's Ideal mode while MDOS.MAC uses TASM's Masm mode.
+
+
+Terminate10Program
+------------------
+Function: Terminate a program without returning an errorlevel to DOS.
+DOS Function: 00h
+DOS Versions: 1, 2, 3
+Input
+    cs - segment address of Program Segment Prefix(PSP)
+Output
+    none
+Registers modified: ah, flags
+Syntax: Terminate10Program
+
+
+ReadKBDEcho
+-----------
+Function: Reads a character from the keyboard or standard input device and
+          echoes it to the display. If a character isn't immediately available,
+          the DOS function waits for one.
+DOS Function: 01h
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    al - character Registers modified: , flags
+Syntax: ReadKBDEcho
+
+
+CharacterOutput
+---------------
+Function: Outputs a character to the standard output device or to the active
+          video display.
+DOS Function: 02h
+DOS Versions: 1, 2, 3
+Input
+    Character - byte value representing character to display
+Output
+    none
+Registers modified: ah, dl, flags
+Syntax: CharacterOutput Character
+
+
+AuxiliaryInput
+--------------
+Function: Reads the next character from the auxiliary input device.
+DOS Function: 03h
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    al - byte value representing the character received
+Registers modified: ax, flags
+Syntax: AuxiliaryInput
+
+AuxiliaryOutput
+---------------
+Function: Displays a character to the auxiliary output device.
+DOS Function: 04h
+DOS Versions: 1, 2, 3
+Input
+    Character - byte value representing character to display
+Output
+    none
+Registers modified: ax, dl, flags
+Syntax: AuxiliaryOutput
+
+
+PrinterOutput
+-------------
+Function: Sends a character to the printer device.
+DOS Function: 05h
+DOS Versions: 1, 2, 3
+Input
+    Character - value to send to the printer.
+Output
+    none
+Registers modified: ah, dl, flags
+Syntax: PrinterOutput   Character
+
+
+ConsoleIO
+---------
+Function: Performs input/output from/to the console device.
+DOS Function: 06h
+DOS Versions: 1, 2, 3
+Input
+    Function - Desired operation as defined below
+    Value       Behavior
+    ---------------------------------------------------
+    0-0FEh      Display the character represented by Value
+    FFh         Read a character
+Output
+    Value = FF
+        A character is available
+            zero flag = clear
+            al - character
+        A character is not available
+            zero flag set
+Registers modified: ax, dl, flags
+Syntax: ConsoleIO   Value
+
+UnfilteredCharInput
+-------------------
+Function: Performs character input without checking for CTRL_BREAK. The
+          character input is not written to the display device.
+DOS Function: 07h
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    al - The character read.
+Registers modified: ax, flags
+Syntax: UnfilteredCharInput
+
+CharInputNoEcho
+---------------
+Function: Reads a character without echoing it to the screen.
+DOS Function: 08h
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    al - character read
+Registers modified: ax, flags
+Syntax: CharInputNoEcho
+
+WriteString
+-----------
+Function: Displays a $ terminated string to the string using.
+DOS Function: 09h
+DOS Versions: 1, 2, 3
+Input
+    StringSeg - segment address of the string
+    StringOfs - offset address of string in StringSeg
+Output
+    none
+Registers modified: ax, dx, ds, Flags
+Syntax: WriteString StringSeg, StringOfs
+
+BufferedInput
+-------------
+Function: Reads a line from the standard input device and stores it in the
+          indicated buffer.
+DOS Function: 0Ah
+DOS Versions: 1, 2, 3
+Input
+    StringSeg - segment address of the buffer
+    StringOfs - offset of the storage buffer
+Output
+    none
+Registers modified: ah, dx, ds, flags
+Syntax: BufferedInput   StringSeg, StringOfs
+
+GetInputStatus
+--------------
+Function: Determines if a character is ready to be input.
+DOS Function: 0Bh
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    al - 0 = no character available, FFh = character available
+Registers modified: ax, flags
+Syntax: GetInputStatus
+
+ResetInputBuffer
+----------------
+Function: Resets the input buffer(i.e. clears its contents) and then waits for
+          a character. Note that if Function <> 0Ah, you do not need to provide
+          the StringSeg:StringOfs parameters.
+DOS Function: 0Ch
+DOS Versions: 1, 2, 3
+Input
+    Function - number of the input function to invoke.
+    StringSeg - If Function = 0Ah, segment address of the buffer
+    StringOfs - offset of storage buffer
+Output
+    Function = 0Ah
+        none
+    al - character read
+Registers modified: ax, dx, ds, flags
+Syntax: ResetInputBuffer    Function, StringSeg, StringOfs
+
+ResetDisk
+---------
+Function: Resets a disk. All buffers are flushed to the disk.
+DOS Function: 0Dh
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    none
+Registers modified: ah, flags
+Syntax: ResetDisk
+
+ChangeDrive
+-----------
+Function: Changes the default disk drive.
+DOS Function: 0Eh
+DOS Versions: 1, 2, 3
+Input
+    Drive - Drive to change to
+Output
+    al - number of logical drives in system
+Registers modified: al, dl, Flags
+Syntax: ChangeDrive Drive
+
+OpenFCBFile
+-----------
+Function: Opens a file using an FCB and prepares it for I/O.
+DOS Function: 0Fh
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: OpenFCBFile FCBSeg, FCBOfs
+
+CloseFCBFile
+------------
+Function: Closes a file using an FCB.
+DOS Function: 10h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: CloseFCBFile    FCBSeg, FCBOfs
+
+FindFirstFCB
+------------
+Function: Finds the first file in a directory that matches a given file
+          specification. File operations are performed using FCB's.
+DOS Function: 11h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: FindFirstFCB    FCBSeg, FCBOfs
+
+FindNextFCB
+-----------
+Function: Finds the next entry in a directory matching the last file
+          specification given to FindFirstFCB.
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: FindNextFCB    FCBSeg, FCBOfs
+
+DeleteFCBFile
+-------------
+Function: Deletes a file defined in an FCB.
+DOS Function: 13h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: DeleteFCBFile    FCBSeg, FCBOfs
+
+SequentialFCBRead
+-----------------
+Function: Performs a sequential read from a file opened using an FCB.
+DOS Function: 14h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = read successful
+         1 = end of file
+         2 = segment wrap
+         3 = partial record read at eof
+Registers modified: ax, dx, ds, flags
+Syntax: SequentialFCBRead   FCBSeg, FCBOfs
+
+SequentialFCBWrite
+------------------
+Function: Performs a sequential write to a file opened using an FCB.
+DOS Function: 15h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = write successful
+         1 = disk full
+         2 = segment wrap
+Registers modified: ax, dx, ds, flags
+Syntax: SequentialFCBWrite  FCBSeg, FCBOfs
+
+CreateFCBFile
+-------------
+Function: Creates a new file or truncates an existing file using an FCB.
+DOS Function: 16h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: CreateFCBFile   FCBSeg, FCBOfs
+
+RenameFCBFile
+-------------
+Function: Renames a file(s) defined in an FCB.
+DOS Function: 17h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: RenameFCBFile   FCBSeg, FCBOfs
+
+GetDrive
+--------
+Function: Returns the default disk drive.
+DOS Function: 19h
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    al - drive code(0 = A, 1 = B, etc.)
+Registers modified: al, Flags
+Syntax: GetDrive
+
+SetDTA
+------
+Function: Sets the current DTA address.
+DOS Function: 1Ah
+DOS Versions: 1, 2, 3
+Input
+    StringSeg - segment address of new DTA
+    DTAOfs - offset in StringSeg of new DTA
+Output
+    none
+Registers modified: ax, dx, ds, Flags
+Syntax: SetDTA  DTASeg, DTAOfs
+
+DefaultDiskAllocation
+---------------------
+Function: Gets the allocation information for the default disk drive.
+DOS Function: 1Bh
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    al - sectors per cluster
+    ds:bx - address of the FAT id byte
+    cx - # of bytes per physical sector
+    dx - number of clusters on default drive
+Registers modified: ax, bx, cx, dx, ds, flags
+Syntax: DefaultDiskAllocation
+
+DiskAllocation
+--------------
+Function: Gets the allocation information for a specific disk drive.
+DOS Function: 1Ch
+DOS Versions: 2, 3
+Input
+    dl - drive id(0 = default, 1 = A, etc.)
+Output
+    al - sectors per cluster
+    ds:bx - address of the FAT id byte
+    cx - # of bytes per physical sector
+    dx - number of clusters on default drive
+Registers modified: ax, bx, cx, dx, ds, flags
+Syntax: DiskAllocation  Drive
+
+RandomFCBRead
+-------------
+Function: Reads the indicated record from a file opened using an FCB.
+DOS Function: 21h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = read successful
+         1 = end of file
+         2 = segment wrap
+         3 = partial record read at eof
+Registers modified: ax, dx, ds, flags
+Syntax: RandomFCBRead   FCBSeg, FCBOfs
+
+RandomFCBWrite
+--------------
+Function: Writes a record to the indicated position in a file opened using an
+          FCB.
+DOS Function: 22h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = write successful
+         1 = disk full
+         2 = segment wrap
+Registers modified: ax, dx, ds, flags
+Syntax: RandomFCBWrite  FCBSeg, FCBOfs
+
+GetFCBFileSize
+--------------
+Function: Gets the number of records in a file opened using an FCB.
+DOS Function: 23h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+    al - 0 = operation successful, FFh = operation failed
+Registers modified: ax, dx, ds, flags
+Syntax: GetFCBFileSize  FCBSeg, FCBOfs
+
+SetFCBFileRecord
+----------------
+Function: Updates the record pointer field in the FCB to the current file
+          pointer position.
+DOS Function: 24h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+Output
+Registers modified: ah, dx, ds, flags
+Syntax: SetFCBFileRecord    FCBSeg, FCBOfs
+
+SetVector
+---------
+Function: Changes the indicated interrupt vector to the new vector defined in
+          VectorSeg:VectorOfs.
+DOS Function: 25h
+DOS Versions: 1, 2, 3
+Input
+    Vector - Interrupt vector to modify
+    VectorSeg - Segment address of new interrupt handler
+    VectorOfs - Offset from VectorSeg of new handler
+Output
+    none
+Registers modified: ax, dx, ds, Flags
+Syntax: SetVector   Vector, VectorSeg, VectorOfs
+
+CreatePSP
+---------
+Function: Creates a new Program Segment Prefix(PSP)
+DOS Function: 26h
+DOS Versions: 1, 2, 3
+Input
+    PSPSeg - Segment address of new PSP
+Output
+    none
+Registers modified: ah, dx, flags
+Syntax: CreatePSP   PSPSeg
+
+RandomFCBBlockRead
+------------------
+Function: Does a random read of one or more records from a file opened using an
+          FCB.
+DOS Function: 27h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+    Count  - Number of records to read
+Output
+    al - 0 = read successful
+         1 = end of file
+         2 = segment wrap
+         3 = partial record read at eof
+    cx - actual # of records read from the file
+Registers modified: ax, cx, dx, ds, flags
+Syntax: RandomFCBBlockRead  FCBSeg, FCBOfs, Count
+
+RandomFCBBlockWrite
+-------------------
+Function: Performs a random write of the specified number of records to a file
+          opened using an FCB.
+DOS Function: 28h
+DOS Versions: 1, 2, 3
+Input
+    FCBSeg - segment address of the File Control Block(FCB)
+    FCBOfs - offset of FCB
+    Count  - Number of records to read
+Output
+    al - 0 = write successful
+         1 = disk full
+         2 = segment wrap
+    cx - actual # of records written to the file
+Registers modified: ax, cx, dx, ds, flags
+Syntax: RandomFCBBlockWrite FCBSeg, FCBOfs, Count
+
+ParseFCBFilename
+----------------
+Function: Parses a string representing a filename and fills in the appropriate
+          fields of an FCB.
+DOS Function: 29h
+DOS Versions: 1, 2, 3
+Input
+    Flags - Flags that control parsing as defined below
+    FLAGS       OPERATION
+    ---------------------------------------------------------------------
+    Bit 3  = 1  Only if an extension is given in the indicated file spec
+                will the extension in the FCB will be modified.
+           = 0  Replace the FCB's current extension with the one in the
+                file spec or initialize the FCB to blanks.
+    Bit 2  = 1  Only if a filename is given in the indicated file spec
+                will the filename in the FCB will be modified.
+           = 0  Replace the FCB's current filename with the one in the
+                file spec or initialize the FCB to blanks.
+    Bit 1  = 1  Only if a drive is given in the indicated file spec will
+                the drive in the FCB will be modified.
+           = 0  Replace the FCB's current drive with the one in the file
+                spec or initialize the FCB to blanks.
+    Bit 0  = 1  Leading separators will be ignored.
+           = 0  Leading separators will not be ignored.
+    ---------------------------------------------------------------------
+    FilenameSeg - Segment address of the string containing the filename
+    FilenameOfs - Offset of filename string
+    FCBSeg - Segment address of FCB
+    FCBOfs - Offset of FCB
+Output
+    al - 0 = No wildcard characters
+         1 = Wildcard characters exist in the filename
+       FFh = Specified drive doesn't exist
+    ds:si - pointer to first byte position after the filename string
+    es:di - pointer to FCB
+Registers modified: ax, di, si, ds, es, flags
+Syntax: ParseFCBFilename    Flags, FilenameSeg, FilenameOfs, FCBSeg, FCBOfs
+
+GetDate
+-------
+Function: Gets the system date.
+DOS Function: 2Ah
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    cx - year(1980 - 2099)
+    dh - month(1 - 12)
+    dl - day(1 - 31)
+    al - day of week(0 = Sunday, 1 = Monday, etc.) - Only on DOS 1.1
+         or later
+Registers modified: ax, cx, dx, flags
+Syntax: GetDate
+
+SetDate
+-------
+Function: Sets the system date.
+DOS Function: 2Bh
+DOS Versions: 1, 2, 3
+Input
+    Year - year(1980 - 2099)
+    Month - month(1 - 12)
+    Day - day(1 - 31)
+Output
+    al - 0 = success, 0FFh = invalid date
+Registers modified: ax, cx, dx, flags
+Syntax: SetDate Year, Month, Day
+
+GetTime
+-------
+Function: Gets the system time.
+DOS Function: 2Ch
+DOS Versions: 1, 2, 3
+Input
+    none
+Output
+    ch - hour(0 - 23)
+    cl - minutes(0 - 59)
+    dh - seconds(0 - 59)
+    dl - hundredths of a second(0 - 99)
+Registers modified: ah, cx, dx, flags
+Syntax: GetTime
+
+SetTime
+-------
+Function: Sets the system time.
+DOS Function: 2Dh
+DOS Versions: 1, 2, 3
+Input
+    Hour - hour(0 - 23)
+    Minute - minutes(0 - 59)
+    Second - seconds(0 - 59)
+    Hundredth - hundredths of a second(0 - 99)
+Output
+    al - 0 = success, 0FFh - invalid time
+Registers modified: ah, cx, dx, flags
+Syntax: SetTime Hour, Minute, Second, Hundredth
+
+SetVerifyFlag
+-------------
+Function: Sets the system verify flag to on or off.
+DOS Function: 2Eh
+DOS Versions: 1, 2, 3
+Input
+    Flag - 0 = Turn off verify flag
+         - 1 = Turn the verify flag on
+Output
+    none
+Registers modified: ax, dl, flags
+Syntax: SetVerifyFlag   Flag
+
+GetDTA
+------
+Function: Returns the address of the current DTA.
+DOS Function: 2Fh
+DOS Versions: 2, 3
+Input
+    none
+Output
+    es:bx - Far pointer to DTA
+Registers modified: ah, bx, es, Flags
+Syntax: GetDTA
+
+
+GetDOSVersion
+--------------
+Function: Returns the DOS version.
+DOS Function: 30h
+DOS Services: 2, 3
+Input
+    none
+Output
+    ax - DOS version
+Registers modified: ax, Flags
+Syntax: GetDOSVersion
+
+TSR
+---
+Function: Terminates a program but leaves it resident in memory.
+DOS Function: 31h
+DOS Versions: 2, 3
+Input
+    Result - return code
+    Paragraphs - # of paragraphs to reserve for the program
+Output
+    none
+Registers modified: ax, dx, flags
+Syntax: TSR Result, Paragraphs
+
+GetSetBREAK
+-----------
+Functioni: Sets the CTR_BREAK checking flag. Note that if Mode = 0, you do not
+           need to provide the Value parameter.
+DOS Function: 33h
+DOS Versions: 2, 3
+Input
+    Mode - 0 = Getting status of the flag
+         - 1 = Setting the status of the flag
+    Value - 0 = Turn CTRL-BREAK checking off
+          - 1 = Turn CTRL-BREAK checking on
+Output
+    dl - 0 = if CTRL-BREAK checking off
+       - 1 = if CTRL-BREAK checking on
+Registers modified: ax, dl, flags
+Syntax: GetSetBREAK Mode, Value
+
+GetVector
+---------
+Function: Returns the vector for a specified interrupt.
+DOS Function: 35h
+DOS Versions: 2, 3
+Input
+    Interrupt - Which interrupt to return the vector of.
+Output
+    es:bx - vector for the indicated interrupt
+Registers modified: ax, bx, es, flags
+Syntax: GetVector   Interrupt
+
+GetDiskSpace
+------------
+Function: Returns the amount of space available on the specified disk.
+DOS Function: 36h
+DOS Versions: 2, 3
+Input
+    Disk - Which disk to check(0 = default, 1 = A, etc.)
+Output
+    ax - sectors per cluster
+       FFFFh - if specified drive doesn't exist
+    bx - # of available clusters
+    cx - bytes per sector
+    dx - clusters per drive
+Registers modified: ax, bx, cx, dx, flags
+Syntax: GetDiskSpace    Disk
+
+GetSetCountryInfo
+-----------------
+Function: Gets or sets the current country information. Note that you can only
+          set the country information if running on DOS version 3.0 or later.
+          Note that if ShortCode < 255, then you do not need to provide the
+          LongCode parameter. If the LongCode parameter is provided, it will be
+          loaded into the apprpriate register regardless of the value of
+          ShortCode.
+DOS Function: 38h
+DOS Versions: 2, 3
+Input
+    BufferSeg - Segment address of the buffer to store the info in.
+    BufferOfs - offset of the storage buffer.
+    ShortCode - < 255 = Specific country code < 255
+                0FFh = Country code >= 255 so use LongCode
+    LongCode - Country code >= 255
+Output
+    bx - country code
+    ds:dx - pointer to the information buffer
+Registers modified: ax, bx, dx, ds, flags
+Syntax: GetSetCountryInfo   BufferSeg, BufferOfs, ShortCode, LongCode
+
+CreateDir
+---------
+Function: Creates a directory using the name pointed to by StringSeg:StringOfs.
+DOS Function: 39h
+DOS Versions: 2, 3
+Input
+    StringSeg - Segment address of string containing directory name
+    StringOfs - Offset from StringSeg of directory name
+Output
+    If function successful:
+        Carry flag - clear
+    If function failed
+        Carry flag - set
+        ax - error code:
+            3 - Path not found
+            5 - Access denied
+Registers modified: ax, dx, ds, Flags
+Syntax: CreateDir   StringSeg, StringOfs
+
+RemoveDir
+---------
+Function: Macro deletes the indicated directory.
+DOS Function: 3Ah
+DOS Versions: 2, 3
+Input
+    StringSeg - Segment address of string containing directory name
+    StringOfs - Offset from StringSeg of directory name
+Output
+    If function successful:
+        Carry flag - clear
+    If function failed
+        Carry flag - set
+        ax - error code:
+            3 - Path not found
+            5 - Access denied
+            6 - Current directory
+          16d - Current directory
+Registers modified: ax, dx, ds, Flags
+Syntax: RemoveDir   StringSeg, StringOfs
+
+ChangeDirectory
+---------------
+Function: Sets the current directory to the directory pointed to by
+          StringSeg:StringOfs.
+DOS Function: 3Bh
+DOS Versions: 2, 3
+Input
+    StringSeg - segment address of ASCIIZ string
+    StringOfs - offset within StringSeg of directory name
+Output
+    If function successful:
+        Carry flag - clear
+    If function failed
+        Carry flag - set
+        ax = error code:
+            3 - Path not found
+Registers modified: ax, dx, ds, Flags
+Syntax: ChangeDirectory StringSeg, StringOfs
+
+CreateFile
+----------
+Function: Creates a new file or truncates an existing file to 0 bytes. A file
+          associated with the file is returned.
+DOS Function: 3Ch
+DOS Versions: 2, 3
+Input
+    Attributes - File's attributes
+    StringSeg - Segment address of ASCIIZ file spec.
+    StringOfs - Offset within StringSeg of file spec.
+Output
+    If function successful:
+        Carry flag - clear
+        ax - file handle
+    If function failed
+        Carry flag - set
+        ax - error code:
+            3 - Path not found
+            4 - No handle available
+            5 - Access denied
+Registers modified: ax, cx, dx, ds, Flags
+Syntax: CreateFile  Attributes, StringSeg, StringOfs
+
+OpenFile
+--------
+Function: Opens an exiting file and returns a file handle associated with the
+          file.
+DOS Function: 3Dh
+DOS Versions: 2, 3
+Input
+    AccessMode - File access mode as defined below
+    BITS    VALUE       FUNCTION                        DOS VERSION
+    ----    -----       ----------------------------    -----------
+     0-2     000        Read Access                      2.0 & 3.0
+             001        Write Access                     2.0 & 3.0
+             010        Read/Write Access                2.0 & 3.0
+       3       0        Reserved
+     4-6     000        Sharing mode, compatability mode       3.0
+             001        Sharing mode, read/write access        3.0
+                        denied
+             010        Sharing mode, Write access denied      3.0
+             011        Sharing mode, Read access denied       3.0
+             100        Sharing mode, Full access permitted    3.0
+       7       0        Inheritance flag, File inherited       3.0
+                        by child processes
+               1        Inheritance flag, File private to      3.0
+                        current process
+    ---------------------------------------------------------------
+    StringSeg - Segment address of ASCIIZ file spec.
+    StringOfs - Offset within StringSeg of file spec.
+Output
+    If function successful:
+        Carry flag - clear
+        ax - file handle
+    If function failed
+        Carry flag - set
+        ax - error code:
+            1 - Function number invalid
+            2 - File not found
+            3 - Path not found or file doesn't exist
+            4 - No handle available
+            5 - Access denied
+          OCH - File access code invalid
+Registers modified: ax, dx, ds, Flags
+Syntax: OpenFile  AccessMode, StringSeg, StringOfs
+
+CloseFile
+---------
+Function: Closes a file associated with a file handle.
+DOS Function: 3Eh
+DOS Versions: 2, 3
+Input
+    Handle - File handle of file to close
+Output
+    If function successful:
+        Carry flag - clear
+    If function failed:
+        Carry flag - set
+        ax - error code:
+            6 - handle invalid or not open
+Registers modified: ax, bx, Flags
+Syntax: CloseFile   Handle
+
+ReadFile
+--------
+Function: Reads Count bytes from the file referenced by the file handle.
+DOS Function: 3Fh
+DOS Versions: 2, 3
+Input
+    Handle - DOS file handle of file to read from
+    Count - # of bytes to read
+    StringSeg - Segment address of buffer to store data in
+    StringOfs - offset within StringSeg of storage buffer
+Output
+    If function successful:
+        Carry flag - clear
+        ax - # of bytes read(0 if EOF)
+    If function failed
+        Carry flag - set
+        ax - error code:
+            5 - Access denied
+            6 - Invalid handle or file not open
+Registers modified: ax, bx, cx, ds, Flags
+Syntax: ReadFile    Handle, Count, StringSeg, StringOfs
+
+WriteFile
+---------
+Function: Writes Count bytes to the file referenced by the file handle.
+DOS Function: 40h
+DOS Versions: 2, 3
+Input
+    Handle - DOS file handle of file to write to
+    Count - # of bytes to write
+    StringSeg - Segment address of buffer storing data
+    StringOfs - offset within StringSeg of storage buffer
+Output
+    If function successful:
+        Carry flag - clear
+        ax - # of bytes read(0 if disk full)
+    If function failed
+        Carry flag - set
+        ax - error code:
+            5 - Access denied
+            6 - Invalid handle or file not open
+Registers modified: ax, bx, cx, ds, Flags
+Syntax: WriteFile    Handle, Count, StringSeg, StringOfs
+
+DeleteFile
+----------
+Function: Deletes the file pointed to by StringSeg:StringOfs.
+DOS Function: 41h
+DOS Versions: 2, 3
+Input
+    StringSeg - segment address of the filename
+    StringOfs - offset from StringSeg of the filename
+Output
+    If function successful:
+        Carry flag - clear
+    If function failed
+        Carry flag - set
+        ax - error code:
+            2 - File not found
+            5 - Access denied
+Registers modified: ax, dx, ds, Flags
+Syntax: DeleteFile  StringSeg, StringOfs
+
+MoveFilePtr
+-----------
+Function: Positions the file pointer in the file referenced by Handle.
+DOS Function: 42h
+DOS Versions: 2, 3
+Input
+    Mode - Offset method as defined below
+    MODE    FUNCTION
+    ----    -----------------------------------------------------------
+      0     absolute byte offset from beginning of file(always unsigned
+            long integer)
+      1     byte offset from current location(signed long integer)
+      2     byte offset from end of file(signed long integer)
+    -------------------------------------------------------------------
+    Handle - File handle
+    OffsetHigh - Most significant word of offset
+    OffsetLow  - Least significant word of offset
+Output
+    If function successful:
+        Carry flag - clear
+        dx - most significant word of new pointer
+        ax - least significant word of new pointer
+    If function failed
+        Carry flag - set
+        ax - error code:
+            1 - Function number invalid
+            6 - Handle invalid or not open
+Registers modified: ax, bx, cx, dx, Flags
+Syntax: MoveFilePtr Mode, Handle, OffsetHigh, OffsetLow
+
+GetSetAttributes
+----------------
+Function: Gets or sets the file attributes.
+DOS Function: 43h
+DOS Versions: 2, 3
+Input
+    Mode
+        0 - Get file attributes
+        1 - Set file attributes
+    Attributes - New attributes or location to store file's current
+                 attributes.
+    StringSeg - Segment address of the filename to check/modify
+    StringOfs - Offset within StringSeg of the filename
+Output
+    If function successful:
+        Carry flag - clear
+        If al = 0 on call
+            cx - attribute
+    If function failed:
+        Carry flag - set
+        ax - error code:
+            1 - Function code invalid
+            2 - File not found
+            3 - Path not found or file doesn't exist
+            5 - Attribute can't be changed
+Registers modified: ax, cx, dx, ds, Flags
+Syntax: GetSetAttributes    Mode, Attributes, StringSeg, StringOfs
+
+IOCTL
+-----
+Function: Passes control information to a device driver. Note that you must
+          provide either the buffer address parameters or the device
+          information parameter but not both.
+DOS Function: 44h
+DOS Versions: 2, 3
+Input
+    Function - What to do as defined below:
+    FUNCTION    RESULT
+    -----------------------------------------------------------------------
+        00h     Get device information
+        01h     Set device information
+        02h     Read from character device control channel to a buffer
+        03h     Write to a character device control channel from a buffer
+        04h     Read from block device control channel to a buffer
+        05h     Write to a block device control channel from a buffer
+        06h     Get the input status
+        07h     Get output status
+        08h     Check whether a block device is changable(DOS 3.0)
+        09h     Check whether a drive is local or remote(DOS 3.1 &
+                Microsoft Networks)
+        0Ah     Check whether a handle is local or remote(DOS 3.1 &
+                Microsoft Networks)
+        0Bh     Change the sharing retry count
+    -----------------------------------------------------------------------
+    HandleDrive - Handle(functions 0, 1, 2, 3, 6, 7, 0Ah)
+                - Drive(0 = default, 1 = A, etc.)
+    Count - # of bytes to read/write
+    BufSegDevInfo - Represents Segment address of the input/output
+                    buffer(functions 2-5)
+                  - Represents device information(function 1).
+    BufferOfs - offset of the storage buffer(functions 2-5)
+Output
+    Carry flag = clear  - operation successful
+        ax - # of bytes read/written(functions 2-5)
+        al - 0 = not ready(functions 6-7)
+           - 1 = ready
+        ax - 0 = removable(function 8)
+           - 1 = fixed
+        dx - Device information(function 0)
+    Carry flag = set
+        ax - error code
+           1 = Invalid function number
+           4 = No handle available
+           5 = Access denied
+           6 = Invalid handle or device not open
+         0Dh = Invalid data
+         0Fh = Invalid drive number
+Registers modified: ax, bx, cx, dx, ds, flags
+Syntax: IOCTL   Function, HandleDrive, Count, BufSegDevInfo, BufferOfs
+
+DuplicateHandle
+---------------
+Function: Duplicates a file handle that is associated with an open file or
+          device.
+DOS Function: 45h
+DOS Versions: 2, 3
+Input
+    Handle - the handle to duplicate
+Output
+    carry flag = clear
+        ax - new file handle
+    carry flag = set
+        ax - error code
+           4 = No more file handles available
+           6 = Invalid handle or file not open
+Registers modified: ax, bx, flags
+Syntax: DuplicateHandle Handle
+
+ForceDupHandle
+--------------
+Function: Takes two file handles and makes the second one equal to the first.
+DOS Function: 46h
+DOS Versions: 2, 3
+Input
+    Original - Original file handle
+    Copy     - Copy of the file handle
+Output
+    carry flag = clear - operation successful
+    carry flag = set
+        ax - error code
+           4 = No more file handles available
+           6 = Invalid handle or file not open
+Registers modified: ax, bx, cx, flags
+Syntax: ForceDupHandle  OriginalHandle, HandleCopy
+
+GetCurrentDir
+-------------
+Function: Returns the current DOS directory on the indicated disk drive.
+DOS Function: 47h
+DOS Versions: 2, 3
+Input
+    Drive - Disk drive(0 = default, 1 = A, etc.)
+    StringSeg - Segment address of 64-byte buffer to store directory
+                name in
+    StringOfs - Offset within StringSeg of the 64-byte buffer
+Output
+    If function successful:
+        Carry flag - clear
+        The buffer is filled with the full path
+    If function failed
+        Carry flag - set
+        ax - error code:
+          0Fh - Invalid drive specification
+Registers modified: ax, dl, si, ds, Flags
+Syntax: GetCurrentDir   Drive, StringSeg, StringOfs
+
+AllocateMemory
+--------------
+Function: Allocates Paragraphs paragraphs of memory.
+DOS Function: 48h
+DOS Versions: 2, 3
+Input
+    Paragraphs - # of paragraphs to allocate
+Output
+    If function successful:
+        Carry flag - clear
+        ax - initial segment of allocated block
+    If function failed:
+        Carry flag - set
+        ax - error code:
+            7 - If memory control blocks destroyed
+            8 - If insufficient memory
+        bx - size of largest block available
+Registers modified: ax, bx, Flags
+Syntax: AllocateMemory  Paragraphs
+
+FreeMemory
+----------
+Function: Frees a DOS memory block.
+DOS Function: 49h
+DOS Versions: 2, 3
+Input
+    BlockAddress - segment address of the memory block
+Output
+    If function successful:
+        Carry flag - clear
+    If function failed:
+        Carry flag - set
+        ax - error code:
+            7 - If memory control blocks destroyed
+            8 - If insufficient memory
+        bx - size of largest block available
+Registers modified: ax, es, Flags
+Syntax: FreeMemory  BlockAddress
+
+ModifyMemory
+------------
+Function: Modifies A DOS memory blocks size.
+DOS Function: 4Ah
+DOS Versions: 2, 3
+Input
+    Size - New block size in paragraphs
+    MemoryBlock - Segment address of current DOS memory block
+Output
+    If function successful:
+        Carry flag - clear
+    If function failed
+        Carry flag - set
+        ax - error code:
+            7 - Memory control blocks destroyed
+            8 - Insufficient memory
+            9 - Incorrect segment in es
+        bx - maximum block size available
+Registers modified: ax, bx, es, Flags
+Syntax: ModifyMemory    Size, MemoryBlock
+
+Exec
+----
+Function: Runs another program or loads an overlay into memory.
+DOS Function: 4Bh
+DOS Versions: 2, 3
+InputSyntax
+    Type - Indicates if the macro is running an application or loading an
+           overlay
+    ParmSeg - Segment address of parameter block
+    ParmOfs - Offset of parameter block
+    ProgramSeg - Segment address of program specification
+    ProgramOfs - Offset of program specification
+Output
+    carry flag = clear - operation successful
+        all registers except cs and ip are destroyed
+    carry flag = set - operation not successful
+        ax - error code
+           1 = Invalid function
+           2 = Program not found
+           5 = Access denied
+           8 = Insufficient memory to run the program
+         0Ah = Invalid environment
+         0Bh = Invalid format
+Registers modified: ax, bx, cx, dx, si, di, bp, sp, es, ds, ss, flags
+Syntax: Exec    Type, ParmSeg, ParmOfs, ProgramSeg, ProgramOfs
+
+TerminateProgram
+----------------
+Function: Terminates the program. If running on DOS 1.0 or 1.1, use
+          Terminate10Program.
+DOS Function: 4Ch
+DOS Versions: 2, 3
+Input
+    ErrorLevel - ErrorLevel to return to DOS
+Output
+    None
+Register modified
+    NA
+Syntax
+    TerminateProgram    ErrorLevel
+
+GetReturnCode
+-------------
+Function: Gets the return code after an Exec.
+DOS Function: 4Dh
+DOS Versions: 2, 3
+Input
+    none
+Output
+    ah  - exit type
+        0 = normal program termination
+        1 = program was terminated by a CTRL-C
+        2 = A critical device error terminated the program
+        3 = Function 31h terminated the program
+    al - return code of child process
+Registers modified: ax, flags
+Syntax: GetReturnCode
+
+FindFirst
+---------
+Function: Finds the first entry in a directory that matches the given file
+          specification. The information about the file is then stored in the
+          current DTA.
+DOS Function: 4Eh
+DOS Services: 2, 3
+Input
+    Attributes - Attributes to use in search for file
+    StringSeg - segment address of the filename
+    StringOfs - offset from StringSeg of the filename
+Output
+    If function successful:
+        Carry flag - clear
+        DTA is initialized with file information
+    If function failed
+        Carry flag - set
+        ax - error code:
+            2 - Invalid path
+          12h - No matching entry found
+Registers modified: ax, cx, dx, ds, Flags
+Syntax: FindFirst   Attributes, StringSeg, StringOfs
+
+FindNext
+-------
+Function: Finds the next entry in a directory that matches the file
+          specification last given to FindNext. The information about the file
+          is then stored in the current DTA.
+DOS Function: 4Fh
+DOS Services: 2, 3
+Input
+    none
+Output
+    If function successful:
+        Carry flag - clear
+        DTA is initialized with file information
+    If function failed
+        Carry flag - set
+        ax - error code:
+          12h - No matching entry found
+Registers modified: ax, Flags
+Syntax: FindNext
+
+GetVerifyFlag
+-------------
+Function: Gets the current value of the system's verify flag.
+DOS Function: 54h
+DOS Versions: 2, 3
+Input
+    none
+Output
+    al  - current value
+        0 = verify off
+        1 = verify on
+Registers modified: ax, flags
+Syntax: GetVerifyFlag
+
+RenameFile
+----------
+Function: Renames a file.
+DOS Function: 56h
+DOS Versions: 2, 3
+Input
+    OrigSeg - Segment address of the string containing the original filename
+    OrigOfs - Offset of the string
+    NewSeg  - Segment address of the new filename
+    NewOfs  - Offset of the new filename string
+Output
+    carry flag = clear - operation successful
+    carry flag = set - operation unsuccessful
+        ax - error code
+            2 = File not found
+            3 = File couldn't be found
+            5 = Access denied
+          11h = A different device
+Registers modified: ax, dx, di, ds, es, flags
+Syntax: RenameFile  OrigSeg, OrigOfs, NewSeg, NewOfs
+
+GetSetFileDateTime
+------------------
+Function: Will get or set a file's date and time. Note that you only need to
+          provide the Time and Date parameters when setting the file's Date and
+          Time.
+DOS Function: 57h
+DOS Versions: 2, 3
+Input
+    GetSet - 0 = Get the file's date & time, 1 = Set them
+    Handle - File handle
+    Time - New time(GetSet = 1)
+    Date - New date(GetSet = 1)
+Output
+    carry flag = clear - operation successful
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 - Invalid function
+            6 - Invalid file handle
+Registers modified: ax, bx, cx, dx, flags
+Syntax: GetSetFileDateTime  GetSet, Handle, Time, Date
+
+GetSetAllocationStrategy
+------------------------
+Function: Gets or sets DOS's memory allocation strategy.
+DOS Function: 58h
+DOS Versions: 3
+Input
+    GetSet - 0 = get, 1 = set
+    Strategy - Code as defined below(GetSet = 1)
+    STRATEGY        FUNCTION
+    ------------------------------
+        0           First fit
+        1           Best fit
+        2           Last fit
+Output
+    carry flag = clear - operation successful
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 = Invalid function
+Registers modified: ax, bx, flags
+Syntax: GetSetAllocationStrategy
+
+GetExtendedErrors
+-----------------
+Function: Returns extended error information about a DOS error that just
+          occurrred.
+DOS Function: 59h
+DOS Versions: 3
+Input
+    none
+Output
+    ax - extended error code as defined below
+    CODE    DESCRIPTION
+    ----------------------------------------------------
+     1      Invalid function #
+     2      File not found
+     3      Path not found
+     4      Too many open files
+     5      Access denied
+     6      Invalid handle
+     7      Memory control blocks destroyed
+     8      Insufficient memory
+     9      Memory block address invalid
+    0Ah     Environment invalid
+    0Bh     Invalid format
+    0Ch     Invalid access code
+    0Dh     Invalid data
+    0Fh     Invalid disk drive
+    10h     Attempted to delete the current directory
+    11h     Not the same device
+    12h     No more files
+    13h     Disk is write-protected
+    14h     Unit unknown
+    15h     Drive not ready
+    16h     Unknown command
+    17h     Data error(CRC value)
+    18h     Bad request structure length
+    19h     Seek error
+    1Ah     Unknown medium type
+    1Bh     Sector not found
+    1Ch     Printer out of paper
+    1Dh     Write fault
+    1Eh     Read fault
+    1Fh     General failure
+    20h     Sharing violation
+    21h     Lock violation
+    22h     Disk change invalid
+    23h     FCB unavailable
+    50h     File already exists
+    52h     Cannot create the directory
+    53h     Int-24(critical error) failed
+    --------------------------------------------------------
+bh - error class as defined below
+    CLASS   DESCRIPTION
+    --------------------------------------------------------
+    1       Out of a resource
+    2       A temporary situation like a locked record
+    3       Authorization error
+    4       Internal system error
+    5       Hardware failure
+    6       System software failure
+    7       Application software error
+    8       File or item not found
+    9       Invalid format or type for file or item
+    0Ah     File or item is interlocked
+    0Bh     Wrong disk or bad disk
+    0Ch     Any other error
+    --------------------------------------------------------
+bl - recommended action as defined below
+    ACTION  DESCRIPTION
+    ---------------------------------------------------------------
+    1       Retry the operation a few times then prompt the user
+    2       Retry the operation with a small delay between retries,
+            then prompt the user.
+    3       Get input from user
+    4       Abort the application gracefully
+    5       Abort immediately
+    6       Ignore the error
+    7       Retry the operation after the user corrects the problem
+    ----------------------------------------------------------------
+ch - location of the error as defined below
+    LOCATION    DESCRIPTION
+    ----------------------------------------------------------------
+        1       Unknown
+        2       A block device like a disk or ram disk
+        3       Network related error
+        4       Serial device error
+        5       Memory related error
+    ----------------------------------------------------------------
+Registers modified: ax, bx, cx, flags
+Syntax: GetExtendedErrors
+
+CreateTemporaryFile
+-------------------
+Function: Creates a temporary file.
+DOS Function: 5Ah
+DOS Versions: 3
+Input
+    Attribute - File attribute as defined below
+    ATTRIBUTE   DESCRIPTION
+    -------------------------------------------
+        0       Normal file
+        1       Read-only
+        2       Hidden
+        4       System
+    -------------------------------------------
+    FilenameSeg - Segment address of filename string
+    FilenameOfs - Offset of filename string
+Output
+    carry flag = clear - operation successful
+        ax - file handle
+        ds:dx - address of the filename string
+    carry flag = set - operation unsuccessful
+        ax - error code
+            3 = Path not found
+            5 = Access denied
+Registers modified: ax, dx, ds, flags
+Syntax: CreateTemporaryFile Attribute, FilenameSeg, FilenameOfs
+
+CreateNewFile
+-------------
+Function: Creates a new file. If the specified file already exists, an error is
+          returned.
+DOS Function: 5Bh
+DOS Versions: 3
+Input
+    Attribute - File attribute as defined below
+    ATTRIBUTE   DESCRIPTION
+    -------------------------------------------
+        0       Normal file
+        1       Read-only
+        2       Hidden
+        4       System
+    -------------------------------------------
+    FilenameSeg - Segment address of filename string
+    FilenameOfs - Offset of filename string
+Output
+    carry flag = clear - operation successful
+        ax - file handle
+    carry flag = set - operation unsuccessful
+        ax - error code
+            3 = Path not found
+            4 = No more file handles
+            5 = Access denied
+          50h = File already exists
+Registers modified: ax, cx, dx, ds, flags
+Syntax: CreateNewFile   Attribute, FilenameSeg, FilenameOfs
+
+ControlFileAccess
+-----------------
+Function: Locks or unlocks a record in a file on a networked system.
+DOS Function: 5Ch
+DOS Versions: 3
+Input
+    LockUnlock  - 0 = lock, 1 = unlock
+    Handle - File handle
+    OffsetHigh - High word of record offset
+    OffsetLow - Low word of record offset
+    LengthHigh - High word of record length
+    LengthLow - Low word of record length
+Output
+    carry flag = cleared - operation successful
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 = Invalid function
+            6 = Invalid file handle
+          21h = All or part of the record is already locked
+Registers modified: ax, bx, cx, dx, si, di, flags
+Syntax: ControlFileAccess   LockUnlock, Handle, OffsetHigh, OffsetLow, LengthHigh, LengthLow
+
+GetMachineName
+--------------
+Function: Returns the local machine name on a network.
+DOS Function: 5Eh   Sub-Function: 00h
+DOS Versions: 3
+Input
+    BufferSeg - Segment address of the string buffer
+    BufferOfs - Offset of the buffer
+Output
+    carry flag = clear - operation successful
+        ch = 0 - name not defined
+            > 0 - name defined
+        cl - NETBIOS name number(ch <> 0)
+        ds:dx - address of identifier(ch <> 0)
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 - Invalid function code
+Registers modified: ax, cx, dx, ds, flags
+Syntax: GetMachineName  BufferSeg, BufferOfs
+
+SetupPrinter
+------------
+Function: Sets up a printer attached to the network.
+DOS Function: 5Eh   Sub-Function: 02h
+DOS Versions: 3
+Input
+    BufferSeg - Segment address of the setup string
+    BufferOfs - Offset of the buffer
+    ListIndex - Redirection list index
+    StrLength - Length of the setup string
+Output
+    carry flag = clear - operation successful
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 - Invalid function code
+Registers modified: ax, bx, cx, si, ds, flags
+Syntax: SetupPrinter    BufferSeg, BufferOfs, ListIndex, StrLength
+
+GetPrinterSetup
+---------------
+Function: Returns the local machine name on a network.
+DOS Function: 5Eh   Sub-Function: 03h
+DOS Versions: 3
+Input
+    BufferSeg - Segment address of the string buffer
+    BufferOfs - Offset of the buffer
+    Listindex - Redirection list index(Function = 2-3)
+Output
+    carry flag = clear - operation successful
+        cx - length of the printer setup string
+        es:di - address of the buffer holding the setup string
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 - Invalid function code
+Registers modified: ax, bx, cx, di, es, flags
+Syntax: GetPrinterSetup BufferSeg, BufferOfs, ListIndex
+
+GetListEntry
+------------
+Function: Gets a redirection list entry from the network system.
+DOS Function: 5Fh       Sub-function: 02h
+DOS Versions: 3
+Input
+    ListIndex - Redirection list index
+    DeviceSeg - Segment address of buffer to hold the device name
+    DeviceOfs - Offset of buffer
+    NetworkSeg - Segment address of buffer to hold the network's name
+    NetworkOfs - Offset of buffer
+Output
+    carry flag = clear - operation successful
+        bh - device status flag(0 = valid device, 1 = invalid device)
+        bl - Device type(3 = printer, 4 = drive)
+        cx - Stored parameter
+        ds:si - address of device name
+        es:di - address of the network's name
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 = Invalid function
+          12h = No more files
+Registers modified: ax, bx, cx, dx, bp, si, di, es, ds, flags
+Syntax: GetListEntry    ListIndex, DeviceSeg, DeviceOfs, NetworkSeg, NetworkOfs
+
+GetListEntry
+------------
+Function: Redirects a device on a network.
+DOS Function: 5Fh       Sub-function: 03h
+DOS Versions: 3
+Input
+    Type - The device type as defined below
+    TYPE    DESCRIPTION
+    ------------------------------------------
+    3       Printer
+    4       Disk drive
+    ------------------------------------------
+    Save - A parameter that needs to be saved for the caller
+    DeviceSeg - Segment address of buffer to hold the device name
+    DeviceOfs - Offset of buffer
+    NetworkSeg - Segment address of buffer to hold the network's name
+    NetworkOfs - Offset of buffer
+Output
+    carry flag = clear - operation successful
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 = Invalid function
+            3 = Path not found
+            5 = Access denied
+            8 - Insufficient memory
+Registers modified: ax, bx, cx, si, di, es, ds, flags
+Syntax: GetListEntry    Type, Save, DeviceSeg, DeviceOfs, NetworkSeg, NetworkOfs
+
+GetListEntry
+------------
+Function: Redirects a device on a network.
+DOS Function: 5Fh       Sub-function: 04h
+DOS Versions: 3
+Input
+    DeviceSeg - Segment address of buffer to hold the device name
+    DeviceOfs - Offset of buffer
+Output
+    carry flag = clear - operation successful
+    carry flag = set - operation unsuccessful
+        ax - error code
+            1 = Invalid function
+          0Fh - Redirection paused on server
+Registers modified: ax, si, ds, flags
+Syntax: GetListEntry    DeviceSeg, DeviceOfs
+
+GetPSPAddress
+-------------
+Function: Returns the address of the current PSP.
+DOS Function: 62h
+DOS Versions: 3
+Input
+    none
+Output
+    bx - Segment address of the Program Segment Prefix(PSP)
+Registers modified: ah, bx, flags
+Syntax: GetPSPAddress
+
+LeadByteTable
+-------------
+Function: Returns the address of the system table of legal lead bytes or
+          gets/sets the value of the interim console flag.
+DOS Function: 63h
+DOS Versions: 2.25
+Input
+    Function - The sub-function as defined below:
+    FUNCTION    DESCRIPTION
+    -----------------------------------------------------------------
+        0       Get the address of the system lead byte table
+        1       Setting the value of the console flag
+        2       Getting the value of the console flag
+    -----------------------------------------------------------------
+    Console - Indicate if setting/getting the console flag(Function = 1)
+Output
+    ds:si - Address of the lead byte table(Function = 0)
+    dl - Value of the console flag(Function = 2)
+Registers modified: ax, dl, flags
+Syntax: LeadByteTable   Function, Console

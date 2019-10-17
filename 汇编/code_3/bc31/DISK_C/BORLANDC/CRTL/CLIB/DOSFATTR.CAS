@@ -1,0 +1,98 @@
+/*------------------------------------------------------------------------
+ * filename - dosfattr.cas
+ *
+ * function(s)
+ *      _dos_getfileattr - get file attributes (MSC compatible)
+ *      _dos_setfileattr - change file attributes (MSC compatible)
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            _dos_getfileattr - get current attributes of file
+
+Usage           unsigned _dos_getfileattr(const char *filename,
+                         unsigned *attrib);
+
+Prototype in    dos.h
+
+Description     Fetch the MS-DOS file attributes for filename,
+                store them in low byte of *attrib.
+
+Return value    success : 0
+                failure : DOS error code, and errno is set to
+
+                        ENOENT  Path or file name not found
+
+Note            Compatible with Microsoft C.
+
+*---------------------------------------------------------------------------*/
+
+unsigned _dos_getfileattr(const char *filename, unsigned *attrib)
+{
+        pushDS_
+asm     mov     ah,43h
+asm     xor     al,al
+asm     LDS_    dx, filename
+asm     int     21h
+        popDS_
+asm     jc      _getFailed
+asm     LES_    bx,attrib
+asm     mov     ES_ [bx],cx
+        return (0);
+
+_getFailed:
+        return (__DOSerror(_AX));               /* set errno */
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _dos_setfileattr - set current attributes of file
+
+Usage           unsigned _dos_setfileattr(const char *filename,
+                         unsigned attrib);
+
+Prototype in    dos.h
+
+Description     Set the MS-DOS file attributes for filename to
+                the value in the low byte of attrib.
+
+Return value    success : 0
+                failure : DOS error code, and errno is set to either
+
+                        ENOENT  Path or file name not found
+                        EACCESS Permission denied
+
+Note            Compatible with Microsoft C.
+
+*---------------------------------------------------------------------------*/
+
+
+unsigned _dos_setfileattr(const char *filename, unsigned attrib)
+{
+        pushDS_
+asm     mov     ah,43h
+asm     mov     al,1
+asm     LDS_    dx, filename
+asm     mov     cx, attrib
+asm     int     21h
+        popDS_
+asm     jc      _setFailed
+        return (0);
+
+_setFailed:
+        return (__DOSerror(_AX));               /* set errno */
+}

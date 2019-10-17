@@ -1,0 +1,21 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include <windows.h>
+#include <owlrc.h>
+#include "steps.h"
+
+#include "inputdia.dlg"
+#include "filedial.dlg"
+
+COMMANDS MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+  POPUP "&File"
+  BEGIN
+    MenuItem  "&New", CM_FILENEW
+    MenuItem  "&Open", CM_FILEOPEN
+    MenuItem  "&Save", CM_FILESAVE
+    MenuItem  "Save&As", CM_FILESAVEAS
+  END
+  MenuItem  "&Help", CM_HELP
+END
+

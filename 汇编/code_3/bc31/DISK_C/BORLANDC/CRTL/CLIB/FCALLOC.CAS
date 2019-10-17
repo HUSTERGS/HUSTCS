@@ -1,0 +1,87 @@
+/*--------------------------------------------------------------------------
+ * filename - fcalloc.cas
+ *
+ * function(s)
+ *        fcalloc - allocates memory from far heap
+ *        lsetmem - assigns a value to memory
+ *-------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <alloc.h>
+#include <stddef.h>
+
+#if (LDATA)
+#include <mem.h>
+#else
+
+/*--------------------------------------------------------------------------*
+
+Name            lsetmem - assigns a value to memory
+
+Usage           void near pascal lsetmem(char far *p, unsigned n,
+                                         unsigned char val);
+
+Description     sets the first n bytes of the block pointed to by the
+                far pointer p to the character val.
+
+Return value    Nothing.
+
+*---------------------------------------------------------------------------*/
+static void near pascal lsetmem(char far *p, unsigned n, unsigned char val)
+{
+asm     les     di, dword ptr p
+asm     mov     cx, n
+asm     mov     al, val
+asm     rep     stosb
+}
+#endif
+
+
+/*--------------------------------------------------------------------------*
+
+Name            farcalloc - allocates memory from far heap
+
+Usage           void *farcalloc(unsigned long nunits,
+                              unsigned long unitsz);
+
+Prototype in    alloc.h
+
+Description     allocates memory from the far heap for an array containing
+                nunits elements, each unitsz bytes long, and set the
+                allocated bytes to zero
+
+Return value    success : far pointer to the newly allocated memory block
+                failure : NULL
+
+*---------------------------------------------------------------------------*/
+#pragma warn -def
+void far *farcalloc(unsigned long nunits, unsigned long unitsz)
+{
+        register char   far *cp, huge *scp;
+        unsigned        sval;
+
+        nunits *= unitsz;
+        if ((cp = farmalloc(nunits)) != NULL)
+                for (scp = cp; nunits; scp += sval, nunits -= sval)
+                {
+                        sval = (nunits > 64000L) ? (unsigned)64000L : (unsigned)nunits;
+#if (LDATA)
+                        setmem((char far *)scp, sval, 0);
+#else
+                        lsetmem((char far *)scp, sval, 0);
+#endif
+                }
+        return(cp);
+}
+#pragma warn .def
+

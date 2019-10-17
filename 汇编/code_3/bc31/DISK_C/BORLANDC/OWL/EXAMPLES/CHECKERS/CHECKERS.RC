@@ -1,0 +1,152 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include <windows.h>
+#include <owlrc.h>
+#include <bwcc.h>
+
+#include "checkers.h"
+
+CheckersIcon ICON checkers.ico
+
+Checkers MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+   POPUP "&Game"
+   BEGIN
+      MenuItem "&New",          CM_FILENEW
+      MenuItem "&Restore...",      CM_FILEOPEN
+      MenuItem "&Save",         CM_FILESAVE
+      MenuItem "Save&As...",    CM_FILESAVEAS
+      MenuItem "&Exit\aAlt+F4", IDM_EXIT
+      MenuItem Separator
+      MenuItem "&Undo\aAlt+BkSp", CM_UNDO, GRAYED
+      MenuItem "Re&do",         CM_REDO, GRAYED
+   END
+   POPUP "&Options"
+   BEGIN
+      MenuItem "&Search Depth...",         CM_SEARCHDEPTH
+      MenuItem "&Iterative deepening",  CM_ITERATE, CHECKED
+      MenuItem "&Killer Moves",         CM_KILLER,  CHECKED
+      MenuItem "&Logging",              CM_LOG,     CHECKED
+   END
+   MenuItem "&Pass",         CM_MOVE
+   POPUP "&Help"
+   BEGIN
+      MenuItem "&About...",  CM_ABOUT
+   END
+END
+
+
+RedManBitmap BITMAP redman.bmp
+BlackManBitmap BITMAP blackman.bmp
+BlackKingBitmap BITMAP blackkng.bmp
+RedKingBitmap BITMAP redking.bmp
+Hand CURSOR hand.cur
+HandWPiece CURSOR handpc.cur
+
+
+CheckerCommands ACCELERATORS
+BEGIN
+   VK_BACK, CM_UNDO, VIRTKEY, ALT
+   VK_F4, CM_EXIT, VIRTKEY, ALT
+END
+
+
+About DIALOG 7, 22, 140, 96
+CAPTION "About Checkers"
+CLASS "BorDlg"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL "Copyright (C) 1992", -1, "STATIC", SS_LEFT | WS_GROUP, 40, 42, 60, 8
+	CONTROL "CheckersIcon", -1, "static", SS_ICON | WS_CHILD, 23, 23, 16, 16
+	CONTROL "Object Windows ", -1, "STATIC", WS_GROUP, 43, 13, 54, 8
+	CONTROL "CHECKERS", -1, "STATIC", WS_GROUP, 50, 23, 39, 8
+	CONTROL "Borland International, Inc.", -1, "STATIC", SS_LEFT | WS_GROUP, 28, 51, 84, 8
+	CONTROL "", IDOK, "BorBtn", WS_TABSTOP, 54, 72, 32, 20
+	CONTROL "", -1, "BorShade", 1, 17, 11, 105, 52
+	CONTROL "", -1, "BorShade", 2, 0, 67, 141, 1
+END
+
+
+SD_FILEOPEN DIALOG 9, 29, 197, 150
+CAPTION "File Open"
+CLASS "BorDlg"
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 5, 4, 148, 18
+	CONTROL "", -1, "BorShade", 1, 5, 57, 70, 89
+	CONTROL "", -1, "BorShade", 1, 82, 57, 70, 89
+	CONTROL "", -1, "BorShade", BSS_VDIP, 156, 0, 1, 150
+	CONTROL " File&name:", -1, "STATIC", SS_LEFT | WS_GROUP, 6, 8, 36, 10
+	CONTROL "", ID_FNAME, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 42, 7, 106, 12
+	CONTROL " Directory:", -1, "STATIC", SS_LEFT | WS_GROUP, 5, 29, 37, 10
+	CONTROL "", ID_FPATH, "STATIC", WS_CHILD | WS_VISIBLE | WS_GROUP, 42, 29, 110, 10
+	CONTROL " &Files:", -1, "STATIC", SS_LEFT | WS_GROUP, 5, 47, 69, 10
+	CONTROL "", ID_FLIST, "LISTBOX", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LBS_STANDARD, 8, 61, 64, 82
+	CONTROL " &Directories:", -1, "STATIC", SS_LEFT | WS_GROUP, 82, 47, 69, 10
+	CONTROL "", ID_DLIST, "LISTBOX", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LBS_STANDARD, 85, 61, 64, 82
+	CONTROL "&Ok", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 160, 4, 33, 21
+	CONTROL "&Cancel", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 160, 34, 33, 20
+END
+
+
+SD_FILESAVE DIALOG 11, 25, 146, 144
+CAPTION "File Save As"
+CLASS "BorDlg"
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 4, 53, 70, 89
+	CONTROL "", -1, "BorShade", 1, 4, 4, 139, 18
+	CONTROL "", -1, "BorShade", BSS_VDIP, 82, 43, 1, 101
+	CONTROL "", -1, "BorShade", BSS_HDIP, 83, 43, 64, 1
+	CONTROL " File&name:", -1, "STATIC", SS_LEFT | WS_GROUP, 5, 7, 36, 10
+	CONTROL "", ID_FNAME, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 40, 7, 98, 12
+	CONTROL " Directory:", -1, "STATIC", SS_LEFT | WS_GROUP, 4, 27, 36, 10
+	CONTROL "", ID_FPATH, "STATIC", WS_CHILD | WS_VISIBLE | WS_GROUP, 40, 27, 102, 10
+	CONTROL " &Directories:", -1, "STATIC", SS_LEFT | WS_GROUP, 4, 43, 69, 10
+	CONTROL "", ID_DLIST, "LISTBOX", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LBS_STANDARD, 7, 57, 64, 82
+	CONTROL "Button", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 97, 64, 36, 24
+	CONTROL "&Cancel", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 97, 99, 36, 24
+END
+
+SD_INPUTDIALOG DIALOG 6, 19, 180, 76
+CLASS "BorDlg"
+STYLE WS_POPUP | WS_CAPTION
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 11, 23, 160, 18
+	CONTROL "", -1, "BorShade", 2, 0, 45, 180, 1
+	CONTROL "", ID_PROMPT, "STATIC", WS_CHILD | WS_VISIBLE | WS_GROUP, 10, 8, 160, 10
+	CONTROL "", ID_INPUT, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 14, 26, 154, 12
+	CONTROL "&Ok", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 46, 50, 33, 21
+	CONTROL "&Cancel", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 97, 50, 33, 20
+END
+
+GameWonDlg DIALOG 19, 26, 142, 88
+CAPTION "Checkers"
+CLASS "bordlg"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 11, 9, 120, 38
+	CONTROL "Amazing!  I actually won!", -1, "STATIC", SS_LEFT | WS_GROUP, 30, 15, 81, 8
+	CONTROL "Play again, please?!!", -1, "STATIC", SS_LEFT | WS_GROUP, 36, 32, 70, 8
+	CONTROL "", IDYES, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 29, 62, 32, 20
+	CONTROL "", IDNO, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 80, 62, 32, 20
+	CONTROL "", -1, "BorShade", 2, 0, 55, 142, 1
+END
+
+
+UserWonDlg DIALOG 18, 18, 142, 93
+CAPTION "Checkers"
+CLASS "BorDlg"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 23, 8, 95, 49
+	CONTROL "Congratulations, ", -1, "STATIC", SS_LEFT | WS_GROUP, 44, 15, 54, 8
+	CONTROL "You beat me!", -1, "STATIC", SS_LEFT | WS_GROUP, 49, 26, 44, 8
+	CONTROL "Give me another chance?", -1, "STATIC", SS_LEFT | WS_GROUP, 29, 43, 83, 8
+	CONTROL "", -1, "BorShade", 2, 0, 64, 142, 1
+	CONTROL "", IDYES, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 32, 69, 32, 20
+	CONTROL "", IDNO, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 78, 69, 32, 20
+END
+
+
+

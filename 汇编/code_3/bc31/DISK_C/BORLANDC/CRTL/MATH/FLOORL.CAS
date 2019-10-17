@@ -1,0 +1,53 @@
+/*------------------------------------------------------------------------
+ * filename - floorl.cas
+ *
+ * function(s)
+ *        floorl - rounds down a long double
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            floorl - rounds down a long double
+
+Usage           long double floorl(long double x);
+
+Prototype in    math.h
+
+Description     floorl finds the largest integer not greater than x.
+
+Return value    floorl returns the integer found as a long double.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC floorl (long double x)
+{
+asm     FLD     LONGDOUBLE (x)
+
+asm     mov     ax, x [8]
+asm     and     ax, 7FFFh
+asm     cmp     ax, 3FFFh + 64  /* 2^64, maximum long double precision */
+asm     ja      dlm_beyond
+
+asm     mov     ch, 04          /* iNDP-87 control bits for floorl mode */
+        __round();
+
+dlm_beyond:                     /* magnitudes beyond 2^53 have no fraction */
+dlm_end:
+        return;
+}
+#pragma warn .rvl

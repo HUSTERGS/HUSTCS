@@ -1,0 +1,44 @@
+/*------------------------------------------------------------------------
+ * filename - abs.cas
+ *
+ * function(s)
+ *        abs - absolute value
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <stdlib.h>
+
+#undef abs              /* abs is defined as a macro in stdlib.h */
+
+/*------------------------------------------------------------------------*
+
+Name            abs - absolute value
+
+Usage           int abs(int i);
+
+Prototype in    stdlib.h
+
+Description     abs returns the absolute value of the integer argument i
+
+Return value    Integer value in  the range 0 to 32767,  with the exception
+                that an argument of -32768 is returned as -32768.
+
+*--------------------------------------------------------------------------*/
+int _CType abs(int i)
+{
+asm     mov     ax, i
+asm     or      ax, ax
+asm     jge     exit
+asm     neg     ax
+exit:
+        return _AX;
+}

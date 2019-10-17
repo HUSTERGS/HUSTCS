@@ -1,0 +1,81 @@
+/*------------------------------------------------------------------------
+ * filename - tanl.cas
+ *
+ * function(s)
+ *        tanl - long double trigonometric tangent function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static  unsigned short   NANTRIGL [5] = {0,0,0,0xC021, 0x7FFF};
+
+/*--------------------------------------------------------------------------*
+
+Name            tanl - trigonometric tangent function
+
+Usage           long double tanl(long double x);
+
+Prototype in    math.h
+
+Description     tanl  returns the  tangent of  the input  value. Angles are
+                specified in radians.
+
+Return value    tanl returns any value for valid angles. For angles close to
+                pi/2 or -pi/2, tanl returns 0 and errno is set to
+                        ERANGE  Result out of range
+                For very  large arguments (magnitude 2^63 or greater) all
+                precision is lost. This occurs  "silently" since the ANSI C
+                spec does  not specify an  error return.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC tanl (long double  x)
+{
+asm     FLD     LONGDOUBLE (x)
+
+asm     mov     ax, 7FFFh
+asm     and     ax, W0 (x [8])          /* extract the exponent field */
+asm     cmp     ax, 63 + 3FFFh          /* biased version of exponent 63 */
+asm     jae     tanl_tooLarge
+
+#ifdef _Windows
+        _f87_Tangent();
+#else
+        if (_8087 >= 3)
+        {
+asm     db      OPCODE_FSINCOS
+asm     FDIV
+        }
+        else
+        {
+asm     _FAST_  (_FTAN_)
+        }
+#endif
+
+tanl_end:
+    return;
+
+
+tanl_tooLarge:                          /* total loss of precision */
+asm     FSTP    ST(0)                   /* pop x from stack */
+
+#pragma warn -ret
+        return  __matherrl (TLOSS, "tanl", &x, NULL, *((long double *) NANTRIGL));
+#pragma warn .ret
+}
+#pragma warn .rvl

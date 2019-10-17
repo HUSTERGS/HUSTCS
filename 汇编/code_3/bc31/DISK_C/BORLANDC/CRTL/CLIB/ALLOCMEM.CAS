@@ -1,0 +1,53 @@
+/*---------------------------------------------------------------------------
+ * filename - allocmem.cas
+ *
+ * function(s)
+ *        allocmem - allocates DOS memory segment
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            allocmem - allocates DOS memory segment
+
+Usage           int allocmem(unsigned size, unsigned *seg);
+
+Prototype in    dos.h
+
+Description     uses the MS-DOS system call 0x48 to allocate a block of free
+                memory and returns the segment address of the allocated block.
+
+Return value    returns -1 on success.  In the event of an error, a number
+                (the size of the largest available block) is returned
+
+*---------------------------------------------------------------------------*/
+int allocmem(unsigned size, unsigned *segp)
+{
+asm     mov     ah, 48h
+asm     mov     bx, size
+asm     int     21h
+asm     jc      allocmemFailed
+
+asm     LES_    di, segp
+asm     mov     ES_ [di], ax
+        return(-1);
+
+allocmemFailed:
+asm     push    bx
+        __IOerror(_AX);
+asm     pop     ax
+        return (_AX);
+}

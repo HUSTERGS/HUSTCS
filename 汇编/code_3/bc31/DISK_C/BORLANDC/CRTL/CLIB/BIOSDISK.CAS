@@ -1,0 +1,65 @@
+/*---------------------------------------------------------------------------
+ * filename - biosdisk.cas
+ *
+ * function(s)
+ *        biosdisk - hard disk/floppy I/O
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <bios.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            biosdisk - hard disk/floppy I/O
+
+Usage           int biosdisk(int cmd, int drive, int head, int track,
+                             int sector, int nsects, void *buffer);
+
+Prototype in    bios.h
+
+Description     interface for BIOS interrupt 0x13, disk services.
+
+Return value    value returned through AH register by int 013h.
+
+Note            See DOS Technical Reference Manual for further details of
+                BIOS interrupt 0x13.
+
+*---------------------------------------------------------------------------*/
+int biosdisk(int cmd, int drive, int head, int track,
+             int sector, int nsects, void *buffer)
+{
+#if !(LDATA)
+asm     push    ds
+asm     pop     es
+#endif
+asm     mov     ah, cmd
+asm     mov     al, nsects
+asm     LES_    bx, buffer
+asm     mov     cx, track
+asm     shr     cx, 1
+asm     shr     cx, 1
+asm     and     cl, 0C0h
+asm     add     cl, sector
+asm     mov     ch, track
+asm     mov     dh, head
+asm     mov     dl, drive
+asm     int     013h
+asm     cmp     BY0(cmd), 8
+asm     jne     BiosDiskEnd
+asm     LES_    bx, buffer
+asm     mov     W0(ES_ [bx]), cx
+asm     mov     W1(ES_ [bx]), dx
+BiosDiskEnd:
+        return _AH;
+}

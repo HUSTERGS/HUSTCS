@@ -1,0 +1,88 @@
+/*------------------------------------------------------------------------
+ * filename - exp.cas
+ *
+ * function(s)
+ *        exp - exponential function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            exp - exponential function
+
+Usage           double exp(double x);
+
+Prototype in    math.h
+
+Description     exp calculates the exponent of x. For large exponents
+                (magnitude greater than or equal to 709) the result will be
+                an overflow to infinity or an underflow to zero.
+
+
+Return value    exp returns the exponent of x.  For large exponents
+                (magnitude greater than or equal to 709) the result will be
+                an overflow to infinity or an underflow to zero.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+
+double _FARFUNC exp( double x )
+{
+asm     FLD     DOUBLE (x)
+asm     mov     ax, 7FFFh
+asm     and     ax, x [6]       /* select exponent and most signif. bits */
+asm     cmp     ax, 4086h
+asm     jnb     exp_tooBig      /* exp (+-709) is the limit for double */
+
+exp_justFits:
+
+#ifdef _Windows
+        _f87_Exp();
+#else
+asm     _FAST_  (_FEXP_)
+#endif
+
+        return;
+
+exp_tooBig:
+asm     mov     ax, 0FFFFh      /* force extreme */
+asm     ja      exp_excess
+asm     mov     ax, x [4]
+
+exp_excess:
+asm     test    BY0 (x [7]), 80h
+asm     jnz     exp_tooTiny
+asm     cmp     ax, 02E42h
+asm     jb      exp_justFits
+asm     mov     si, OVERFLOW
+asm     jmp     short   exp_err
+
+exp_tooTiny:
+asm     cmp     ax, 0232Bh
+asm     jb      exp_justFits
+asm     mov     si, UNDERFLOW
+
+exp_err:
+asm     FSTP    ST(0)           /* discard ST */
+#pragma warn -ret
+        return  _matherr (_SI, "exp", &x, NULL,
+                          (UNDERFLOW == _SI) ? 0.0 : HUGE_VAL);
+#pragma warn .ret
+}
+#pragma warn .rvl

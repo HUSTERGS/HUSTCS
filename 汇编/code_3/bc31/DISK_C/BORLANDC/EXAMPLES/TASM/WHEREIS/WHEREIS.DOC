@@ -1,0 +1,119 @@
+
+                          WHEREIS 2.0
+                          -----------
+
+
+TABLE OF CONTENTS
+-----------------
+
+1. What is WHEREIS?
+2. How to Use WHEREIS
+3. How to Assemble WHEREIS
+
+
+1. WHAT IS WHEREIS?
+-------------------
+
+  WHEREIS is a utility that searches a disk for files that match a 
+  user-supplied file specification. The utility performs a recursive search 
+  through any subdirectories it finds during its search. WHEREIS can be given
+  multiple file specifications, and will show all files that match any of the 
+  given file specifications. WHEREIS can also be instructed to perform a
+  DOS command on each of the files that is found.
+
+2. HOW TO USE WHEREIS
+---------------------
+
+  To search an entire disk for a particular file specification, you would 
+  execute WHEREIS like this:
+
+    whereis *.asm
+
+  This would search through the entire drive (the current drive) and display 
+  each instance of a file matching the file specification *.asm.
+
+  You can also provide an explicit drive specifier:
+
+    whereis a:\*.asm
+
+  This will search drive A: for all matching files.
+
+  If you don't want to search an entire disk, you can explicitly define the 
+  path from which to start the recursive search. For example,
+
+    whereis c:\borland\tasm\*.asm
+
+  will search for all files matching *.asm in the directory c:\borland\tasm 
+  and any subdirectories below it.
+
+  You can halt execution of WHEREIS by pressing any key while it's running.
+  You will be given a message that execution has been interrupted when the
+  next file is found. For immediate interruption, press Control-Break. If
+  you want to pause execution of WHEREIS, press the space bar. You will be
+  given a prompt to press the spacebar a second time to resume the search.
+
+  If you want to search for several file specifications, just enter multiple 
+  file specifications on the command line. For example,
+
+    whereis c:\borland\tasm\*.asm *.inc
+
+  will search for all the files matching *.asm or *.inc in the directory
+  c:\borland\tasm and any subdirectories below it. Note that only the first 
+  file specification may contain a drive and path specification.
+
+  If you want to perform a dos command on each file that WHEREIS finds,
+  you can give the dos command in delimiters on the command line. Valid
+  delimiters are '', "", or []. The dos command should contain one of the
+  following variables, that will substitute a given string on the command 
+  line used for the dos command:
+
+     %1 - Insert full path, filename and extension
+     %2 - Filename and extension (no path)
+     %3 - Only the path.
+     %4 - Only the filename before the extension followed by a .
+     %5 - Only the extension, preceded by a .
+
+  For example,
+
+     whereis *.bak [del %2]
+
+  will delete all .BAK files from your drive.
+
+  Another example is,
+
+     whereis *.asm *.inc [grep -i ideal %2]
+
+  which will search all *.ASM and all *.INC files for the word ideal.
+
+  When the dos command is given, it will be given in the same directory that
+  the file was found in. Note that the DOS command could also be a call to a 
+  batch file. Whatever command, executable, or batch file, that is specified 
+  should be reachable with the current PATH environment variable, or a 
+  specific path to the executable or batch file should be given within the 
+  delimiters. Also the command should return to the same directory that it
+  was called from.
+
+  Since WHEREIS calls COMMAND.COM to do the work of executing the given DOS 
+  command for each file that is found, performance is best if COMMAND.COM 
+  is placed on a RAM disk and the COMSPEC= environment variable is updated to 
+  point to the new copy of COMMAND.COM. For a complete discussion of RAM 
+  disks and how to set the COMSPEC= environment variable, please see your
+  DOS manual.
+
+
+3. HOW TO ASSEMBLE WHEREIS
+--------------------------
+
+  In order to assemble WHEREIS, execute the following command on the DOS 
+  command line:
+
+    make -fwhereis
+
+  This will execute the command-line make utility MAKE.EXE and pass it the 
+  make file WHEREIS.MAK. For instructions on assembling specific modules in 
+  the WHEREIS program, see the comments at the top of each module.
+
+  WHEREIS has been rewritten since Turbo Assembler 1.01 to show off some of 
+  the new features of Turbo Assembler 2.0. The file IWHEREIS.ASM has many of 
+  the features specially noted. Refer to that file for more details.
+

@@ -1,0 +1,62 @@
+/*-----------------------------------------------------------------------*
+ * filename - swab.c
+ *
+ * function(s)
+ *        swab -  swaps bytes
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <RtlData.h>
+
+#define I asm
+
+/*---------------------------------------------------------------------*
+Name            swab -  swaps bytes
+
+Usage           void swab(char *from, char *to, int nbytes);
+
+Prototype in    stdlib.h
+
+Description     swab copies n bytes from the from string to the to
+                string. Adjacent even- and odd-byte positions are swapped.
+                This is useful for moving data from one machine to another
+                machine with a different byte order. nbytes should be even.
+
+Return value    There is no return value.
+*---------------------------------------------------------------------*/
+void _FARFUNC swab(char *from, char *to, int nbytes)
+{
+I       mov     cx, nbytes              /* BX <- nbytes                 */
+I       shr     cx, 1                   /* Convert bytes -> words       */
+I       jcxz    exit_swab               /* If degenerate case, exit.    */
+#if (defined(__COMPACT__) || defined(__LARGE__))
+I       push    ds
+#endif
+#if (defined(__MEDIUM__) || defined(__SMALL__) || defined(__TINY__))
+I       push    ds
+I       pop     es
+#endif
+I       cld                             /* Make string ops go forward   */
+I       LES_    di, to                  /* ES:DI <- destination         */
+I       LDS_    si, from                /* DS:SI <- source              */
+next_word:
+I       lodsw                           /* Load word from source string */
+I       xchg    ah, al                  /* Swap the bytes               */
+I       stosw                           /* Store result in destination  */
+I       loop    next_word               /* Do the next word             */
+#if (defined(__COMPACT__) || defined(__LARGE__))
+I       pop     ds
+#endif
+exit_swab:
+        return;
+}

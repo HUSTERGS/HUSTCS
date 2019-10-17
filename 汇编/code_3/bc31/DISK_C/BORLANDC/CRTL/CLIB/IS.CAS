@@ -1,0 +1,129 @@
+/*---------------------------------------------------------------------------
+ * filename - is.cas
+ *
+ * function(s)     - replacements for macros in ctype.h, stdio.h
+ *    isalnum
+ *    isascii
+ *    isalpha
+ *    iscntrl
+ *    isdigit
+ *    isgraph
+ *    islower
+ *    isprint
+ *    ispunct
+ *    isspace
+ *    isupper
+ *    isxdigit
+ *    getc
+ *    getchar
+ *    putc
+ *    putchar
+ *    feof
+ *    ferror
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int (isalnum)( int c )
+  {
+  return( isalnum( c ) );
+  }
+
+int (isascii)( int c )
+  {
+  return( isascii( c ) );
+  }
+
+int (isalpha)( int c )
+  {
+  return( isalpha( c ) );
+  }
+
+int (iscntrl)( int c )
+  {
+  return( iscntrl( c ) );
+  }
+
+int (isdigit)( int c )
+  {
+  return( isdigit( c ) );
+  }
+
+int (isgraph)( int c )
+  {
+  return( isgraph( c ) );
+  }
+
+int (islower)( int c )
+  {
+  return( islower( c ) );
+  }
+
+int (isprint)( int c )
+  {
+  return( isprint( c ) );
+  }
+
+int (ispunct)( int c )
+  {
+  return( ispunct( c ) );
+  }
+
+int (isspace)( int c )
+  {
+  return( isspace( c ) );
+  }
+
+int (isupper)( int c )
+  {
+  return( isupper( c ) );
+  }
+
+int (isxdigit)( int c )
+  {
+  return( isxdigit( c ) );
+  }
+
+int (getc)( FILE *fp )
+  {
+  return( getc( fp ) );
+  }
+
+#ifndef _Windows
+int (getchar)( void )
+  {
+  return( getchar() );
+  }
+#endif
+
+int (putc)( const int c, FILE *fp )
+  {
+  return( putc( c, fp ) );
+  }
+
+int (putchar)( const int c )
+  {
+  return( putchar( c ) );
+  }
+
+int (feof)( FILE *fp )
+  {
+  return( feof( fp ) );
+  }
+
+int (ferror)( FILE *fp )
+  {
+  return( ferror( fp ) );
+  }

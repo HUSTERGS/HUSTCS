@@ -1,0 +1,117 @@
+/*-----------------------------------------------------------------------*
+ * filename - movmem.cas
+ *
+ * function(s)
+ *        movmem  - move a block of bytes
+ *        memmove - move a block of bytes
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <mem.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            movmem - move a block of bytes
+
+Usage           void movmem(void *src, void *dst, unsigned len);
+
+Prototype in    mem.h
+
+Description     movmem copies a block of len  bytes from src to dst. If the
+                source and  destination arrays overlap, the  copy direction
+                is chosen so that the data is always copied correctly.
+
+Return value    There is no return value
+
+*------------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+void _FARFUNC movmem(const void *src, void *dst, unsigned len)
+{
+#if     LDATA
+#if     !defined(__HUGE__)
+        asm     push    ds
+#endif
+        if      (((void huge *)src) < ((void huge *)dst))
+#else
+        _ES = _DS;
+        if      (src < dst)
+#endif
+        {       /* travel backward, need to adjust ptrs later */
+                asm     std
+                asm     mov     ax, 1
+        }
+        else
+        {       /* travel forward, no need to adjust ptrs */
+                asm     cld
+                asm     xor     ax, ax
+        }
+
+asm     LDS_    si, src
+asm     LES_    di, dst
+asm     mov     cx, len
+
+asm     or      ax, ax
+asm     jz      movit
+asm     add     si, cx  /* backward move, adjust ptrs to end-1 */
+asm     dec     si
+asm     add     di, cx
+asm     dec     di
+movit:
+asm     test    di, 1
+asm     jz      isAligned
+asm     jcxz    done
+asm     movsb
+asm     dec     cx
+isAligned:
+asm     sub     si, ax  /* compensate for word moves */
+asm     sub     di, ax
+asm     shr     cx, 1
+asm     rep     movsw
+asm     jnc     noOdd
+asm     add     si, ax  /* compensate for final byte */
+asm     add     di, ax
+asm     movsb
+noOdd:
+done:
+asm     cld
+
+#if     defined(__LARGE__) ||  defined(__COMPACT__)
+        asm     pop     ds
+#endif
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            memmove - move a block of bytes
+
+Usage           void memmove(void *dst, const void *scr, unsigned len);
+
+Prototype in    mem.h
+
+Description     memmove copies a block of len  bytes from src to dst. If the
+                source and  destination arrays overlap, the  copy direction
+                is chosen so that the data is always copied correctly.
+
+Return value    dst
+
+*------------------------------------------------------------------------*/
+void *_CType _FARFUNC memmove( void *dst, const void *src, size_t n )
+{
+    movmem( (void *)src, dst, n );
+    return( dst );
+}
+

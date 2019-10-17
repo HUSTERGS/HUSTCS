@@ -1,0 +1,83 @@
+/*-----------------------------------------------------------------------*
+ * filename - strrev.c
+ *
+ * function(s)
+ *        strrev - reverses a string
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <string.h>
+
+/*---------------------------------------------------------------------*
+
+Name            strrev - reverses a string
+
+Usage           char *strrev(char * str);
+
+Prototype in    string.h
+
+Description     strrev reverses all characters in a string (except the
+                terminating null character).
+
+Return value    strrev returns a pointer to the reversed string. There is no
+                error return.
+
+*---------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+char * _FARFUNC strrev(char *s)
+{
+asm     cld
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     push    ds
+#endif
+asm     LDS_    si, s                   /* point to string */
+asm     mov     dx, si                  /* save addr for return */
+asm     mov     di, si
+asm     push    ds
+asm     pop     es                      /* DS:SI = ES:DI = string */
+asm     xor     al, al
+asm     mov     cx,-1
+asm     repne scasb                     /* find null */
+asm     cmp     cx,-2
+asm     je      reversed                /* abort if string empty */
+asm     dec     di
+asm     dec     di                      /* ES:DI = last non-null char */
+asm     xchg    si, di                  /* DS:SI = last, ES:DI = first */
+        goto    reverse_entry;
+reverse_loop:
+asm     mov     al, [di]
+asm     xchg    al, [si]
+asm     stosb                           /* swap bytes, bump di */
+asm     dec     si
+reverse_entry:
+asm     cmp     di, si                  /* pointers crossed? */
+asm     jb      reverse_loop
+reversed:
+asm     xchg    ax, dx                  /* return addr of string */
+#if LDATA
+asm     mov     dx, ds
+#endif
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     pop     ds
+#endif
+
+#if LDATA
+        return( (char *)(MK_LONG) );
+#else
+        return( (char *)_AX );
+#endif
+}
+

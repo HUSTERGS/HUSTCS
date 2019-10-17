@@ -1,0 +1,91 @@
+/*-----------------------------------------------------------------------*
+ * filename - memccpy.cas
+ *
+ * function(s)
+ *        memccpy - copy bytes from src to dst
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <mem.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            memccpy - copy bytes from src to dst
+
+Usage           void *memccpy(void *dst, const void *src,
+                              int val, size_t n);
+
+Prototype in    string.h & mem.h
+
+Description     memccpy copies characters  from src to dst, until  either n
+                characters are  moved or the  character val is  matched and
+                copied,  without checks  and as  fast as  possible. If  the
+                source  and  target  arrays  overlap,  the  effect  is  not
+                defined.
+
+Return value    If val  was matched then the  return value is a  pointer to
+                the character  position following val in  dst, otherwise it
+                is NULL.
+
+*------------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+void * _FARFUNC memccpy(void *dst, const void *src, int val, size_t n)
+{
+#if !(LDATA)
+        _ES = _DS;
+#endif
+
+asm     LES_    di, src         /* first check for any occurrence of val */
+asm     mov     cx, n
+asm     jcxz    ccp_NULL
+asm     mov     bx, cx
+asm     mov     al, val
+asm     cld
+asm     repne   scasb
+
+        pushDS_
+asm     sub     bx, cx          /* span includes ch if it was seen */
+asm     mov     cx, bx          /* CX = span to be copied */
+asm     LES_    di, dst
+asm     LDS_    si, src
+asm     shr     cx, 1
+asm     rep     movsw
+asm     jnc     ccp_end
+asm     movsb
+ccp_end:
+        popDS_
+
+#if (LDATA)
+asm     mov     dx, es
+#endif
+asm     cmp     al, ES_ [di-1]  /* was a ch match found ? */
+asm     mov     ax,di
+asm     je      ccp_exit
+
+ccp_NULL:
+asm     xor     ax, ax
+#if (LDATA)
+asm     cwd
+#endif
+
+ccp_exit:
+#if (LDATA)
+        return( (void *)(MK_LONG) );
+#else
+        return( (void *)_AX );
+#endif
+}
+

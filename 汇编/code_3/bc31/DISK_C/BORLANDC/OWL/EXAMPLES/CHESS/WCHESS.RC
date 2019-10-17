@@ -1,0 +1,260 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include <windows.h>
+#include <owlrc.h>
+#include <bwcc.h>
+#include "wchess.h"
+
+ChessIcon ICON chess.ico
+
+BPawnBmp BITMAP bpawn.bmp
+BRookBmp BITMAP brook.bmp
+BKnightBmp BITMAP bkngt.bmp
+BBishopBmp BITMAP bbishop.bmp
+BQueenBmp BITMAP bqueen.bmp
+BKingBmp  BITMAP bking.bmp
+
+WPawnBmp BITMAP wpawn.bmp
+WRookBmp BITMAP wrook.bmp
+WKnightBmp BITMAP wkngt.bmp
+WBishopBmp BITMAP wbishop.bmp
+WQueenBmp BITMAP wqueen.bmp
+WKingBmp  BITMAP wking.bmp
+
+PMaskBmp BITMAP pmask.bmp
+RMaskBmp BITMAP rmask.bmp
+KTMaskBmp BITMAP ktmask.bmp
+BMaskBmp BITMAP bmask.bmp
+QMaskBmp BITMAP qmask.bmp
+KMaskBmp BITMAP kmask.bmp
+
+
+BKBrushBmp BITMAP bkbrush.bmp
+
+TChessMenu  MENU LOADONCALL MOVEABLE PURE DISCARDABLE 
+BEGIN
+  POPUP "&Game"
+  BEGIN
+    MenuItem  "&New", CM_FILENEW
+    MenuItem  "&Restore...", CM_FILEOPEN
+    MenuItem  "&Save", CM_FILESAVE
+    MenuItem  "Save &as...", CM_FILESAVEAS
+    MenuItem  SEPARATOR
+    MenuItem  "E&xit", IDM_EXIT
+    MenuItem  SEPARATOR
+    MenuItem  "&Play", IDM_PASS
+    MenuItem  "&Hint", IDM_HINT
+  END
+  POPUP "&Edit"
+  BEGIN
+    MenuItem  "&Undo\aALT+BkSp", CM_UNDO, GRAYED
+    MenuItem  "&Redo\aCTRL+BkSp", CM_REDO, GRAYED
+    MenuItem  SEPARATOR
+    MenuItem  "&Arrange", IDM_MOVEPIECE
+  END
+  POPUP "&Level"
+  BEGIN
+    MenuItem  "&Easy", IDM_EASY 
+    MenuItem  "&Time per move...", IDM_MOVETIME
+    MenuItem  "T&otal Time...", IDM_TOTALTIME
+    MenuItem  "&Matching", IDM_MATCHING
+    MenuItem  "&Infinite", IDM_INFINITE
+    MenuItem  "&PlySearch...", IDM_PLY
+    MenuItem  "M&ateSearch", IDM_MATE
+  END
+  POPUP "&Options"
+  BEGIN
+    MenuItem  "&Two player", IDM_TWOPLAYER
+    MenuItem  "&Demo mode", IDM_DEMO
+    MenuItem  "&Piece Values...", IDM_PIECEVALUES
+    MenuItem  SEPARATOR
+    POPUP  "&Movement"
+        BEGIN
+        MenuItem "&Drag", IDM_MOUSEDRAG, CHECKED
+        MenuItem "&Select", IDM_MOUSESELECT
+        END
+    MenuItem  "&Sound", IDM_SOUND, CHECKED
+  END
+  POPUP "&Display"
+  BEGIN               
+    MenuItem "&Colors...", IDM_COLORS
+    MenuItem  "&Reverse board", IDM_REVERSE
+    MenuItem  "&Show BestLine", IDM_BESTLINE, CHECKED
+  END                  
+END
+
+
+TChessThinkMenu  MENU LOADONCALL MOVEABLE PURE DISCARDABLE 
+BEGIN
+        MenuItem "&Stop", CM_STOP
+END
+
+TChessEditMenu MENU LOADONCALL MOVEABLE PURE DISCARDABLE 
+BEGIN
+        MenuItem "&Done", EM_DONE
+        MenuItem "&Clear", EM_CLEAR
+        POPUP "&Turn"
+           BEGIN
+              MenuItem "&White", IDM_WHITETURN, CHECKED
+              MenuItem "&Black", IDM_BLACKTURN
+           END
+        MenuItem "C&ancel", EM_CANCEL
+END
+        
+ChessCommands ACCELERATORS
+BEGIN
+        VK_BACK, CM_UNDO, VIRTKEY, ALT
+        VK_F4, CM_EXIT, VIRTKEY, ALT
+        VK_BACK, CM_REDO, VIRTKEY, CONTROL
+END
+
+About DIALOG 7, 22, 140, 96
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CLASS "BorDlg"
+CAPTION "About OWL Chess"
+BEGIN
+	CONTROL "Copyright (C) 1992", -1, "STATIC", SS_LEFT | WS_CHILD | WS_VISIBLE | WS_GROUP, 40, 42, 60, 8
+	ICON "ChessIcon", -1, 23, 23, 16, 16
+	LTEXT "Object Windows ", -1, 43, 13, 54, 8
+	CTEXT "CHESS", -1, 50, 23, 39, 8
+	LTEXT "Borland International, Inc.", -1, 28, 51, 84, 8
+	CONTROL "", IDOK, "BorBtn", WS_TABSTOP, 54, 72, 32, 20
+	CONTROL "", -1, "BorShade", 1, 17, 11, 105, 52
+	CONTROL "", -1, "BorShade", 2, 0, 67, 141, 1
+END
+
+
+SD_FILEOPEN DIALOG 9, 29, 197, 150
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME
+CLASS "BorDlg"
+CAPTION "Restore Game"
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 5, 4, 148, 18
+	CONTROL "", -1, "BorShade", 1, 5, 57, 70, 89
+	CONTROL "", -1, "BorShade", 1, 82, 57, 70, 89
+	CONTROL "", -1, "BorShade", BSS_VDIP, 156, 0, 1, 150
+	LTEXT " File&name:", -1, 6, 8, 36, 10
+	CONTROL "", ID_FNAME, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 42, 7, 106, 12
+	LTEXT " Directory:", -1, 5, 29, 37, 10
+	LTEXT "", ID_FPATH, 42, 29, 110, 10
+	LTEXT " &Files:", -1, 5, 47, 69, 10
+	CONTROL "", ID_FLIST, "LISTBOX", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LBS_STANDARD, 8, 61, 64, 82
+	LTEXT " &Directories:", -1, 82, 47, 69, 10
+	CONTROL "", ID_DLIST, "LISTBOX", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LBS_STANDARD, 85, 61, 64, 82
+	CONTROL "&Ok", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 160, 4, 33, 21
+	CONTROL "&Cancel", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 160, 34, 33, 20
+END
+
+
+SD_FILESAVE DIALOG DISCARDABLE LOADONCALL PURE MOVEABLE 11, 25, 146, 144
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME
+CLASS "BorDlg"
+CAPTION "Save Game As"
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 4, 53, 70, 89
+	CONTROL "", -1, "BorShade", 1, 4, 4, 139, 18
+	CONTROL "", -1, "BorShade", BSS_VDIP, 82, 43, 1, 101
+	CONTROL "", -1, "BorShade", BSS_HDIP, 83, 43, 64, 1
+	LTEXT " File&name:", -1, 5, 7, 36, 10
+	CONTROL "", ID_FNAME, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 40, 7, 98, 12
+	LTEXT " Directory:", -1, 4, 27, 36, 10
+	LTEXT "", ID_FPATH, 40, 27, 102, 10
+	LTEXT " &Directories:", -1, 4, 43, 69, 10
+	CONTROL "", ID_DLIST, "LISTBOX", WS_CHILD | WS_VISIBLE | WS_TABSTOP | LBS_STANDARD, 7, 57, 64, 82
+	CONTROL "Button", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 97, 64, 36, 24
+	CONTROL "&Cancel", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 97, 99, 36, 24
+END
+
+SD_INPUTDIALOG DIALOG 6, 19, 180, 76
+STYLE WS_POPUP | WS_CAPTION
+CLASS "BorDlg"
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 10, 23, 160, 18
+	CONTROL "", -1, "BorShade", 2, 0, 45, 180, 1
+	LTEXT "", ID_PROMPT, 10, 7, 159, 12
+	CONTROL "", ID_INPUT, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP | ES_AUTOHSCROLL, 13, 26, 154, 12
+	CONTROL "&Ok", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 46, 50, 33, 21
+	CONTROL "&Cancel", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 97, 50, 33, 20
+END
+
+SD_ENDGAMEDLG DIALOG 19, 26, 142, 88
+CAPTION "OWL Chess"
+CLASS "bordlg"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL "", -1, "BorShade", 1, 11, 9, 120, 38
+	CTEXT "", ID_INPUT, 18, 15, 106, 18
+	CTEXT "Play again?", -1, 36, 32, 70, 8
+	CONTROL "", IDYES, "BorBtn", BS_DEFPUSHBUTTON | WS_TABSTOP, 29, 62, 32, 20
+	CONTROL "", IDNO, "BorBtn", BS_PUSHBUTTON | WS_TABSTOP, 80, 62, 32, 20
+	CONTROL "", -1, "BorShade", 2, 0, 55, 142, 1
+END
+
+
+SD_CHESSERROR DIALOG 18, 18, 140, 76
+CAPTION "OWL Chess Error"
+CLASS "BorDlg"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	CONTROL "", -1, "BorShade", 1 | WS_CHILD | WS_VISIBLE, 9, 6, 122, 28
+	CONTROL "Button", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 54, 50, 32, 20
+	CONTROL "", -1, "BorShade", 2 | WS_CHILD | WS_VISIBLE, 1, 43, 141, 1
+	CTEXT "", ID_INPUT, 13, 10, 114, 19, WS_CHILD | WS_VISIBLE | WS_GROUP
+END
+
+ColorsDialog DIALOG 10, 25, 219, 132
+CAPTION "Set Square Colors"
+CLASS "bordlg"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	SCROLLBAR IDD_WRED, 17, 44, 9, 62, SBS_VERT | WS_CHILD | WS_VISIBLE | WS_GROUP | WS_TABSTOP
+	SCROLLBAR IDD_WGREEN, 41, 44, 9, 62, SBS_VERT | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	SCROLLBAR IDD_WBLUE, 65, 45, 9, 61, SBS_VERT | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	CONTROL "", -1, "BorShade", 1 | WS_CHILD | WS_VISIBLE, 7, 15, 79, 111
+	EDITTEXT IDD_WEDITRED, 13, 110, 16, 12
+	EDITTEXT IDD_WEDITGREEN, 37, 110, 16, 12
+	EDITTEXT IDD_WEDITBLUE, 61, 110, 16, 12
+	LTEXT " ""White"" Square", -1, 7, 6, 78, 9, WS_CHILD | WS_VISIBLE | WS_GROUP
+	CONTROL "", -1, "BorShade", 1 | WS_CHILD | WS_VISIBLE, 93, 15, 79, 111
+	LTEXT " ""Black"" Square", -1, 93, 6, 78, 9, WS_CHILD | WS_VISIBLE | WS_GROUP
+	SCROLLBAR IDD_BRED, 106, 44, 9, 62, SBS_VERT | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	SCROLLBAR IDD_BGREEN, 129, 44, 9, 62, SBS_VERT | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	SCROLLBAR IDD_BBLUE, 153, 44, 9, 62, SBS_VERT | WS_CHILD | WS_VISIBLE | WS_TABSTOP
+	EDITTEXT IDD_BEDITRED, 102, 110, 16, 12
+	EDITTEXT IDD_BEDITGREEN, 126, 110, 16, 12
+	EDITTEXT IDD_BEDITBLUE, 150, 110, 16, 12
+	CONTROL "Button", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 182, 31, 32, 20
+	CONTROL "Button", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 182, 81, 32, 20
+	CONTROL "Text", IDD_WHITECOLOR, "BUTTON", BS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 35, 20, 20, 20
+	CONTROL "Text", IDD_BLACKCOLOR, "BUTTON", BS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 124, 20, 20, 20
+	CONTROL "", -1, "BorShade", 3 | WS_CHILD | WS_VISIBLE, 177, 1, 1, 131
+END
+
+
+PieceValueDlg DIALOG 7, 24, 178, 93
+CAPTION "Piece Values"
+CLASS "BORDLG"
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+BEGIN
+	EDITTEXT IDD_EQUEEN, 6, 7, 19, 12
+	LTEXT "Queen", -1, 28, 10, 31, 8
+	SCROLLBAR IDD_QUEEN, 58, 9, 74, 9
+	SCROLLBAR IDD_ROOK, 58, 26, 74, 9
+	SCROLLBAR IDD_BISHOP, 58, 43, 74, 9
+	SCROLLBAR IDD_KNIGHT, 58, 60, 74, 9
+	SCROLLBAR IDD_PAWN, 58, 77, 74, 9
+	LTEXT "Rook", -1, 28, 27, 30, 8
+	LTEXT "Bishop", -1, 28, 44, 29, 8
+	LTEXT "Knight", -1, 28, 61, 28, 8
+	LTEXT "Pawn", -1, 28, 78, 28, 8
+	EDITTEXT IDD_EROOK, 6, 24, 19, 12
+	EDITTEXT IDD_EBISHOP, 6, 41, 19, 12
+	EDITTEXT IDD_EKNIGHT, 6, 58, 19, 12
+	EDITTEXT IDD_EPAWN, 6, 75, 19, 12
+	CONTROL "", -1, "BorShade", 1 | WS_CHILD | WS_VISIBLE, 3, 4, 132, 86
+	CONTROL "", -1, "BorShade", 3 | WS_CHILD | WS_VISIBLE, 138, -2, 1, 95
+	CONTROL "Button", IDOK, "BorBtn", BS_DEFPUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 142, 7, 32, 20
+	CONTROL "", IDCANCEL, "BorBtn", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 142, 65, 32, 20
+	CONTROL "&Default", IDD_DEFAULT, "BorBtn", BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 142, 36, 32, 20
+END
+

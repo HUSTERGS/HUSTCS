@@ -1,0 +1,48 @@
+/*------------------------------------------------------------------------
+ * filename - atan.cas
+ *
+ * function(s)
+ *        atan - trigonometric function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            atan - trigonometric function
+
+Usage           double atan(double x);
+
+Prototype in    math.h
+
+Description     atan returns the arc tangent  of the input value, which may
+                be any finite value.
+
+Return value    atan returns a value in the range -pi/2 to pi/2.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+double  atan (double x)
+{
+asm     FLD     DOUBLE (x)
+#ifdef _Windows
+        _f87_ArcTan();
+#else
+asm     _FAST_  (_FATAN_)
+#endif
+        return;
+}
+#pragma warn .rvl

@@ -1,0 +1,48 @@
+/*-----------------------------------------------------------------------*
+ * filename - lrotl.cas
+ *
+ * function(s)
+ *        _lrotl - rotates an unsigned long integer left
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <stdlib.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            _lrotl - rotates an unsigned long integer left
+
+Usage           unsigned long _lrotl(unsigned long val, int rotate_count)
+
+Prototype in    stdlib.h
+
+Description     Rotates an unsigned long integer to the left count times.
+
+Return value    The value after rotation.
+
+*------------------------------------------------------------------------*/
+unsigned long _lrotl(unsigned long val, int rotate_count)
+{
+asm     mov     ax, W0(val)
+asm     mov     dx, W1(val)
+asm     mov     cx, rotate_count
+asm     and     cx, 01Fh
+asm     jz      Rotated
+Rotating:
+asm     rcl     ax, 1
+asm     rcl     dx, 1
+asm     adc     ax, 0
+asm     loop    Rotating
+Rotated:
+        return( MK_ULONG );
+}

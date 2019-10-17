@@ -1,0 +1,82 @@
+/*------------------------------------------------------------------------
+ * filename - tan.cas
+ *
+ * function(s)
+ *        tan - trigonometric tangent function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static  unsigned short   NANTRIG [4] = {0,0,0x0420, 0x7FF8};
+
+/*--------------------------------------------------------------------------*
+
+Name            tan - trigonometric tangent function
+
+Usage           double tan(double x);
+
+Prototype in    math.h
+
+Description     tan  returns the  tangent of  the input  value. Angles  are
+                specified in radians.
+
+Return value    tan returns any value for valid angles. For angles close to
+                pi/2 or -pi/2, tan returns 0 and errno is set to
+                        ERANGE  Result out of range
+                For very  large arguments (magnitude  2^53 or greater)  all
+                precision is lost. This occurs  "silently" since the ANSI C
+                spec does  not specify an  error return.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+
+double _FARFUNC tan( double  x )
+{
+asm     FLD     DOUBLE (x)
+
+asm     mov     ax, 7FF0h
+asm     and     ax, W0 (x [6])          /* extract the exponent field */
+asm     cmp     ax, (53 * 16) + 3FF0h   /* biased version of exponent 53 */
+asm     jae     tan_tooLarge
+
+#ifdef _Windows
+        _f87_Tangent();
+#else
+        if (_8087 >= 3)
+        {
+asm     db      OPCODE_FSINCOS
+asm     FDIV
+        }
+        else
+        {
+asm     _FAST_  (_FTAN_)
+        }
+#endif
+
+tan_end:
+    return;
+
+
+tan_tooLarge:                           /* total loss of precision */
+asm     FSTP    ST(0)                   /* pop x from stack */
+
+#pragma warn -ret
+        return  _matherr (TLOSS, "tan", &x, NULL, *((double *) NANTRIG));
+#pragma warn .ret
+}
+#pragma warn .rvl

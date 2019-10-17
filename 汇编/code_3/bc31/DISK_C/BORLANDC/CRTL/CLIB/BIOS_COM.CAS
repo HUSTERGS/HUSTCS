@@ -1,0 +1,47 @@
+/*---------------------------------------------------------------------------
+ * filename - bios_com.cas
+ *
+ * function(s)
+ *        _bios_serialcom - communications I/O (MSC-compatible)
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <bios.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            _bios_serialcom - communications I/O
+
+Usage           unsigned _bios_serialcom(unsigned cmd, unsigned port,
+                                         unsigned abyte);
+
+Prototype in    bios.h
+
+Description     Direct interface to BIOS interrupt 0x14.  Compatible with MSC.
+                Similar to the older bioscom() function, but parameters are
+                in a different order and have different types, and the
+                return value also has a different type.
+
+
+Return value    value return to the AX register for the function specified
+                by cmd.
+
+*---------------------------------------------------------------------------*/
+unsigned _bios_serialcom(unsigned cmd, unsigned port, unsigned abyte)
+{
+asm     mov     ah, cmd
+asm     mov     al, abyte
+asm     mov     dx, port
+asm     int     14h
+
+return( _AX );
+}

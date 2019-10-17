@@ -1,0 +1,60 @@
+/*-----------------------------------------------------------------------*
+ * filename - setblock.cas
+ *
+ * function(s)
+ *        setblock - modifies the size of a previously allocated
+ *                   DOS memory segment
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <_io.h>
+
+
+/*-----------------------------------------------------------------------*
+
+Name            setblock - modifies the size of a previously allocated
+                           DOS memory segment
+
+Usage           int setblock(unsigned segx, unsigned newsize);
+
+Prototype in    dos.h
+
+Description     modifies the size of a memory segment.  segx is the
+                segment address returned by a previous call to
+                allocmem.  newsize is the new, requested size in
+                paragraphs.
+
+Return Value    returns -1 on success.  In the event of an error,
+                the size of the largest possible block is returned and
+                errno is set to:
+
+                        ENOMEM  Not enough core
+
+*------------------------------------------------------------------------*/
+int setblock(unsigned segx, unsigned newsize)
+{
+asm     mov     ah, 4ah
+asm     mov     bx, newsize
+asm     mov     es, segx
+asm     int     21h
+asm     jc      setblockFailed
+        return(-1);
+
+setblockFailed:
+asm     push    bx
+        __IOerror(_AX);
+asm     pop     ax
+        return (_AX);
+}
+

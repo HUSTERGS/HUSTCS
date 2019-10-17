@@ -1,0 +1,127 @@
+/*------------------------------------------------------------------------
+ * filename - frexp.cas
+ *
+ * function(s)
+ *        frexp - splits a double number into mantissa and exponent
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            frexp - splits a double number into mantissa and exponent
+
+Usage           double frexp(double value, int *expP);
+
+Prototype in    math.h
+
+Description     Split  a  floating  point  number  into  its  exponent  and
+                fractional parts, with the  exponent placed into *expP, and
+                the fraction is the function return value.
+
+Return value    frexp returns  value - (*expP = chop (value));
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+
+double _FARFUNC frexp( double value, int *expP )
+{
+        volatile unsigned statword;
+
+#ifdef _Windows
+
+// The Microsoft FP emulator does not support the FXTRACT instruction.
+
+        _CX = 0;
+start:
+asm     {
+        mov     ax, value[6]
+        mov     dx, ax
+        and     ax, 7FF0h
+        jz      denormal
+        sub     dx, ax
+        sub     ax, 3FE0h
+        or      dx, 3FE0h
+        mov     value[6], dx
+        FLD     DOUBLE (value)
+        sub     ax, cx          // possible denormal adjustment
+        mov     cl, 4
+        sar     ax, cl
+        }
+done:
+        *expP = _AX;
+        return;
+
+denormal:
+// denormal case a little tricky, so we normalize and try again
+asm     {
+        FLD     DOUBLE (value)
+        FTST
+        FSTSW   statword
+        FWAIT
+        mov     ax, statword
+        sahf
+        xchg    ax, cx          // convenient 0
+        jz      done            // result is +0 or -0
+        mov     W0 (statword), 100
+        FILD    W0 (statword)
+        FXCH
+        FSCALE
+        FSTP    DOUBLE(value)
+        mov     cx, 100 * 10h
+        FSTP    st(0)           // discard 100
+        }
+        goto start;
+
+#else   /* not Windows */
+
+asm     FLD     DOUBLE (value)
+
+asm     LES_    bx, expP
+asm     mov     W0 (ES_ [bx]), 0
+
+/* if value was +-0, return it */
+asm     FTST
+asm     FSTSW   statword
+asm     FWAIT
+asm     mov     ah, BY1(statword)
+asm     sahf
+asm     jz      done
+
+asm     FXTRACT                 /* ST(1) = exponent, (pushed) ST = fraction */
+asm     FXCH
+
+/*
+  The FXTRACT instruction normalizes the fraction 1 bit higher than
+  wanted for the definition of frexp() so we need to tweak the result
+  by scaling the fraction down and incrementing the exponent.
+*/
+
+asm     FISTP   W0 (ES_ [bx])
+asm     FLD1
+asm     FCHS
+asm     FXCH
+asm     FSCALE                  /* fraction scaled as C expects */
+asm     inc     W0 (ES_ [bx])   /* exponent biased to match     */
+asm     FSTP    ST(1)           /* discard -1, leave fraction as TOS */
+
+done:
+        return;
+
+#endif  /* Windows */
+
+}
+#pragma warn .rvl

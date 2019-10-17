@@ -1,0 +1,42 @@
+#
+# ObjectWindows - (C) Copyright 1992 by Borland International
+#
+
+!if !$d(BCROOT)
+!include "..\bcroot.inc"
+!endif
+
+!include "..\makefile.inc"
+
+!if $d(swat2)
+swatRES = swat2.res
+!else
+swatRES = swat.res
+!endif
+
+swat.exe: turboc.cfg swat.obj $(swatRES)
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) swat,swat,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K $(swatRES) swat.exe
+
+swat.res : swat.rc board.bmp live.bmp dead.bmp gameover.bmp critter.ico\
+         malet.cur maletdow.cur
+
+swat2.res : swat2.rc board2.bmp live2.bmp dead2.bmp gameove2.bmp critter2.ico\
+         malet2.cur maletdo2.cur
+
+turboc.cfg: makefile ..\makefile.inc
+	echo -I$(INCLUDE) >turboc.cfg
+
+clean:
+	del *.obj
+	del *.exe
+	del *.res
+	del *.dll
+	del *.lib
+	del *.map
+	del *.sym
+        del turboc.cfg
+
+

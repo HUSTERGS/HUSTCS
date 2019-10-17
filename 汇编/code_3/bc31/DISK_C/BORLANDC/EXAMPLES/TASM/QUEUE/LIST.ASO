@@ -1,0 +1,31 @@
+;--------------------------------
+;-- Define Linked-List objects --
+;--------------------------------
+
+GLOBAL PASCAL list_construct:far
+GLOBAL PASCAL list_destroy:far
+GLOBAL PASCAL list_init:far
+GLOBAL PASCAL list_deinit:far
+GLOBAL PASCAL list_insert:near
+GLOBAL PASCAL list_append:near
+GLOBAL PASCAL list_delete:near
+GLOBAL PASCAL list_first:near
+GLOBAL PASCAL list_last:near
+
+;** Define Linked-List object **
+
+list STRUC GLOBAL METHOD {
+  construct:word = list_construct		;list constructor routine
+  destroy:word = list_destroy			;list destructor routine  
+  init:word = list_init				;list initializer routine
+  deinit:word = list_deinit			;list deinitializer routine
+  virtual insert:word = list_insert		;list node insert routine
+  virtual append:word = list_append		;list node append routine
+  virtual remove:word = list_delete		;list node remove routine
+  virtual first:word = list_first		;list first node routine
+  virtual last:word = list_last			;list last node routine
+  }
+  list_head	dd ?				;list head pointer
+  list_tail	dd ?				;list tail pointer
+ENDS
+list_size = (size list + 15)/16

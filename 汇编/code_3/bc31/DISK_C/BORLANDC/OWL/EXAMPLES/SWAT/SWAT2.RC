@@ -1,0 +1,64 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+//
+// swat2.rc
+
+// Build with this resource file to see different bitmaps, cursors, and icons.
+
+#include <windows.h>
+#include "swat.h"
+
+SWATMENU  MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+  POPUP "&Game"
+  BEGIN
+    MenuItem  "&New",		IDM_RESET
+    MenuItem  "&Options", 	IDM_OPTION
+    MenuItem  "&Stop", 		IDM_STOP
+  END
+  MenuItem  "&Pause", 		IDM_PAUSE
+  MenuItem  "&About", 		IDM_ABOUT
+END
+
+ABOUT DIALOG DISCARDABLE LOADONCALL PURE MOVEABLE 10, 35, 141, 146
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME
+CAPTION "About "
+BEGIN
+  CONTROL "&OK" IDOK, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 51, 112, 38, 15
+  CONTROL "Swat!" -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_CENTER, 56, 5, 29, 9
+  CONTROL "ObjectWindows for C++ Demo" -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_CENTER, 12, 74, 115, 12
+  CONTROL "Copyright © 1992 " -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_CENTER, 40, 86, 59, 10
+  CONTROL "Critter" -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_ICON, 62, 19, 16, 16
+  CONTROL "5 pts per hit" -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_CENTER, 37, 39, 64, 12
+  CONTROL "-1 pts per escape" -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_CENTER, 25, 50, 89, 11
+  CONTROL "-2 pts per miss" -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_CENTER, 28, 62, 82, 13
+  CONTROL "Borland International" -1, "STATIC", WS_CHILD | WS_VISIBLE | SS_CENTER, 34, 97, 70, 9
+END
+
+OPTIONDLG DIALOG DISCARDABLE LOADONCALL PURE MOVEABLE 5, 33, 151, 150
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | DS_MODALFRAME
+CAPTION "Options"
+BEGIN
+  CONTROL "&Speed" -1, "STATIC", WS_CHILD | WS_VISIBLE, 59, 25, 63, 12
+  CONTROL "" IDD_LIVETIMESB, "SCROLLBAR", WS_CHILD | WS_VISIBLE | WS_TABSTOP | SBS_TOPALIGN, 10, 12, 124, 9
+  CONTROL "&Population" -1, "STATIC", WS_CHILD | WS_VISIBLE, 54, 58, 63, 12
+  CONTROL "" IDD_POPSB, "SCROLLBAR", WS_CHILD | WS_VISIBLE | WS_TABSTOP | SBS_TOPALIGN, 10, 43, 124, 9
+  CONTROL "&OK" IDOK, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 27, 115, 38, 16
+  CONTROL "&Cancel" IDCANCEL, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 80, 115, 38, 16
+  CONTROL "Slow" -1, "STATIC", WS_CHILD | WS_VISIBLE, 10, 23, 32, 12
+  CONTROL "Fast" -1, "STATIC", WS_CHILD | WS_VISIBLE, 120, 23, 25, 12
+  CONTROL "Low" -1, "STATIC", WS_CHILD | WS_VISIBLE, 10, 53, 19, 12
+  CONTROL "High" -1, "STATIC", WS_CHILD | WS_VISIBLE, 118, 53, 28, 12
+  CONTROL "Game &Time in Seconds" -1, "STATIC", WS_CHILD | WS_VISIBLE, 32, 79, 81, 12
+  CONTROL "15" IDD_INPUTEDITBOX, "EDIT", WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, 59, 92, 24, 13
+END
+
+Live            BITMAP  live2.bmp
+Dead            BITMAP  dead2.bmp
+GameOver        BITMAP  gameove2.bmp
+Board           BITMAP  board2.bmp
+
+Malet           CURSOR  malet2.cur
+MaletDown       CURSOR  maletdo2.cur
+
+Critter         ICON    critter2.ico
+

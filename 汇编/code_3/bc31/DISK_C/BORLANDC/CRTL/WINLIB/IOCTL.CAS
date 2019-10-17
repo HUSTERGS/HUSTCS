@@ -1,0 +1,149 @@
+/*-----------------------------------------------------------------------*
+ * filename - ioctl.cas
+ *
+ * function(s)
+ *    ioctl - control I/O device
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+#pragma inline
+
+#define __IN_IOCTL
+
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+#include <errno.h>
+
+extern int _protected;  // Needed until _protected is in a header file.
+
+/*-----------------------------------------------------------------------*
+
+Name            ioctl - controls I/O device
+
+Usage           int ioctl(int handle, int cmd [, void *argdx, int argcx]);
+
+Prototype in    io.h
+
+Description     This is a direct interface to the MS-DOS call 0x44
+                (IOCTL).
+                The exact function depends on the value of cmd as follows:
+
+                    0   Get device information
+                    1   Set device information (in argdx)
+                    2   Read argcx bytes into the address pointed to by
+                        argdx
+                    3   Write argcx bytes from the address pointed to
+                        by argdx
+                    4   Same as 2, except handle is treated as a drive number
+                        (0 = default, 1 = A, etc.)
+                    5   Same as 3, except handle is a drive number
+                        (0 = default, 1 = A, etc.)
+                    6   Get input status
+                    7   Get output status
+                    8   Test removability; DOS 3.x only
+                    11  Set sharing conflict retry count; DOS 3.x only
+
+                ioctl can be used to get information about device channels.
+                Regular files can also be used, but only cmd values 0, 6, and
+                7 are defined for them. All other calls return an EINVAL error
+                for files.
+
+                See the documentation for system call 0x44 in the MS-DOS
+                Programmer's Reference Manual for detailed information on
+                argument or return values.
+
+                The arguments argdx and argcx are optional.
+
+                ioctl provides a direct interface to DOS 2.0 device drivers for
+                special functions. As a result, the exact behavior of this
+                function will vary across different vendors' hardware and in
+                different devices. Also, several vendors do not follow the
+                interfaces described here. Refer to the vendor BIOS
+                documentation for exact use of ioctl.
+
+Return value    For cmd 0 or 1, the return value is the device
+                information (DX of the IOCTL call).
+
+                For cmd values of 2 through 5, the return value is the
+                number of bytes actually transferred.
+
+                For cmd values of 6 or 7, the return value is the device
+                status.
+
+                In any event, if an error is detected, a value of -1 is
+                returned, and errno is set to one of the following:
+
+                    EINVAL  Invalid argument
+                    EBADF   Bad file number
+                    EINVDAT Invalid data
+
+NOTE:           ioctl has old style definition since prototype has ... ;
+                argdx and argcx are optional
+*------------------------------------------------------------------------*/
+int ioctl (fd, func, argdx, argcx)
+    int fd; int func; void *argdx; int argcx;
+{
+#if LDATA
+    int UsesDX;
+
+    switch (func)
+        {
+        case  0:            // These functions do not take an argument in DX
+        case  6:
+        case  7:
+        case  8:
+        case  9:
+        case 10:
+        case 14:
+        case 15:    UsesDX = 0;
+                    break;
+
+        default:    UsesDX = 1;
+                    break;
+        }
+
+    if (!UsesDX)
+        goto AfterDX;
+
+    asm .286P
+    asm mov ax,W1(argdx)    // Load segment/selector into DX
+    asm cmp _protected,0
+    asm je  SelectorOK      // Real mode, no check on segment
+    asm verr ax             // Check whether segment to load is readable
+    asm jz  SelectorOK      // Zero Flag set if selector is OK
+    asm mov ax,EINVAL       // Otherwise invalid argument
+    asm jmp ioctlFailed
+SelectorOK:
+    asm push ds             // Save DS
+    asm mov ds,ax           // Load selector
+#endif
+
+    asm mov dx,argdx        // Ignore segment, already loaded if present
+AfterDX:
+    asm mov ah,44h
+    asm mov al,func
+    asm mov bx,fd
+    asm mov cx,argcx
+    asm int 21h
+
+#if LDATA
+    if (UsesDX)
+        asm pop ds;         // Restore DS
+#endif
+
+    asm jc  ioctlFailed
+    if (func == 0)
+        return(_DX);        // Dev info is in dx
+    return(_AX);
+
+ioctlFailed:
+    return  __IOerror (_AX);
+}

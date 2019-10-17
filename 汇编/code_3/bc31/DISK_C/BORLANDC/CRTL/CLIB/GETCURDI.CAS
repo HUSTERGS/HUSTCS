@@ -1,0 +1,57 @@
+/*---------------------------------------------------------------------------
+ * filename - getcurdi.cas
+ *
+ * function(s)
+ *        getcurdir - gets current directory for specified drive
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dir.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            getcurdir - gets current directory for specified drive
+
+Usage           int getcurdir(int drive, char *direc);
+
+Prototype in    dir.h
+
+Description     getcurdir gets the name of the current working
+                directory for the named drive.
+
+                drive contains a drive number (0 = default, 1 = A, etc.).
+
+                direc points to an area of memory of length MAXDIR where
+                the directory name will be placed. The null-terminated name
+                does not contain the drive specification and does not begin
+                with a backslash.
+
+Return value    getcurdir returns 0 on success or -1 in the event
+                of error.
+
+*---------------------------------------------------------------------------*/
+int     getcurdir(int drive, char *direc)
+{
+        pushDS_
+asm     mov     ah, 047h
+asm     mov     dl, drive
+asm     LDS_    si, direc
+asm     int     021H
+        popDS_
+asm     jc      getcurdirFailed
+        return(0);
+
+getcurdirFailed:
+        return __IOerror(_AX);
+}

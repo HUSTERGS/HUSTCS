@@ -1,0 +1,74 @@
+/*-----------------------------------------------------------------------*
+ * filename - memcpy.cas
+ *
+ * function(s)
+ *        memcpy - copy a block of n bytes from src to dst
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <mem.h>
+
+#undef memcpy                  /* not an intrinsic */
+
+/*-----------------------------------------------------------------------*
+
+Name            memcpy - copy a block of n bytes from src to dst
+
+Usage           void *memcpy(void *dst, const void *src, size_t n);
+
+Prototype in    mem.h & string.h
+
+Description     memcpy copies  a block of n  bytes from src to  dst.
+                No overlap checking is performed.
+
+Return value    memcpy returns dst
+
+*------------------------------------------------------------------------*/
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+#if     1       /* No overlap checking version */
+
+void * _FARFUNC memcpy(void *dst, const void *src, size_t n)
+{
+#if !(LDATA)
+        _ES = _DS;
+#endif
+#if     defined(__LARGE__) ||  defined(__COMPACT__)
+asm     mov     dx,ds           /* save ds */
+#endif
+asm     LES_     di, dst
+asm     LDS_     si, src
+asm     mov     cx,n
+asm     shr     cx,1
+asm     cld
+asm     rep     movsw
+asm     jnc     cpy_end
+asm     movsb
+cpy_end:
+#if     defined(__LARGE__) || defined(__COMPACT__)
+        asm     mov     ds,dx           /* restore */
+#endif
+        return(dst);
+}
+
+#else           /* Overlap checking version     */
+
+void * _FARFUNC memcpy(void *dst, const void *src, size_t n)
+{
+        movmem(src,dst,n);
+        return(dst);
+}
+#endif

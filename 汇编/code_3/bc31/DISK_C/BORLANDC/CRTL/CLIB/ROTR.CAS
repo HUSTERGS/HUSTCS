@@ -1,0 +1,43 @@
+/*-----------------------------------------------------------------------*
+ * filename - rotr.cas
+ *
+ * function(s)
+ *        _rotr - rotates an unsigned integer right
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <stdlib.h>
+
+
+/*-----------------------------------------------------------------------*
+
+Name            _rotr - rotates an unsigned integer right
+
+Usage           unsigned _rotr(unsigned val, int rotate_count)
+
+Prototype in    stdlib.h
+
+Description     _rotr rotates the unsigned integer val right rotate_count
+                bits.
+
+Return value   the unsigned integer val after rotation
+
+*------------------------------------------------------------------------*/
+
+#undef _rotr               /* not an intrinsic */
+unsigned _rotr(unsigned val, int rotate_count)
+{
+asm        mov   ax, val
+asm        mov   cx, rotate_count
+asm        ror   ax, cl
+           return        _AX;
+}

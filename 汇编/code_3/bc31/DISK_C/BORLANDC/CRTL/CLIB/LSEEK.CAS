@@ -1,0 +1,83 @@
+/*-----------------------------------------------------------------------*
+ * filename - lseek.cas
+ *
+ * function(s)
+ *        lseek - moves read/write file pointer
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <fcntl.h>
+#include <_io.h>
+#include <RtlData.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            lseek - moves read/write file pointer
+
+Usage           #include <io.h>
+                long lseek(int handle, long ofs, int fromwhere);
+
+Related
+functions usage long tell(int handle);
+
+Prototype in    io.h
+
+Description     lseek sets the file pointer associated with handle
+                to a new position that is offset bytes beyond the file
+                location given by fromwhere. fromwhere must be one of the
+                values 0, 1 or 2, which represent three symbolic constants
+                (defined in stdio.h) as follows:
+
+                fromwhere       File Location
+                SEEK_SET (0)    file beginning
+                SEEK_CUR (1)    current file pointer position
+                SEEK_END (2)    end-of-file
+
+                tell gets the current position of the file pointer associated
+                with handle and expresses it as the number of bytes from the
+                beginning of the file.
+
+Return value    lseek returns the offset of the pointer's new
+                position, measured in bytes from the file beginning. lseek
+                returns -1L on error, and errno is set to one of the following:
+
+                        EBADF   Bad file number
+                        EINVAL  Invalid argument
+
+                On devices incapable of seeking (such as terminals and
+                printers), the return value is undefined.
+
+                tell returns the current file pointer position. A return of -1
+                (long) indicates an error, and errno is set to:
+
+                        EBADF   Bad file number
+
+*------------------------------------------------------------------------*/
+long _CType lseek(int fd, long ofs, int kind)
+{
+        _RTLInstanceData(_openfd) [fd] &= ~_O_EOF;      /* forget about ^Z      */
+
+asm     mov     ah, 42h
+asm     mov     al, kind
+asm     mov     bx, fd
+asm     mov     cx, ofs+2
+asm     mov     dx, ofs
+asm     int     21h
+asm     jc      lseekFailed
+
+        return( MK_LONG );
+
+lseekFailed:
+        return  __IOerror (_AX);
+}

@@ -1,0 +1,111 @@
+
+
+
+
+
+
+===========================================================================
+New sample programs
+===========================================================================
+
+                    Borland C++ & Application Frameworks 3.1 includes many
+                    new sample programs to show you how to take advantage
+                    of features new to Windows 3.1, such as multimedia,
+                    TrueType, DDEML (Dynamic Data Exchange Management
+                    Library), drag and drop, common dialog boxes, and OLE
+                    (Object Linking and Embedding). Many of these samples
+                    are available as both C and C++ programs. In the IDE,
+                    choose Project|Open and choose the directory and
+                    project file for the sample you want to see. For the
+                    command-line compiler, go to the directory and run MAKE
+                    to build the project.
+
+
+    EXAMPLES\WIN31  =======================================================
+
+                    These samples are in C and use traditional methods of
+                    Windows programming.
+
+
+---------------------------------------------------------------------------
+Directory   Description
+---------------------------------------------------------------------------
+
+SOUNDER     Multimedia sound player that uses several different high-level
+            approaches to playing sound. You must have audio hardware to
+            use all SOUNDER's features.
+
+TRUETYPE    Shows TrueType font scaling, rotation, and attributes. Also
+            demonstrates how to use the common font dialog box.
+
+DDEML       DDE client and server, using the DDEML library.
+
+DRAGDROP    A simple program that accepts files dragged and dropped from a
+            drag and drop server (File Manager, for example).
+
+CMDLG       Demonstrates use of common file, color, and font dialog boxes.
+
+CHELP       This application implements context-sensitive Help for its
+            menus.
+
+CLIOLE      Demonstrates OLE, as a client to Windows Paintbrush.
+
+---------------------------------------------------------------------------
+
+
+
+
+
+
+      OWL\EXAMPL31  =======================================================
+
+                    These samples are written with ObjectWindows for C++.
+                    Many are also available as C examples.
+
+
+---------------------------------------------------------------------------
+Directory   Description
+---------------------------------------------------------------------------
+
+ACLOCK      An analog clock that features animation and multimedia sound
+            (using high-level waveform audio functions).
+
+OLESRVR     An OLE server that lets you link or embed graphics in Windows
+            Write or other OLE client Windows application.
+
+OLE         Demonstrates OLE, as a client to Windows Paintbrush. (See also
+            CLIOLE, above.)
+
+OWLHELP     This application implements context-sensitive Help for its
+            menus. (See also CHELP, above.)
+
+OWLPEN      A sample Pen application that uses a Bedit control. You must
+            install Windows for Pens as described in WINPEN.DOC.
+
+SCRNSAVE    A sample screen saver, using the built-in Windows 3.1 screen
+            saver API.
+
+SHELLAPI    This sample application lets you drag and drop files from File
+            Manager (or other drag and drop server like Norton Desktop for
+            Windows). If the file you drop is a Windows application, its
+            icon will be displayed, and you can double-click it to run the
+            application.
+
+TTFONT      Shows TrueType font scaling, rotation, and attributes. Also
+            demonstrates use of the common font dialog box. (See also
+            TRUETYPE, above.)
+
+SOUNDPLY    Multimedia sound player that uses several different high-level
+            approaches to playing sound. Requires audio hardware for full
+            compatibility. (See also SOUNDER, above.)
+
+CMDLGAP     Demonstrates use of common file, color, and font dialog boxes.
+            (See also CMDLG, above.)
+
+DDEML       DDE client and server, using the DDEML library.
+
+DRAGDROP    A simple program that accepts files dragged and dropped from
+            File Manager. (See also DRAGDROP, above, and SHELLAPI.)
+
+---------------------------------------------------------------------------
+

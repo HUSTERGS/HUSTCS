@@ -1,0 +1,18 @@
+/********************************************************************/
+            Corrections to the Turbo Profiler User's Guide
+
+
+Appendix C, "Remote Profiling"
+------------------------------
+  The Windows initialization file WREMOTE.INI is no longer used by
+  WREMOTE. Instead, WREMOTE looks in TDW.INI for its initialization
+  information. When you run WRSETUP, it saves the same information to
+  TDW.INI that it used to save to WREMOTE.INI. As was the case with 
+  WREMOTE.INI, the remote configuration options are in the [WRemote] 
+  section of TDW.INI.
+
+  If you set up WREMOTE using a previous version of WRSETUP, you can 
+  copy your old WREMOTE.INI settings to TDW.INI. Be sure to include the
+  section header [WRemote].
+
+  - p. 171  References to WREMOTE.INI should be changed to TDW.INI.

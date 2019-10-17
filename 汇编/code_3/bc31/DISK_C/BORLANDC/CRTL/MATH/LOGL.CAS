@@ -1,0 +1,86 @@
+/*------------------------------------------------------------------------
+ * filename - logl.cas
+ *
+ * function(s)
+ *        logl - natural logarithm function of long double
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static  unsigned short   NANLOGL [5] = {0,0,0,0xC024, 0xFFFF};
+
+/*--------------------------------------------------------------------------*
+
+Name            logl - natural logarithm function of long double
+
+Usage           long double logl(long double x);
+
+Prototype in    math.h
+
+Description     logl calculates the natural logarithm of x, which  must be
+                greater than zero.
+
+Return value    logl returns the  natural logarithm of x.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+long double _FARFUNC logl (long double  x)
+{
+long double     temp;
+
+asm     FLD     LONGDOUBLE (x)
+
+asm     mov     ax, W0 (x [8])          /* get the exponent field */
+asm     shl     ax, 1
+asm     jz      log_zero
+asm     jc      log_imaginary
+asm     cmp     ax, 0FFFEh
+asm     je      log_infinite
+
+#ifdef _Windows
+        _f87_Log();
+#else
+asm     _FAST_  (_FLOG_)
+#endif
+
+log_end:
+        return;
+
+log_zero:
+asm     mov     si, SING
+        temp = -_LHUGE_VAL;
+asm     jmp     short   log_complain
+
+log_infinite:
+asm     mov     si, OVERFLOW
+        temp = _LHUGE_VAL;
+asm     jmp     short   log_complain
+
+log_imaginary:
+asm     mov     si, DOMAIN
+        temp = *((long double *) NANLOGL);
+
+log_complain:
+asm     FSTP    ST(0)                   /* pop x from stack */
+#pragma warn -ret
+        return  __matherrl (_SI, "logl", &x, NULL, temp);
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use

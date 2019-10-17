@@ -1,0 +1,81 @@
+/*------------------------------------------------------------------------
+ * filename - expl.cas
+ *
+ * function(s)
+ *        expl - long double exponential function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            expl - exponential function
+
+Usage           long double expl(long double x);
+
+Prototype in    math.h
+
+Description     expl calculates the exponent of x. For large arguments
+                (absolute value greater than or equal to ~11356.5 ) the result
+                an overflow to infinity or an underflow to zero, and
+                _matherrl will be called.
+
+
+Return value    expl returns the exponent of x.  For large arguments
+                (absolute value greater than or equal to ~11356.5 ) the result
+                will be an overflow to infinity or an underflow to zero.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -ret
+long double _FARFUNC expl (long double x)
+{
+asm     FLD     LONGDOUBLE (x)
+asm     mov     ax, x [8]       /* select exponent */
+asm     and     ah, 7Fh         /* remove sign bit */
+asm     cmp     ax, 3fffh+13
+asm     jb      exp_OK          /* expl (+-2^13) is the limit for long double */
+
+exp_tooBig:
+asm     mov     ax, 0FFFFh      /* force extreme */
+asm     ja      exp_excess
+asm     mov     ax, x [6]
+
+exp_excess:
+asm     test    BY0 (x [9]), 80h
+asm     jnz     exp_tooTiny
+asm     cmp     ax, 0B172h
+asm     jb      exp_OK
+asm     mov     si, OVERFLOW
+asm     jmp     short   exp_err
+
+exp_tooTiny:
+asm     cmp     ax, 0B16Ch
+asm     jb      exp_OK
+asm     mov     si, UNDERFLOW
+
+exp_err:
+asm     FSTP    ST(0)           /* discard ST */
+        return  __matherrl (_SI, "expl", &x, NULL,
+                          (UNDERFLOW == _SI) ? 0.0 : _LHUGE_VAL);
+exp_OK:
+        __expld();
+        return;
+}
+#pragma warn .ret
+#pragma warn .rvl

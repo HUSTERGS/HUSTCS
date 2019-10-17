@@ -1,0 +1,69 @@
+/*-----------------------------------------------------------------------*
+ * filename - strcpy.cas
+ *
+ * function(s)
+ *        strcpy - copy string src to string dest
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            strcpy - copy string src to string dest
+
+Usage           char *strcpy (char *dest, const char *src);
+
+Prototype in    string.h
+
+Description     Copy the ASCIIZ string *src to  the buffer *dest. It is the
+                callers responsibility  to ensure that  the dest buffer  is
+                large enough  to contain the  string, and to  guard against
+                supplying NULL arguments.
+
+Return value    strcpy returns dest.
+
+*------------------------------------------------------------------------*/
+#undef strcpy                  /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+char *_CType _FARFUNC strcpy(char *dest, const char *src)
+{
+#if !(LDATA)
+        _ES = _DS;
+#endif
+asm     cld
+asm     LES_    di, src
+asm     mov     si, di
+asm     xor     al, al
+asm     mov     cx, -1
+asm     repne   scasb
+asm     not     cx
+
+#if  (LDATA)
+#if  !defined(__HUGE__)
+asm     push    DS
+#endif
+        _DS = _ES;
+#endif
+asm     LES_    di, dest
+asm     rep     movsb
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     pop     DS
+#endif
+
+        return(dest) ;
+}

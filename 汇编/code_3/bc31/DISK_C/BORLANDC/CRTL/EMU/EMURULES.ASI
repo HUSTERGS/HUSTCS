@@ -1,0 +1,524 @@
+;[]-----------------------------------------------------------------[]
+;|      EMURULES.ASI  --  Rules & Structures for assembler           |
+;[]-----------------------------------------------------------------[]
+
+;
+;       C/C++ Run Time Library - Version 5.0
+; 
+;       Copyright (c) 1987, 1992 by Borland International
+;       All Rights Reserved.
+; 
+
+        PAGE
+
+;*** First we begin with a few of the major constants of C.
+
+false   equ     0       ; Beware !  For incoming parameters, non-false = true.
+true    equ     1       ; For results, we generate the proper numbers.
+
+lesser  equ     -1      ; Incoming, lesser < 0
+equal   equ      0
+greater equ      1      ; Incoming, greater > 0
+
+; Small Code - Small Data
+    LPROG           equ     false
+    LDATA           equ     false
+
+
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      C Naming Convention Macros                              |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+UNDERSCORE      EQU     1
+
+ExtSym@ MACRO   Sym, sType, sName
+        IFNB    <sName>
+        IFIDN   <sName>, <__PASCAL__>
+NAMING      =       0
+        ELSE
+NAMING      =       UNDERSCORE
+        ENDIF
+        ENDIF
+        IF      NAMING
+        EXTRN   _&Sym : sType
+Sym&@   equ     _&Sym
+        ELSE
+        EXTRN   Sym : sType
+Sym&@   equ     Sym
+        ENDIF
+        ENDM
+
+PubSym@ MACRO   Sym, Definition, sName
+        IFNB    <sName>
+        IFIDN   <sName>, <__PASCAL__>
+NAMING      =       0
+        ELSE
+NAMING      =       UNDERSCORE
+        ENDIF
+        ENDIF
+        IF      NAMING
+        PUBLIC  _&Sym
+_&Sym   Definition
+Sym&@   equ     _&Sym
+        ELSE
+        PUBLIC  Sym
+Sym     Definition
+Sym&@   equ     Sym
+        ENDIF
+        ENDM
+
+Static@ MACRO   Sym, Definition, sName
+        IFNB    <sName>
+        IFIDN   <sName>, <__PASCAL__>
+NAMING      =       0
+        ELSE
+NAMING      =       UNDERSCORE
+        ENDIF
+        ENDIF
+        IF      NAMING
+_&Sym   Definition
+Sym&@   equ     _&Sym
+        ELSE
+Sym     Definition
+Sym&@   equ     Sym
+        ENDIF
+        ENDM
+        PAGE
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      Macros which are Data Size Dependent                    |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+IF      LDATA
+DPTR_           equ     DWORD PTR
+dPtrSize        equ     4
+LES_            equ     LES
+ES_             equ     ES:
+SS_             equ     SS:
+LDS_            equ     LDS
+
+pushDS_         MACRO
+                PUSH    DS
+                ENDM
+
+popDS_          MACRO
+                POP    DS
+                ENDM
+
+PushPtr         MACRO   dPtrOff, dPtrSeg
+                PUSH    dPtrSeg
+                PUSH    dPtrOff
+                ENDM
+
+
+dPtr@           MACRO   Sym, VALUE, sName       ;; Static Data pointer
+Static@         Sym, <DD        VALUE>, sName
+                ENDM
+
+dPtrPub@        MACRO   Sym, VALUE, sName       ;; Global Data Pointer
+PubSym@         Sym, <DD        VALUE>, sName
+                ENDM
+
+dPtrExt@        MACRO   Sym, sName      ;; External Data Pointer
+ExtSym@         Sym, DWORD, sName
+                ENDM
+ELSE
+DPTR_           equ     WORD PTR
+dPtrSize        equ     2
+LES_            equ     MOV
+ES_             equ     DS:
+SS_             equ     DS:
+LDS_            equ     MOV
+
+pushDS_         MACRO
+                ENDM
+
+popDS_          MACRO
+                ENDM
+
+PushPtr         MACRO   dPtrOff, dPtrSeg
+                PUSH    dPtrOff
+                ENDM
+
+dPtr@           MACRO   Sym, VALUE, sName       ;; Static Data pointer
+Static@         Sym, <DW        VALUE>, sName
+                ENDM
+
+dPtrPub@        MACRO   Sym, VALUE, sName       ;; Global Data Pointer
+PubSym@         Sym, <DW        VALUE>, sName
+                ENDM
+
+dPtrExt@        MACRO   Sym, sName      ;; External Data Pointer
+ExtSym@         Sym, WORD, sName
+                ENDM
+ENDIF
+        PAGE
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      Macros which are Code Size Dependent                    |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+IF      LPROG
+CPTR_           equ     DWORD PTR
+cPtrSize        equ     4
+
+Proc@           MACRO   Sym, sName      ;; Open a Static function
+Static@         Sym, <PROC      FAR>, sName
+                ENDM
+
+PubProc@        MACRO   Sym, sName      ;; Open a Public function
+PubSym@         Sym, <PROC      FAR>, sName
+                ENDM
+
+ExtProc@        MACRO   Sym, sName      ;; External Function
+ExtSym@         Sym, FAR, sName
+                ENDM
+
+cPtr@           MACRO   Sym, VALUE, sName       ;; Static Function pointer
+Static@         Sym, <DD        VALUE>, sName
+                ENDM
+
+cPtrPub@        MACRO   Sym, VALUE, sName;; Global Function Pointer
+PubSym@         Sym, <DD        VALUE>, sName
+                ENDM
+
+cPtrExt@        MACRO   Sym, sName      ;; External Function Pointer
+ExtSym@         Sym, DWORD, sName
+                ENDM
+ELSE
+CPTR_           equ     WORD PTR
+cPtrSize        equ     2
+
+Proc@           MACRO   Sym, sName      ;; Open a Static function
+Static@         Sym, <PROC      NEAR>, sName
+                ENDM
+
+PubProc@        MACRO   Sym, sName      ;; Open a Public function
+PubSym@         Sym, <PROC      NEAR>, sName
+                ENDM
+
+ExtProc@        MACRO   Sym, sName      ;; External Function
+ExtSym@         Sym, NEAR, sName
+                ENDM
+
+cPtr@           MACRO   Sym, VALUE, sName       ;; Static Function pointer
+Static@         Sym, <DW        VALUE>, sName
+                ENDM
+
+cPtrPub@        MACRO   Sym, VALUE, sName       ;; Global Function Pointer
+PubSym@         Sym, <DW        VALUE>, sName
+                ENDM
+
+cPtrExt@        MACRO   Sym, sName      ;; External Function Pointer
+ExtSym@         Sym, WORD, sName
+                ENDM
+ENDIF
+
+EndProc@        MACRO   Sym, sName      ;; Close a function
+Static@         Sym, ENDP, sName
+                ENDM
+        PAGE
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      Miscellaneous Definitions                               |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+;*** Set up some macros for procedure parameters and export/import
+
+nearCall        STRUC
+nearBP          dw      ?
+nearIP          dw      ?
+nearParam       dw      ?
+nearCall        ENDS
+
+farCall         STRUC
+farBP           dw      ?
+farCSIP         dd      ?
+aParam          dw      ?
+farCall         ENDS
+
+;*** Next, we define some convenient structures to access the parts
+;       of larger objects.
+
+_twoBytes       STRUC
+BY0     db      ?
+BY1     db      ?
+_twoBytes       ENDS
+
+_fourWords      STRUC
+W0      dw      ?
+W1      dw      ?
+W2      dw      ?
+W3      dw      ?
+_fourWords      ENDS
+
+_twoDwords      STRUC
+DD0     dd      ?
+DD1     dd      ?
+_twoDwords      ENDS
+
+_aFloat         STRUC
+double          dq      ?
+_aFloat         ENDS
+
+; How to invoke MSDOS.
+
+MSDOS@  MACRO
+        int     21h
+        ENDM
+        PAGE
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      Emulator Segments and Definitions                       |
+;|                                                              |
+;|      The Emu287 module is in  a separate model from other    |
+;|      code. It uses  the DSeg@ data segment, but  since it    |
+;|      does not actually share data the important aspect of    |
+;|      the Data  is the class  name 'DATA'. It  has its own    |
+;|      stack inside  the data segment. The  code segment is    |
+;|      completely  separate from  other code  segments. The    |
+;|      only contact  between Emu287 and  other code is  via    |
+;|      soft interrupts 34h..3Eh.                               |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+EmuSeg@  MACRO
+EMU_PROG SEGMENT  PARA  PUBLIC "CODE"
+ASSUME   CS : EMU_PROG
+         ENDM
+
+EmuSegEnd@ MACRO
+EMU_PROG ENDS
+         ENDM
+
+E87Seg@  MACRO
+E87_PROG SEGMENT  PARA  PUBLIC "CODE"
+ASSUME   CS : E87_PROG
+         ENDM
+
+E87SegEnd@ MACRO
+E87_PROG ENDS
+         ENDM
+
+
+
+; The next section concerns the use of registers.  SI and DI are used
+;       for register variables, and must be conserved.
+
+; Registers AX, BX, CX, DX will not be preserved across function calls.
+
+; Firstly, the registers to be conserved through function calls, including
+;       the setup of local variables.
+
+link@   MACRO   _si,_di,_ES,locals
+        push    bp
+        mov     bp, sp
+        IFNB    <locals>
+                lea     sp, locals
+        ENDIF
+        IFNB    <_si>
+                push    si
+        ENDIF
+        IFNB    <_di>
+                push    di
+        ENDIF
+ENDM
+
+unLink@ MACRO   _si,_di,_ES,locals
+        IFNB    <_di>
+                pop     di
+        ENDIF
+        IFNB    <_si>
+                pop     si
+        ENDIF
+        IFNB    <locals>
+                mov     sp, bp
+        ENDIF
+        pop     bp
+ENDM
+
+; Remainder of file only used for language denpendent
+; initialization and trapping.
+
+        PAGE
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      iNDP Status and Control words definitions               |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+;/* 8087/80287 Status Word format   */
+
+SW_INVALID              equ     00001h  ;/* Invalid operation            */
+SW_DENORMAL             equ     00002h  ;/* Denormalized operand         */
+SW_ZERODIVIDE           equ     00004h  ;/* Zero divide                  */
+SW_OVERFLOW             equ     00008h  ;/* Overflow                     */
+SW_UNDERFLOW            equ     00010h  ;/* Underflow                    */
+SW_INEXACT              equ     00020h  ;/* Precision (Inexact result)   */
+
+;/* 8087/80287 Control Word format */
+
+MCW_EM                  equ     0003Fh  ;/* interrupt Exception Masks    */
+    EM_INVALID          equ     00001h  ;/*   invalid                    */
+    EM_DENORMAL         equ     00002h  ;/*   denormal                   */
+    EM_ZERODIVIDE       equ     00004h  ;/*   zero divide                */
+    EM_OVERFLOW         equ     00008h  ;/*   overflow                   */
+    EM_UNDERFLOW        equ     00010h  ;/*   underflow                  */
+    EM_INEXACT          equ     00020h  ;/*   inexact (precision)        */
+
+MCW_IC                  equ     01000h  ;/* Infinity Control             */
+    IC_AFFINE           equ     01000h  ;/*   affine                     */
+    IC_PROJECTIVE       equ     00000h  ;/*   projective                 */
+
+MCW_RC                  equ     00C00h  ;/* Rounding Control             */
+    RC_CHOP             equ     00C00h  ;/*   chop                       */
+    RC_UP               equ     00800h  ;/*   up                         */
+    RC_DOWN             equ     00400h  ;/*   down                       */
+    RC_NEAR             equ     00000h  ;/*   near                       */
+
+MCW_PC                  equ     00300h  ;/* Precision Control            */
+    PC_24               equ     00000h  ;/*    24 bits                   */
+    PC_53               equ     00200h  ;/*    53 bits                   */
+    PC_64               equ     00300h  ;/*    64 bits                   */
+
+;/* 8087/80287 Initial Control Word */
+;/* use affine infinity, mask underflow and precision exceptions */
+;/* should be same as in float.h  */
+; No longer used!
+;CW_DEFAULT     equ     (RC_NEAR+PC_64+IC_AFFINE+EM_UNDERFLOW+EM_INEXACT)
+
+
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      Segment Declarations Macros                             |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+CSeg@           MACRO           ;; Open a Code Segment
+_TEXT   SEGMENT BYTE PUBLIC 'CODE'
+        ASSUME  CS:_TEXT
+                ENDM
+
+CSegEnd@        MACRO           ;; Close a Code Segment
+_TEXT   ENDS
+                ENDM
+
+DSeg@           MACRO           ;; Open a Data Segment  (initialized)
+_DATA   SEGMENT PARA PUBLIC 'DATA'
+                ENDM
+
+DSegEnd@        MACRO           ;; Close a Data Segment (initialized)
+_DATA   ENDS
+                ENDM
+
+IFDEF __BSS__
+    IFNDEF __HUGE__
+        BSeg@           MACRO   ;; Open a Data Segment  (un-initialized)
+        _BSS    SEGMENT WORD PUBLIC 'BSS'
+                ENDM
+
+        BSegEnd@        MACRO   ;; Close a Data Segment (un-initialized)
+        _BSS    ENDS
+                        ENDM
+    ENDIF
+ENDIF
+
+Header@ MACRO
+_TEXT   SEGMENT BYTE PUBLIC 'CODE'
+_TEXT   ENDS
+_DATA   SEGMENT PARA PUBLIC 'DATA'
+_DATA   ENDS
+IFDEF __BSS__
+    IFNDEF  __HUGE__
+        _BSS    SEGMENT WORD PUBLIC 'BSS'
+        _BSS    ENDS
+    ENDIF
+ENDIF
+
+IFDEF __BSS__
+    IFDEF   __TINY__
+        DGROUP  GROUP   _TEXT, _DATA, _BSS
+    ELSE
+        IFDEF __HUGE__
+            DGROUP  GROUP   _DATA
+        ELSE
+            DGROUP  GROUP   _DATA, _BSS
+        ENDIF
+    ENDIF
+ELSE
+    IFDEF   __TINY__
+        DGROUP  GROUP   _TEXT, _DATA
+    ELSE
+        DGROUP  GROUP   _DATA
+    ENDIF
+ENDIF
+        ASSUME  CS:_TEXT, DS:DGROUP
+        ENDM
+        PAGE
+;[]------------------------------------------------------------[]
+;|                                                              |
+;|      C Naming Convention Macros                              |
+;|                                                              |
+;[]------------------------------------------------------------[]
+
+UNDERSCORE      EQU     1
+
+ExtSym@ MACRO   Sym, sType, sName
+        IFNB    <sName>
+        IFIDN   <sName>, <__PASCAL__>
+NAMING      =       0
+        ELSE
+NAMING      =       UNDERSCORE
+        ENDIF
+        ENDIF
+        IF      NAMING
+        EXTRN   _&Sym : sType
+Sym&@   equ     _&Sym
+        ELSE
+        EXTRN   Sym : sType
+Sym&@   equ     Sym
+        ENDIF
+        ENDM
+
+PubSym@ MACRO   Sym, Definition, sName
+        IFNB    <sName>
+        IFIDN   <sName>, <__PASCAL__>
+NAMING      =       0
+        ELSE
+NAMING      =       UNDERSCORE
+        ENDIF
+        ENDIF
+        IF      NAMING
+        PUBLIC  _&Sym
+_&Sym   Definition
+Sym&@   equ     _&Sym
+        ELSE
+        PUBLIC  Sym
+Sym     Definition
+Sym&@   equ     Sym
+        ENDIF
+        ENDM
+
+Static@ MACRO   Sym, Definition, sName
+        IFNB    <sName>
+        IFIDN   <sName>, <__PASCAL__>
+NAMING      =       0
+        ELSE
+NAMING      =       UNDERSCORE
+        ENDIF
+        ENDIF
+        IF      NAMING
+_&Sym   Definition
+Sym&@   equ     _&Sym
+        ELSE
+Sym     Definition
+Sym&@   equ     Sym
+        ENDIF
+        ENDM
+
+.LIST

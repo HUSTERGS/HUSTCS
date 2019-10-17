@@ -1,0 +1,84 @@
+/*-----------------------------------------------------------------------*
+ * filename - strncpy.cas
+ *
+ * function(s)
+ *        strncpy - copy string src to string dest
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            strncpy - copy string src to string dest
+
+Usage           char *strncpy (char *dest, const char *src, size_t maxlen);
+
+Prototype in    string.h
+
+Description     Copy the ASCIIZ string *src to  the buffer *dest. It is the
+                callers responsibility  to ensure that  the dest buffer  is
+                large enough  to contain the  string, and to  guard against
+                supplying NULL arguments.
+
+                The  length of  source copied   will be  trimmed to  maxlen
+                bytes,  including  terminator.  If  *src  is  shorter  than
+                maxlen, then  the target buffer   is zero filled  up to the
+                maxlen.
+
+                If the source needs to be  truncated then the target is NOT
+                zero terminated.
+
+Return value    strncpy returns dest.
+
+*------------------------------------------------------------------------*/
+#undef strncpy                  /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+char *_CType _FARFUNC strncpy(char *dest, const char *src, size_t maxlen)
+{
+#if !(LDATA)
+asm     mov     ax, ds
+asm     mov     es, ax
+#endif
+asm     cld
+
+asm     LES_    di, src
+asm     mov     si, di
+asm     xor     al, al
+asm     mov     bx, maxlen
+asm     mov     cx, bx
+asm     repne   scasb
+asm     sub     bx, cx
+
+#if (LDATA)
+#if  !defined ( __HUGE__ )
+asm     push    ds
+#endif
+asm     mov     di, es
+asm     mov     ds, di
+#endif
+asm     LES_    di, dest
+asm     xchg    cx, bx
+asm     rep     movsb
+asm     mov     cx, bx
+asm     rep     stosb
+#if  defined ( __LARGE__ ) || defined ( __COMPACT__ )
+asm     pop     ds
+#endif
+
+        return(dest) ;
+}

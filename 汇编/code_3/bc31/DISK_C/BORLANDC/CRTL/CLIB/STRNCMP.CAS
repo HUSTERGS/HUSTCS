@@ -1,0 +1,101 @@
+/*-----------------------------------------------------------------------*
+ * filename - strncmp.cas
+ *
+ * function(s)
+ *        strncmp - compare one string to another
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            strncmp - compare one string to another
+
+Usage           int strncmp(const char *str1, const char *str2, size_t maxlen);
+
+Prototype in    string.h
+
+
+Description     Compare *str1  with *str2, returning  a negative, zero,  or
+                positive integer  according to whether *str1  is less than,
+                equal, or greater than *str2, respectively.
+
+                At most "maxlen" bytes will be compared. A "maxlen" of zero
+                results in an equal compare, i.e. returns a zero.
+
+Return value    strncmp return an integer value such as:
+                    < 0 if str1 is less than str2
+                    = 0 if str1 is the same as str2
+                    > 0 if str2 is greater than str2
+
+*------------------------------------------------------------------------*/
+#undef strncmp                  /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+int _CType _FARFUNC strncmp(const char _FAR *str1, const char _FAR *str2, size_t maxlen)
+{
+#if defined(__LARGE__) || defined(__COMPACT__)
+asm     mov     dx, ds
+#endif
+#if !(LDATA)
+asm     mov     ax, ds      /* ES = DS */
+asm     mov     es, ax
+#endif
+asm     cld
+
+/*   Determine size of 2nd source string. */
+asm     LES_    di, str2
+asm     mov     si, di
+asm     mov     ax, maxlen
+asm     mov     cx, ax
+asm     jcxz    ncm_end
+asm     mov     bx, ax
+asm     xor     al, al
+asm     repne   scasb
+asm     sub     bx, cx
+asm     mov     cx, bx
+
+asm     mov     di, si
+asm     LDS_    si, str1
+
+/*
+Scan until either *s2 terminates, a difference is found, or "limit" is
+reached.  Note that it is sufficient to check only for right termination,
+since if the left terminates before the right then that difference will
+also terminate the scan.
+*/
+asm     repe    cmpsb
+
+/*
+  The result is the signed difference of the final character pair, be they
+  equal or different.
+  We need to do the full word subtract here because ANSI requires unsigned
+  comparisons. A simple byte subtract with a CBW would produce the wrong
+  result in some cases.
+*/
+asm     mov     al, [si-1]
+asm     mov     bl, ES_ [di-1]
+asm     xor     ah, ah  /* zero out high order bytes so the subtraction */
+asm     mov     bh, ah  /* will work.                                   */
+asm     sub     ax, bx
+
+ncm_end:
+#if defined(__LARGE__) || defined(__COMPACT__)
+asm     mov     ds, dx
+#endif
+        return _AX;
+}

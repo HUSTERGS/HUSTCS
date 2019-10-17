@@ -1,0 +1,100 @@
+/*-----------------------------------------------------------------------*
+ * filename - lock.cas
+ *
+ * function(s)
+ *        lock   - sets file sharing locks
+ *        unlock - resets file sharing locks
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <io.h>
+#include <_io.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            lock - sets file sharing locks
+
+Usage           int lock(int handle, long ofs, long length);
+
+Related
+functions usage int unlock(int handle, long ofs, long length);
+
+Prototype in    io.h
+
+Description     lock and unlock provide an interface to the MS-DOS
+                3.x file-sharing mechanism.
+
+                lock can be placed on arbitrary, non-overlapping regions of
+                any file. A program attempting to read or write into a
+                locked region will retry the operation three times. If all
+                three retries fail, the call fails with an error.
+
+                unlock removes lock; to avoid error, lock must be removed
+                before a file is closed. A program must release all lock(s)
+                before completing.
+
+Return value    Both functions return 0 on success, -1 on error.
+
+Portability     Unique to MS-DOS 3.x. Older versions of MS-DOS do
+                not support these calls.
+
+*------------------------------------------------------------------------*/
+
+int _FARFUNC lock(int handle, long ofs, long length)
+{
+asm     mov     ax, 05C00h
+asm     mov     bx, handle
+asm     mov     cx, ofs+2
+asm     mov     dx, ofs
+asm     mov     si, length+2
+asm     mov     di, length
+asm     int     021h
+asm     jc      lockFailed
+        return(0);
+
+lockFailed:
+        return __IOerror (_AX);
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            unlock - resets file sharing locks
+
+Usage           int unlock(int handle, long ofs, long length);
+
+Related
+functions usage int lock(int handle, long ofs, long length);
+
+Prototype in    io.h
+
+Description     see lock above
+
+Return value    Both functions return 0 on success, -1 on error.
+
+*------------------------------------------------------------------------*/
+
+int _FARFUNC unlock(int handle, long ofs, long length)
+{
+asm     mov     ax, 05C01h
+asm     mov     bx, handle
+asm     mov     cx, ofs+2
+asm     mov     dx, ofs
+asm     mov     si, length+2
+asm     mov     di, length
+asm     int     021h
+asm     jc      unlockFailed
+        return(0);
+
+unlockFailed:
+        return __IOerror (_AX);
+}

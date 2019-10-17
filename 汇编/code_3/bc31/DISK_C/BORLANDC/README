@@ -1,0 +1,1396 @@
+          Welcome to Borland C++ & Application Frameworks 3.1
+          ---------------------------------------------------
+
+  This README file contains important information about Borland C++.
+  For the latest information about Borland C++ and its accompanying
+  programs and manuals, read this file in its entirety.
+
+TABLE OF CONTENTS
+-----------------
+1.  How to Get Help
+2.  Installation
+3.  Features
+4.  Important Information
+5.  Testing Your Expanded Memory
+6.  Corrections to the Documents
+
+
+ 1. HOW TO GET HELP
+-------------------
+  If you have any problems, please read this file, the
+  HELPME!.DOC and other files in your DOC subdirectory, and the
+  Borland C++ manuals first. If you still have a question and
+  need assistance, help is available from the following sources:
+
+  1. Type
+
+        GO BCPPDOS     - for questions pertaining to DOS
+
+         or
+
+        GO BCPPWIN     - for questions pertaining to Windows
+
+     on the CompuServe bulletin board system for
+     instant access to the Borland forums with their libraries of
+     technical information and answers to common questions.
+
+     If you are not a member of CompuServe, see the enclosed
+     special offer, and write for full details on how to receive
+     a free IntroPak containing a $15 credit toward your first
+     month's on-line charges.
+
+  2. Check with your local software dealer or users' group.
+
+  3. Borland's TECHFAX service. Call (800) 822-4269 for a FAX 
+     catalog of entries.
+
+  4. If you have an urgent problem that cannot wait and you have
+     sent in the license agreement that came with the package,
+     you may call the Borland Technical Support Department at
+     (408) 461-9133. Please have the following information ready
+     before calling:
+
+     a. Product name and serial number on your original
+        distribution disk.  Please have your serial number ready
+        or we will be unable to process your call.
+
+     b. Product version number. The version number for Borland
+        C++ can be displayed by pressing Alt-H/A in the IDE.
+
+     c. Computer brand, model, and the brands and model numbers of
+        any additional hardware.
+
+     d. Operating system and version number. (The version number
+        can be determined by typing VER at the DOS prompt.)
+
+     e. Contents of your AUTOEXEC.BAT file.
+
+     f. Contents of your CONFIG.SYS file.
+
+ 2. INSTALLATION
+----------------
+
+  You MUST use the INSTALL program to install Borland C++. The
+  files on the distribution disks are all archived and have to be
+  properly assembled.  You cannot do this by hand!
+
+  Installing to the same directory structure as a previous version
+  without erasing the directories is not recommended; you may
+  encounter problems due to old header files, libraries, memory
+  managers, or configuration files.
+
+  To start the installation, change your current drive to the one
+  that has the install program on it and type INSTALL.  You will
+  be given instructions in a box at the bottom of the screen for
+  each prompt. For example, if you will be installing from drive
+  A:, type:
+
+    A:
+    INSTALL
+
+  -  This INSTALL handles the installation of both the compiler
+     and debugger and tools in one operation, and allows several
+     new configuration options.
+
+  -  Note: The list of files is contained in a separate file
+     called FILELIST.DOC, which will appear in the target
+     directory you specify during installation.
+
+  -  After installation, make sure you insert \BORLANDC\BIN - or
+     whatever you selected as your BIN directory - into
+     your DOS path so the DLL and executable files can be found.
+
+  -  If you have previously installed Resource Workshop, make sure
+     that you remove the directory of that version from your path. The
+     version included on these disks supercedes previous versions.
+
+  -  If you use a Windows command shell other than Program Manager,
+     you may not get a Borland C++ group installed for Windows. If
+     you don't, use File|Run in Program Manager to run the following
+     command:
+
+          GROUPS GROUPS.B$$
+
+     You will then have a new group for Borland C++.
+
+  -  After your initial installation, you can run INSTALL again to
+     add elements you omitted the first time. Select only the
+     things you want to add in the INSTALL options screen. Because
+     some things you may want to save could be overwritten, review
+     the following items to make sure you don't lose important
+     information:
+
+     1.  Selecting CMD (the Command-line compiler) causes an 
+         overwrite of any existing TURBOC.CFG & TLINK.CFG file
+         with path information provided in that INSTALL session.
+         Any switches that you have added will not be preserved.
+
+     2.  By selecting any one of the following, the help file
+         paths and choices for THELP.CFG will reflect the current
+         session's installation choices: 
+         
+              a. CMD - command-line compiler 
+              b. IDE - integrated environment
+              c. TD - Turbo Debugger
+              d. TASM - Turbo Assembler 
+              e. TV - Turbo Vision
+              f. OWL - ObjectWindows library
+
+     3.  If you have made any alterations to headers or startup files
+         they will be overwritten if any library models are selected.
+
+     4.  Selecting the Create BorlandC++ Group option will add a
+         group to the desktop and insert the appropriate icons
+         into that group if this is a first time installation. If
+         this is a re-installation this option will insert the
+         appropriate icons into the existing group.
+
+     In general, any selection you make of something installed
+     earlier will cause an overwrite of the earlier version
+     without prompting.
+
+     An attempt to install to a network directory for which you
+     don't have delete rights will fail with the message "Invalid
+     directory." Make sure delete rights are secured before
+     attempting an installation to a network.
+
+  You should read the rest of this README file to get further
+  information about this release before you do the installation.
+  See also the files in the DOC subdirectory after installation
+  for general information not included in the manuals.
+
+
+ 3. NEW FEATURES
+----------------
+
+  - Borland C++ for Windows: A Windows-hosted IDE which produces
+    Optimized code. The same Optimization options available in BC.EXE 
+    are in BCW.EXE.
+
+  - Color syntax highlighting: All IDEs now highlight your source
+    according to syntax. See the choices under Options|Environment|
+    Colors|Edit Window in the DOS IDE and Options|Environment|
+    Highlight in the Windows IDEs. This option is enabled by
+    Options|Environment|Editor|Syntax Highlighting.
+
+  - 386 code generation: An option has been added to produce 386
+    instructions in the generated code. Use -3 at the command line,
+    or Options|Compiler|Advanced Code Generation|80386 in the IDEs.
+
+  - The Object Data calling convention for improved efficiency of C++
+    code. See the User's Guide chapter, "The Command-line Compiler",
+    under the option -po for more information. This option is also
+    available under Options|Compiler|Optimizations|Object data calling
+    in the IDE.
+
+  - Windows 3.1 support: All executables and DLLs have been modified
+    appropriately for compatibility with Version 3.1 of Windows.
+    The ObjectWindows Library header files have been modified for
+    compatibility with the new Windows header files as well.
+
+    NOTE CONCERNING USE OF MICROSOFT WINDOWS 3.1 REDISTRIBUTABLES FOR
+    APPLICATIONS RUNNING ON MICROSOFT WINDOWS 3.0
+
+    This Borland language product contains everything you need to develop
+    applications to run on the most recent version of Microsoft Windows,
+    version 3.1.  In some cases, you may need to copy and include in your
+    application one or more Microsoft "redistributable" files from a copy
+    of version 3.1 so that your application will also run on version 3.0.
+    Microsoft informs us that you may copy the redistributable files from
+    from Microsoft Windows 3.1 for this purpose.  If you do so, you must
+    comply with the conditions stated in the Borland No-Nonsense License
+    Statement included in this package as if the redistributable files you
+    copy were a part of this Borland language product.  Microsoft's
+    redistributable files in Windows 3.1 are:
+
+       winhelp.exe, winhelp.hlp, commdlg.dll, ddeml.dll, toolhelp.dll,
+       vtd.386, olecli.dll, olesvr.dll, ver.dll, lzexpand.dll,
+       expand.exe, regload.exe, stress.dll, dib.drv, markmidi.exe,
+       penwin.dll, and shell.dll.
+
+    If you do not find any of these files in the BIN directory, they
+    are also included in the Windows retail distribution, and installed
+    in your Windows directories.
+
+  - WinSpector, a postmortem Windows debugging tool that traps
+    general protection faults and provides information on where 
+    the fault occurred and the state of the machine at the time.
+
+  - You can now increase the number of files that can be open
+    at one time in a DOS program by a simple modification of the
+    runtime library.
+
+    First, modify _NFILE.H in your INCLUDE directory by changing
+    the #define for _NFILE_:
+
+       #define _NFILE_ n
+
+    where n is the number of files you want to open. Make sure the
+    FILES statement in your CONFIG.SYS file specifies at least
+    this number.
+
+    Then compile the two files FILES.C and FILES2.C in the LIB
+    directory:
+
+       BCC -c -m<model> files.c files2.c
+
+    where <model> is the memory model you're using.
+
+    Then link them directly with the program which opens the files,
+    for instance:
+
+       BCC myfile.c files.obj files2.obj
+
+    If you want the change to apply to all modules, add
+    FILES.OBJ and FILES2.OBJ created above to the libraries
+    you use; from the LIB directory, type:
+
+       TLIB c<model> +-files.obj +-files2.obj
+
+    where <model> matches what you used for the BCC command
+    above.
+
+
+DPMI
+----
+
+BC.EXE, BCC.EXE, MAKE.EXE, and TLINK.EXE are now hosted under
+DPMI. These files replace both the files with the same name in
+Borland C++ 2.0 and the BCX.EXE, BCCX.EXE, and TLINKX.EXE files
+in the same product. There is no longer a TKERNEL.EXE file.
+
+Important!
+----------
+You must have at least 1Mb of extended memory to run these programs.
+
+If you encounter a "machine not in database" message while attempting
+to run the compiler, run the DPMIINST program to add your machine
+configuration to the DPMI server database.
+
+This version includes a resident DPMI host program, DPMIRES.EXE,
+that allows you to preload the server before invoking BC, BCC, or
+any other DPMI-hosted executables. If you want to run such hosted
+EXEs in a Windows Standard Mode DOS window, you should run
+DPMIRES.EXE before loading Windows. To do this, enter the
+following commands at DOS:
+ 
+  set DPMIMEM=MAXMEM 2000
+  dpmires
+  win /s
+
+If you want to limit the amount of extended memory used by the
+DPMI-hosted executables, an environment variable called DPMIMEM
+can be set to do so. For instance, the command
+
+  set DPMIMEM=MAXMEM 2000
+
+reserves about 2 Mb of memory for DPMIRES. The number after MAXMEM
+can be adjusted, but cannot be lower than 1000.
+
+DPMIRES should not be run before running Windows in Enhanced Mode.
+Windows requires its own DPMI services.
+
+The hosted executables cannot spawn each other when SHARE is loaded.
+For instance, if you run MAKE on a file which in turn calls MAKE
+again, you will get a sharing violation. In this specific case,
+you can call the real mode version, MAKER, within the given makefile,
+and a sharing violation won't occur.
+
+Note to OS/2 users: To run any DPMI-hosted executables, like BC, BCC,
+or TLINK, in a DOS Window, you need to enable DPMI for that window:
+
+   - Click the right mouse button on a DOS window icon in Command
+     Prompts
+
+   - Select Open|Settings|Session|DOS Settings|DPMI_DOS_API and select
+     ENABLED.
+
+Note to EMM386.SYS users: To run DPMI-hosted EXEs, under the EMM386
+included with Windows 3.1, you need to apply a patch to our files
+as follows:
+
+   - Go to the BIN directory
+   - Type the following command:
+
+          patch server.dif dpmi16bi.ovl
+
+You will now be able to run BC, BCC, etc.
+
+
+ 4. IMPORTANT INFORMATION
+-------------------------
+
+  - There is now only one version of the DOS IDE, BC.EXE, and
+    of the command-line compiler program, BCC.EXE. Because the
+    BCX and BCCX files are no longer in Borland C++,  you'll need
+    to alter batch or make files that use those names.
+
+  - Borland C++ only supports Protected Mode Windows target
+    files. Make sure to use the /t option when using the Resource
+    Compiler if you want to enforce Protected Mode usage.
+
+  - When using Brief with THELP, make sure to use Brief's -p
+    switch to ensure that the THELP window will be visible.
+
+  - We recommend that you use the following mouse drivers with
+    this product:
+
+       Microsoft Mouse version 7.04 or later;
+       Logitech Mouse version 5.01 or later;
+       Genius Mouse version 9.06 or later.
+
+  - If you use MAKE or the IDE's Project Make to invoke the Resource
+    Compiler, the .RC files you wish to compile MUST be in the same 
+    directory as your project or makefile.  This is because the Microsoft
+    Resource Compiler does not properly handle relative path names, and
+    returns a misleading error message that refers to an incorrectly
+    spelled version of your .RC file.
+
+  - If you get a "floating point formats not linked" message at
+    runtime, put the following somewhere in your source files:
+
+        extern void _floatconvert();
+        #pragma extref _floatconvert
+
+    This will force inclusion of floating point formats, which
+    may not be linked to reduce executable size.
+
+  - Make sure that you use the -WE switch (Options|Compiler|Entry|
+    Windows <DLL> explicit functions exported in the IDE) when
+    using the fastcall modifier. The same applies when using the
+    fastcall compilation option (-pr on the command line,
+    Options|Compiler|Entry|Register in the IDE.) Also see the first
+    entry on using fastcall with main() in "COMPILER" below.
+
+  - If the Windows 3.0 home directory precedes the Borland C++ BIN
+    directory in your path, attempting to access Help will result in the
+    message "This version of Help file not supported." To enable
+    Help, either reorder your path or copy WINHELP.EXE to your Windows
+    3.0 directory.
+
+  - This compiler uses more strict checking of C++ syntax and argument
+    matching than previous versions. You can expect more warning
+    and error messages based on the ANSI C++ version 3.0 standard.
+
+  - If you receive a "bad object record" message from the linker when
+    building OWL or container class library applications, you are
+    probably using the Borland C++ version 3.0 class libraries and/or
+    OWL libraries. Make sure your library path specifies version 3.1
+    libraries for those applications.
+
+  COMPILER
+
+  - When using fastcalls (-pr command line option) you are
+    required to explicitly use the C calling convention, "cdecl",
+    for main. For example:
+
+        int cdecl main( )
+
+    In Borland C++ 3.0 the compiler did not correctly name main when
+    fastcalls were used, with the result that you were not
+    required to cdecl main (in all cases).  This is a dangerous
+    condition and the compiler now (correctly) names main,
+    resulting in a linker error in Borland C++ 3.1 for those Borland C++
+    3.0 compiled programs that didn't cdecl main.
+
+    Please correct any "non-cdecl main" definitions, if compiled
+    with fastcalls.
+
+  - In Borland C++ 3.0 the compiler allowed conversions from "const void*"
+    to "void *", contrary to ANSI; for Borland C++ 3.1 this is no
+    longer allowed.  In addition, several other conversions
+    regarding const variables have also been restricted.  If you
+    are a user of the const keyword, expect that you may have
+    conversions that were allowed to exist with Borland C++ 3.0 that
+    will need to be changed in order to compile using Borland C++ 3.1.
+
+  - In Borland C++ 3.0 the following syntax was allowed-
+
+            class foo{
+            ...
+            }       // note that the semicolon is missing here
+
+            f(){
+            ...
+            }
+
+    The new compiler now requires the semicolon to be added after
+    the class declaration. The compiler would interpret the
+    example above as an attempt to return a class declaration to
+    f().
+
+  - A new implicit conversion rule is now enforced for constructors.
+
+    From page 573 of The C++ Programming Language 2nd Edition:
+
+
+      "When no constructor for class X accepts the given type, no
+       attempt is made to find other constructors or conversion
+       functions to convert the assigned value into a type acceptable
+       to a constructor for class X."
+
+    For example,
+
+            class X { /* ... */ X(int); };
+            class Y { /* ... */ Y(X); };
+            Y a = 1;  // illegal: Y(X(1)) not tried
+
+    Note that this rule only applies to constructors with ONE parameter.
+
+  - The inport/outport functions have been changed to accept an
+    unsigned parameter instead of an int. The new prototypes are:
+
+     unsigned      inport(unsigned)
+     unsigned char inportb(unsigned)
+     void          outport(unsigned, unsigned)
+     void          outportb(unsigned, unsigned char)
+
+  - We have new resource compiler and linker components:
+
+    BRCC is the Borland Resource Compiler. RLINK is the resource 
+    linker/binder. BRC.EXE calls BRCC.EXE and RLINK.EXE, and is an 
+    equivalent to Microsoft's Windows 3.1 RC. New features that 
+    may not be found in other products include:
+
+       - Binding of multiple RES files is supported under RLINK.
+
+       - Resource ID conflicts are detected and resolved during
+         binding.
+
+    For more information, see the file MANUAL.RW located in your
+    \BORLANDC\DOC directory.  
+
+  - There is currently support in ObjectWindows for STRICT and
+    non-STRICT versions of OWL programs for Borland C++ versions
+    3.0 and 3.1. Simply define the macros WIN30 or WIN31, and add a
+    definition for STRICT if you need STRICT compliance. For
+    more details see WIN31.DOC in the DOC directory and
+    OWL31.DOC in the OWL\DOC directory.
+
+  - The default extension for source files to the command-line
+    compiler is .CPP; that is, if you enter
+
+       BCC -c test
+
+    the compiler will search for test.cpp, and give an error if a
+    file of that name cannot be found. If you want to have the
+    command-line compiler assume a .c extension and C language
+    source, use the command-line option -P-c. For more
+    information, see "The command-line compiler" in the User's
+    Guide.
+
+  - Note that the Generate COMDEFs choice under
+    Options|Compiler|Code Generation and the -Fc command-line
+    option are only supported in the C language. Linker errors
+    will result if you attempt to use a communal variable in C++.
+
+  - The macros min() and max() are not defined when stdlib.h is
+    compiled as C++ (to allow their use in 3rd party libraries,
+    etc.).
+
+  - Note that files with the extension .SYM can come from at least
+    two different sources: Borland's precompiled headers, and the
+    output of Microsoft's MAPSYM or Borland's TMAPSYM programs,which
+    can also be used by SYMDEB and other debuggers.
+
+    These files do not have compatible formats, so collisions
+    should be avoided by renaming the precompiled header file
+    with -H=<filename> on the BCC command line, or as a BCC transfer
+    option in the IDE.
+
+  - There is now full support of distance modifiers (near and
+    far) used for class member pointers. Here are two sample
+    declarations and their meanings:
+
+       void (A::* far var) ();
+
+    this is a far variable 'var' of type 'void (A::*)()';
+
+       void (far A::* var) ();
+
+    this is a 'default distance' variable 'var' of type
+   'void (far A::*)()'
+
+  - You must use "smart callbacks" - -WS from the command line,
+    Options| Compiler|Entry/Exit Code|Windows smart callbacks in
+    the IDE - if your application uses classes whose code is in a
+    DLL. This applies especially in the case of a class
+    implemented in an EXE which is derived from another
+    implemented in a DLL, which normally applies for users of OWL
+    and other object-oriented class libraries.
+
+  - If you use C++ templates, and use a separate TLINK command
+    line rather than letting BCC invoke TLINK, you should make
+    sure that you turn on case-sensitive links with the /c switch.
+
+
+  IDE
+
+  - When debugging a mouse application the Options|Debugger|Display
+    Swapping option should be set to "Always" for best results.
+
+  - Defines entered under Options|Compiler|Code Generation entered
+    with semicolons don't apply to RC project items. If you need to
+    make multiple definitions for resource compilation in the IDE,
+    enter separate defines in the Project Local Options, for example:
+
+        -dDEF1 -dDEF2=1
+
+  - In the DOS IDE, the mouse cursor is turned off during compilation
+    for performance improvements.
+
+  - If you run File|Printer setup from BCW.EXE (or another Windows
+    application which has printer setup support) under the Windows
+    3.0 debugging kernel, you will get a System Error from Windows.
+    You must switch to the NODEBUG version to run this option.
+
+  - The initial block marking behavior in the IDE is determined
+    by which version of the IDE is used first after installation.
+    Invoking BCW.EXE first will cause Windows-style block marking
+    conventions to be in effect; otherwise the standard DOS IDE
+    behavior will be used. You can change the behavior by
+    selecting Options|Environment| Editor and changing the
+    settings for Persistent blocks and Overwrite blocks.
+
+  - The first time you open certain projects in Borland C++ for
+    Windows (BCW), you will get a dialog indicating that one or
+    more items will be converted. This will occur for all Windows
+    projects existing prior to BC 3.1 and for all DOS projects
+    that you open in BCW.  The purpose of the dialog is to
+    indicate to you that certain changes need to be made to the
+    project to allow it to compile properly for Windows. DOS
+    projects that are opened in BCW will need to be changed to
+    target Windows, and many projects will need to generate 80286
+    code rather than 8088 code.  You have several options
+    regarding saving the changes:
+
+      Don't auto save project
+      Warn before saving project
+      Save project now
+
+    The first option will be the most likely choice for DOS C++
+    programs that you bring up in BCW in order to browse classes.
+    When you close the project, it won't be saved, so that you don't
+    lose the options you have already set.
+
+    If you select the second option, you will be given the choice of
+    saving the project when you close it.
+
+    The last option saves the project with the new settings
+    immediately.  For your current Windows projects, you will
+    probably want to choose this option so that this dialog will no
+    longer come up for the project.
+
+  - The RC.EXE included in this release targets Windows 3.1. You
+    will need to include the -30 option for RC files in any project
+    intended to run under Windows 3.0. Use Options|Transfer|Resource
+    Compiler|Edit|Command line, and change the entry to:
+
+       -30 $RC
+
+    If you use PRJ2MAK on a project which uses this option,
+    you will need to edit the resulting .MAK file, and move
+    the "-30" option to the RC line which links the .RES
+    file to the .EXE file. For instance, the line output by
+    PRJ2MAK may look like:
+
+            rc filename.res filename.exe
+            ..
+            rc -30 <other options> filename.res filename.rc
+
+    Change this to
+
+            rc -30 filename.res filename.exe
+            ..
+            rc  <other options> filename.res filename.rc
+
+  Resource Workshop
+
+  - 256-Color bitmaps and RLE4 compression:
+
+    Due to problems with many 256-color display drivers for Windows
+    3.x, saving a bitmap with the RLE4 compression feature of
+    Resource Workshop enabled can fail to produce valid output files.
+
+    Under Windows, the display driver is responsible for providing
+    RLE compression when it is requested. However, because many
+    display drivers do not implement this feature correctly, we
+    recommend that you take the following steps when attempting to
+    use RLE4 compression:
+
+    1. Save the bitmap with the compression option set to "None".
+       This ensures that you will have a usable copy of your bitmap
+       if the remaining steps are not successful.
+
+    2. Set the compression option to "RLE4".
+
+    3. Select Resource|Save Resource As and save the bitmap under a
+       different file name.
+
+    4. Select File|Open Project and load the compressed version of
+       the bitmap.
+
+    If you cannot load the compressed bitmap, you must use the
+    uncompressed bitmap file you saved in step 1.
+
+    If your 256-color driver fails to compress the bitmap correctly,
+    contact the display driver vendor.
+
+
+    Flood-fill with the paint bucket tool
+    -------------------------------------
+
+    Because of problems inherent to display drivers, flood-filling a
+    section of a bitmap using the paint bucket tool can fail to
+    produce the desired result.
+
+    Resource Workshop provides an alternate version of the flood-fill
+    algorithm that is slower but more reliable than the version
+    provided by most Windows 3.x display drivers.
+
+    You can enable Resource Workshop's flood-fill algorithm by adding
+    a flag called "RWS_OwnFloodFill" to the Icon editor section
+    ([RWS_Icon]) of WORKSHOP.INI. Set the flag to 1.
+
+    The edited section of WORKSHOP.INI should look something like
+    this:
+
+        [RWS_Icon]
+        RWS_OwnFloodFill=1
+        PercentLeft=50
+        ZoomLeft=8
+        ZoomRight=1
+        bVert=1
+
+    Contact the display driver vendor if you experience flood-fill
+    problems.
+
+
+  WinSight
+
+  - WinSight traces messages received by GetMessage or SendMessage. It
+    does not trace messages sent directly by function call such as
+    WM_INITDIALOG.
+
+  - Please note that messages displayed as "dispatched" are actually
+    intercepted at the time of GetMessage, not DispatchMessage.
+
+
+  EXAMPLE PROGRAMS
+
+  - When you are running any example programs that come with .PRJ
+    files, if you didn't use the standard directories when you
+    installed Borland C++ you will have to change the .PRJ file
+    to reflect your actual directory setup.  Do this from inside
+    Borland C++ with Alt-O/D.
+
+  - When run under the Windows 3.1 debug kernel, many OWL examples will
+    cause a message to be displayed like these:
+
+        USER: Invalidation with fErase==FALSE prevents WM_ERASEBKGND
+        Kernel: GlobalCompact(FFFFFFFF), discarding segments
+
+    These messages are valid runtime warnings, but they don't
+    indicate improper implementation; they are supplied for the
+    information of the user or programmer under the debug kernel.
+
+  - To build the help file for the HELPEX example, go to the
+    EXAMPLES\WIN30 directory and type
+
+         hc helpex
+
+
+  LINKING C++ WITH C
+
+  - Linking C++ modules with C modules requires the use of a
+    linkage specification.  Prototypes for C functions within C++
+    modules must be in one of the following forms:
+
+        extern "C" declaration
+        extern "C" { declarations }
+
+    For example, if a C module contains these functions:
+
+        char *SCopy(char*, char*);
+        void ClearScreen(void)
+
+    they must be declared in a C++ module in one of the
+      following ways:
+
+        extern "C" char *SCopy(char*, char*);
+        extern "C" void ClearScreen(void);
+
+      or
+
+         extern "C" {
+            char *SCopy(char*, char*);
+            void ClearScreen(void);
+         }
+
+    Failure to do so will result in "Undefined symbol" errors
+    during link. For further examples, see the standard header
+    files.
+
+  OPTIMIZATIONS
+
+  - When Ignore Aliasing is used - Options|Compiler|Optimization|
+    Assume no pointer aliasing , or -Oa from the command line -
+    some initializations could be skipped. This applies
+    only when Copy propagation -Op or Options|Compiler|Optimization|
+    Copy propagation is used as well (which is the case when
+    using -O2 or Options|Compiler|Optimization|Fastest Code.) The
+    following case illustrates the issue:
+
+        len = 0;
+        read(help_file, (char *)&len, 1);
+        read(help_file, (char *)title, len);
+
+    The initializion of len to the value 0 above will probably
+    not be reflected in the first call to read() if aliases are
+    ignored. If the initialization of len were guaranteed by the
+    call to read(), the first line would be unnecessary, and the
+    value in len would be assigned and passed to the second read
+    correctly. We recommend that you avoid using these options
+    together when explicit initializations are used in code
+    sequences like these.
+
+
+  TURBO DEBUGGER AND TOOLS
+
+
+  Debugging Multiple Applications under Turbo Debugger for Windows
+  ================================================================
+     You can debug multiple applications under TDW as follows:
+
+     1. Load the first program to be debugged into TDW.
+
+     2. Once the application is loaded, press the F3 key to
+        display the Load Module Source or DLL Symbols dialog box.
+
+     3. In the DLL Name text entry box, enter the name of the
+        .EXE or  DLL to add. If the .EXE or DLL resides in
+        another directory, you need to provide the full path.
+
+     4. Press the Enter key. TDW adds the program name to the 
+        DLLs & Programs list box and puts the !! symbol after it.
+
+     5. Close the Load Module Source or DLL dialog box, return to
+        the Module window, and set any necessary breakpoints in
+        the first program.
+
+     6. Press F9 to run the first program.
+
+     7. Switch to the Windows Program Manager while the first
+        program is running and run the second program in the
+        usual way.
+
+     8. You see the display switch back to TDW with the CPU
+        window showing the start-up information of the second
+        application. Close the CPU window.
+
+     9. In the Module window, set any necessary breakpoints in
+        the second application, then press the F9 key to run it.
+
+     This method is useful for debugging DDE conversations or any
+     other inter-program communication in the Windows
+     environment.
+
+
+  TDW.INI, the Windows initialization file for TDW and TPROFW
+  ===========================================================
+    TDW.INI is located in your local Windows directory. It is the
+    Windows initialization file used by TDW, TPROFW, and WREMOTE.
+    TDW.INI specifies the name and location of the Debugger DLL and
+    the video driver DLL (if any)  in the [TurboDebugger] section.
+    It can also contain two other sections:
+
+    o [VideoOptions], where you put settings for the video DLL, if any
+
+    o [WRemote], where WRSETUP puts settings for remote debugging
+      and profiling
+
+   [TurboDebugger] section
+   -----------------------
+   WINDEBUG.DLL has been replaced by TDWIN.DLL. TDWIN.DLL can be
+   located anywhere you wish (usually the main Windows directory).
+   The DebuggerDLL entry must specify the full path to TDWIN.DLL.
+  
+   For example, if TDWIN.DLL is in the WINDOWS3.1 directory, its
+   TDW.INI entry is
+  
+   [TurboDebugger]
+   DebuggerDLL=c:\windows3.1\tdwin.dll
+  
+   The VideoDLL entry indicates a video support DLL for 8514 or
+   Super VGA, because TDW doesn't support these video modes by
+   default. This entry must specify the full path to the DLL. You
+   can set various video options for the DLL in the
+   [VideoOptions] section.  See the next section for a complete
+   explanation of video DLL and options settings.
+
+
+  SVGA support, the VideoDLL entry, and the [VideoOptions] section
+  ----------------------------------------------------------------
+   TDW and TPROFW handle most of the popular 2, 4, 16, and 256-color
+   high-resolution Super VGA modes. If your card isn't supported
+   correctly, you need to use a special Super VGA (SVGA) DLL.
+
+   Currently, six DLLs are supplied with your language compiler to
+   support various SVGA and 8514 video cards and modes. These DLLs are
+   described in the next section. For information on how to specify the
+   Video DLL or its options, see the sections "The VideoDLL entry" and
+   "The [VideoOptions] section," which follow the "Video DLLs" section.
+
+
+     Video DLLs
+     ----------
+     All the video DLLs described in this section are designed to work
+     with the most current Windows screen drivers for your video card.  If
+     you're not sure if you're using the latest drivers, contact your video
+     card manufacturer for more information.
+
+     From time to time we have new DLLs for new video cards. These DLLs,
+     when available, can be downloaded from Compuserve, BIX, GEnie, and our
+     local BBS (408-439-9096). As new video cards and modes appear on the
+     market, we will be creating new DLLs for them. If the card you use
+     isn't supported by one of our DLLs, please contact Tech Support for
+     the latest video DLL information. Our main Tech Support phone number
+     is 408-461-9133.
+
+
+       ATI.DLL
+       -------
+       Works with the ATI VGA Wonder and XL cards in certain video modes.
+
+       The latest ATI Drivers from ATI Technologies Inc. require the
+       following TDW.INI file entries:
+
+
+            Resolution   ATI.DLL  Int2FAssist
+          -----------------------------------
+          | 640X480    | Yes     |   Yes    |
+          -----------------------------------
+          | 800X600    | Yes     |   Yes    |
+          -----------------------------------
+          | 1024X768   | No      |    No    |
+          -----------------------------------
+
+       EXPLANATION: ATI.DLL is required in all video modes except
+       1024 X 768 (this mode is directly supported by TDW and TPROFW).
+       When the DLL is used (VideoDLL=ATI.DLL), Int2FAssist should be
+       set to "yes" in the [VideoOptions] section.
+
+
+       TSENG.DLL
+       ---------
+       Supports TSENG ET-3000 /ET-4000 based cards in certain
+       video modes.
+
+       The latest TSENG drivers are available from the Microsoft
+       Windows Driver Library on CompuServe. They require the
+       following TDW.INI file settings:
+
+
+           Resolution   TSENG.DLL   Int2FAssist
+          -------------------------------------
+          | 640X480    | Yes       |   Yes    |
+          -------------------------------------
+          | 800X600    | No        |    No    |
+          -------------------------------------
+          | 1024X768   | No        |    No    |
+          -------------------------------------
+
+       EXPLANATION: TSENG.DLL should only be used with 640 X 480 X 256
+       resolution (set VideoDLL=TSENG.DLL and put a "Int2FAssist=Yes"
+       entry in the [VideoOptions] section). TDW and TPROFW directly
+       support the other TSENG resolutions.
+
+
+
+       TDVESA.DLL
+       ----------
+       Supports any video card that does VESA emulation, whether
+       through a TSR or video card firmware. Use this DLL with
+       all resolution settings.
+
+           NOTE: You can run VESATEST.EXE from either DOS or
+           Windows to see if your system provides the proper
+           VESA functions. If the emulation is not loaded, TDW
+           (or TPROFW) will display an error message indicating that
+           the video DLL isn't supported by the current configuration.
+
+       The TDVESA.DLL has been tested with the following video
+       cards:
+
+         o Video Seven VRAM II--uses V7VESA TSR supplied with card
+
+         o Weitek Power Windows--emulates VESA with firmware.
+
+
+       DUAL8514.DLL
+       -------------
+       Supports any dual-screen 8514 cards. This DLL is only for
+       systems that have two-color monitors, one attached to the VGA
+       card and one attached to the 8415/A card. It speeds up
+       performance by preventing TDW (or TPROFW) from doing some
+       things that aren't required in dual-monitor mode.
+
+           NOTE: Using this DLL is not the same as invoking TDW
+           with the -do parameter, which only specifies using a
+           monochrome screen.
+
+
+       STB.DLL
+       -------
+       Supports the MVP2 series of multi-screen video cards.
+
+
+       ULTRA.DLL
+       ---------
+       Supports ATI Graphics cards, 8514 Ultra and Vantage cards
+       (8514/Ultra, 8514/Vantage, Graphics/Ultra, and Graphics/Vantage),
+       and 8514-based cards configured for a single monitor (including
+       most IBM 8514/A cards). If you use this DLL with an IBM 8514/A
+       card, set "ATI=no" in the [VideoOptions] section of TDW.INI.
+
+
+   The VideoDLL entry
+   ------------------
+   To use an SVGA DLL, simply edit the TDW.INI file that the installation
+   program puts in your main Windows directory. You can modify TDW.INI
+   with any ASCII text editor. Under the section heading [TurboDebugger]
+   there is an option called "VideoDLL". This entry should equal the
+   path and filename of the DLL you want to use for SVGA support (see the
+   example later in this file).
+
+   If there's an error loading the DLL or if the DLL doesn't support
+   the selected card or mode, TDW (or TPROFW) reports the error in a
+   Windows dialog box. When this happens, TDW (or TPROFW) unloads the
+   DLL and exits. If this situation occurs, remove the DLL's name from
+   the VideoDLL line in the TDW.INI file or select a video mode that is
+   supported by that DLL.
+
+
+   The [VideoOptions] section
+   --------------------------
+   There are options you can set for the current video DLL. You list
+   these options under the [VideoOptions] heading in any order you like.
+
+   The following list shows all the video options:
+
+     o SaveWholeScreen    --    default = no
+     o Int2FAssist        --    default = no
+     o DebugFile          --    default = <blank>
+     o IgnoreMode         --    default = no
+     o ATI                --    default = yes
+     o Rows               --    default = 25
+     o RestoreTextScreen  --    default = yes
+
+   DebugFile can be either blank or set to a specific filename. The other
+   four settings must be either "yes" or "no". Rows must be 25 or 50.
+
+
+     SaveWholeScreen   (ATI, TSENG, TDVESA)
+     ---------------
+     This option, normally set to "no", determines whether the entire
+     screen (512k - 64k from 8 planes) is saved (the entire graphics
+     screen is cleared when switching to it) or if only the top 32K of
+     planes 0 through 3 is saved (the entire screen is NOT cleared when
+     switching modes.)
+
+     Saving the whole screen is not usually necessary, but is provided
+     in case you're using a nonstandard card that requires that the whole
+     screen be saved. It also provides support for the Alt-F5 key
+     combination under Int2FAssist mode.
+
+
+     Int2FAssist  (ATI, TSENG)
+     -----------
+     This option, normally set to "no", tells the DLL to make a special
+     Int 2F call before switching video modes. This call tells the current
+     Windows screen driver what's happening. The desired side-effect of this
+     call is to make Windows tell all its child windows to repaint
+     themselves. This option is provided mainly to support some ATI Wonder
+     and TSENG chip set video modes.
+
+
+     DebugFile   (ALL DLLs)
+     ---------
+     The video DLL normally doesn't log any debugging information. If
+     you're having problems using a particular DLL, you can use the
+     DebugFile option to specify the path and filename of a log file.
+     You can use the information logged to this file if you need to
+     contact Borland's Technical Support.
+
+     The information logged is:
+
+       o the date and time you ran TDW or TPROFW
+       o the version & location of the DLL
+       o the name of the current Windows screen driver
+       o the state of all TDW.INI options
+       o a listing of all calls and parameters to the DLL's functions
+
+
+     IgnoreMode   (ATI, TSENG)
+     ----------
+     This option only applies when the video DLL is ATI.DLL or TSENG.DLL.
+     It tells the DLL to not do any mode or card checking and to force the
+     Int2FAssist option on. This option is useful for cards that aren't
+     directly supported by an official DLL yet, such as Paradise, Video-7,
+     Trident, or any other video card without a graphics coprocessor.
+     (With this option enabled, the functionality is identical to the
+     temporary ALL.DLL that we offered in the past.)
+
+
+     ATI   (ULTRA)
+     ---
+     This option is only used by ULTRA.DLL and is on by default. If you
+     disable it, you can use ULTRA.DLL on regular IBM 8514/A cards.
+
+
+     ROWS  (ALL DLLs)
+     ----
+     This option is only used if you use a configuration file to change
+     the number of rows to 43/50 from 25. If you choose to have TDW
+     start in 50-line mode, set the Rows option to 50 in the TDW.INI file.
+
+
+     RestoreTextScreen   (DUAL8514, STB)
+     -----------------
+     This option is valid only with DUAL8514.DLL and STB.DLL. The
+     settings are:
+
+       o Yes    - restores TDW's (or TPROFW's) screen after exiting.
+       o No     - does not touch TDW's (or TPROFW's) screen at all.
+       o Clear  - forces the screen to clear upon exiting TDW (or TPROFW).
+
+
+   Video DLL example
+   -----------------
+   If you have an ATI VGA Wonder card and you want it to save
+   the entire screen and log information to a file named
+   C:\WINDOWS\TDVIDEO.LOG, the TDW.INI file will look something
+   like this:
+
+       [TurboDebugger]
+       DebuggerDLL=c:\windows3.1\tdwin.dll
+       VideoDLL=c:\borlandc\bin\ati.dll
+
+       [VideoOptions]
+       SaveWholeScreen=yes
+       DebugFile=c:\windows\tdvideo.log
+
+
+   Technical information
+   ---------------------
+   TDW, upon loading, looks for the video DLL in the following
+   locations in the following order:
+
+     1. The same directory TDW (or TPROFW) is running from
+
+     2. The Windows main directory
+
+     3. The location specified in TDW.INI
+
+
+   If it finds the file, TDW (or TPROFW) accesses the DLL as needed.
+   TDW (or TPROFW) makes calls to the DLL to handle the entire video
+   screen-switching context. The DLL accomplishes the screen switching
+   by allocating a buffer as it gets loaded. Graphics screen contents
+   are then saved to this buffer when TDW (or TPROFW)_enters text mode.
+   The DLL restores the graphics screen from this buffer when TDW
+   (or TPROFW) exits text mode. Memory allocated for the buffer is freed
+   when the DLL is unloaded.
+
+
+   Seeing the user screen of an application
+   ----------------------------------------
+   Some video modes might require some special handling. The Int2FAssist
+   option allows these modes to work correctly on most systems. The
+   behavior is as follows:
+
+   When you set "Int2FAssist=yes", the DLL notifies Windows to tell
+   all sub-windows on the screen to repaint themselves while the user
+   application is running. This allows the user screen to be viewed
+   when stepping, tracing, or running your application. It will not,
+   however, switch to the user screen when you press the Alt-F5 key
+   combination because TDW is still in control (TDW doesn't allow Windows
+   to process any messages at this point.)
+
+   If you also set "SaveWholeScreen=yes", pressing the Alt-F5 key
+   combination shows the user screen. (The DLL will now copy the screen
+   back for you.) The drawback to enabling SaveWholeScreen is that it
+   will take longer to step or trace if TDW needs to switch back to
+   the user screen for that particular instruction. Also, extra messages
+   will be passed to your application that normally wouldn't be passed.
+   This may affect the debugging of certain pieces of code (like finding
+   a bug in an owner-draw control). In these cases, you won't want to use
+   this option on the current video mode.
+
+
+  Using TDW in Dual Monitor Monochrome Mode
+  ----------------------------------------
+   If TDW is activated using the -do switch, there is no need for
+   a video DLL or a value in the VideoDLL section of TDW.INI. The
+   value in VideoDLL should be removed as follows:
+
+    [Debugger]
+    VideoDll=
+
+
+   The [WRemote] section
+   ---------------------
+   If you run WRSETUP to configure WREMOTE, the settings are
+   saved in the WRemote section of TDW.INI. In previous versions,
+   these settings were saved in the WRemote section of
+   WREMOTE.INI. If you have a previous version of TDW or TPROFW
+   and want to preserve your WREMOTE settings, you can append the
+   contents of WREMOTE.INI into TDW.INI. Be sure to include the
+   [WRemote] section heading.
+
+   The settings for the [WRemote] section are described in the
+   "Turbo Debugger User's Guide" in Appendix E, "Remote
+   Debugging" starting on page 386.
+
+
+  Known Problems
+  ==============
+
+  - TD386 and TF386 currently do not support machines with over
+    16M of memory.  You must disable any extra memory to use
+    these programs.
+
+  - On page 10 in Chapter 1 of the "Turbo Profiler User's Guide,"
+    there is a statement that Pascal versions of the PRIMEn.C
+    programs are included on disk. Only the C versions of these
+    sample programs are included on the distribution disks.
+
+  - Some mouse drivers are incompatible with TD and will
+    cause the mouse cursor to get scrambled when debugging DOS
+    graphics applications on a second monitor (-do option).  If
+    that happens, you can try a different driver or turn off the
+    mouse in TD by using the -p- option on the TD command line.
+    The mouse will still be active in the target application.
+
+  - If you have any lines in your SYSTEM.INI that rename DLLs, such as
+    "sound.dll=mysound.drv", TDW might display the error "Can't find 
+    sound.dll" when it loads a program that uses the DLL.  To solve this 
+    problem, use the -wd command switch to disable TDW's DLL checking when 
+    you load such a program.
+
+  - The first time a program is run under TDW or TPROFW, mouse
+    messages are processed normally. However, on every subsequent
+    execution of that program, you must press a key on the
+    keyboard before mouse messages can be processed.
+
+  - TSENG ET-4000 video chip set and Windows 3.1 problems
+
+    Under Windows 3.1, if you use the standard Windows VGA or
+    SuperVga  driver with a video card that uses the TSENG
+    ET-4000 chip set, you might encounter a number of problems
+    with running TDW on a single monitor.
+
+    o The hardware cursor (the white cursor displayed in all
+      dialog boxes that require text input) is invisible, but
+      you can still debug your program.
+
+    o On certain TSENG 4000-based cards (such as the Diamond
+      Speedstar VGA card), when you launch TDW the default
+      character set is replaced by graphic characters.
+
+   To overcome this problem please contact Microsoft Corp and ask
+   for the updated TSENG drivers that were NOT shipped with
+   Windows 3.1. They are also located in the Microsoft Forum (GO
+   MSOFT) under the Microsoft Software Library heading in
+   CompuServe.
+  
+        Filenames      Date
+        ---------      ----
+
+        TSENG1.EXE     4/6/92
+        TSENG2.EXE     4/6/92
+        TSENG3.EXE     4/6/92
+        TSENG4.EXE     4/6/92
+  
+  
+   In the meantime, you can use one of the following alternatives:
+  
+   - Run Windows Setup and replace your Windows 3.1 VGA or SVGA driver
+     with the Version 3.0 VGA driver supplied with Windows 3.1.
+  
+   - Start TDW from the DOS command line. For example,
+  
+     WIN TDW myprog
+  
+   - Each time you launch Windows, run a full screen DOS session
+     and type "exit" to close it. After you do this, when you run
+     TDW, it will use the correct character set.
+
+
+  CLASS LIBRARY
+
+  - If you used the add(), addAt(), or getItemsInContainer()
+    member functions of the Array class in Borland C++ 2.0
+    applications, note that their behavior has changed slightly.
+    The following rules apply to these and related functions:
+
+      1. add() will insert its argument at the lowest available
+         location in the Array.  This location is known as the
+         "insertion point".
+
+      2. detach() will remove its argument from the Array, and if
+         that Object is located below the insertion point, it
+         will move the elements above the Object being removed
+         and below the insertion point down one position, so that
+         the elements below the insertion point remain
+         contiguous.  The insertion point, of course, moves down
+         one.
+
+      3. if the location specified in a call to addAt() is below
+         or at the insertion point, the elements above the
+         specified location and below the insertion point are
+         moved up one position, and the Object is inserted.  The
+         insertion point moves up one.
+
+      4. if the location specified in a call to addAt() is above
+         the insertion point, the Object is inserted at that
+         location, replacing any Object that may have been placed
+         there previously.
+
+      5. getItemsInContainer() returns the number of elements
+         below the current insertion point.  If you use addAt()
+         to add elements above the insertion point, they will not
+         affect the value returned by getItemsInContainer(). 
+         This is a change from the behavior in the previous
+         version of the class library.
+
+  - Two versions of the class library sources are provided; one
+    using an implementation using C++ templates, and one not using
+    templates. The small and dynamic link libraries are provided, and
+    a makefile is provided to build other models.
+
+
+  ObjectWindows Library
+
+  - You must rebuild the class libraries in the appropriate model
+    for the intended OWL model if they don't already exist - see
+    paragraph above.
+
+  - Due to restrictions on code size, compact model is no longer
+    supported for OWL applications.
+
+  - Note that you must use the TWindow member function AssignMenu
+    to assign a window's Attr.Menu member and to load a menu for
+    that window.
+
+  - You must alter project files and makefiles to indicate
+    compatibility with either Borland C++ version 3.0 or 3.1.
+    Add WIN30 for OWL projects from Borland C++ 3.0, or WIN31
+    for projects created under Borland C++ 3.1, to the defines
+    under Options|Compiler|Code Generation in the IDE, or passing
+    -DWIN30 or -DWIN31 to MAKE.
+
+  - World of ObjectWindows video users need to make modifications
+    to their Borland C++ 3.0 make or project files in order to
+    successfully compile their OWL code with Borland C++ 3.1. You
+    must define the WIN30 flag when compiling the OWL Video code.
+    In MAKEFILE.INC add the text, "-DWIN30" to the four 'CFLAGS'/
+    'CFLAGSD' lines.  In all project files, you must go to Options|
+    Compiler|Code Generation and put WIN30 in the Defines combo box
+    field (at the bottom of this dialog).
+
+
+  Please see OWL31.DOC for additional information on ObjectWindows
+  Library.
+
+  TURBO VISION
+
+  - For information on the Help compiler, and how to build a help
+    document, please refer to the comments in the file TVHC.CPP in
+    the help directory.  Also, see TVDemo for an example of how to
+    add help to your applications.
+
+  - Due to the complex interactions among the Turbo Vision classes,
+    certain situations can arise involving deletion of objects that
+    cannot be properly handled through destructors.  Therefore, we
+    provide a static member function void destroy( TObject * ) to
+    the class TObject.  Whenever an object of a type derived from
+    TObject is to be deleted, the function destroy() should be called
+    instead.  This will take care of terminating the object,
+    correctly freeing the memory that it occupied.  For example:
+    
+             TDialog *dlg = new TDialog( ... );
+             //delete dlg;    // DON'T DO THIS
+             destroy( dlg );  // DO IT THIS WAY
+
+  - The Turbo Vision Source Code is provided for your use and
+    modification.  IMPORTANT: Borland Technical Support will not
+    answer questions or provide any assistance relating to this
+    product.  Essentially, the Sources are provided "as is" and you
+    are on your own.
+
+  - In order to build the library, you must have Tasm available.
+
+  - When building or modifying the library it is better to place
+    debug info in only those modules in which you are interested.
+    If you place debug info all the modules, Tlink may not be able
+    to link your application.
+
+  - In order to build an overlayed Turbo Vision application with
+    Borland C++ 3.1, make sure you observe the following:
+
+      1. You need to rebuild the Turbo Vision library with
+         overlays. Change to the SOURCE directory under TVISION
+         and enter the command
+
+                 make -DOVERLAY -B
+
+         This will produce a new version of TV.LIB which will
+         support overlays. It will also produce two .OBJ files,
+         SYSINT.OBJ and TEVENT.OBJ.  These two files contain code
+         for TV's interrupt handlers, so they cannot be 
+         overlayed.
+
+      2. When building an overlayed application, you must be sure
+         to link with the three files SYSINT.OBJ, TEVENT.OBJ, and
+         TV.LIB.  The two .OBJ files must not be in overlays.
+         You also need to specify local virtual tables.
+         Your command line should look something like this:
+
+         bcc -ml -Vs -B -Yo myfile -Yo- sysint.obj tevent.obj -Yo tv.lib
+
+         See the Programmer's Guide for details on the meanings
+         of the various -Yo switches.
+
+     3. To improve performance, increase the size of the global
+         variable __ovrbuffer to 0x2000 or greater.
+
+
+  RUNTIME LIBRARY SOURCE
+
+  The Borland C++ Runtime Library Source Code is provided for
+  your use and modification.  IMPORTANT: Borland Technical
+  Support will not answer questions or provide any assistance
+  relating to this product.  Essentially, the Sources are
+  provided "as is" and you are on your own. If you find what you
+  think is a genuine problem with the source code, however, we
+  would like to hear about it. See "How to Get Help" above.
+
+  See CRTL.DOC for more information on building the Runtime
+  Library from source.
+
+ 5. TESTING YOUR EXPANDED MEMORY: EMSTEST.COM
+---------------------------------------------
+
+  Included with Borland C++ is a program to test your Expanded
+  Memory hardware and software. If you have problems using
+  Borland C++ with your EMS, type EMSTEST at the DOS prompt and
+  follow the instructions.
+
+
+ 6.  CORRECTIONS TO THE DOCUMENTS
+---------------------------------
+
+Please see the MANUAL.XXX files in the DOC subdirectory for corrections
+to the documents.
+

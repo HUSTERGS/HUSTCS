@@ -1,0 +1,116 @@
+/*-----------------------------------------------------------------------*
+ * filename - strstr.cas
+ *
+ * function(s)
+ *        strstr - scans a string for the occurrence of a given string
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+
+#if (LDATA)
+#define pushES_ asm     push    ES
+#define popES_  asm     pop     ES
+#else
+#define pushES_
+#define popES_
+#endif
+
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            strstr - scans a string for the occurrence of a given string
+
+Usage           char *strstr(const char *str1, const char *str2);
+
+Prototype in    string.h
+
+Description     strstr scans str1 for the first occurrence of the substring
+                str2.
+
+Return value    strstr returns a pointer to the element in str1 that contains
+                str2 (points to str2 in str1). If str2 does not occur in str1,
+                strstr returns NULL.
+
+*------------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+char * _FARFUNC strstr(const char *str1, const char *str2)
+{
+        if (!*str2)
+                return((char *)str1);           /* return str1 if str2 empty */
+
+        pushDS_
+#if !(LDATA)
+    _ES = _DS;
+#endif
+asm     cld
+
+asm     LES_    di, str1
+        pushES_
+asm     mov     bx, di
+asm     xor     ax, ax
+asm     mov     cx, -1
+asm     repnz   scasb
+asm     not     cx
+asm     xchg    cx, dx
+
+asm     LES_    di, str2
+        pushES_
+asm     mov     bp, di
+asm     xor     ax, ax
+asm     mov     cx, -1
+asm     repnz   scasb
+asm     inc     cx
+asm     not     cx
+        popDS_
+        popES_
+
+strLoop:
+asm     mov     si, bp
+asm     lodsb
+asm     xchg    di, bx
+asm     xchg    cx, dx
+asm     repnz   scasb
+asm     mov     bx, di
+asm     jnz     NotFound
+asm     cmp     cx, dx
+asm     jnb     FirstMatch
+
+NotFound:
+#if (LDATA)
+asm     xor     bx, bx
+asm     mov     es, bx
+#endif
+asm     mov     bx, 1
+asm     jmp     short End
+
+FirstMatch:
+asm     xchg    cx, dx
+asm     jcxz    End
+asm     mov     ax, cx
+asm     dec     cx
+asm     repz    cmpsb
+asm     mov     cx, ax
+asm     jnz     strLoop
+
+End:
+        popDS_
+#if (LDATA)
+    return (char _es *)(_BX - 1);
+#else
+    return (char *)(_BX - 1);
+#endif
+}

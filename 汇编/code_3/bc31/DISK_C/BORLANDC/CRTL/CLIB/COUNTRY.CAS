@@ -1,0 +1,52 @@
+/*---------------------------------------------------------------------------
+ * filename - country.cas
+ *
+ * function(s)
+ *        country - returns country-dependent information
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            country - returns country-dependent information
+
+Usage           struct COUNTRY *country(int countrycode, struct COUNTRY *countryp);
+
+Prototype in    dos.h
+
+Description     specifies how certain country-dependent data, such as
+                dates, times, and currency, will be formatted.
+
+                If countryp has a value of -1, the current country is set to
+                the value of countrycode, which must be non-zero.  Otherwise
+                the country structure pointed to by countryp is filled  with
+                the country dependent information.
+
+Return value    the pointer argument countryp, or NULL in case of error.
+
+*---------------------------------------------------------------------------*/
+struct COUNTRY *country(int xcode, struct COUNTRY *cp)
+{
+        pushDS_
+asm     LDS_    dx, cp
+asm     mov     ah,38h
+asm     mov     al,xcode
+asm     int     21h
+        popDS_
+asm     jc      error
+        return(cp);
+error:
+        return(0);
+}

@@ -1,0 +1,243 @@
+/*-----------------------------------------------------------------------*
+ * filename - stat.cas
+ *
+ * function(s)
+ *        stat - gets information about open file
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <sys\stat.h>
+#include <dos.h>
+#include <_io.h>
+#include <fcntl.h>
+#include <io.h>
+#include <errno.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            stat - gets information about open file
+
+Usage           #include <sys\stat.h>
+                int stat(char *pathname, struct stat *buff)
+
+Prototype in    sys\stat.h
+
+Description     Gather statistics about the file named by *pathP and place them
+                in the buffer *bufP.
+
+                It should be noted that on MSDOS this call can return more
+                information about a file than is possible with the fstat()
+                call.  In particular it is possible to get statistics for
+                directories and the time of the file is accessible for DOS
+                versions prior to 3.0.
+
+                Not all of the fields are relevant to MSDOS.  The statistics
+                fields are set thus:
+
+                st_dev          set to -1 if S_IFCHR, else set to drive
+                                holding the file.
+                st_ino          0
+                st_mode         Unix-style bit-set for file access rights
+                st_nlink        1
+                st_uid          0
+                st_gid          0
+                st_rdev         same as st_dev
+                st_size         file size (0 if S_IFDIR or S_IFCHR)
+                st_atime        time file last changed (seconds since 1970)
+                st_mtime        same as st_atime
+                st_ctime        same as st_atime
+
+                The file access rights bit-set may contain S_IFCHR, S_IFDIR,
+                S_IFREG, S_IREAD, S_IWRITE, or S_IEXEC.
+
+                If the name is for a device, the time fields will be zero
+                and the size field is undefined.
+
+Return value    The return value is 0 if the call was successful, otherwise
+                -1 is returned and errno contains the reason.  The buffer
+                is not touched unless the call is successful.
+
+*------------------------------------------------------------------------*/
+int _FARFUNC stat (const char *pathP, struct stat *bufP)
+
+{
+    dosSearchInfo       info;
+    int                 doserr;
+    char                *full;
+
+        pushDS_
+#if LDATA
+asm     push    SS
+asm     pop     DS
+#endif
+asm     lea     dx, info
+asm     mov     ah, 1Ah                 /* set Device Transfer Address  */
+asm     int     21h
+        popDS_
+asm     jc      statFailed
+
+        pushDS_
+asm     LDS_    dx, pathP
+asm     mov     cx, 16h      /* include directory, hidden, and system files */
+asm     mov     ah, 4Eh      /* Find First      */
+asm     int     21h
+        popDS_
+asm     jc      statFailed
+asm     jmp     statOK
+
+        /*      Arrive here if MSDOS calls failed.      */
+statFailed:
+
+    /* Check for the special case where the file is actually the
+     * root directory.  Make up a fake dosSearchInfo block for it.
+     */
+    doserr = _AX;   /* save DOS error code */
+    if (strpbrk(pathP,"\\/.") != NULL
+        && (full = _fullpath((char *)NULL,pathP,0)) != NULL)
+    {
+        int drive, lastc;
+
+        drive = full[0];
+        lastc = full[3];
+        if (lastc == '\0')    /* it's a name like "C:\" (i.e. root) */
+        {
+            free(full);             /* free the full path */
+            info.ds_drive = drive - (drive >= 'a' && drive <= 'z' ? 'a' : 'A');
+            info.ds_time = 0;       /* 00:00:00 */
+            info.ds_date = 0x21;    /* Jan 1 1980 */
+            info.ds_size = 0;
+            _SI = S_IREAD | S_IFDIR | S_IEXEC;
+            goto sta_convertTime;
+        }
+        else
+        {
+            /* Try find-file again with the path returned by _fullpath,
+             * which doesn't have an ending slash that DOS doesn't like.
+             */
+            pushDS_
+asm         LDS_    dx, full
+asm         mov     cx, 16h         /* include directory, hidden, system */
+asm         mov     ah, 4Eh         /* Find First      */
+asm         int     21h
+            popDS_
+asm         pushf                   /* save result of find first */
+
+            free(full);             /* free the full path */
+
+asm         popf                    /* get result of find first */
+asm         jnc     statOK
+        }
+
+    }
+    return __IOerror (doserr);
+
+
+statOK:
+    /* A network drive gives a weird drive number.  In that case,
+     * parse the filename to figure out the drive number.
+     */
+    if ((info.ds_attrib & 0x40) == 0 && info.ds_drive > 26)
+    {
+        if ((full = _fullpath((char *)NULL,pathP,0)) != NULL)
+            info.ds_drive = full[0] + 1
+                          - (full[0] >= 'a' && full[0] <= 'z' ? 'a' : 'A');
+    }
+
+asm     mov     dl, info.ds_attrib
+asm     sub     si, si                  /* SI = file mode       */
+/*
+  It is a non-documented feature of the FindFirst function that devices
+  can be "found".  They are distinguished by the attribute 40h.
+*/
+asm     test    dl, 40h                 /* is it a character stream ?   */
+asm     jnz     sta_isDevice
+
+        /*      Arrive here if the info is for a regular file.  */
+
+    _SI |= S_IREAD;
+asm     dec     BY0(info.ds_drive)      /* drives from 0..n-1, not 1..n */
+asm     test    dl, 10h                 /* directory ?  */
+asm     jnz     sta_isDir
+
+    _SI |= S_IFREG | S_IREAD;
+asm     test    dl, 1                   /* read only ?  */
+asm     jnz     sta_convertTime
+    _SI |= S_IWRITE;            /* write allowed        */
+asm     jmp     short   sta_convertTime
+
+sta_isDir:
+    _SI |= S_IFDIR | S_IEXEC;
+
+/*
+  MSDOS time is a 32-bit record, which must be converted into the Unix
+  style of seconds since 1970.
+*/
+sta_convertTime:
+    __DOStimeToU (*((long *) &info.ds_time));
+asm     xchg    cx, ax                  /* result in DX:CX */
+asm     jmp     short   sta_construct
+
+/* Arrive here if FindFirst identified the name as a character device. */
+
+sta_isDevice:
+asm     mov     W0 (info.ds_drive), -1
+    _SI |= S_IFCHR | S_IREAD | S_IWRITE;
+asm     sub     cx, cx
+asm     mov     dx, cx                  /* zero time    */
+
+/* Arrive here with SI = mode, DX:CX = time, and info = directory info. */
+
+sta_construct:
+asm     LES_    di, bufP
+#if (! LDATA)
+asm     push    DS
+asm     pop     ES
+#endif
+asm     cld
+asm     mov     al, info.ds_drive
+asm     cbw
+asm     stosw                   /* device       */
+asm     xchg    bx, ax          /* keep a copy  */
+asm     sub     ax, ax
+asm     stosw                   /* inode        */
+asm     xchg    ax, si
+asm     stosw                   /* mode */
+asm     mov     ax, 1
+asm     stosw                   /* number of links      */
+asm     xchg    ax, si          /* bring back the zero  */
+asm     stosw                   /* user (owner) id      */
+asm     stosw                   /* group id     */
+asm     xchg    ax, bx
+asm     stosw                   /* real device  */
+asm     mov     ax, W0 (info.ds_size)
+asm     stosw                   /* file..       */
+asm     mov     ax, W1 (info.ds_size)
+asm     stosw                   /*   ..size     */
+asm     xchg    ax, cx
+asm     stosw
+asm     xchg    ax, dx
+asm     stosw                   /* access time          */
+asm     xchg    ax, dx
+asm     stosw
+asm     xchg    ax, dx
+asm     stosw                   /* modification time    */
+asm     xchg    ax, dx
+asm     stosw
+asm     xchg    ax, dx
+asm     stosw                   /* status change time   */
+
+    return 0;
+}

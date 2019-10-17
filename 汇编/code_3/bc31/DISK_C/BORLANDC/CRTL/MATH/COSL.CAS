@@ -1,0 +1,77 @@
+/*------------------------------------------------------------------------
+ * filename - cosl.cas
+ *
+ * function(s)
+ *        cosl - long double trigonometric function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static  unsigned short   NANTRIGL [5] = {0,0,0,0xC021, 0x7FFF};
+
+/*--------------------------------------------------------------------------*
+
+Name            cosl - long double trigonometric function
+
+Usage           long double cosl(long double x);
+
+Prototype in    math.h
+
+Description     cosl returns the  cosine of the long double input value.
+                Angles are specified in radians.
+
+Return value    cosl returns a value in the range -1 to 1.
+                For very  large arguments (magnitude 2^63  radians or more)
+                there  is no  precision. This  is "silent",  since the ANSI
+                spec allows no error return for this function.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC cosl (long double  x)
+{
+asm     FLD     LONGDOUBLE (x)
+
+asm     mov     ax, 7FFFh
+asm     and     ax, W0 (x [8])          /* extract the exponent field */
+asm     cmp     ax, 63 + 3FFFh          /* biased version of exponent 63 */
+asm     jae     cos_tooLarge
+
+#ifdef _Windows
+        _f87_Cosine();
+#else
+        if (_8087 >= 3)
+        {
+asm     db      OPCODE_FCOS
+        }
+        else
+        {
+asm     _FAST_  (_FCOS_)
+        }
+#endif
+
+cos_end:
+        return;
+
+cos_tooLarge:
+asm     FSTP    ST(0)                   /* pop x from stack */
+
+#pragma warn -ret
+        return  __matherrl (TLOSS, "cosl", &x, NULL, *(long double *) NANTRIGL);
+#pragma warn .ret
+}
+#pragma warn .rvl

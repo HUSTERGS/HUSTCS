@@ -1,0 +1,24 @@
+LIBRARY     KEYBOARD                      
+
+DESCRIPTION 'KEYBOARD (Enhanced keyboard):'
+
+EXPORTS
+            ANSITOOEM                     @5   
+            ANSITOOEMBUFF                 @134 
+            DISABLE                       @3   
+            ENABLE                        @2   
+            ENABLEKBSYSREQ                @136 
+            GETKBCODEPAGE                 @132 
+            GETKEYBOARDTYPE               @130 
+            GETKEYNAMETEXT                @133 
+            GETTABLESEG                   @126 
+            INQUIRE                       @1   
+            MAPVIRTUALKEY                 @131 
+            NEWTABLE                      @127 
+            OEMKEYSCAN                    @128 
+            OEMTOANSI                     @6   
+            OEMTOANSIBUFF                 @135 
+            SCREENSWITCHENABLE            @100 
+            SETSPEED                      @7   
+            TOASCII                       @4   
+            VKKEYSCAN                     @129 

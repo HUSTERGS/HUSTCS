@@ -1,0 +1,65 @@
+/*------------------------------------------------------------------------
+ * filename - sqrtl.cas
+ *
+ * function(s)
+ *        sqrtl - calculates square root of long double
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static  unsigned short   NANSQRTL [5] = {0,0,0,0xC001,0x7FFF};
+
+/*--------------------------------------------------------------------------*
+
+Name            sqrtl - calculates square root of long double
+
+Usage           long double     sqrtl (long double  x);
+
+Prototype in    math.h
+
+Description     sqrtl calculates the square root of input value.
+
+Return value    sqrtl returns the square root of input value.
+                If the input value is less than 0, sqrtl returns 0 and sets
+                errno to
+                        EDOM    Domain error
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC sqrtl (long double  x)
+{
+asm     FLD     LONGDOUBLE (x)
+
+asm     mov     ax, x [8]
+asm     shl     ax, 1
+asm     jz      sqrtl_zero
+asm     jc      sqrtl_imaginary
+
+asm     FSQRT
+
+sqrtl_zero:                     /* zero = sqrtl (zero) */
+sqrtl_end:
+        return;
+
+
+sqrtl_imaginary:
+asm     FSTP    st (0)                  /* pop x from stack     */
+#pragma warn -ret
+        return  __matherrl (DOMAIN, "sqrtl", &x, NULL, *((long double *) NANSQRTL));
+#pragma warn .ret
+}
+#pragma warn .rvl

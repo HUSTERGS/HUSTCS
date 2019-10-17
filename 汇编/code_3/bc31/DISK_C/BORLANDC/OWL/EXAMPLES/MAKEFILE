@@ -1,0 +1,273 @@
+#
+# ObjectWindows - (C) Copyright 1992 by Borland International
+#
+
+!include "makefile.inc"
+
+APPS = popup.exe \
+       trantest.exe \
+       cursapp.exe \
+       helloapp.exe \
+       scribapp.exe \
+       vdlgapp.exe \
+       editapp.exe \
+       mdiapp.exe \
+       scrolapp.exe \
+       bscrlapp.exe \
+       cboxtest.exe \
+       mditest.exe \
+       sbartest.exe \
+       lboxtest.exe \
+       btntest.exe \
+       stattest.exe \
+       ewndtest.exe \
+       edittest.exe \
+       dialtest.exe \
+       paltest.exe \
+       lbxttest.exe \
+       insttest.exe \
+       cbxttest.exe \
+       gboxtest.exe \
+       dctltest.exe \
+       cctltest.exe \
+       notitest.exe \
+       mlbxttst.exe \
+       calldll.exe \
+       usecdll.exe \
+       usecdll2.exe
+
+all: $(APPS)
+
+turboc.cfg: makefile makefile.inc
+	echo -I$(INCLUDE) >turboc.cfg
+
+popup.exe: turboc.cfg popup.obj popup.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) popup,popup,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K popup.res popup.exe
+
+trantest.exe: turboc.cfg trantest.obj trantest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) trantest,trantest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K trantest.res trantest.exe
+
+cursapp.exe: turboc.cfg cursapp.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) cursapp,cursapp,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K cursapp.exe
+
+helloapp.exe: turboc.cfg helloapp.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) helloapp,helloapp,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K helloapp.exe
+
+scribapp.exe: turboc.cfg scribapp.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) scribapp,scribapp,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K scribapp.exe
+
+vdlgapp.exe: turboc.cfg vdlgapp.obj vdlgapp.res
+     $(TLINK)  $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) vdlgapp,vdlgapp,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K vdlgapp.res vdlgapp.exe
+
+editapp.exe: turboc.cfg editapp.obj editapp.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) editapp,editapp,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K editapp.res editapp.exe
+
+mdiapp.exe: turboc.cfg mdiapp.obj mdiapp.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL)  mdiapp,mdiapp,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K mdiapp.res mdiapp.exe
+
+scrolapp.exe: turboc.cfg scrolapp.obj
+     $(TLINK)  $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) scrolapp,scrolapp,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K scrolapp.exe
+
+bscrlapp.exe: turboc.cfg bscrlapp.obj bscrlapp.res
+     $(TLINK)  $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) bscrlapp ,bscrlapp,,  @&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K bscrlapp.res bscrlapp.exe
+
+cboxtest.exe: turboc.cfg cboxtest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) cboxtest,cboxtest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K cboxtest.exe
+
+mditest.exe: turboc.cfg mditest.obj mditest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) mditest,mditest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K mditest.res mditest.exe
+
+sbartest.exe: turboc.cfg sbartest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) sbartest,sbartest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K sbartest.exe
+
+lboxtest.exe: turboc.cfg lboxtest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) lboxtest,lboxtest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+      $(RC) -30 -K lboxtest.exe
+
+btntest.exe: turboc.cfg btntest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) btntest, btntest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K btntest.exe
+
+stattest.exe: turboc.cfg stattest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) stattest,stattest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K stattest.exe
+
+ewndtest.exe: turboc.cfg ewndtest.obj ewndtest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) ewndtest,ewndtest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K ewndtest.res ewndtest.exe
+
+edittest.exe: turboc.cfg edittest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) edittest,edittest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K edittest.exe
+
+dialtest.exe: turboc.cfg dialtest.obj dialtest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) dialtest ,dialtest,,  @&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K dialtest.res dialtest.exe
+
+calldll.obj: turboc.cfg calldll.cpp
+	$(CC) $(CFLAGSUD) calldll.cpp
+
+calldll.exe: turboc.cfg calldll.obj calldll.res dllhello.lib
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(DMODEL) calldll,calldll,,@&&!
+$(OWLDLIBS) dllhello.lib $(STDDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K calldll.res calldll.exe
+
+dllhello.obj: turboc.cfg dllhello.cpp
+	$(CC) $(CFLAGSD) dllhello.cpp
+
+dllhello.dll: turboc.cfg dllhello.obj dllhello.def
+  $(TLINK) $(LFLAGSD) $(BCLIBDIR)\c0d$(DMODEL) dllhello,dllhello,,@&&!
+$(OWLDLIBS) $(STDDLIBS)
+!,dllhello.def
+     $(RC) -30 -K dllhello.dll
+
+dllhello.lib: turboc.cfg dllhello.dll
+	implib dllhello.lib dllhello.dll
+
+paltest.exe: turboc.cfg paltest.obj paltest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) paltest,paltest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K paltest.res paltest.exe
+
+cctltest.exe: turboc.cfg cctltest.obj colordlg.obj cctltest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) cctltest colordlg,cctltest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K cctltest.res cctltest.exe
+
+lbxttest.exe: turboc.cfg lbxttest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) lbxttest,lbxttest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+      $(RC) -30 -K lbxttest.exe
+
+insttest.exe: turboc.cfg insttest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) insttest,insttest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K insttest.exe
+
+cbxttest.exe: turboc.cfg cbxttest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) cbxttest,cbxttest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K cbxttest.exe
+
+gboxtest.exe: turboc.cfg gboxtest.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) gboxtest,gboxtest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+      $(RC) -30 -K gboxtest.exe
+
+dctltest.exe: turboc.cfg dctltest.obj dctltest.h dctltest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) dctltest,dctltest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K dctltest.res dctltest.exe
+
+notitest.exe: turboc.cfg notitest.obj notitest.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) notitest,notitest,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K notitest.res notitest.exe
+
+mlbxttst.exe: turboc.cfg mlbxttst.obj
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) mlbxttst,mlbxttst,,@&&!
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K mlbxttst.exe
+
+usecdll.obj: turboc.cfg usecdll.cpp
+	$(CC) $(CFLAGSUD) usecdll.cpp
+
+usecdll.exe: turboc.cfg usecdll.obj usecdll.res cdlgdll.lib
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(DMODEL) usecdll,usecdll,,@&&!
+$(OWLDLIBS) cdlgdll.lib $(STDDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K usecdll.res usecdll.exe
+
+cdlgdll.obj: turboc.cfg cdlgdll.cpp
+	$(CC) $(CFLAGSD) cdlgdll.cpp
+
+dcolrdlg.obj: turboc.cfg colordlg.cpp
+	$(CC) $(CFLAGSD) -odcolrdlg.obj colordlg
+
+cdlgdll.dll: turboc.cfg cdlgdll.obj dcolrdlg.obj cdlgdll.res cdlgdll.def
+  $(TLINK) $(LFLAGSD) $(BCLIBDIR)\c0d$(DMODEL) cdlgdll dcolrdlg,cdlgdll,,@&&!
+$(OWLDLIBS) $(STDDLIBS)
+!,cdlgdll.def
+     $(RC) -30 -K cdlgdll.res cdlgdll.dll
+
+cdlgdll.lib: turboc.cfg cdlgdll.dll
+	implib cdlgdll.lib cdlgdll.dll
+
+usecdll2.exe: turboc.cfg usecdll2.obj usecdll2.res cdlgdll.lib
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(DMODEL) usecdll2,usecdll2,,@&&!
+$(OWLDLIBS) cdlgdll.lib $(STDDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K usecdll2.res usecdll2.exe
+
+clean:
+    del *.obj
+	del *.exe
+	del *.res
+	del *.dll
+	del *.lib
+	del *.map
+	del *.sym
+        del turboc.cfg
+
+

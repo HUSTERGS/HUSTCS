@@ -1,0 +1,104 @@
+/*-----------------------------------------------------------------------*
+ * filename - outport.cas
+ *
+ * function(s)
+ *        outport  - output word to a hardware port
+ *        outportb - output byte to a hardware port
+ *        outp     - output byte to a hardware port, return value output
+ *        outpw    - output word to a hardware port, return value output
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+
+#undef outportb
+#undef outport
+#undef outp
+#undef outpw
+
+/*-----------------------------------------------------------------------*
+
+Name            outport - output to a hardware port
+
+Usage           void outport(unsigned port, unsigned val);
+
+Prototype in    dos.h
+
+Description     see inport
+
+*------------------------------------------------------------------------*/
+void outport(unsigned port, unsigned val)
+{
+asm     mov     dx, port
+asm     mov     ax, val
+asm     out     dx, ax
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            outportb - output to a hardware port
+
+Usage           #include <dos.h>
+                void outportb(unsigned port, unsigned char val);
+
+Prototype in    dos.h
+
+Description     see inport
+
+*------------------------------------------------------------------------*/
+void outportb(unsigned port, unsigned char val)
+{
+asm     mov     dx, port
+asm     mov     al, val
+asm     out     dx, al
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            outpw   - output word to a hardware port
+
+Usage           unsigned outpw(unsigned port, unsigned val);
+
+Prototype in    dos.h
+
+Description     Similar to outport, except that it returns
+                the value output.  MSC compatible.
+
+*------------------------------------------------------------------------*/
+unsigned outpw(unsigned port, unsigned val)
+{
+asm     mov     dx, port
+asm     mov     ax, val
+asm     out     dx, ax
+        return (_AX);
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            outp    - output byte to a hardware port
+
+Usage           int outp(unsigned port, int val);
+
+Prototype in    dos.h
+
+Description     Similar to outportb, except that it returns
+                the value output.  MSC compatible.
+
+*------------------------------------------------------------------------*/
+int outp(unsigned port, int val)
+{
+asm     mov     dx, port
+asm     mov     al, val
+asm     out     dx, al
+asm     xor     ah, ah
+        return (_AX);
+}

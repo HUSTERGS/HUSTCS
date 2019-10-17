@@ -1,0 +1,72 @@
+/*-----------------------------------------------------------------------*
+ * filename - strupr.c
+ *
+ * function(s)
+ *        strupr - converts lower-case letters in a string to upper-case
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <string.h>
+#include <ctype.h>
+
+/*---------------------------------------------------------------------*
+
+Name            strupr - converts lower-case letters in a string to upper-case
+
+Usage           char *strupr(char *str);
+
+Prototype in    string.h
+
+Description     strupr converts lower-case letters in string str to upper-case.
+                No other changes occur.
+
+Return value    pointer to str
+
+*---------------------------------------------------------------------*/
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+char _FAR * _CType _FARFUNC strupr(char _FAR *s)
+{
+asm     cld
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     push    ds
+#endif
+asm     LDS_    si, s
+asm     mov     dx, si                  /* save addr for return */
+        goto    next_char;
+convert_loop:
+asm     sub     al, 'a'                 /* see if 'a' .. 'z' */
+asm     cmp     al, 'z' - 'a'
+asm     ja      next_char
+asm     add     al, 'A'                 /* make uppercase */
+asm     mov     [si-1], al
+next_char:
+asm     lodsb
+asm     and     al, al
+asm     jnz     convert_loop
+asm     xchg    ax, dx                  /* return addr of string */
+#if LDATA
+asm     mov     dx, ds
+#endif
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     pop     ds
+#endif
+
+#if LDATA
+        return( (char *)(MK_LONG) );
+#else
+        return( (char *)_AX );
+#endif
+}

@@ -1,0 +1,91 @@
+/*-----------------------------------------------------------------------*
+ * filename - strcmp.cas
+ *
+ * function(s)
+ *        strcmp - compare one string to another
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <string.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            strcmp - compare one string to another
+
+Usage           int strcmp(const char *str1, const char str2);
+
+Prototype in    string.h
+
+Description     Compare *str1  with *str2, returning  a negative, zero,  or
+                positive integer  according to whether *str1  is less than,
+                equal, or greater than *str2, respectively.
+
+Return value    strcmp return an integer value such as:
+                        < 0     if str1 is less than str2
+                        = 0     if str1 is the same as str2
+                        > 0     if str2 is greater than str2
+
+*------------------------------------------------------------------------*/
+#undef strcmp                  /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+int _CType _FARFUNC strcmp(const char *str1, const char *str2)
+{
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     mov     dx, ds
+#endif
+#if !(LDATA)
+asm     mov     ax, ds
+asm     mov     es, ax
+#endif
+asm     cld
+
+/*   Its handy to have AH & BH zero later for the final subtraction. */
+asm     xor     ax, ax
+asm     mov     bx, ax
+
+/*   Determine size of 2nd source string. */
+asm     LES_    di, str2
+asm     mov     si, di
+asm     xor     al, al
+asm     mov     cx, -1
+asm     repne   scasb
+asm     not     cx
+
+asm     mov     di, si
+asm     LDS_    si, str1
+
+/*
+Scan until either *s2 terminates or a difference is found.  Note that it is
+sufficient to check only for right termination, since if the left terminates
+before the right then that difference will also terminate the scan.
+*/
+asm     repe    cmpsb
+/*
+The result is the signed difference of the final character pair, be they
+equal or different. A simple byte subtract and CBW doesn't work here because
+it does the wrong thing when the characters are 'ff' and '7f'.  In that case
+255 would be reported as less than 127. ie '80' sign extends to 'ff80' which
+is a negative number.  Remember AH, BH are zero from above.
+*/
+asm     mov     al, [si-1]
+asm     mov     bl, ES_ [di-1]
+asm     sub     ax, bx
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     mov     ds, dx
+#endif
+        return _AX;
+}

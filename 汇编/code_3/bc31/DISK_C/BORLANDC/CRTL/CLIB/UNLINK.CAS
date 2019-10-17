@@ -1,0 +1,64 @@
+/*-----------------------------------------------------------------------*
+ * filename - unlink.cas
+ *
+ * function(s)
+ *        unlink - deletes a file
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <_io.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            unlink - deletes a file
+
+Usage           int unlink(const char *filename);
+
+Related
+functions usage int remove(const char *filename);
+
+Prototype in    dos.h
+
+Description     unlink deletes a file specified by filename. Any
+                MS-DOS drive, path, and file name may be used as a filename.
+                Wildcards are not allowed.
+
+                Read-only files cannot be deleted by this call. To remove
+                read-only files, first use chmod or _chmod to change the
+                read-only attribute.
+
+                remove is a macro that simply translates the call to a call
+                to unlink.
+
+Return value    On successful completion, a 0 is returned. On
+                error, a -1 is returned, and errno is set to one of the
+                following values:
+
+                        ENOENT  Path or file name not found
+                        EACCES  Permission denied
+
+*------------------------------------------------------------------------*/
+int _CType unlink(const char *filename)
+{
+        pushDS_
+asm     mov     ah, 041h
+asm     LDS_    dx, filename
+asm     int     021H
+        popDS_
+asm     jc      unlinkFailed
+    return(0);
+
+unlinkFailed:
+    return __IOerror(_AX);
+}

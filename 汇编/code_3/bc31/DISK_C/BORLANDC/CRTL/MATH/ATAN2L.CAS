@@ -1,0 +1,147 @@
+/*------------------------------------------------------------------------
+ * filename - atan2l.cas
+ *
+ * function(s)
+ *        atan2l - long double trigonometric function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+static  unsigned short  piBy2 [] = {0xC235, 0x2168, 0xDAA2, 0xC90F, 0x3FFF};
+static  unsigned short  NANINVTRIGL [5] = {0,0,0,0xC022, 0x7FFF};
+
+
+/*--------------------------------------------------------------------------*
+
+Name            atan2l - trigonometric function
+
+Usage           long double atan2l(long double y, long double x);
+
+Prototype in    math.h
+
+Description     atan2l  returns the  arc tangent   of y/x  and will  produce
+                correct results even  when resulting is near pi/2  or -pi/2
+                (x near 0).
+
+Return value    atan2l returns a value in the range -pi to pi.
+                If a ratio of 0/0  is supplied then _RANGE_VAL is returned
+                and errno is set to:
+                        EDOM Domain error
+
+Caution: atan2l(+0,-1) = +pi but atan2l(-0,-1) = -pi.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+long double _FARFUNC atan2l (long double y, long double x)
+{
+
+asm     FLD     LONGDOUBLE (x)
+asm     mov     ax, x [8]       /* select MSW of x ..   */
+asm     mov     bx, y [8]       /* .. and of y          */
+asm     shl     bx, 1           /* discard sign         */
+asm     FLD     LONGDOUBLE (y)
+asm     jz      at2_yIsZero
+asm     shl     ax, 1           /* discard sign         */
+asm     jz      at2_xIsZero
+asm     cmp     ax, 0FFFEh
+asm     jnb     at2_xIsInf
+asm     cmp     bx, 0FFFEh
+asm     jnb     at2_yIsInf
+
+asm     FDIVRP  ST(1), ST(0)
+
+#ifdef _Windows
+        _f87_ArcTan();
+#else
+asm     _FAST_  (_FATAN_)
+#endif
+
+/* convert the simple answer to a four quadrant answer. */
+
+at2_setQuad:
+asm     test    BY0 (x [9]), 80h                /* the sign bit */
+asm     jz      at2_end
+
+asm     FLDPI
+
+asm     test    BY0 (y [9]), 80h
+asm     jz      at2_2ndQuad
+
+at2_3rdQuad:
+asm     FSUBP   ST(1), ST
+asm     jmp     short   at2_end
+
+at2_2ndQuad:
+asm     FADDP   ST(1), ST
+
+at2_end:
+        return;
+
+
+/*      Special cases.
+*/
+at2_yIsZero:
+asm     rcl     cx, 1                   /* save sign of y = 0 */
+asm     shl     ax, 1
+asm     jz      at2_indeterminate       /* if both are zero     */
+asm     jc      at2_retPi               /* x<0, return Pi */
+asm     FSTP    ST(1)                   /* else y is result     */
+asm     jmp     short   at2_end
+
+at2_retPi:                      /* y = 0, x < 0 */
+asm     FSTP    ST(0)           /* discard x and y */
+asm     FSTP    ST(0)
+asm     FLDPI                   /* and return PI */
+asm     shr     cx, 1           /* was y +0 or -0 ? */
+asm     jnc     at2_end
+asm     FCHS
+asm     jmp     short at2_end
+
+at2_xIsZero:                            /* and y is not zero    */
+                                        /*      or              */
+at2_yIsInf:                             /* and x is finite      */
+asm     FSTP    ST(0)           /* discard x and y */
+asm     FSTP    ST(0)
+asm     FLD     tbyte ptr (piBy2)
+asm     test    BY0 (y [9]), 80h                /* check sign of Y */
+asm     jz      at2_HPi         /* positive - return PI/2 */
+asm     FCHS                    /* negative - return -PI/2 */
+at2_HPi:
+asm     jmp     short   at2_end
+
+at2_xIsInf:
+asm     cmp     bx, 0FFFEh
+asm     jnb     at2_indeterminate       /* if both are infinite */
+asm     FSTP    ST(0)           /* discard x and y */
+asm     FSTP    ST(0)
+asm     FLDZ
+asm     jmp     short   at2_setQuad
+
+/*
+  There are two cases considered irresolvable: both operands zero, or
+  both operands infinite.
+*/
+at2_indeterminate:                      /* either equal or both infinite */
+asm     FSTP    ST(0)           /* discard x and y */
+asm     FSTP    ST(0)
+#pragma warn -ret
+        return __matherrl (DOMAIN, "atan2l", &x, &y,  *((long double *) NANINVTRIGL));
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use

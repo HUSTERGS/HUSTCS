@@ -1,0 +1,93 @@
+/*------------------------------------------------------------------------
+ * filename - poly.cas
+ *
+ * function(s)
+ *        poly - generates a polynomial from arguments
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            poly - generates a polynomial from arguments
+
+Usage           double  poly(double x, int n, double c []);
+
+Prototype in    math.h
+
+Description     poly  generates  a  polynomial  in  x,  of  degree  n, with
+                coefficients c[0],  c[1], ..., c[n].  For example, if  n=4,
+                the generated polynomial is
+
+                        c[4].x^4 + c[3].x^3 + c[2].x^2] + c[1].x + c[0]
+
+                The polynomial is calculated using Horner's method:
+
+                        polynom = (..((x.c[n] + c[n-1]).x + c[n-2])..).x + c[0]
+
+Return value    poly returns the  value of the polynomial as  evaluated for
+                the given x.
+                If n < 0  then the result is a domain error.
+                A range error occurs if the result exceeds double range.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+double  _FARFUNC poly (double x, int n, double c [])
+{
+        volatile unsigned    sw;
+
+asm     FLD     DOUBLE (x)
+asm     mov     si, n
+asm     mov     cl, 3
+asm     shl     si, cl
+asm     or      si, si
+asm     jl      ply_domain
+asm     LES_    bx, c
+asm     FLD     DOUBLE (ES_ [bx+si])
+asm     jz      short   ply_end
+
+ply_loop:
+asm     FMUL    ST, ST(1)
+asm     sub     si, 8
+asm     FADD    DOUBLE (ES_ [bx+si])
+asm     jg      ply_loop
+
+ply_end:
+asm     FXAM
+asm     FSTSW   W0 (sw)
+asm     FSTP    ST(1)                   /* discard ST(1) */
+asm     mov     ax, sw
+asm     sahf
+asm     jc      ply_range
+        return;
+
+ply_domain:
+asm     mov     si, DOMAIN
+asm     jmp     short   ply_err
+
+ply_range:
+asm     mov     si, OVERFLOW
+
+ply_err:
+asm     FSTP    ST(0)                   /* discard ST */
+#pragma warn -ret
+        return  _matherr (_SI, "poly", &x, c, HUGE_VAL);
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use

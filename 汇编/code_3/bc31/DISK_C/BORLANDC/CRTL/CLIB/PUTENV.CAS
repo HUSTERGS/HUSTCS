@@ -1,0 +1,210 @@
+/*-----------------------------------------------------------------------*
+ * filename - putenv.cas
+ *
+ * function(s)
+ *        putenv - adds string to current environment
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <string.h>
+#include <asmrules.h>
+#include <stdlib.h>
+
+extern  char            **environ;
+extern  unsigned        _envSize;
+
+/*-----------------------------------------------------------------------*
+
+Name            putenv - adds string to current environment
+
+Usage           int putenv(const char *envvar);
+
+Prototype in    stdlib.h
+
+Description     Define an environment string to be of the form:
+
+                        name=string\0
+
+                This function scans the environment looking for an existing
+                string with the same name as the argument *envvar. If it is
+                found then the pointer envvar  is substituted in the table.
+                The replaced string  is not overwritten or freed,  just the
+                reference to it in the environment table is removed.
+
+                If the argument  represents a new name, not  matched in the
+                existing  environment,  then  it  will  be  appended to the
+                environment  table. The  table is  adjusted in  chunks of 4
+                pointers and is initialized with  at least 4 spare entries,
+                but if all spare entries in the table have been used then a
+                new larger  block is allocated.  The environment is  copied
+                into the new  block, the "environ" pointer is  updated, and
+                the old block is deallocated. The envp parameter to  main()
+                will then be invalid.
+
+                The string  comparison is case-sensitive, in  the usual "C"
+                tradition.
+
+
+Return value    On success, putenv returns 0; on failure, -1
+
+*------------------------------------------------------------------------*/
+int _FARFUNC putenv( const char _FAR *nameP )
+{
+    char  **envP;
+
+asm     LES_    di, nameP
+
+        /* Check for NULL pointer */
+#if (LDATA)
+asm     mov     ax, ES
+asm     or      ax, di
+#else
+asm     push    ds
+asm     pop     es
+asm     or      di, di
+#endif
+asm     jz      BadPutEnvExit
+
+        /* Compute nameP length and remember first character */
+asm     mov     ah, ES_ [di]
+asm     mov     al, '='
+asm     mov     cx, -1
+asm     cld
+asm     repne   scasb
+asm     not     cx
+asm     dec     cx
+asm     jz      BadPutEnvExit   /* CX = VarName length */
+
+        /* Look for nameP in environment array */
+#if __HUGE__
+asm     mov     di, seg environ
+asm     mov     DS, di
+#endif
+asm     LES_    di, DPTR_(environ)
+#if (LDATA)
+asm     mov     W1 (envP), ES
+asm     mov     bx, ES
+asm     or      bx, di
+#else
+asm     or      di, di
+#endif
+asm     mov     W0 (envP), di
+asm     jnz     FirstVariable
+
+        /* If no match can be found, return -1. */
+BadPutEnvExit:
+asm     mov     ax, -1
+asm     jmp     PutEnvExit
+
+        /* Does the first character match ??? */
+NextVariable:
+asm     add     W0 (envP), dPtrSize
+asm     LES_    di, envP
+FirstVariable:
+asm     LES_    di, ES_ [di]
+#if (LDATA)
+asm     mov     bx, ES
+asm     or      bx, di
+#else
+asm     or      di, di
+#endif
+asm     jz      VarNotFound
+asm     mov     al, ES_ [di]
+asm     or      al, al          /* "" terminates environment */
+asm     jz      VarNotFound
+asm     cmp     ah, al          /* compare first characters */
+asm     jne     NextVariable
+asm     mov     bx, cx
+asm     cmp     BY0 (ES_ [di+bx]), '='
+asm     jne     NextVariable    /* must be followed by '=' */
+
+        /* Yes, so compare the remainder of nameP */
+        pushDS_
+asm     LDS_    si, nameP
+asm     repe    cmpsb
+        popDS_
+asm     xchg    cx, bx
+asm     jne     NextVariable
+
+/* The entries match names.  Replace the old pointer with the new. */
+VarFound:
+asm     LES_    di, envP
+asm     mov     ax, W0 (nameP)
+asm     mov     W0 (ES_ [di]), ax
+#if (LDATA)
+asm     mov     ax, W1 (nameP)
+asm     mov     W1 (ES_ [di]), ax
+#endif
+asm     jmp     short   GoodPutEnvExit
+
+/* If arrived here then no matching name exists in the table.  A new */
+/*       entry must be made.  Is the existing table big enough ?     */
+VarNotFound:
+asm     mov     bx, W0(envP)
+asm     sub     bx, W0(environ)
+asm     add     bx, dPtrSize
+asm     cmp     bx, _envSize
+asm     jb      Append
+
+/* The environment table is full.  It must be enlarged by copying to */
+/*       a new memory block.                                         */
+asm     add     bx, 4 * dPtrSize
+asm     push    bx
+asm     call    EXTPROC(malloc)
+asm     pop     cx
+asm     mov     di, ax
+#if (LDATA)
+asm     mov     ES, dx
+asm     mov     bx, ax
+asm     or      bx, dx
+#else
+asm     push    DS
+asm     pop     ES
+asm     or      di, di
+#endif
+asm     jz      BadPutEnvExit
+asm     xchg    cx, _envSize
+asm     push    cx
+        pushDS_
+asm     LDS_    si, DPTR_(environ)
+asm     rep     movsb
+        popDS_
+asm     xchg    ax, W0 (environ)
+#if (LDATA)
+asm     xchg    dx, W1 (environ)
+asm     push    dx
+#endif
+asm     push    ax
+asm     call    EXTPROC(free)
+asm     add     sp, dPtrSize
+asm     pop     bx
+
+/* If arrived here then BX points to the first unused table slot  */
+/*       and the new entry is to be appended.  The append is done */
+/*       by copying the final pointer (to the empty string) up    */
+/*       one place and inserting the new string in its place.     */
+Append:
+asm     LES_    di, DPTR_(environ)
+asm     mov     ax, W0 (nameP)
+asm     xchg    ax, W0 (ES_ [di+bx-dPtrSize])
+asm     mov     W0 (ES_ [di+bx]), ax
+#if (LDATA)
+asm     mov     ax, W1 (nameP)
+asm     xchg    ax, W1 (ES_ [di+bx-dPtrSize])
+asm     mov     W1 (ES_ [di+bx]), ax
+#endif
+
+GoodPutEnvExit:
+asm     xor     ax, ax
+PutEnvExit:
+    return(_AX);
+}

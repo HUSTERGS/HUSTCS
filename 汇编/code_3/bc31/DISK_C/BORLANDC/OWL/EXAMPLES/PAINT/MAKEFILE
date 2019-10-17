@@ -1,0 +1,36 @@
+#
+# ObjectWindows - (C) Copyright 1992 by Borland International
+#
+
+!if !$d(BCROOT)
+!include "..\bcroot.inc"
+!endif
+
+!include "..\makefile.inc"
+
+paint.exe: turboc.cfg paint.obj paint.res
+     $(TLINK) $(LFLAGS) $(BCLIBDIR)\c0w$(MODEL) paint,@&&!
+paint
+
+$(OWLLIBS) $(STDLIBS)
+!,$(OWLROOT)\lib\owl.def
+     $(RC) -30 -K paint.res paint.exe
+
+paint.res : paint.rc ellipse.cur fill.cur fellipse.cur frect.cur \
+	pen.cur rect.cur ellipse.ico fill.ico fellipse.ico frect.ico \
+	pen.ico rect.ico owlpaint.ico
+
+turboc.cfg: makefile ..\makefile.inc
+	echo -I$(INCLUDE) >turboc.cfg
+
+clean:
+	del *.obj
+	del *.exe
+	del *.res
+	del *.dll
+	del *.lib
+	del *.map
+	del *.sym
+        del turboc.cfg
+
+

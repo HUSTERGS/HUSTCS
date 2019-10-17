@@ -1,0 +1,136 @@
+
+          TCREF: The source module cross-reference utility
+          ------------------------------------------------
+
+TABLE OF CONTENTS
+-----------------
+1. What is TCREF?
+2. How to Use TCREF
+3. Compatibility with TLINK
+4. TCREF Options
+5. TCREF Reports
+
+
+1. WHAT IS TCREF?
+-----------------
+
+  TCREF is designed to produce two reports: a cross-reference list of where 
+  all global symbols are used and defined, and a list of individual modules 
+  and the symbols used within them.
+
+
+2. HOW TO USE TCREF
+-------------------
+
+  TCREF accepts as input a group of .XRF files produced by TASM. These files 
+  contain cross-reference information for individual modules. From these input 
+  files, a single .REF file is produced that contains one or more reports in 
+  ASCII text. The command format follows:
+
+    TCREF <XRF files separated by '+' characters> ','
+       <REF filename> <switches>
+
+  For example, the following would take the FOO1.XRF, FOO2.XRF, and FOO3.XRF 
+  as input files and produce FOO.REF:
+
+    TCREF foo1+foo2+foo3,foo
+
+  Response files
+  ---------------
+  TCREF also accepts ASCII files as command strings. Simply precede the file 
+  name with an @@ sign to include a file in the command string. For example,
+
+    TCREF @@dofoo
+
+  where DOFOO contains
+
+    foo1+foo2+foo3,foo
+
+  will do the same thing as the previous example.
+
+
+3. COMPATIBILITY WITH TLINK
+---------------------------
+
+  TCREF accepts command strings that TLINK accepts. TCREF ignores any 
+  irrelevant switches and fields, such as any libraries or MAP files, or
+  switches that pertain only to the linker function. Similarly, if an .XRF 
+  file cannot be located, TCREF will simply ignore it.
+
+  Beware! When using a TLINK response file, don't explicitly specify file 
+  extensions, since doing so will override TCREF's internal defaults and 
+  possibly result in disaster. For example, if the response file reads aS
+
+    foo1+foo2+foo3,foo.exe
+
+  you should not use this file without modification with TCREF because the 
+  .REF file it creates will be named FOO.EXE, presumably overwriting your 
+  program.
+
+
+4. TCREF OPTIONS
+----------------
+
+  TCREF accepts all the switches present in TLINK, but most of them are 
+  discarded. TCREF only uses these options:
+
+    /c makes GLOBAL report case-sensitive.
+
+    /r generates LOCAL reports for all the specified modules.
+
+    /p# sets report page length to # lines.
+
+    /w# sets report page width to # columns.
+
+
+5. TCREF REPORTS
+----------------
+
+  TCREF takes great care to make semantic sense of symbols. Cross-reference
+  information is useless when symbols with the same name but different
+  meanings are lumped together. TCREF therefore takes into account the
+  SCOPE of a symbol when producing its reports. Cross-reference information
+  is always listed for the source file and source line number.
+
+  Global (or linker-scope) report
+  -------------------------------
+
+  TCREF's global report lists cross-reference information for global symbols 
+  as they appear to the linker. Use the /c switch if you want to produce 
+  case-sensitive reports.
+
+  In this report, global symbols appear alphabetically in the left column.
+  References, organized by source file, are listed in the right column.
+  Wherever #'s appear indicates that definition occurs at that line.
+
+  Here's an example symbol printout:
+
+    Global Symbols       Cref  #  = definition
+    BAR                  TEST.ASM:  1  3  6  9  12  15  18 +
+                                                21  23  29
+                                          #  TEST2.ASM:  2  4  6  #8
+
+  What does this tell you? The leading # sign before the TEST2.ASM indicates 
+  that BAR was defined somewhere in that module. For each source file, the 
+  source line at which the reference occurred is listed. This list can occupy
+  more than one line, as in the case of the lines for TEST.ASM. The + 
+  character indicates that wrap has occurred. Finally, the # sign before the 
+  8 indicates that a definition of BAR occurred in TEST2.ASM on line 8.
+
+  The local (or module-scope) report
+  ----------------------------------
+
+  If you specify /r on the command line, a local report will be made for
+  each module. It will contain all the symbols used in that module, listed 
+  in alphabetical order. The /c switch will have no effect on these reports, 
+  since the appropriate case-sensitivity has already been determined at 
+  assembly time.
+
+  Like global reports, references are organized by source file in the right 
+  column. A sample printout looks like this:
+
+    Module TEST.ASM Symbols        Cref  # = definition
+    UGH                            TEST.ASM:  1  3  6  9  12  15  18 +
+                                                          21  23  29
+                                                   #  UGH.INC:  #2
+

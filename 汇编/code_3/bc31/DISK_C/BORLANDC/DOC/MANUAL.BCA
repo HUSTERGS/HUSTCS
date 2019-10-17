@@ -1,0 +1,570 @@
+User's Guide
+============
+ Chapter 3, "Menus and options reference"
+ ----------------------------------------
+  Page 109
+  --------
+   The macros __CLASSDLL and __RTLDLL should be _CLASSDLL and _RTLDLL
+   (with a single underscore), respectively.
+
+ Appendix A, "The Optimizer"
+ ---------------------------
+  Page 181
+  --------
+   The -Os entry in Table A.1 should indicate that it is the default
+   value for the command-line and IDE compilers.
+
+   Also, the sentence
+
+    "In particular, -G and -G- are -Os and -Ot, respectively."
+
+   should read
+
+    "In particular, -G and -G- are -Ot and -Os, respectively."
+
+  Page 190
+  --------
+   Add the following paragraph to the Object Data section, right
+   before the section titled "The _fastcall modifier"
+
+    You must compile all descendants and ancestors of a class with
+    Object Data if you want that hierarchy to use Object Data. For
+    example, if you use a class library that hasn't been compiled
+    using Object Data (like Turbo Vision or ObjectWindows), your
+    applications can still use Object Data even though those classes
+    don't. The compiler knows (from pragmas in the header files)
+    that those classes weren't compiled with Object Data and won't
+    try to force descendants of them to use Object Data. Classes you
+    define entirely within your application, on the other hand, will
+    use Object Data.
+
+
+Programmer's Guide
+==================
+ Chapter 3, "C++ specifics"
+ --------------------------
+  Page 127
+  --------
+   The sample function main should be as follows:
+
+   int main()
+   {
+     X one(10);   // invokes X::X(int) and sets integer_part to 10
+     X two(3.14); // invokes X::X(double) and sets double_part to 3.14
+   }
+
+ Chapter 4, "The preprocessor"
+ -----------------------------
+  Page 171+
+  --------
+   There are two additional pragmas:
+
+    #pragma codestring "string"
+     The specified string is emitted into the code segment;
+     note that no terminating null is emitted. This #pragma
+     is useful for embedding strings like copyright notices,
+     module signatures, etc. in the code segment.
+
+    #pragma codeseg [seg-name [group-name] ["class-name"]]
+
+     Specifies the code segment name (and optionally group
+     and/or class name) that function bodies following
+     this pragma will be emitted into. When no parameters
+     are given, the code segment is switched back to the
+     initial code segment.
+
+  Page 175+
+  ---------
+   The predefined version macros have been updated:
+    __BORLANDC__    is now defined as 0x0410
+    __TURBOC__      is now defined as 0x0410
+    __BCPLUSPLUS__  is now defined as 0x0310
+    __TCPLUSPLUS__  is now defined as 0x0310
+
+ Chapter 5, "Using C++ streams"
+ ------------------------------
+  Page 204
+  --------
+   The first parameter to the constructors for the class istrstream
+   is incorrectly specified as a const char *; it actually is a char *.
+
+  Page 207
+  --------
+   The last sentence in the introductory paragraph to streambuf
+   should read:
+
+   streambuf is a base for conbuf, filebuf, and strstreambuf.
+
+ Chapter 6, "The container class libraries"
+ ------------------------------------------
+  Page 264
+  --------
+   The description of ContainerIterator::operator ++ should read:
+
+   Advances the iterator one position in the container. The first
+   version returns the object referred to <after> incrementing;
+   the second version returns the object referred to <before>
+   incrementing. The int argument is used to distinguish between
+   the prefix and postfix increment operators. (See "Overloading
+   unary operators" on page 138 for details.)
+
+ Chapter 8, "Building a Windows application"
+ -------------------------------------------
+  Page 321
+  --------
+  The TLINK command line should be changed to:
+
+   tlink /Tw /v /n /c C:\BORLANDC\LIB\c0ws whello,\
+         whello,\
+         ,\
+         C:\BORLANDC\LIB\cws
+                         ^^^
+
+
+
+Tools and Utilities Guide
+=========================
+ Introduction
+ ------------
+  Transfer macros, the Turbo Editor Macro Language (TEML), and
+  the Turbo Editor Macro Compiler (TEMC) are also documented in
+  the online file UTIL.DOC.
+
+ Chapter 1, "Import library tools"
+ ---------------------------------
+  Page 7
+  ------
+   IMPLIBW does allow you to create a single import library from
+   multiple DLLs or module definition files. At the File Select
+   dialog box, you can type multiple filenames in the File edit
+   control. When you choose OK to make the import library,
+   IMPLIBW will use all the exports from each of the DLLs or
+   module definition files you listed. Note that you can only
+   select a single file using the file list box; you must type in
+   the filenames if you need to specify more than one.
+
+ Chapter 2, "Make: The program manager"
+ --------------------------------------
+  Page 11
+  -------
+   In the sentence that begins "All options that do not specify a
+   string (-s or ña, for example)..." the "ña" should be "-a".
+
+  Page 33
+  -------
+   The last word of the page, "which" should be "while $<".
+
+ Chapter 3, "TLIB: The Turbo librarian"
+ --------------------------------------
+   There is an additional TLIB command line option, /0, which is not
+   documented in the printed TLIB reference (Chapter 3 of the Tools &
+   Utilities Guide).  The /0 option instructs the Turbo Librarian to
+   remove all "Comment" records from the library.  Comment records are
+   typically used to store information used by the debugger or other
+   tools, and are not needed to create an executable file.  Using this
+   option will make your libraries (and executable programs created using
+   the libraries) smaller.  The /0 option is equivalent to checking
+   Purge Comment Records in the Options|Librarian dialog box within the IDE.
+
+ Chapter 4, "TLINK: The Turbo linker"
+ --------------------------------------
+  Page 58
+  -------
+   Change the TLINK format description to:
+
+    tlink C0[W|D|F]x myobjs,exe,[map],[IMPORT][mylibs][OVERLAY]
+    [EMU|FP87 mathx][CWx|Cx],[deffile]
+    ^^^^^^^^^^^^^^^^^^^^^^^^
+  Page 60
+  -------
+   Reverse the order of the two bullet items below:
+
+   o CWx.LIB, the run-time library..
+   o if you are using floating point math, FP87.LIB...
+
+   The math libraries should be linked before the run-time library.
+
+ Chapter 5, "Using WinSight"
+ ---------------------------
+  The paragraph "Formatting message parameters" should be replaced
+  with the following two paragraphs:
+
+   Normally, the Message Trace pane interprets each message's 
+   parameters and return value and displays them in a more 
+   easily human readable format. You can disable this by 
+   unchecking "Interpret Values" in the Message Trace Options
+   dialog box.
+
+   The Message Trace pane usually displays information about 
+   the parameters and return value of a message in decimal.
+   Since it's sometimes more convenient to view a message's
+   detail in hexadecimal, you can enable hex-only interpretation
+   by checking "Hex Values" in the Message Trace Options
+   dialog box.
+
+ Appendix A, "Error messages"
+ ----------------------------
+  Page 177
+  --------
+   MAKE and MAKER generate a new error message:
+    Cycle in include files: 'filename.h'
+    You can't recursively include files.
+
+  Page 182
+  --------
+   In the TLINK warning "filename(linenum): Duplicate internal name
+   in imports," there is an extraneous right bracket that should be
+   removed.
+
+  Page 192
+  --------
+   There is a new compiler warning:
+
+    Initialization is only partially bracketed
+     When structures are initialized, braces can be used to mark the 
+     initialization of each member of the structure. If a member 
+     itself is an array or structure, nested pairs of braces may be 
+     used. This ensures that your idea and the compiler's idea of what 
+     value goes with which member are the same. When some of the 
+     optional braces are omitted, the compiler issues this warning.
+
+  Page 197
+  --------
+   In the compile-time error "Last parameter of operator must have
+   type int," "operator-ñ" should actually read "operator--"
+
+   The TLIB warning "library contains COMDEF records - extended
+   dictionary not created," should have the following note:
+     Any C++ module that contains virtual functions will have
+     COMDEF records; therefore, you can't create an extended
+     dictionary for C++ modules.
+
+  Page 198
+  --------
+   The compile-time error "main must have return type of int"
+   actually applies to ANSI C (-A on the command line), not C++.
+
+  Page 235
+  --------
+   There is a new linker error message:
+
+    "Unable to process debug: disable TASM /zi option".
+
+    The linker cannot process information generated in .ASM files
+    by the compiler (using the /S or /B option from the command
+    line or the IDE  Options|Compiler|Code Generation|
+    Generate Assembler Source or Compile Via Assembler.
+
+
+
+Library Reference
+=================
+  Chapter 2, "The run-time library"
+  ---------------------------------
+    Page 173
+    --------
+      Under "Return value" "doserno" should be "_doserrno".
+
+    Page 174
+    --------
+      Under "Return value" "doserno" should be "_doserrno" and
+      the entry for ENOENT should be "Path or file name not found".
+
+    Page 185
+    --------
+      _fpreset is actually not available under Windows
+
+    Page 551
+    --------
+      strxfrm's "Return value" should read: "The length of s1."
+
+  Note that two functions are incorrectly prototyped in the Library
+  Reference. Here are their correct prototypes:
+
+   size_t far _fstrlen(const char far *s);
+   size_t far _fstrcspn(const char far *s1, const char far *s2);
+
+  The following functions have some missing documentation in the
+  Library Reference:
+
+  ------------------------------------------------------------------
+  Function: stackavail
+  Gets the amount of available memory.
+
+  Syntax:
+  #include <malloc.h>
+  size_t stackavail(void);
+
+  ÉÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍ»
+  º  DOS  ³  UNIX  ³  Windows ³  ANSI C  ³ C++ only  º
+  ÇÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄ¶
+  º    ş  ³        ³          ³          ³           º
+  ÈÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍ¼
+
+  Remarks:
+  stackavail returns the number of bytes available on the stack. This
+  is the amount of dynamic memory which alloca may access.
+
+  Return value:
+  stackavail returns a size_t value indicating the number of bytes
+  available.
+
+  See also:
+  alloca, allocmem, coreleft, _dos_allocmem, farcoreleft,
+  _stklen (global variable)
+
+  Example:
+  #include <malloc.h>
+  #include <stdio.h>
+
+  int main(void) {
+     char *buf;
+
+     printf("\nThe stack: %u\tstack pointer: %u", stackavail(), _SP);
+     buf = (char *) alloca(100 * sizeof(char));
+     printf("\nNow, the stack: %u\tstack pointer: %u", stackavail(), _SP);
+     return(0);
+     }
+
+
+  Program output:
+    The stack: 63528         stack pointer: 65524
+    Now, the stack: 63424    stack pointer: 65420
+
+
+  ------------------------------------------------------------------
+  Function: strcmp, _fstrcmp
+  Compares one string to another.
+
+  Syntax:
+  #include <string.h>
+  Near version: int strcmp(const char *s1, const char *s2);
+  Far version: int far _fstrcmp(const char far *s1, const char far *s2);
+
+
+                ÉÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍ»
+                º  DOS  ³  UNIX  ³  Windows ³  ANSI C  ³ C++ only  º
+                ÇÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄ¶
+  Near version  º    ş  ³    ş   ³     ş    ³    ş     ³           º
+                ÇÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄ¶
+  Far version   º    ş  ³        ³     ş    ³          ³           º
+                ÈÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍ¼
+
+  Remarks:
+  strcmp performs an unsigned comparison of s1 to s2, starting with
+  the  first character in each string and continuing with
+  subsequent characters  until the corresponding characters differ
+  or until the end of the strings is reached.
+
+  Return value:
+  strcmp returns a value that is
+
+    < 0 if s1 is less than s2
+    == 0 if s1 is the same as s2
+    > 0 if s1 is greater than s2
+
+  See also:
+  strcmpi, strcoll, stricmp, strncmp, strncmpi, strnicmp
+
+  Example:
+  #include <string.h>
+  #include <stdio.h>
+
+  int main(void)
+  {
+     char *buf1 = "aaa", *buf2 = "bbb", *buf3 ="ccc";
+     int ptr;
+     ptr = strcmp(buf2, buf1);
+     if (ptr > 0)
+        printf("buffer 2 is greater than buffer 1\n");
+     else
+        printf("buffer 2 is less than buffer 1\n");
+     ptr = strcmp(buf2, buf3);
+     if (ptr > 0)
+        printf("buffer 2 is greater than buffer 3\n");
+     else
+        printf("buffer 2 is less than buffer 3\n");
+     return 0;
+  }
+
+
+
+  ------------------------------------------------------------------
+  Function: strcpy, _fstrcpy
+  Copies one string into another.
+
+  Syntax
+  #include <string.h>
+  Near version: char *strcpy(char *dest, const char *src);
+  Far version: char far * _fstrcpy(char far *dest, const char far *src);
+
+
+
+                ÉÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍ»
+                º  DOS  ³  UNIX  ³  Windows ³  ANSI C  ³ C++ only  º
+                ÇÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄ¶
+  Near version  º    ş  ³    ş   ³     ş    ³    ş     ³           º
+                ÇÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄ¶
+  Far version   º    ş  ³        ³     ş    ³          ³           º
+                ÈÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍ¼
+
+  Remarks:
+  Copies string src to dest, stopping after the terminating null
+  character has been moved.
+
+  Return value:
+  strcpy returns dest.
+
+  See also: stpcpy
+
+  Example:
+  #include <stdio.h>
+  #include <string.h>
+
+  int main(void)
+  {
+     char string[10];
+     char *str1 = "abcdefghi";
+     strcpy(string, str1);
+     printf("%s\n", string);
+     return 0;
+  }
+
+  ------------------------------------------------------------------
+  Function: _dos_open
+  Opens the specified file and prepares it for reading or writing.
+
+  Syntax:
+  #include <fcntl.h>
+  #include <share.h>
+  #include <DOS.H>
+  unsigned _dos_open(const char *filename, unsigned oflags, int *handlep);
+
+  Arguments:
+  filename --  File that the function opens and prepares for reading and/or
+               writing
+  oflags   --  Open-mode symbolic constants (defined in FCNTL.H) and
+               file-sharing symbolic constants (defined in SHARE.H) that
+               specify the file's open mode (read, write, share, etc.)
+  handlep  --  Points to the location where the function stores
+               the file's handle.
+
+                ÉÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍ»
+                º  DOS  ³  UNIX  ³  Windows ³  ANSI C  ³ C++ only  º
+                ÇÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄ¶
+                º  Yes  ³        ³    Yes   ³          ³           º
+                ÈÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍ¼
+
+
+  Remarks:
+  Opens the file specified by filename, then prepares it for reading
+  or writing. The file is always opened in binary mode.
+
+  On successfully opening the file, the function sets the file
+  pointer (which marks the current position in the file) to the
+  beginning of the file.
+
+  The maximum number of simultaneously open files is defined by
+  HANDLE_MAX.
+
+  Return Value:
+  On success, _dos_open returns 0, stores the file handle at the location
+    *handlep
+  On error, _dos_open returns the DOS error code and sets errno to one
+    of the following:
+           ENOENT  (Path or file not found)
+           EMFILE  (Too many open files)
+           EACCES  (Permission denied)
+           EINVACC (Invalid access code)
+
+   See Also:  _dos_creat _dos_read _dos_write _read open sopen
+
+
+
+Turbo Assembler User's Guide
+============================
+ Appendix D, "Utilities"
+ -----------------------
+  Page 333
+  --------
+   The last paragraph states that Turbo Assembler's online Help
+   facility is called TASMHELP. TASMHELP can be used as documented,
+   but only if Turbo Assembler is installed in a directory other
+   than the directory where Borland C++ is installed. If TASM is
+   installed in the same directory as Borland C++, use the THELP
+   utility for online help. THELP allows you to access a variety
+   of help files via an easy to use menu system.
+
+ Here's how THELP works:
+
+  1) After installing Borland C++ and Turbo Assembler, invoke THELP at
+     your DOS prompt.
+
+  2) Type ALT-F to bring up the menu of available help files.
+
+  3) Choose TASM.TAH to access help for Turbo Assembler.
+
+
+
+ObjectWindows User's Guide
+==========================
+  Chapter 2, "Stepping through Windows"
+  -------------------------------------
+    Page 22
+    -------
+      The sentence that begins "These libraries are located in
+      the library  directories listed in the following table..."
+      should instead read "Table 2.2 lists the file names of the
+      static ObjectWindows library  and static container class
+      library for each supported memory model."
+
+  Chapter 11, "Dialog objects"
+  ----------------------------
+    Page 151
+    --------
+      In the TSampleWindow::GetName fragment shown, a line is in error.
+      The line that begins
+         if (ExecDialog(new TInputDialog(this...
+      should read
+         if (GetApplication()->ExecDialog(new TInputDialog(this...
+
+  Chapter 12, "Control objects"
+  ----------------------------
+    Page 158+
+    ---------
+      Although it doesn't specifically state so, TListBox and its member
+      functions can be used with both single- and multiple- selection
+      list boxes.
+
+  Chapter 16, "Class reference"
+  -----------------------------
+    Page 248
+    --------
+      TDialog::Cancel calls ShutDownWindow, not CloseWindow.
+
+    Page 324
+    --------
+      Because TWindowsObject::WMClose deletes the interface object,
+      in most cases you'll want to use TWindowsObject::CloseWindow.
+
+
+
+Turbo Vision User's Guide
+=========================
+ Chapter 13, "Class reference"
+ -----------------------------
+  Pages 271-2
+  -----------
+   The declarations for TDesktop's cascade and tile member
+   functions now take a const argument, as follows:
+
+    void cascase(const TRect& R);
+    void tile(const TRect& R);
+
+  Page 351
+  --------
+   TMemo's constructor is incorrect; use this one instead:
+
+   TMemo(const TRect& bounds, TScrollBar *aHScrollBar,
+         TScrollBar *aVScrollBar, TIndicator *aIndicator,
+         ushort aBufSize );

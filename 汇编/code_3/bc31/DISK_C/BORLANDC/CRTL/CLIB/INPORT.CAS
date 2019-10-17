@@ -1,0 +1,110 @@
+/*-----------------------------------------------------------------------*
+ * filename - inport.cas
+ *
+ * function(s)
+ *        inport  - inputs word from a hardware port
+ *        inportb - inputs byte from a hardware port
+ *        inp     - inputs byte from a hardware port
+ *        inpw    - inputs word from a hardware port
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+
+#undef inportb
+#undef inport
+#undef inp
+#undef inpw
+
+/*-----------------------------------------------------------------------*
+
+Name            inport - inputs from a hardware port
+
+Usage           unsigned inport(unsigned port);
+
+Prototype in    dos.h
+
+Description     reads a word from the input port specified by port.
+
+Return value    return the value read
+
+*------------------------------------------------------------------------*/
+unsigned inport(unsigned port)
+{
+asm     mov     dx,port
+asm     in      ax,dx
+        return _AX;
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            inportb - inputs from a hardware port
+
+Usage           unsigned char inportb(unsigned port);
+
+Prototype in    dos.h
+
+Description     reads a byte from the input port specified by port.
+
+Return value    return the value read
+
+*------------------------------------------------------------------------*/
+unsigned char inportb(unsigned port)
+{
+asm     mov     dx,port
+asm     in      al,dx
+asm     xor     ah,ah
+        return _AX;
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            inpw - inputs word from a hardware port
+
+Usage           unsigned inpw(unsigned port);
+
+Prototype in    dos.h
+
+Description     reads a word from the input port specified by port.
+                MSC-compatible.
+
+Return value    return the value read
+
+*------------------------------------------------------------------------*/
+unsigned inpw(unsigned port)
+{
+asm     mov     dx,port
+asm     in      ax,dx
+        return _AX;
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            inp - inputs from a hardware port
+
+Usage           int inp(unsigned port);
+
+Prototype in    dos.h
+
+Description     reads a byte from the input port specified by port.
+                MSC-compatible.
+
+Return value    return the value read
+
+*------------------------------------------------------------------------*/
+int inp(unsigned port)
+{
+asm     mov     dx,port
+asm     in      al,dx
+asm     xor     ah,ah
+        return _AX;
+}

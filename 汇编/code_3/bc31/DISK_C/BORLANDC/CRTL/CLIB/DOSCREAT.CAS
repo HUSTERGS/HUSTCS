@@ -1,0 +1,126 @@
+/*---------------------------------------------------------------------------
+ * filename - doscreat.c
+ *
+ * function(s)
+ *        _dos_creat     - creates a new file or rewrites an existing one
+ *                         (MSC compatible)
+ *        _dos_creatnew  - creates a new file (MSC compatible)
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            DosCreate - create a file
+
+Usage           local to this module
+
+Description     used by _dos_creat and _dos_creatnew to create
+                a file.
+
+Return value    success : 0, and handle is stored at *handlep
+                else    : -1 and errno is set to one of the following:
+
+                        ENOENT   Path or file name not found
+                        EMFILE   Too many open files
+                        EACCESS  Permission denied
+
+
+*---------------------------------------------------------------------------*/
+static unsigned near pascal
+DosCreate(char *pathP, int attr, int *handlep, unsigned char func)
+{
+        pushDS_
+asm     mov     ah,func
+asm     mov     cx, attr
+asm     LDS_    dx, pathP
+asm     int     21h
+        popDS_
+asm     jc      DosCreateFailed
+        *handlep = _AX;
+        return (0);
+
+DosCreateFailed:
+        return (__DOSerror(_AX));
+}
+
+/*--------------------------------------------------------------------------*
+
+Name            _dos_creat - creates a new file or rewrites an existing one.
+
+Usage           unsigned int _creat(const char *filename, unsigned attrib,
+                                    int *handle );
+
+Prototype in    dos.h
+
+Description     _dos_creat accepts attrib, an MS-DOS attribute word.  Any
+                attribute bits may be set with this call.  The file
+                is always opened in binary mode.  Upon successful
+                creation, the file pointer is set to the beginning
+                of the file, and the file handle is copied to *handle.
+                The file is opened for both reading and writing.
+
+                The attrib argument to _dos_creat and _dos_creatnew
+                can be one of the following constants (defined in dos.h):
+
+                        _A_RDONLY   Read only attribute
+                        _A_HIDDEN   Hidden file
+                        _A_SYSTEM   System file
+
+                The file handle can only be used with _dos routines;
+                it cannot be used with low-level I/O routines such
+                as read() or _read().
+
+Return value    success : 0
+                else    : the DOS error code, and errno is set to
+                          one of the following:
+
+                        ENOENT   Path or file name not found
+                        EMFILE   Too many open files
+                        EACCESS  Permission denied
+
+Note            Compatible with Microsoft C.  Not the same as _creat().
+
+*---------------------------------------------------------------------------*/
+
+unsigned _dos_creat (const char *pathP, unsigned attr, int *handle )
+{
+        return( DosCreate((char *)pathP, attr, handle, 0x3c ) );
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _dos_creatnew - creates a new file
+
+Usage           unsigned _dos_creatnew(char *filename, unsigned attrib,
+                                        unsigned *handle);
+
+Prototype in    dos.h
+
+Description     identical to _dos_creat, with the exception that, if
+                the file exists, the creatnew call returns an
+                error, leaves the file untouched, and sets errno
+                to EEXIST.  Works only on DOS 3.x or later.
+
+Return value    same as _dos_creat
+
+Note            Compatible with Microsoft C.  Not the same as creatnew().
+
+*---------------------------------------------------------------------------*/
+
+unsigned _dos_creatnew (const char *pathP, unsigned attr, int *handle )
+{
+        return( DosCreate((char *)pathP, attr, handle, 0x5B ) );
+}

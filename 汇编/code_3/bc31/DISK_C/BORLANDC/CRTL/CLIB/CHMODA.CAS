@@ -1,0 +1,68 @@
+/*---------------------------------------------------------------------------
+ * filename - chmoda.cas
+ *
+ * function(s)
+ *        _chmod - changes access mode of file
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#define  __IN_CHMOD
+
+#include <io.h>
+#include <_io.h>
+#include <stdarg.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _chmod - changes access mode of file
+
+Usage           int _chmod(const char *filename, int func [,int attrib]);
+
+Prototype in    io.h
+
+Description     may either fetch or set the MS-DOS file attributes.
+                If func is 0, the function returns the current MS-
+                DOS attributes for the file.  If func is 1, the
+                attribute is set to attrib.
+
+Return value    success : returns the file attribute word
+                failure : -1 and errno is set to either
+
+                        ENOENT  Path or file name not found
+                        EACCESS Permission denied
+
+*---------------------------------------------------------------------------*/
+int _FARFUNC _chmod( pathname, func, attrib )
+const char *pathname;
+int func, attrib;
+{
+        pushDS_
+asm     mov     cx,attrib
+asm     mov     ah,43h
+asm     mov     al,func
+asm     LDS_    dx, pathname
+asm     int     21h
+        popDS_
+asm     jc      _chmodFailed
+asm     xchg    ax,cx
+        return(_AX);
+
+/*
+        error detected call __IOerror
+*/
+
+_chmodFailed:
+        return __IOerror (_AX);
+}

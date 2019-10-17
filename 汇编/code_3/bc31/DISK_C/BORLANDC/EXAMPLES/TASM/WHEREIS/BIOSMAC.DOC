@@ -1,0 +1,476 @@
+
+FILENAME: BIOSMAC.DOC
+
+DESCRIPTION: This file documents the BIOS interface macros implemented in
+the files IBIOS.MAC and MBIOS.MAC. Note that the only difference between the
+two files is that IBIOS.MAC uses TASM's Ideal mode while MBIOS.MAC uses
+TASM's MASM mode.
+
+
+CallBIOS
+--------
+Function: Calls the specified BIOS interrupt/service.
+Input
+    Interrupt - Interrupt number
+    Service   - Service number
+Output
+    none
+Registers modified: ah, flags
+Syntax: CallBIOS    Interrupt, Service
+
+
+LoadBH
+------
+Function: Loads BH with the a value. Presumably the video page. If no value
+          is provided BH is initialized to 0.
+Input
+    Value - value to put in BH
+Output
+    none
+Registers modified: bh
+Syntax: LoadBH  Value
+
+
+SetVideoMode
+------------
+Function: Sets the current video mode.
+BIOS Interrupt: 10h     Service: 00h
+Input
+    Mode - new video mode as defined below
+    ----    ----------------------------------------------------
+    0h      40x25 Black and White
+    1h      40X25 Color
+    2h      80x25 Black and White
+    3h      80x25 Color
+    4h      320x200 4-Color graphics
+    5h      320x200 4-Color graphics(color burst off)
+    6h      640x200 2-Color graphics
+    7h      Monochrome adapter Text display
+    8h      160x200 16-Color graphics(PCjr)
+    9h      320x200 16-Color graphics(PCjr)
+    0Ah     640x200 4-Color graphics(PCjr)
+    0Dh     320x200 16-Color graphics(EGA)
+    0Eh     640x200 16-Color graphics(EGA)
+    0Fh     640x350 Monochrome graphics(EGA)
+    10h     640x350 4-Color or 16-Color graphics(EGA)(depends on
+            available RAM)
+    11h     640x480 2-Color graphics(VGA)
+    12h     640x480 16-Color graphics(VGA)
+    13h     320x200 256-Color graphics(VGA)
+    ----------------------------------------------------
+Output
+    none
+Registers modified: ah, Flags
+Syntax: SetVideoMode  Mode
+
+SetCursorShape
+--------------
+Function: Sets the cursors shape. The parameters passed to it indicate the
+          starting and ending scan lines to use when displaying the cursor.
+          On a monochrome system the default setting is lines 6-7. Setting
+          the scan lines to 0-7 would result in a block cursor. On a color
+          system the default setting is 14-15. Setting the starting scan line
+          to 15 and the ending scan line to 0 would result in a cursor with a
+          line on the top and bottom.
+BIOS Interrupt: 10h     Service: 01h
+Input
+    Starting - starting scan line
+    Ending   - ending scan line
+Output
+    none
+Registers modified: ah, cx, Flags
+Syntax: SetCursorShape  Starting, Ending
+
+GotoXY
+------
+Function: Positions the cursor.The new cursor position is provided in the
+          parameters Row and Column. The caller can optionally provide the
+          video page to use. If Page isn't defined, page 0 is assumed.
+BIOS Interrupt: 10h     Service: 02h
+Input
+    Row (y coordinate)
+    Column (x coordinate)
+    Page - Display page to check
+Output
+    none
+Register modified: ax, bh, dx, Flags
+Syntax: GotoXY  Row, Column, Page
+
+WhereXY
+-------
+Function: Determines the current cursor position and the cursor's shape. The
+          Page parameter indicates the video page to check and is optional.
+          If the Page parameter is not specified, page 0 is assumed.
+BIOS Interrupt: 10h     Service: 03h
+Input
+    Page - Display page to check
+Output
+    ch - Starting line for cursor
+    cl - Ending line for cursor
+    dh - row (y coordinate)
+    dl - column (x coordinate)
+Register modified: ax, cx, dx, Flags
+Syntax: WhereXY Page
+
+GetCursorShape
+--------------
+Function: Returns the shape of the cursor. Note that because the BIOS call to
+          get the cursor's position returns this information we simply call
+          the WhereXY macro.
+BIOS Interrupt: 10h     Service: 03h
+Input
+    none
+Output
+    ch - starting scan line of cursor
+    cl - ending scan line of cursor
+Registers modified: ax, cx, dx, Flags
+Syntax: GetCursorShape
+
+GetLightPenPos
+--------------
+Function: Returns the position of the light pen.
+BIOS Interrupt: 10h     Service: 04h
+Input
+    none
+Output
+    ah = 0 - light pen not down/not triggered
+         1 - light pen down/triggered
+    ch - pixel vertical coordinate
+    bx - pixel horizontal coordinate
+    dh - character vertical coordinate
+    dl - character horizontal coordinate
+Registers modified: ah, bx, ch, dx, Flags
+Syntax: GetLightPenPos
+
+SetDisplayPage
+--------------
+Function: Sets the current display page. Note that the Page parameter is
+          optional. If it is not provided, video page 0 is used.
+BIOS Interrupt: 10h     Service: 05h
+Input
+    Page - Desired display  page as defined below
+    PAGE    MODE            HARDWARE
+    ----    ----            --------
+    0-7     00h and 01h     CGA
+    0-3     02h and 03h     CGA
+    0-7     02h and 03h     EGA
+    0-7     0Dh             EGA
+    0-3     0Eh             EGA
+    0-1     0Fh             EGA
+    0-1     10h             EGA
+Output
+    none
+Registers modified: ah, Flags
+Syntax: SetDisplayPage  Page
+
+ScrollUp
+--------
+Function: Scrolls the indicated part of the screen up LineCount times. Any
+          blank lines created are initialized to the color indicated in the
+          Attrib parameter. The coordinate parameters are optional. If they
+          are not provided, the routine scrolls the entire screen. The routine
+          assumes there are 80 columns on the screen. However, it checks how
+          many lines are currently available (25/43/50) if the coordinate
+          parameters aren't provided.
+BIOS Interrupt: 10h     Service: 06h
+Input
+    LineCount - # of lines to scroll
+    Attrib - Attribute to use for new lines
+    x1 - Upper left column
+    y1 - Upper row
+    x2 - Lower right column
+    y2 - Bottom row
+Output
+    none
+Registers modified: ax, bh, cx, dx, Flags
+Syntax: ScrollUp    LineCount, Attrib, x1, y1, x2, y2
+
+
+ScrollDown
+----------
+Function: Scrolls the indicated part of the screen down LineCount times. Any
+          blank lines created are initialized to the color indicated in the
+          Attrib parameter. The coordinate parameters are optional. If they
+          are not provided, the routine scrolls the entire screen. The routine
+          assumes there are 80 columns on the screen. However, it checks how
+          many lines are currently available(25/43/50) if the coordinate
+          parameters aren't provided.
+BIOS Interrupt: 10h     Service: 07h
+Input
+    LineCount - # of lines to scroll
+    Attrib - Attribute to use for new lines
+    x1 - Upper left column
+    y1 - Upper row
+    x2 - Lower right column
+    y2 - Bottom row
+Output
+    none
+Registers modified: ax, bh, cx, dx, Flags
+Syntax: ScrollDown    LineCount, Attrib, x1, y1, x2, y2
+
+GetCharAttr
+-----------
+Function: Reads the character and attribute at the current cursor position of
+          the indicated video page. See SetDisplayPage for a definition of
+          the different video pages available. Note that the Page parameter
+          is optional. If it is not provided, video page 0 is used.
+BIOS Interrupt: 10h     Service: 08h
+Input
+    Page - the video page to check
+Output
+    ah - attribute
+    al - character
+Registers modified: ax
+Syntax: GetCharAttr Page
+
+PutCharAttr
+-----------
+Function: Displays a character and attribute 'Count' times starting at the
+          current cursor position of the indicated page. Note that the Page
+          parameter is optional. If it is not provided, video page 0 is used.
+BIOS Interrupt: 10h     Service: 09h
+Input
+    Character - character to display
+    Attribute - attribute to display the character(s) in
+    Count     - number of times to display the character
+    Page      - Video page to display the characters on
+Output
+    none
+Registers modified: ax, bx, cx, Flags
+Syntax: PutCharAttr Character, Attribute, Count, Page
+
+PutChar
+-------
+Function: Displays a character Count times beginning at the current cursor
+          position on the indicated display page. Note that the Page and
+          Color parameters are optional. If you provide the Color parameter,
+          you must also provide the Page parameter. If the Page parameter is
+          not provided, video page 0 is used. If the Color is not provided,
+          the character attribute of the current cursor location of the
+          indicate video page is used.
+BIOS Interrupt: 10h     Service: 0Ah
+Input
+    Character - character to display
+    Count     - number of times to display the character
+    Page      - video page to display character(s) on
+Output
+    none
+Registers modified: ax, bx, cx, Flags
+Syntax: PutChar Character, Count, Page, Color
+
+SetColorPalette
+---------------
+Function: Sets the CGA color palette that is used while displaying graphics
+          in 320x200 graphics mode(4 & 5). For more information on video
+          modes, see SetVideoMode above.
+BIOS Interrupt: 10h     Service: 0Bh
+Input
+    Entry - Color palette id being set
+    Color - New color for palette entry
+Output
+    none
+Registers modified: ah, bx, Flags
+Syntax: SetColorPalette Entry, Color
+
+PutPixel
+--------
+Function: Displays a pixel on the screen. Note that the macro may only be
+          called while in graphics mode.
+BIOS Interrupt: 10h     Service: 0Ch
+Input
+    X - horizontal position
+    Y - vertical position
+    Color - color/display method for pixel
+Output
+    none
+Registers modified: ax, cx, dx, Flags
+Syntax: PutPixel    X, Y, Color
+
+GetPixel
+--------
+Function: Reads information about the indicated pixel.
+BIOS Interrupt: 10h     Service: 0Dh
+Input
+    X - horizontal position
+    Y - vertical position
+Output
+    al - pixel information
+Registers modified: ax, cx, dx, Flags
+Syntax: GetPixel    X, Y
+
+PutTTY
+------
+Function: Displays text to the console using teletype mode. Note that the
+          Color parameter is optional. If the Color parameter isn't provided,
+          the character will be displayed using the attribute of the current
+          cursor position.
+BIOS Interrupt: 10h     Service: 0Eh
+Input
+    Character - character to display
+    Color     - color to display text in.
+    Page      - video page to display character(s) on
+Output
+    none
+Registers modified: ax, bx, Flags
+Syntax: PutTTY  Character, Page, Color
+
+GetVideoMode
+------------
+Function: Determines the current video mode and display page.
+BIOS Interrupt: 10h     Service: 0Fh
+Input
+    None
+Output
+    ah - Number of columns on screen
+    al - display mode as defined below
+    ----    ----------------------------------------------------
+    0h      40x25 Black and White
+    1h      40X25 Color
+    2h      80x25 Black and White
+    3h      80x25 Color
+    4h      320x200 4-Color graphics
+    5h      320x200 4-Color graphics(color burst off)
+    6h      640x200 2-Color graphics
+    7h      Monochrome adapter Text display
+    8h      160x200 16-Color graphics(PCjr)
+    9h      320x200 16-Color graphics(PCjr)
+    0Ah     640x200 4-Color graphics(PCjr)
+    0Dh     320x200 16-Color graphics(EGA)
+    0Eh     640x200 16-Color graphics(EGA)
+    0Fh     640x350 Monochrome graphics(EGA)
+    10h     640x350 4-Color or 16-Color graphics(EGA)(depends on
+            available RAM)
+    11h     640x480 2-Color graphics(VGA)
+    12h     640x480 16-Color graphics(VGA)
+    13h     320x200 256-Color graphics(VGA)
+    ----------------------------------------------------
+    bh - Active display page
+Register modified: ax, bx, Flags
+Syntax: GetVideoMode
+
+SetPaletteRegs
+--------------
+Function: Sets the EGA palette colors. Note that the macro may only be called
+          when running on an EGA.
+BIOS Interrupt: 10h     Service: 10h
+Input
+    SubService - Select service as defined below
+    SERVICE     FUNCTION
+    -------     -----------------------------------------------------
+        0       If setting palette register
+        1       If setting border color register
+        2       If setting all palette registers and border register
+        3       If toggling blink/intensity bit(EGA only)
+    -----------------------------------------------------------------
+    IndexIntensity - palette register or blink/intensity bit as
+                     defined below.
+    SERVICE         FUNCTION
+    -------         -------------------------------------------------
+    SubService = 0  Palette register to set
+    SubService = 3  IndexIntensity = 0 - Enable intensity
+                    IndexIntensity = 1 - Enable blinking
+    -----------------------------------------------------------------
+    Color - color to store in register
+    ListSeg:ListOfs - address of new palette list
+Output
+    none
+Registers modified: ax, bx, dx, es, Flags
+Syntax: SetPaletteRegs    SubService, IndexIntensity, Color, ListSeg, ListOfs
+
+ScreenRows
+----------
+Function: Returns the number of rows available on the screen.
+BIOS Interrupt: 10h     Service: 11h
+Input
+    none
+Output
+    dl - # of rows on the screen(25/43/50)
+Registers modified: ax, dl, Flags
+Syntax: ScreenRows
+
+PutString
+---------
+Function: Displays a string to the indicated video page at the indicated
+          position. Note that the Page and Attribute parameters are optional.
+          If Page is not supplied, the macro will use page 0 by default. If
+          Mode = 0 or 1, Attribute must be supplied. If Mode = 2 or 3,
+          Attribute should not be supplied. Note that if you provide the
+          Attribute parameter, you must provide the Page parameter also. This
+          macro may only be used on IBM-AT, PS/2 and compatible machines.
+BIOS Interrupt: 10h     Service: 13h
+Input
+    Mode - mode to write string in as defined below
+    MODE        FUNCTION
+    ----        --------
+     0          Attribute in bl, string contains character codes only,
+                cursor position isn't updated after write.
+     1          Attribute in bl, string contains character codes only,
+                cursor position is updated after write.
+     2          String contains alternating character codes and
+                attribute bytes, cursor position isn't updated after
+                write.
+     3          String contains alternating character codes and
+                attribute bytes, cursor position is updated after write.
+    --------------------------------------------------------------------
+    X - Vertical position to begin display of the string
+    Y - Horizontal position to begin display of the string.
+    StringSeg - Segment address of the string
+    StringOfs - Offset address of string in StringSeg
+    Length - Length of the string to be displayed
+    Page - Video page to display string to
+    Attribute - Optional parameter that indicates the attribute to
+                display the string in. This parameter should only be
+                provided if Mode = 0 or 1.
+Output
+    none
+Registers modified: ax, bx, cx, dx, bp, es, Flags
+Syntax: PutString   Mode, X, Y, StringSeg, StringOfs, Length, Page, Attribute
+
+GetChar
+-------
+Function: Returns the next character in the BIOS keyboard buffer.
+BIOS Interrupt: 16h     Service: 00h
+Input
+    none
+Output
+    ah - keyboard scan code
+    al - ASCII character
+Registers modified: ax, Flags
+Syntax: GetChar
+
+GetKbdStatus
+------------
+Function: Returns the BIOS keyboard status.
+BIOS Interrupt: 16h     Service: 01h
+Input
+    none
+Output
+    If key wating to be input:
+        Zero flag - clear
+        ah - keyboard scan code
+        al - ASCII character
+    If no key waiting to be input:
+        Zero flag - set
+Registers modified: ax, Flags
+Syntax: GetKbdStatus
+
+GetKbdFlags
+-----------
+Function: Returns the BIOS keyboard flags.
+BIOS Interrupt: 16h     Service: 02h
+Input
+    none
+Output
+    al - BIOS keyboard flags byte:
+    BIT     FUNCTION
+    ---     --------
+     7      Insert ON
+     6      Caps Lock ON
+     5      Num Lock ON
+     4      Scroll Lock ON
+     3      Alt key DOWN
+     2      Ctrl key DOWN
+     1      Left-Shift key DOWN
+     0      Right-Shift key DOWN
+Registers modified: al, Flags
+Syntax: GetKbdFlags

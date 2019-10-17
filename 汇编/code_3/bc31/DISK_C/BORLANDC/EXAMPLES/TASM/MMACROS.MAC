@@ -1,0 +1,320 @@
+
+;   FILENAME: MMACROS.MAC
+;
+;   Copyright (c) 1988, 1989 by Borland International, Inc.
+;
+;   DESCRIPTION: This include file implements miscellaneous useful macros.
+;   The file uses Masm mode syntax.
+;
+;   ASSEMBLY INSTRUCTIONS: If assembling modules for 286/386 processors,
+;   turn the P286 directive on in order to take advantage of 286/386 specific
+;   instructions. I.E.
+;
+;       TASM filename /jP286
+;
+;   NOTE: In order to use this macro file you must also include the macro file
+;   MBIOS.MAC in your module.
+;
+;   The macros implemented in this file are:
+;   Name                Function
+;   ---------------     ---------------------------------------------------
+;   FarPtrAddress       Calculate the absolute address of a 32-bit pointer
+;   CompareFarPointers  Compare two 32-bit pointers
+;   MakePascalString    Allocate a string using Turbo Pascal format
+;   InitStack           Initialize the stack registers for parameter access
+;   RestoreStack        Restore the stack registers
+;   GetVideoAddress     Determine the segment address of video ram
+;   DosCall             Performs the DOS int 21h call
+;   LoadSegment         Loads a segment register with a value
+;   Beep                Sounds the speaker
+
+
+;   The following macro calculates the absolute address of the far pointer
+;   passed to it.
+;
+;   Input
+;       Segment:Ofs - Far pointer
+;   Output
+;       dx:ax - Absolute address of pointer(20 bits)
+;   Calling convention
+;       NA
+;   Registers modified
+;       ax, bx, cx, dx, Flags
+
+FarPtrAddress macro Segment, Ofs
+    ifb <Segment>
+        display "Segment parameter must be provided in call to FarPtrAddress"
+        err
+    endif
+    ifb <Ofs>
+        display "Ofs parameter must be provided in call to FarPtrAddress"
+        err
+    endif
+
+    mov     bx, Segment     ; Calculate the low 12 bits
+    and     bx, 0FFFh
+    if (@Cpu and 100b) eq 100b  ; Shift the segment value right 12 bits
+        shl     bx, 4       ; to prepare for addition
+    else
+        mov     cl, 4
+        shl     bx, cl
+    endif
+    mov     dx, Segment
+    if (@Cpu and 100b) eq 100b  ; Shift the segment value right 12  bits
+        shr     dx, 12      ; to prepare for addition
+    else
+        mov     cl, 12
+        shr     dx, cl
+    endif
+    mov     ax, Ofs         ; Determine the low 16 bits of the 20-bit
+    add     ax, bx          ; address
+    adc     dx, 0           ; Calculate the absolute segment
+endm
+
+
+;   The following macros compares two far pointers to determine their
+;   relative absolute addresses.
+;
+;   Input
+;       Seg1:Ofs1 - Far pointer
+;       Seg2:Ofs2 - Far pointer
+;   Output
+;       The Flags register is set by the CMP instruction.
+;   Calling convention
+;       NA
+;   Registers modified
+;       ax, bx, cx, dx, Flags
+
+CompareFarPointers    macro Seg1, Ofs1, Seg2, Ofs2
+    local   Exit, SegmentsEqual
+    ifb <Seg1>
+        display "Need to declare Seg1 in call to CompareFarPointers"
+        err
+    endif
+    ifb <Seg2>
+        display "Need to declare Seg2 in call to CompareFarPointers"
+        err
+    endif
+    ifb <Ofs1>
+        display "Need to declare Ofs1 in call to CompareFarPointers"
+        err
+    endif
+    ifb <Ofs2>
+        display "Need to declare Ofs2 in call to CompareFarPointers"
+        err
+    endif
+
+    mov     ax, Seg1            ; Load segment registers
+    mov     dx, Seg2
+    cmp     ax, dx              ; Check if segment registers are equal
+    je      short SegmentsEqual
+
+    ; If the segments aren't equal we have to calculate the absolute
+    ; addresses of the pointers
+
+    FarPtrAddress Seg1, Ofs1    ; Calculate absolute adress of Seg1:Ofs1
+    push    dx                  ; Store calculated values on the stack
+    push    ax
+    FarPtrAddress Seg2, Ofs2    ; Calculate absolute adress of Seg2:Ofs2
+    mov     bx, sp
+    cmp     [ss:bx+2], dx       ; Compare absolute segment adresses
+    pop     bx                  ; Clean up the stack
+    pop     bx
+    jne     short Exit          ; If they aren't equal we're done
+    cmp     [ss:bx], ax         ; Check absolute offsets
+    jmp     short Exit
+SegmentsEqual:
+    cmp     Ofs1, Ofs2          ; Compare offsets
+Exit:
+endm
+
+
+;   The following macro builds strings using Turbo Pascal conventions. That
+;   is, the string is stored with a preceding 'length byte.' This macro is
+;   an excellent example of the clever things that can be done using the
+;   ORG directive.
+;
+;   Input
+;       Id - Label to associate with the string
+;       Msg - Contents of the string
+;   Output
+;       none
+;   Calling convention
+;       NA
+;   Registers modified
+;       none
+
+MakePascalString    macro   Id, Msg
+    local   MsgLen, EndStr
+    ifb <Id>
+        display "Must pass name of string to MakePascalString"
+        err
+    else
+        ifb <Msg>
+            display "Must pass string parameter to MakePascalString
+            err
+        else
+            Id  db  EndStr - Id - 1, "&Msg&"    ; Allocate space for the string
+            label   EndStr  byte                ; a preceding byte storing the
+        endif                                   ; length of the string.
+    endif
+endm
+
+
+;   The following macro initializes bp and sp in preparation for access
+;   of parameters passed to a routine on the stack. The parameter LocalVars
+;   is optional and if provided indicates the amount of space that should
+;   be reserved for local variables. LocalVars must be an even value.
+;
+;   Input
+;       LocalVars - # of bytes to reserve for local variables
+;   Output
+;       none
+;   Calling convention
+;       NA
+;   Registers modified
+;       bp, sp
+
+InitStack   macro   LocalVars
+    push    bp                  ; Set up the stack for a sub-routine
+    mov     bp, sp
+    ifnb    <LocalVars>
+        sub     sp, LocalVars   ; Make space for local variables
+    endif
+endm
+
+
+;   The following macro restores bp and sp after a routine is finished
+;   accessing parameters passed to a routine on the stack. The parameter
+;   LocalVars is optional and if provided indicates the amount of space
+;   that was reserved for local variables. LocalVars must be an even value.
+;
+;   Input
+;       LocalVars - # of bytes that were reserved for local variables
+;   Output
+;       none
+;   Calling convention
+;       NA
+;   Registers modified
+;       bp, sp
+
+RestoreStack    macro   LocalVars
+    ifnb    <LocalVars>
+        add     sp, LocalVars
+    endif
+    pop     bp
+endm
+
+
+;   The following macro returns the current segment address of video ram.
+;
+;   Input
+;       none
+;   Output
+;       ax
+;   Calling convention
+;       NA
+;   Registers modified
+;       ax, bx, Flags
+
+GetVideoAddress macro
+    local   Color, Exit
+    GetVideoMode
+    cmp     al, 07h
+    jne     short Color
+    mov     ax, 0B000h      ;; It's a monochrome card
+    jmp     short Exit
+Color:
+    mov     ax, 0B800h      ;; It's a color card
+Exit:
+endm
+
+
+
+;   The following macro performs the Int 21h call to execute DOS's
+;   services.
+;
+;   Input
+;       Service - Service # to execute
+;   Output
+;       None
+;   Calling convention
+;       NA
+;   Registers modified
+;       NA
+
+DosCall macro   Service
+    ifb <Service>
+        display "The Service parameter must be provided to DosCall
+        err
+    endif
+    mov ah, Service
+    int DOS_FUNCTION
+endm
+
+
+;   The following macro loads a segment register with a value. The macro
+;   attempts to do all possible checks to determine the type of the value
+;   being moved into the segment register. Based on this information it
+;   generates the correct code.
+;
+;   Input
+;       Segm    - Segm register to load value into
+;       Value   - Value to put on the stack
+;   Output
+;       none
+;   Calling convention
+;       NA
+;   Registers modified
+;       ax
+
+LoadSegment macro   Segm, Value
+    local   IsSegReg
+
+    CheckRegisterName   macro   Register
+        IsSegReg = 0
+        if (symtype Register) eq 110000b
+            irp Reg, <es, ds, cs, ss, fs, gs>
+                ifidni  <Register>, <&Reg&>
+                    IsSegReg = 1                ; Return that the register
+                    exitm                       ; is a segment register
+                endif
+            endm
+        endif
+    endm
+
+    CheckRegisterName   <Value>                 ; Check if the value to be
+    if IsSegReg                                 ; loaded into the segment
+        push    Value                           ; register is itself a
+        pop     Segm                            ; segment register.
+    else
+        if (symtype Segm eq 24h) or (symtype Segm eq 0h)    ; Parameter is a constant
+            mov     ax, Value
+            mov     Segm, ax
+        else
+            mov     Segm, Value                 ; Value is a memory reference
+        endif
+    endif
+endm
+
+
+
+;   The following macro generates a beep by displaying the ASCII Bell
+;   character.
+;
+;   Input
+;       none
+;   Output
+;       none
+;   Calling convention
+;       NA
+;   Registers modified
+;       ax, dl
+
+Beep    macro
+    mov dl, BELL
+    DosCall DOS_CHARACTER_OUTPUT
+endm
+
+
+

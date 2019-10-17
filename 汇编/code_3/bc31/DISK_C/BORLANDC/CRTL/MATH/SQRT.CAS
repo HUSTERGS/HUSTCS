@@ -1,0 +1,65 @@
+/*------------------------------------------------------------------------
+ * filename - sqrt.cas
+ *
+ * function(s)
+ *        sqrt - calculates square root
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static  unsigned short   NANSQRT [4] = {0,0,0x0020, 0x7FF8};
+
+/*--------------------------------------------------------------------------*
+
+Name            sqrt - calculates square root
+
+Usage           double  sqrt (double  x);
+
+Prototype in    math.h
+
+Description     sqrt calculates the square root of input value.
+
+Return value    sqrt returns the square root of input value.
+                If the input  value is lees than 0, sqrt  returns 0 and set
+                errno to
+                        EDOM    Domain error
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+double  _FARFUNC sqrt (double  x)
+{
+asm     FLD     DOUBLE (x)
+
+asm     mov     ax, x [6]
+asm     shl     ax, 1
+asm     jz      sqrt_zero
+asm     jc      sqrt_imaginary
+
+asm     FSQRT
+
+sqrt_zero:                      /* zero = sqrt (zero) */
+sqrt_end:
+        return;
+
+
+sqrt_imaginary:
+asm     FSTP    st (0)                  /* pop x from stack     */
+#pragma warn -ret
+        return  _matherr (DOMAIN, "sqrt", &x, NULL, *((double *) NANSQRT));
+#pragma warn .ret
+}
+#pragma warn .rvl

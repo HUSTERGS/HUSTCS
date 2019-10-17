@@ -1,0 +1,46 @@
+/*---------------------------------------------------------------------------
+ * filename - divt.cas
+ *
+ * function(s)
+ *         div - integer division
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <stdlib.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            div - integer division
+
+Usage           div_t div(int numer, int denom);
+
+Prototype in    stdlib.h
+
+Description     div computes the quotient and  remainder of the division of
+                the numerator  "numer" by the  denominator "denom". If  the
+                result cannot be represented, the behavior is undefined.
+
+Return value    div returns a structure of  type div_t, comprising both the
+                quotient and the remainder.
+
+/*--------------------------------------------------------------------------*/
+#pragma warn -rvl
+div_t   div(int numer, int denom)
+{
+asm     mov     ax, numer
+asm     cwd
+asm     idiv    W0(denom)
+}
+#pragma warn .rvl
+

@@ -1,0 +1,42 @@
+/*---------------------------------------------------------------------------
+ * filename - bioscom.cas
+ *
+ * function(s)
+ *        bioscom - communications I/O
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <bios.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            bioscom - communications I/O
+
+Usage           int bioscom(int cmd, char abyte, int port);
+
+Prototype in    bios.h
+
+Description     direct interface to BIOS interrupt 0x14
+
+Return value    value return to the AX register for the function specified
+                by cmd.
+
+*---------------------------------------------------------------------------*/
+int bioscom(int cmd, char abyte, int port)
+{
+asm     mov     ah, cmd
+asm     mov     al, abyte
+asm     mov     dx, port
+asm     int     14h
+
+return( _AX );
+}

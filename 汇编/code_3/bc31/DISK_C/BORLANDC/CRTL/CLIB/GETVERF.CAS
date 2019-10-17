@@ -1,0 +1,75 @@
+/*---------------------------------------------------------------------------
+ * filename - getverf.cas
+ *
+ * function(s)
+ *        getverify - gets verify state
+ *        setverify - sets verify state
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            getverify - gets verify state
+
+Usage           int getverify(void);
+
+Prototype in    dos.h
+
+Description     getverify gets the current state of the verify flag.
+
+                The verify flag controls output to the disk. When verify is
+                off, writes are not verified; when verify is on, all disk
+                writes are verified to insure proper writing of the data.
+
+Return value    getverify returns the current state of the verify
+                flag, either 0 or 1.
+
+                        A return of     0       =       verify flag off.
+                        A return of     1       =       verify flag on.
+
+*---------------------------------------------------------------------------*/
+int getverify(void)
+{
+asm     mov     ax, 05400h
+asm     cwd
+asm     int     021h
+asm     cbw
+        return _AX;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            setverify - sets verify state
+
+Usage           void setverify(int value);
+
+Prototype in    dos.h
+
+Description     setverify sets the current state of the verify flag to value.
+
+                        A value of      0       =       verify flag off.
+                        A value of      1       =       verify flag on.
+
+                The verify flag controls output to the disk. When verify is
+                off, writes are not verified; when verify is on, all disk
+                writes are verified to insure proper writing of the data.
+
+*---------------------------------------------------------------------------*/
+void setverify(int value)
+{
+asm     mov     ah, 02Eh
+asm     mov     al, value
+asm     int     021h
+}

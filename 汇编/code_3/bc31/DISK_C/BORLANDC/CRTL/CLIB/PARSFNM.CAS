@@ -1,0 +1,72 @@
+/*-----------------------------------------------------------------------*
+ * filename - parsfnm.cas
+ *
+ * function(s)
+ *        parsfnm - parses file name
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <stddef.h>
+
+
+/*-----------------------------------------------------------------------*
+
+Name            parsfnm - parses file name
+
+Usage           #include <dos.h>
+                char *parsfnm(const char *cmdline, struct fcb *fcbptr,
+                                                   int option);
+
+Prototype in    dos.h
+
+Description     parsfnm parses a string, normally a command line,
+                pointed to by *cmdline for a file name. The file name
+                is placed in an FCB as a drive, file name, and extension.
+                The FCB is pointed to by fcbptr.
+
+                The option parameter is the value documented for AL in
+                the DOS parse system call. See the MS-DOS Programmer's
+                Reference Manual under system call 0x29 for a description
+                of the parsing operations performed on the file name.
+
+Return value    On successfully completing the parse of a file
+                name, parsfnm returns a pointer to the next byte after
+                the end of the file name. If there is any error in
+                parsing the file name, parsfnm returns 0.
+
+*------------------------------------------------------------------------*/
+char *parsfnm(const char *cmdline, struct fcb *fcb, int opt)
+{
+#if !(LDATA)
+        _ES = _DS;
+#endif
+        pushDS_
+asm     LDS_    si, cmdline
+asm     LES_    di, fcb
+asm     mov     al, opt
+asm     mov     ah, 29h
+asm     int     21h
+        popDS_
+asm     cmp     al, 0ffh
+asm     jne     parsret
+        return NULL;
+
+parsret:
+#if (LDATA)
+asm     mov     es, W1(cmdline)
+        return (char _es *) _SI;
+#else
+        return (char *) _SI;
+#endif
+}

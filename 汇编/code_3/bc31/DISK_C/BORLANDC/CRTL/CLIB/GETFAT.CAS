@@ -1,0 +1,128 @@
+/*---------------------------------------------------------------------------
+ * filename - getfat.cas
+ *
+ * function(s)
+ *        getfatd  - gets file-allocation table information
+ *        getfat   - gets file-allocation table information
+ *        getdfree - gets disk free space
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+#include <dir.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            getfatd - gets file-allocation table information
+
+Usage           #include <dos.h>
+                void getfatd(struct fatinfo *fatblkp);
+
+Prototype in    dos.h
+
+Description     see getfat
+
+*---------------------------------------------------------------------------*/
+void getfatd(struct fatinfo *dtable)
+{
+        getfat(0, dtable);
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            getfat - gets file-allocation table information
+
+Usage           #include <dos.h>
+                void getfat(unsigned char drive, struct fatinfo *fatblkp);
+
+Related
+functions usage void getfatd(struct fatinfo *fatblkp);
+
+Prototype in    dos.h
+
+Description     getfat returns information from the file-allocation
+                table for the drive specified by drive (0 = default, 1 = A:,
+                2 = B:, etc.). fatblkp points to the fatinfo
+                structure to be filled in.
+
+                getfatd performs the same function as getfat except that the
+                default drive (0) is always used.
+
+                The fatinfo structure filled in by getfat and getfatd is
+                defined as follows:
+
+                struct fatinfo {
+                        char fi_sclus;  (* Sectors per cluster *)
+                        char fi_fatid;  (* The FAT id byte *)
+                        int fi_nclus;   (* Number of clusters *)
+                        int fi_bysec;   (* Bytes per sector *)
+                };
+
+*---------------------------------------------------------------------------*/
+void getfat(unsigned char drive, struct fatinfo *dtable)
+{
+#if !defined(__HUGE__)
+asm     push    ds
+#endif
+asm     mov     ah, 01ch
+asm     mov     dl, drive
+asm     int     021h
+asm     mov     ah, [bx]
+#if !defined(__HUGE__)
+asm     pop     ds
+#endif
+        ((int *)dtable)[0] = _AX;
+        ((int *)dtable)[1] = _DX;
+        ((int *)dtable)[2] = _CX;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            getdfree - gets disk free space
+
+Usage           #include <dos.h>
+                void getdfree(int drive, struct dfree *dfreep);
+
+Prototype in    dos.h
+
+Description     accepts a drive specifier in drive (0 = default, 1 = A, etc.)
+                and fills in the dfree structure pointed to by dfreep with
+                disk characteristics.
+
+                The dfree structure is defined as follows:
+
+                struct dfree {
+                        unsigned df_avail;      (* Available clusters *)
+                        unsigned df_total;      (* Total clusters *)
+                        unsigned df_bsec;       (* Bytes per sector *)
+                        unsigned df_sclus;      (* Sectors per cluster *)
+                };
+
+Return value    Nothing. In the event of an error, df_sclus in the
+                dfree structure is set to -1.
+
+*---------------------------------------------------------------------------*/
+void getdfree(unsigned char drive, struct dfree *dtable)
+{
+        int     i;
+
+asm     mov     ah, 036h
+asm     mov     dl, drive
+asm     int     021h
+        i = _BX;
+        ((int *)dtable)[3] = _AX;
+        ((int *)dtable)[0] = i;
+        ((int *)dtable)[1] = _DX;
+        ((int *)dtable)[2] = _CX;
+}

@@ -1,0 +1,83 @@
+/*---------------------------------------------------------------------------
+ * filename - getvect.cas
+ *
+ * function(s)
+ *        getvect - gets interrupt vector entry
+ *        setvect - sets interrupt vector entry
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <stdlib.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            getvect - gets interrupt vector entry
+
+Usage           void interrupt(far *getvect(int intr_num)) ( );
+
+Prototype in    dos.h
+
+Description     MS-DOS includes a set of "hard-wired" interrupt
+                vectors, numbered 0 to 255. The 4-byte value in each vector
+                is actually an address, which is the location of an interrupt
+                function.
+
+                getvect reads the value of the vector named by intr_num and
+                interprets that value read as a (far) pointer to some
+                interrupt function.
+
+Return value    getvect returns the current 4-byte value stored in
+                the interrupt vector named by intr_num.
+
+*---------------------------------------------------------------------------*/
+void interrupt (far * _CType getvect(int intr))()
+{
+asm     mov     ah, 035h
+asm     mov     al, intr
+asm     int     021h
+asm     xchg    ax,bx
+asm     mov     dx,es
+
+        return( (void interrupt (*)()) (MK_LONG) );
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            setvect - sets interrupt vector entry
+
+Usage           void setvect(int intr_num, void interrupt (*isr)( ));
+
+Prototype in    dos.h
+
+Description     setvect sets the value of the vector named by intr_num to a
+                new value, vector, which is a far pointer containing the
+                address of a new interrupt function. The address of a C
+                routine may only be passed to vector if that routine is
+                declared to be an interrupt routine.
+
+                Note: If you use the prototypes declared in dos.h, you can
+                simply pass the address of an interrupt function to setvect
+                in any memory model.
+
+*---------------------------------------------------------------------------*/
+void _CType setvect(int intr, void interrupt (far *func)())
+{
+asm     mov     ah, 025h
+asm     mov     al, intr
+asm     push    ds
+asm     lds     dx, dword ptr func
+asm     int     021h
+asm     pop     ds
+}

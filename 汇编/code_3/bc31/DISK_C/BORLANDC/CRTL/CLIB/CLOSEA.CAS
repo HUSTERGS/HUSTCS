@@ -1,0 +1,58 @@
+/*---------------------------------------------------------------------------
+ * filename - closea.cas
+ *
+ * function(s)
+ *        _close - close a file handle
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <io.h>
+#include <_io.h>
+#include <RtlData.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            _close - close a file handle
+
+Usage           int _close(int handle);
+
+Prototype in    io.h
+
+Description     _close closes the  file handle indicated by handle  which is
+                obtained  from a  _creat, creat,  creatnew, creattemp, dup,
+                dup2, _open or open call.
+
+Return value    Upon  successful completion,  close returns  0 otherwise,  a
+                value of  -1 is returned  and, errno is  set to
+                        EBADF   Bad file number
+
+*---------------------------------------------------------------------------*/
+int _CType _FARFUNC _close( register int fd )
+{
+#if defined( _RTLDLL )
+    unsigned saveBX;
+#endif
+asm     mov     ah, 3eh
+asm     mov     bx, fd
+asm     int     21h
+asm     jc      _closeFailed
+#if defined( _RTLDLL )
+        saveBX = _BX;
+        _RTLInstanceData(_openfd) [saveBX] = 0;
+#else
+        _openfd [_BX] = 0;
+#endif
+        return 0;
+
+_closeFailed:
+        return __IOerror (_AX);
+}

@@ -1,0 +1,49 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include "windows.h"
+#include "owlrc.h"
+#include "mfileapp.h"
+
+#include "filedial.dlg"
+#include "fileacc.rc"
+#include "stdwnds.dlg"
+
+Commands MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+  POPUP "&File"
+    BEGIN
+      MENUITEM "&New",  CM_MDIFILENEW,
+      MENUITEM "&Open",  CM_MDIFILEOPEN,
+      MENUITEM "&Save",  CM_FILESAVE,
+      MENUITEM "Save &As...",  CM_FILESAVEAS,
+      MENUITEM SEPARATOR
+      MENUITEM "E&xit",  CM_EXIT,
+    END
+  POPUP "&Edit"
+    BEGIN
+      MENUITEM "&Undo\aAlt+BkSp", CM_EDITUNDO
+      MENUITEM SEPARATOR
+      MENUITEM "&Cut\aShift+Del", CM_EDITCUT
+      MENUITEM "C&opy\aCtrl+Ins",  CM_EDITCOPY
+      MENUITEM "&Paste\aShift+Ins", CM_EDITPASTE
+      MENUITEM "&Delete\aDel", CM_EDITDELETE
+      MENUITEM "C&lear All\aCtrl+Del", CM_EDITCLEAR
+    END
+  POPUP "&Search"
+    BEGIN
+      MENUITEM   "&Find...", CM_EDITFIND
+      MENUITEM   "&Replace...", CM_EDITREPLACE
+      MENUITEM   "&Next\aF3", CM_EDITFINDNEXT
+    END
+  POPUP "&Window"
+    BEGIN
+      MENUITEM "&Tile", CM_TILECHILDREN,
+      MENUITEM "&Cascade", CM_CASCADECHILDREN,
+      MENUITEM "Arrange &Icons", CM_ARRANGEICONS,
+      MENUITEM "C&lose All", CM_CLOSECHILDREN
+      MENUITEM SEPARATOR
+      MENUITEM "&Save state", CM_SAVESTATE
+      MENUITEM "&Restore state", CM_RESTORESTATE
+    END
+END
+

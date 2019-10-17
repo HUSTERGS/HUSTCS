@@ -1,0 +1,384 @@
+/*-----------------------------------------------------------------------*
+ * filename - setjmp.cas
+ *
+ * function(s)
+ *      setjmp - nonlocal goto
+ *      longjmp - performs a nonlocal goto
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <setjmp.h>
+
+#ifdef  __BOSS__
+#include <int2f.h>
+
+extern unsigned char _protected;
+
+/*
+ []---------------------------------------------[]
+  |             ModifyCStoID                    |
+  |---------------------------------------------|
+  |           segment -> ID                     |
+  |                                             |
+ []---------------------------------------------[]
+*/
+
+int     ModifyCStoID(int segment){
+
+asm     push    bx
+asm     push    cx
+asm     push    dx
+asm     push    ds
+asm     push    es
+asm     push    di
+asm     push    si
+asm     mov     ax, DGROUP
+asm     mov     ds, ax
+asm     cmp     byte ptr DGROUP:_protected,0
+asm     jnz     sameexit
+asm     mov     cx, segment
+asm     mov     bx, BOSS_ConvertSelectorToSegmentHandle
+asm     mov     ax, 0x0FB42
+asm     int     0x02F
+asm     cmp     dx, STSUCCESS
+asm     je      modseg
+
+sameexit:
+asm     mov     ax, segment
+asm     jmp     exit
+
+modseg:
+
+asm     mov     es, cx
+asm     test    word ptr es:[bx].mpb_flags, NSMOVE
+asm     jz      sameexit
+asm     shr     bx, 1
+asm     shr     bx, 1
+asm     shr     bx, 1
+asm     shr     bx, 1
+asm     add     cx, bx
+asm     mov     ax, cx
+
+exit:
+
+asm     pop     si
+asm     pop     di
+asm     pop     es
+asm     pop     ds
+asm     pop     dx
+asm     pop     cx
+asm     pop     bx
+        return(_AX);
+}
+
+/*
+;[]---------------------------------------------[]
+; |             ModifyIDtoCS                    |
+; |---------------------------------------------|
+; |             CX->CX                          |
+; |                                             |
+;[]---------------------------------------------[]
+*/
+
+int     ModifyIDtoCS(int ID){
+
+
+asm     push    bx
+asm     push    cx
+asm     push    dx
+asm     push    ds
+asm     push    es
+asm     push    di
+asm     push    si
+asm     mov     ax, DGROUP
+asm     mov     ds, ax
+asm     cmp     byte ptr DGROUP:_protected,0
+asm     jz      real
+asm     mov     ax, ID
+asm     jmp     exit
+
+real:
+
+asm     mov     cx, ID
+asm     mov     bx, BOSS_LocateMoveableSegment
+asm     mov     ax, 0x0FB42
+asm     int     0x2F
+asm     mov     ax, cx
+
+exit:
+
+asm     pop     si
+asm     pop     di
+asm     pop     es
+asm     pop     ds
+asm     pop     dx
+asm     pop     cx
+asm     pop     bx
+
+        return(_AX);
+
+}
+
+#endif  // __BOSS__
+
+/* leaves current FPU stack pointer in a word at SS:bx */
+/* preserves all registers but bx, cx */
+
+/*-----------------------------------------------------------------------*
+
+Name            setjmp - nonlocal goto
+
+Usage           #include <setjmp.h>
+                int setjmp(jmp_buf jmpb);
+
+Prototype in    setjmp.h
+
+Description     Saves   current context information     (register,  stack
+                position, and segment values)  in the jmp_buf structure and
+                then returns to the caller.
+
+                Setjmp returns 0 when called directly. The caller of setjmp
+                may be  "returned to" again  by longjmp, when  the function
+                result will never be zero.
+
+                The jmp_buf contains  the entire context necessary for  a C
+                task, including  all segments and  the complete flag  word.
+                Only  the  AX,BX,CX,DX,ES  registers are lost, but then the
+                caller  of setjmp  does not expect them  to be  preserved
+                through a function call.
+
+                On entry, the stack frame looks like:
+
+                top     old BP
+                        DI
+                        SI
+                #if defined (__HUGE__)
+                        DS
+                #endif
+                        IP
+                #if (LPROG)
+                        CS
+                #endif
+                        jmpb OFFSET
+                #if (LDATA)
+                        jmpb SEGMENT
+                #endif
+
+Return value    setjmp returns 0 when it is initially called.
+
+*------------------------------------------------------------------------*/
+int _CType setjmp(jmp_buf jmpb)
+{
+asm     pushf
+asm     pop     bx              /* save flags in bx */
+
+asm     mov     dx, es          /* save es */
+
+asm     mov     cx, di          /* save di */
+
+#if     LDATA
+asm     LES     di, jmpb
+#else
+asm     mov     di, jmpb
+asm     push    DS
+asm     pop     ES
+#endif
+
+asm     cld
+asm     lea     ax, jmpb
+
+#if defined(__PAS__)
+#if     LPROG
+asm     add     ax,4
+#else
+asm     inc     ax
+asm     inc     ax
+#endif
+#endif
+
+asm     stosw                   /* sp */
+asm     mov     ax, SS
+asm     stosw                   /* SS */
+
+        /* Save the Floating Point Unit */
+#ifdef __DEEP_STACK__
+#if defined(__MEDIUM__)  ||  defined(__LARGE__) ||  defined(__HUGE__)
+asm     push    ds
+asm     mov     ax,_EMUSEG
+asm     mov     ds,ax
+asm     call    dword ptr ds:[0]
+asm     pop     ds
+#else
+asm     push    cs              /* simulate far call */
+asm     call    ds:[___fpustate]
+asm     mov     ax, SS:[bx]
+asm     stosw                   /* FPU */
+#endif
+#else
+asm     xchg    ax,bx
+asm     stosw                   /* flags */
+#endif
+
+#if     LPROG
+asm     mov     ax, W1(jmpb-cPtrSize)   /* large code */
+#else
+asm     mov     ax, CS
+#endif
+
+#ifdef  __BOSS__
+asm     push    ax
+asm     call    _ModifyCStoID
+asm     add     sp, 2
+#endif
+
+asm     stosw                   /* CS */
+asm     mov     ax, W0(jmpb-cPtrSize)
+asm     stosw                   /* IP */
+
+asm     mov     ax, [bp]
+asm     stosw                   /* BP */
+asm     xchg    ax, cx
+asm     stosw                   /* DI */
+asm     mov     ax, dx
+asm     stosw                   /* ES */
+asm     xchg    ax, si
+asm     stosw                   /* SI */
+
+#if defined(__HUGE__)
+asm     pop     ax
+asm     push    ax              /* caller's DS */
+#else
+asm     mov     ax, ds
+#endif
+
+asm     stosw                   /* DS */
+asm     mov     es, dx          /* restore ES */
+        return 0;
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            longjmp - performs a nonlocal goto
+
+Usage           #include <setjmp.h>
+                void longjmp(jmp_buf jmpb, int retval);
+
+Prototype in    setjmp.h
+
+Description     Restores context information (register, stack position, and
+                segment  values)  from  the  jmp_buf  structure, which must
+                previously  have  been  saved  there  by  setjmp,  and then
+                returns to  the original caller  of setjmp with  val as the
+                return value  as if returning  from setjmp. The  difference
+                between  a  setjmp  return  and  a  longjmp  is that setjmp
+                returns zero, longjmp returns "val". Val can never be zero:
+                if zero argument is supplied, 1 is substituted.
+
+                Longjmp never returns to its own caller. If the contents of
+                jmpb  are not  set, or  if  the  context therein  is for  a
+                function which  is not now  active (if it  has finished and
+                returned) then  the result will  generally be to  crash the
+                program.  The safest  styles of  use of  the setjmp/longjmp
+                pair are to effect a  return  upward through several nested
+                procedure layers  to a parent procedure  designed to handle
+                exceptions, or  to place both  setjmp and longjmp  within a
+                single scheduler/event handler lexical block.
+
+Return value    longjmp  cannot return  the value  0; if  passed 0  in val,
+                longjmp will return 1.
+
+*------------------------------------------------------------------------*/
+void _CType longjmp(jmp_buf jmpb, int retval)
+{
+        /* sneaky way to do if (retval==0) retval=1; */
+asm     mov     dx, retval
+asm     cmp     dx, 1           /* generates carry if dx=0      */
+asm     adc     dx, 0           /* if was 0, now it's 1  */
+asm     LDS_    si, jmpb
+asm     cld
+
+        /* Change context begins with changing stack */
+#ifdef  __BOSS__
+asm     push    dx
+asm     mov     ax, 0xfb42
+asm     mov     bx, BOSS_FreezeUnfreezeStack
+asm     mov     cx, FREEZE_SP
+asm     int     2fh
+asm     pop     dx
+#endif
+
+asm     pushf                   /* save state of interrupt flag */
+asm     pop     bx              /*  in bx */
+asm     lodsw                   /* sp */
+asm     cli
+asm     mov     ss, [si]        /* SS */
+asm     mov     sp, ax
+asm     push    bx              /* restore state of interrupt flag */
+asm     popf
+asm     lodsw                   /* skip SS */
+
+        /* Restore the Floating Point Unit */
+#ifdef __DEEP_STACK__
+#if defined(__MEDIUM__)  ||  defined(__LARGE__) ||  defined(__HUGE__)
+asm     push    ds
+asm     mov     ax,_EMUSEG
+asm     mov     ds,ax
+asm     call    dword ptr ds:[0]
+asm     pop     ds
+#else
+asm     push    cs              /* simulate far call */
+asm     call    ds:[___fpustate]
+asm     lodsw                   /* FPU */
+asm     mov     SS:[bx], ax
+#endif
+#else
+asm     lodsw                   /* flags */
+#endif
+
+        /* Build the return-link to the caller of setjmp */
+asm     push    ax              /* flags */
+asm     lodsw                   /* CS */
+asm     push    ax
+asm     lodsw                   /* IP */
+asm     push    ax
+
+        /* Restore other working registers */
+asm     lodsw                   /* BP */
+asm     xchg    bp, ax
+asm     lodsw                   /* DI */
+asm     xchg    di, ax
+asm     lodsw                   /* ES */
+asm     mov     es, ax
+asm     lodsw                   /* SI */
+asm     mov     ds, [si]
+asm     xchg    si, ax
+
+#ifdef  __BOSS__
+asm     push    dx
+asm     mov     ax, 0xfb42
+asm     mov     bx, BOSS_FreezeUnfreezeStack
+asm     mov     cx, UNFREEZE_SP
+asm     int     2fh
+asm     pop     dx
+
+asm     pop     bx              /* IP  CS on stack!! */
+asm     call    _ModifyIDtoCS
+asm     add     sp, 2
+asm     push    ax              /* CS */
+asm     push    bx              /* IP */
+#endif
+
+asm     xchg    ax, dx          /* put result in ax */
+asm     iret                    /* return to original caller of setjmp */
+}

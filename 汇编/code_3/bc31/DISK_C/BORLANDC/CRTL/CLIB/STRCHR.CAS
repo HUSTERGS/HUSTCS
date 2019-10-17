@@ -1,0 +1,101 @@
+/*-----------------------------------------------------------------------*
+ * filename - strchr.cas
+ *
+ * function(s)
+ *        strchr - scans a string for the first occurrence of a
+ *        given character
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <stdio.h>
+#include <string.h>
+
+/*---------------------------------------------------------------------*
+
+Name            strchr - scans a string for the first occurrence of a
+                         given character
+
+Usage           char *strchr(const char *str, int c);
+
+Prototype in    string.h
+
+Description     strchr scans a string in the forward direction, looking for a
+                specific character. strchr finds the first occurrence of the
+                character ch in the string str.
+
+                The null-terminator is considered
+                to be part of the string, so that, for example
+
+                        strchr(strs, 0)
+
+                returns a pointer to the terminating null character of the
+                string "strs".
+
+Return value    strchr  returns a pointer to the first occurrence of the
+                character ch in str; if ch does not occur in str, strchr
+                returns NULL.
+
+*---------------------------------------------------------------------*/
+#undef strchr            /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+char _FAR * _CType _FARFUNC strchr(const char _FAR *s, int c)
+{
+asm     cld
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm push    ds
+#endif
+asm LDS_    si, s
+asm mov bl,c
+asm test    si, 1           /* SI even? */
+asm jz  cmp_loop
+asm lodsb
+asm cmp al, bl          /* process first character */
+asm je  success2
+asm and al, al
+asm jz  failure
+cmp_loop:
+asm lodsw               /* get 2 chars at a time */
+asm cmp al, bl
+asm je  success1        /* if first  char matches */
+asm and al, al
+asm jz  failure         /* give up if end of string */
+asm cmp ah, bl
+asm je  success2        /* if second char matches */
+asm and ah, ah
+asm jnz cmp_loop        /* continue if more characters */
+failure:
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm pop ds
+#endif
+        return( NULL );
+success2:
+asm inc si
+success1:
+asm lea ax, [si-2]      /* point AX at matching char */
+#if LDATA
+asm mov dx,ds
+#endif
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm pop ds
+#endif
+
+#if LDATA
+        return( (char *)(MK_LONG) );
+#else
+        return( (char *)_AX );
+#endif
+}

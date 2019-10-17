@@ -1,0 +1,61 @@
+/*------------------------------------------------------------------------
+ * filename - round.cas
+ *
+ * function(s)
+ *        __round - rounding helper function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            __round - rounding helper function
+
+Usage           void near __round(void)
+
+Prototype in    _math.h
+
+Description     __round rounds the argument on the floating point stack.
+                The CH register contains the rounding flags:
+                        00H     Round to nearest or even
+                        04H     Round down toward -INF
+                        08H     Round up toward +INF
+                        0CH     Chop (truncate toward 0)
+                This function is a helper for modf(), floor(), ceil(),
+                and their long double counterparts.
+
+Return value    __round does not return a value, but leaves the rounded
+                result on the top of the FPU stack.
+
+*---------------------------------------------------------------------------*/
+
+void pascal near __round(void)
+{
+        unsigned int cword;
+
+asm     FSTCW   cword           /* read out the current control word */
+asm     mov     ax, 0F3FFh
+asm     FWAIT
+asm     mov     dx, cword
+asm     and     ax, dx          /* mask out the rounding control */
+asm     or      ah, ch          /* iNDP-87 control bits for rounding mode */
+asm     mov     cword, ax
+asm     FLDCW   cword
+asm     FRNDINT                 /* round to integer */
+asm     mov     cword, dx
+asm     FLDCW   cword           /* restore original rounding control */
+        return;
+}

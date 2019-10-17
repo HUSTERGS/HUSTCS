@@ -1,0 +1,4418 @@
+
+
+
+
+
+
+Online document
+___________________________________________________________________________
+
+                                                            Other utilities
+
+
+
+
+
+
+===========================================================================
+HOW TO USE THIS FILE
+===========================================================================
+
+                    This file has a table of contents and an index that
+                    refer to "pages" in this file. If your editor has a
+                    search facility, you can use it to search for the page
+                    numbers listed in either the table of contents or in
+                    the index. The phrase "Page n" (where n represents the
+                    actual page number) appears at the bottom left of the
+                    "page" it refers to. Thus, at the bottom of page 1,
+                    you'll find "Page 1" as the last item on that "page."
+
+
+
+
+
+
+CONTENTS
+___________________________________________________________________________
+
+
+
+
+
+           Other utilities                 Report by external references
+                                           (/RX) . . . . . . . . . . . . 27
+BGIOBJ: Converting graphics drivers        Report of module sizes
+and fonts  . . . . . . . . . . . . 2       (/RS) . . . . . . . . . . . . 27
+  Adding the new .OBJ files to             Report by class type (/RC)  . 27
+  GRAPHICS.LIB . . . . . . . . . . 3       Report of unreferenced symbol
+  Registering the drivers and              names (/RU) . . . . . . . . . 28
+  fonts  . . . . . . . . . . . . . 3       Verbose reporting (/RV) . . . 29
+    An example . . . . . . . . . . 4     Examples of how to use
+  The /F option  . . . . . . . . . 5     OBJXREF . . . . . . . . . . . . 29
+  Advanced features  . . . . . . . 5       Example 1 . . . . . . . . . . 29
+CPP: The preprocessor  . . . . . . 9       Example 2 . . . . . . . . . . 29
+  CPP as a macro preprocessor  .  10       Example 3 . . . . . . . . . . 29
+  An example . . . . . . . . . .  10       Example 4 . . . . . . . . . . 30
+GREP: A text-search utility  . .  11     OBJXREF error messages and
+  Command-line syntax  . . . . .  11     warnings  . . . . . . . . . . . 30
+  GREP options . . . . . . . . .  12       Error messages  . . . . . . . 30
+    Order of precedence  . . . .  14       Warnings  . . . . . . . . . . 30
+  The search string  . . . . . .  14   PRJCFG: Configuration file
+    Operators in regular               utility . . . . . . . . . . . . . 31
+    expressions  . . . . . . . .  15   PRJCNVT: Old projects for new . . 31
+  File specifications  . . . . .  16   PRJ2MAK: From project file to MAKE
+  Some GREP examples . . . . . .  16   file  . . . . . . . . . . . . . . 32
+    Example 1  . . . . . . . . .  16   THELP: The Turbo Help utility . . 33
+    Example 2  . . . . . . . . .  17     Loading and invoking THELP  . . 33
+    Example 3  . . . . . . . . .  17     Navigating THELP  . . . . . . . 34
+    Example 4  . . . . . . . . .  17     THELP options . . . . . . . . . 35
+    Example 5  . . . . . . . . .  18       /C#xx (select color)  . . . . 35
+    Example 6  . . . . . . . . .  18       /Fname (full path and name for
+    Example 7  . . . . . . . . .  19       help file)  . . . . . . . . . 36
+    Example 8  . . . . . . . . .  19       /H, /?, and ? (display help
+OBJXREF: The object module cross-          screen) . . . . . . . . . . . 37
+reference utility  . . . . . . .  20       /Kxxyy (reassign hot key) . . 37
+  The OBJXREF command line . . .  20       /U (remove THELP from
+    The OBJXREF command-line               memory) . . . . . . . . . . . 38
+    options  . . . . . . . . . .  21       /Wx,y,w,h (set the window size
+      Control options  . . . . .  21       and location) . . . . . . . . 38
+      Report options . . . . . .  23   TOUCH . . . . . . . . . . . . . . 38
+  Response files . . . . . . . .  24   TRANCOPY: A project transfer item
+    Free-form response files . .  24   utility . . . . . . . . . . . . . 39
+    Project files  . . . . . . .  24   TRIGRAPH: A character-conversion
+    Linker response files  . . .  25   utility . . . . . . . . . . . . . 39
+  Sample OBJXREF reports . . . .  25   Transfer macros . . . . . . . . . 40
+    Report by public names                   State macros  . . . . . . . 40
+    (/RP)  . . . . . . . . . . .  26         File name macros  . . . . . 41
+    Report by module (/RM) . . .  26         Instruction macros  . . . . 41
+    Report by reference (/RR)  .  26     Running DOS commands  . . . . . 46
+
+
+
+                                     i
+
+
+
+
+
+
+  Transfer memory settings . . .  47     Named keys  . . . . . . . . . . 50
+Turbo Editor macros  . . . . . .  47   Predefined editor commands  . . . 51
+TEMC command line  . . . . . . .  47
+Syntax . . . . . . . . . . . . .  48   Index                             61
+Key codes  . . . . . . . . . . .  49
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    ii
+
+
+
+
+
+
+
+                    Borland C++ comes with a host of standalone utilities
+                    that you can use with your Borland C++ files or other
+                    modules. Several are documented in the Tools and
+                    Utilities Guide; others are documented here.
+
+
+                    -------------------------------------------------------
+                    Name       Description
+                    -------------------------------------------------------
+
+                    Documented in the Tools and Utilities Guide
+
+                    IMPDEF     Creates a module definition file
+                    IMPLIB     Generates an import library
+                    IMPLIBW    Windows application that generates an import
+                               library
+                    MAKE       Standalone program manager
+                    TLIB       Turbo Librarian
+                    TLINK      Turbo Linker
+                    WinSight   Windows message monitor
+
+                    Documented in this file
+
+                    BGIOBJ     Conversion utility for graphics drivers and
+                               fonts
+                    CPP        Preprocessor
+
+
+
+                                   - 1 -
+
+
+
+
+
+
+                    GREP       File-search utility
+                    OBJXREF    Object module cross-referencer
+                    PRJCFG     Updates options in a project file from a
+                               configuration file, or converts a project
+                               file to a configuration file
+                    PRJCNVT    Converts Turbo C project files to the
+                               Borland C++ format
+                    PRJ2MAK    Converts Borland C++ project files to MAKE
+                               files
+                    THELP      Turbo Help utility
+                    TOUCH      Updates file date and time
+                    TRANCOPY   Copies transfer items from one project to
+                               another
+                    TRIGRAPH   Character-conversion utility
+                    TEML/TEMC  Turbo Editor Macro Language and Compiler
+
+                    -------------------------------------------------------
+
+                    This file explains what each utility is and
+                    illustrates, with code and command-line examples, how
+                    to use them.
+
+
+
+===========================================================================
+BGIOBJ: Converting graphics drivers and fonts
+===========================================================================
+
+                    You can use BGIOBJ to convert graphics driver files and
+                    character sets (stroked font files) to object (.OBJ)
+                    files. Once they're converted, you can link them into
+                    your program, making them part of the executable file.
+                    This is in addition to the graphics package's dynamic
+                    loading scheme, in which your program loads graphics
+                    drivers and character sets (stroked fonts) from disk at
+                    run time.
+
+                    Linking drivers and fonts directly into your program is
+                    advantageous because the executable file contains all
+                    (or most) of the drivers and/or fonts it might need,
+                    and doesn't need to access the driver and font files on
+                    disk when running. However, linking the drivers and
+                    fonts into your executable file increases its size.
+
+                    To convert a driver or font file to a linkable object
+                    file, use the BGIOBJ.EXE utility. This is the
+                    simplified syntax:
+
+                      BGIOBJ source_file
+
+                    where source_file is the driver or font file to be
+                    converted to an object file. The object file created
+                    has the same file name as the source file, with the
+
+
+
+
+                                   - 2 -
+
+
+
+
+
+
+                    extension .OBJ; for example, EGAVGA.BGI yields
+                    EGAVGA.OBJ, SANS.CHR gives SANS.OBJ, and so on.
+
+
+    Adding the new  =======================================================
+     .OBJ files to
+      GRAPHICS.LIB  You should add the driver and font object modules to
+                    GRAPHICS.LIB, so the linker can locate them when it
+                    links in the graphics routines. If you don't add these
+                    new object modules to GRAPHICS.LIB, you'll have to add
+                    them to the list of files in the project (.PRJ) file,
+                    on the BCC command line, or on the TLINK command line.
+                    To add these object modules to GRAPHICS.LIB, invoke
+                    TLIB with the following command line:
+
+                      tlib graphics + object_file_name [+ object_file_name
+                    ...]
+
+                    where object_file_name is the name of the object file
+                    created by BGIOBJ.EXE (such as CGA, EGAVGA, GOTH, and
+                    so forth). The .OBJ extension is implied, so you don't
+                    need to include it. You can add several files with one
+                    command line to save time; see the example in the
+                    following section.
+
+
+   Registering the  =======================================================
+ drivers and fonts
+                    After adding driver and font object modules to
+                    GRAPHICS.LIB, you have to register all the drivers and
+                    fonts that you want linked in; you do this by calling
+                    registerbgidriver and registerbgifont in your program
+                    (before calling initgraph). This informs the graphics
+                    system of the presence of those files, and ensures that
+                    they will be linked in when the executable file is
+                    created by the linker.
+
+                    The registering routines each take one parameter; a
+                    symbolic name defined in graphics.h. Each registering
+                    routine returns a nonnegative value if the driver or
+                    font is successfully registered.
+
+                    The following table shows the names to be used with
+                    registerbgidriver and registerbgifont. It is a complete
+                    list of drivers and fonts included with Borland C++.
+
+
+---------------------------------------------------------------------------
+ Driver file     registerbgidriver      Font file   registerbgifont
+ (*.BGI)         symbolic name          (*.CHR)     symbolic name
+---------------------------------------------------------------------------
+
+ CGA             CGA_driver             TRIP        triplex_font
+ EGAVGA          EGAVGA_driver          LITT        small_font
+
+
+
+                                   - 3 -
+
+
+
+
+
+
+ HERC            Herc_driver            SANS        sansserif_font
+ ATT             ATT_driver             GOTH        gothic_font
+ PC3270          PC3270_driver
+ IBM8514         IBM8514_driver
+
+---------------------------------------------------------------------------
+
+
+------------------  Suppose you want to convert the files for the CGA
+        An example  graphics driver, the gothic font, and the triplex font
+------------------  to object modules, then link them into your program.
+                    Here's what you do:
+
+                    1. Convert the binary files to object files using
+                       BGIOBJ.EXE, as shown in the following separate com-
+                       mand lines:
+
+                        bgiobj  cga
+                        bgiobj  trip
+                        bgiobj  goth
+
+                       This creates three files: CGA.OBJ, TRIP.OBJ, and
+                       GOTH.OBJ.
+
+                    2. You can add these object files to GRAPHICS.LIB with
+                       this TLIB command line:
+
+                          tlib  graphics  +cga  +trip  +goth
+
+                    3. If you don't add the object files to GRAPHICS.LIB,
+                       you must add the object file names CGA.OBJ,
+                       TRIP.OBJ, and GOTH.OBJ to your project list (if you
+                       are using Borland C++'s integrated environment), or
+                       to the BCC command line. For example, the BCC com-
+                       mand line would look like this:
+
+                          BCc  niftgraf graphics.lib  cga.obj  trip.obj
+                       goth.obj
+
+                    4. You register these files in your graphics program
+                       like this:
+
+ If you ever get a      /* Header file declares CGA_driver, triplex_font &
+      linker error      gothic_font */
+   Segment exceeds      #include <graphics.h>
+ 64K after linking
+   in some drivers      /* Register and check for errors (one never
+     and/or fonts,      knows...) */
+      refer to the
+following section.      if (registerbgidriver(CGA_driver) < 0) exit(1);
+                        if (registerbgifont(triplex_font) < 0) exit(1);
+                        if (registerbgifont(gothic_font)  < 0) exit(1);
+
+                        /* ... */
+
+
+
+                                   - 4 -
+
+
+
+
+
+
+                        initgraph(....);     /* initgraph should be called
+                                                after registering */
+
+                        /* ... */
+
+
+     The /F option  =======================================================
+
+                    This section explains what steps to take if you get the
+                    linker error Segment exceeds 64K (or a similar error)
+                    after linking in several driver and/or font files
+                    (especially with small- and compact-model programs).
+
+                    By default, the files created by BGIOBJ.EXE all use the
+                    same segment (called _TEXT). This can cause problems if
+                    your program links in many drivers and/or fonts, or
+                    when you're using the small or compact memory model.
+
+                    To solve this problem, you can convert one or more of
+                    the drivers or fonts with the BGIOBJ /F option. This
+                    option directs BGIOBJ to use a segment name of the form
+                    filename_TEXT, so that the default segment is not
+                    overburdened by all the linked-in drivers and fonts
+                    (and, in small and compact model programs, all the pro-
+                    gram code). For example, the following two BGIOBJ com-
+                    mand lines direct BGIOBJ to use segment names of the
+                    form EGAVGA_TEXT and SANS_TEXT.
+
+                     bgiobj  /F  egavga
+                     bgiobj  /F  sans
+
+                    When you select /F, BGIOBJ also appends F to the target
+                    object file name (EGAVGAF.OBJ, SANSF.OBJ, and so
+                    forth), and appends _far to the name that will be used
+                    with registerfarbgidriver and registerfarbgifont. (For
+                    example, EGAVGA_driver becomes EGAVGA_driver_far.)
+
+                    For files created with /F, you must use these far
+                    registering routines instead of the regular
+                    registerbgidriver and registerbgifont. For example,
+
+                     if (registerfarbgidriver(EGAVGA_driver_far) < 0)
+                     exit(1);
+                     if (registerfarbgifont(sansserif_font_far)  < 0)
+                     exit(1);
+
+
+ Advanced features  =======================================================
+
+                    This section explains some of BGIOBJ's advanced
+                    features, and the routines registerfarbgidriver and
+                    registerfarbgifont. Only experienced users should use
+                    these features.
+
+
+
+
+                                   - 5 -
+
+
+
+
+
+
+                    This is the full syntax of the BGIOBJ.EXE command line:
+
+                       BGIOBJ  [/F] source destination public-name seg-name
+                    seg-class
+
+                    This table describes each component of the BGIOBJ com-
+                    mand line.
+
+
+                    -------------------------------------------------------
+                    Component              Description
+                    -------------------------------------------------------
+
+
+                    /F or -F               This option instructs BGIOBJ.EXE
+                                           to use a segment name other than
+                                           _TEXT (the default), and to
+                                           change the public name and
+                                           destination file name. (See page
+                                           5 for a detailed discussion of
+                                           /F.)
+
+                    source                 This is the driver or font file
+                                           to be converted. If the file is
+                                           not one of the driver/font files
+                                           shipped with Borland C++, you
+                                           should specify a full file name
+                                           (including extension).
+
+                    destination            This is the name of the object
+                                           file to be produced. The default
+                                           destination file name is
+                                           source.OBJ, or sourceF.OBJ if
+                                           you use the /F option.
+
+                    public-name            This is the name that will be
+                                           used in the program in a call to
+                                           registerbgidriver or
+                                           registerbgifont (or their
+                                           respective far versions) to link
+                                           in the object module.
+
+                                           The public name is the external
+                                           name used by the linker, so it
+                                           should be the name used in the
+                                           program, prefixed with an
+                                           underscore. If your program uses
+                                           Pascal calling conventions, use
+                                           only uppercase letters, and do
+                                           not add an underscore.
+
+                    seg-name               This is an optional segment
+                                           name; the default is _TEXT (or
+
+
+
+
+                                   - 6 -
+
+
+
+
+
+
+                                           filename_TEXT if /F is
+                                           specified)
+
+                    seg-class              This is an optional segment
+                                           class; the default is CODE.
+
+                    -------------------------------------------------------
+
+                    All parameters except source are optional. However, if
+                    you need to specify an optional parameter, all the
+                    parameters preceding it must also be specified.
+
+                    If you choose to use your own public name(s), you have
+                    to add declaration(s) to your program, using one of the
+                    following forms:
+
+                     void public_name(void);        /* if /F not used, */
+                                                    /* default segment name
+                     used */
+
+                     extern int far public_name[];  /* if /F used, or */
+                                                    /* segment name not
+                     _TEXT */
+
+                    In these declarations, public_name matches the public-
+                    name you used when converting with BGIOBJ. The
+                    graphics.h header file contains declarations of the
+                    default driver and font public names; if you use those
+                    default public names you don't have to declare them as
+                    just described.
+
+                    After these declarations, you have to register all the
+                    drivers and fonts in your program. If you don't use the
+                    /F option and don't change the default segment name,
+                    you should register drivers and fonts through
+                    registerbgidriver and registerbgifont; otherwise, use
+                    registerfarbgidriver and registerfarbgifont.
+
+                    Here is an example of a program that loads a font file
+                    into memory:
+
+                     /* Example of loading a font file into memory */
+
+                     #include <graphics.h>
+                     #include <io.h>
+                     #include <fcntl.h>
+                     #include <stdio.h>
+                     #include <conio.h>
+                     #include <stdlib.h>
+                     #include <process.h>
+                     #include <alloc.h>
+
+                     main()
+                     {
+
+
+
+                                   - 7 -
+
+
+
+
+
+
+                        void    *gothic_fontp;    /* points to font buffer
+                     in memory */
+                        int      handle;          /* file handle used for
+                     I/O */
+                        unsigned fsize;           /* size of file (and
+                     buffer) */
+
+                        int errorcode;
+                        int graphdriver;
+                        int graphmode;
+
+                     /* open font file */
+                        handle = open("GOTH.CHR", O_RDONLY|O_BINARY);
+                        if (handle == -1)
+                        {
+                           printf("unable to open font file 'GOTH.CHR'\n");
+                           exit(1);
+                        }
+                     /* find out size of the file */
+                        fsize = filelength(handle);
+                     /* allocate buffer */
+                        gothic_fontp = malloc(fsize);
+                        if (gothic_fontp == NULL)
+                        {
+                          printf("unable to allocate memory for font file
+                     'GOTH.CHR'\n");
+                          exit(1);
+                        }
+                     /* read font into memory */
+                        if (read(handle, gothic_fontp, fsize) != fsize)
+                        {
+                           printf("unable to read font file 'GOTH.CHR'\n");
+                           exit(1);
+                        }
+                     /* close font file */
+                        close(handle);
+                     /* register font */
+                        if (registerfarbgifont(gothic_fontp) !=
+                     GOTHIC_FONT)
+                        {
+                           printf("unable to register font file
+                     'GOTH.CHR'\n");
+                           exit(1);
+                        }
+                     /* detect and initialize graphix */
+                        graphdriver = DETECT;
+                        initgraph(&graphdriver, &graphmode, "..");
+                        errorcode = graphresult();
+                        if (errorcode != grOk)
+                        {
+                           printf("graphics error:
+                     %s\n",grapherrormsg(errorcode));
+                           exit(1);
+                        }
+
+
+
+                                   - 8 -
+
+
+
+
+
+
+                        settextjustify(CENTER_TEXT, CENTER_TEXT);
+                        settextstyle(GOTHIC_FONT, HORIZ_DIR, 4);
+                        outtextxy(getmaxx()/2,getmaxy()/2,
+                                  "Borland Graphics Interface (BGI)");
+                     /* press a key to terminate */
+                        getch();
+                     /* shut down graphics system */
+                        closegraph();
+                        return(0);
+                     }
+
+
+
+===========================================================================
+CPP: The preprocessor
+===========================================================================
+
+    CPP produces a  Often, when the compiler reports an error inside a
+  list (in a file)  macro or an include file, you can get more information
+     of a C source  about what the error is if you can see the include
+  program in which  files or the results of the macro expansions. In many
+ include files and  multi-pass compilers, a separate pass performs this
+    #define macros  work, and the results of the pass can be examined.
+         have been  Since Borland C++ uses an integrated single-pass com-
+   expanded. It is  piler, we provided CPP to supply the first-pass
+    not needed for  functionality found in other compilers.
+    normal compil-
+       ations of C  You use CPP just as you would use BCC, the standalone
+         programs.  compiler. CPP reads the same TURBOC.CFG file for
+                    default options, and accepts the same command-line
+                    options as BCC.
+
+                    The BCC options that don't pertain to CPP are simply
+                    ignored by CPP. To see the list of arguments handled by
+                    CPP, type cpp at the DOS prompt. To see how those
+                    arguments work, see Chapter 5 in the Programmer's
+                    Guide.
+
+                    With one exception, the file names listed on the CPP
+                    command line are treated like they are in BCC, with
+                    wildcards allowed. The exception to this is that all
+                    files are treated as C source files. There is no
+                    special treatment for .OBJ, .LIB, or .ASM files.
+
+                    For each file processed by CPP, the output is written
+                    to a file in the current directory (or the output
+                    directory named by the -n option) with the same name as
+                    the source name but with an extension of .I.
+
+                    This output file is a text file containing each line of
+                    the source file and any include files. Any preproces-
+                    sing directive lines have been removed, along with any
+                    conditional text lines excluded from the compile.
+                    Unless you use a command-line option to specify other-
+
+
+
+                                   - 9 -
+
+
+
+
+
+
+                    wise, text lines are prefixed with the file name and
+                    line number of the source or include file the line came
+                    from. Within a text line, any macros are replaced with
+                    their expansion text.
+
+        Important!  The resulting output of CPP cannot be compiled because
+                    of the file name and line number prefix attached to
+                    each source line.
+
+
+    CPP as a macro  =======================================================
+      preprocessor
+                    The -P option to CPP tells it to prefix each line with
+                    the source file name and line number. If you give it -
+                    P- (turning this option off), CPP omits this line
+                    number information. With this option turned off, CPP
+                    can be used as a macro preprocessor; the resulting .I
+                    file can then be compiled with BC or BCC.
+
+
+        An example  =======================================================
+
+                    The following simple program illustrates how CPP
+                    preprocesses a file, first with -P selected, then with
+                    -P-.
+
+                    Source file: HELLOAJ.C
+                     #define NAME "H.R. Floyd"
+                     #define BEGIN {
+                     #define END   }
+
+                     main()
+                     BEGIN
+                        printf("%s\n", NAME);
+                     END
+
+                    Command line used to invoke CPP as a preprocessor:
+                       CPP HELLOAJ.C
+
+                    Output:
+                     HELLOAJ.c 1:
+                     HELLOAJ.c 2:
+                     HELLOAJ.c 3:
+                     HELLOAJ.c 4:
+                     HELLOAJ.c 5: main()
+                     HELLOAJ.c 6: {
+                     HELLOAJ.c 7:    printf("%s\n","H.R. Floyd");
+                     HELLOAJ.c 8: }
+
+                    Command line used to invoke CPP as a macro
+                    preprocessor:
+                       CPP -P- HELLOAJ.C
+
+                    Output:
+
+
+
+                                  - 10 -
+
+
+
+
+
+
+                     main()
+                     {
+                        printf("%s\n","H.R. Floyd");
+                     }
+
+
+
+===========================================================================
+GREP: A text-search utility
+===========================================================================
+
+                    GREP (Global Regular Expression Print) is a powerful
+                    text-search program derived from the UNIX utility of
+                    the same name. GREP searches for a text pattern in one
+                    or more files or in its standard input stream.
+
+                    Here's a quick example of a situation where you might
+                    want to use GREP. Suppose you wanted to find out which
+                    text files in your current directory contained the
+                    string "Bob". You would issue the command
+
+                       grep Bob *.txt
+
+                    and GREP would respond with a list of the lines in each
+                    file (if any) that contained the string "Bob". Because
+                    the default for GREP is to ignore case, the strings
+                    "bob" and "BoB" would also be considered matches. You
+                    can use options to make your search case sensitive.
+
+                    GREP can do a lot more than match a single, fixed
+                    string. In the section that follows, you'll see how to
+                    make GREP search for any string that matches a
+                    particular pattern.
+
+
+      Command-line  =======================================================
+            syntax
+                    The general command-line syntax for GREP is
+
+                      grep [options] searchstring [file(s) ... ]
+
+                    options consist of one or more letters, preceded by a
+                    hyphen (-), that let you change various aspects of
+                    GREP's behavior.
+
+                    searchstring gives the pattern to search for.
+
+                    file(s) tells GREP which files to search. (If you don't
+                    specify a file, GREP searches its standard input; this
+                    lets you use GREP with pipes and redirection.) If you
+                    find that the results of your GREP are longer than one
+                    screen, you can redirect the output to a file. For
+                    example, you could use this command
+
+
+
+
+                                  - 11 -
+
+
+
+
+
+
+                       GREP "Bob" *.txt >gfile
+
+                    which searches all files in the current directory that
+                    end with .TXT, then places the results in a file called
+                    GFILE. (You can name this file anything you like.)
+                    Then, use your word processor (or Borland C++'s editor)
+                    to access GFILE to read the results of the search.
+
+                    The command
+
+                       GREP ?
+
+                    prints a brief help screen showing GREP's command-line
+                    options, special characters, and defaults. (See the
+                    description of the -u command-line option for
+                    information on how to change GREP's defaults.)
+
+
+      GREP options  =======================================================
+
+                    In the command line, options are one or more single
+                    characters preceded by a hyphen (-). Each individual
+                    character is a switch that you can turn on or off: A
+                    plus symbol (+) after a character turns the option on;
+                    a hyphen (-) after the character turns the option off.
+                    The + sign is optional; for example, -r means the same
+                    thing as -r+. You can list multiple options
+                    individually (like this: -i -d -l), or you can combine
+                    them (like this: -ild or -il, -d, and so on); it's all
+                    the same to GREP.
+
+                    Here are the GREP option characters and their meanings:
+
+
+------------------------------------------------------------------------------
+Option Meaning
+------------------------------------------------------------------------------
+
+
+  -c   Match Count only: Prints only a count of matching lines. For each file
+       that contains at least one matching line, GREP prints the file name and
+       a count of the number of matching lines. Matching lines are not
+       printed. This option is off by default.
+
+  -d   Search subdirectories: For each file specified on the command line,
+       GREP searches for all files that match the file specification, both in
+       the directory specified and in all subdirectories below the specified
+       directory. If you give a file without a path, GREP assumes the files
+       are in the current directory. This option is off by default.
+
+  -i   Ignore case: GREP ignores upper/lowercase differences (case folding).
+       When this option is on, GREP treats all letters a to z as identical to
+       the corresponding letters A to Z in all situations. This option is on
+       by default.
+
+
+
+                                  - 12 -
+
+
+
+
+
+
+  -l   List file names only: Prints only the name of each file containing a
+       match. After GREP finds a match, it prints the file name and processing
+       immediately moves on to the next file. This option is off by default.
+
+  -n   Line Numbers: Each matching line that GREP prints is preceded by its
+       line number. This option is off by default.
+
+  -o   UNIX output format: Changes the output format of matching lines to
+       support more easily the UNIX style of command-line piping. All lines of
+       output are preceded by the name of the file that contained the matching
+       line. This option is off by default.
+
+  -r   Regular expression search: The text defined by searchstring is treated
+       as a regular expression instead of as a literal string. This option is
+       on by default. This option is on by default.
+
+       A regular expression is one or more occurrences of one or more
+       characters optionally enclosed in quotes. The following symbols are
+       treated specially:
+        ^  start of line       $  end of line
+        .  any character       \  quote next character
+        *  match zero or more  +  match one or more
+
+        [aeiou0-9]             match a, e, i, o, u, and 0 thru 9
+        [^aeiou0-9]            match anything but a, e, i, o, u, and 0 thru 9
+
+  -u   Update options: GREP will combine the options given on the command line
+       with its default options and write these to the GREP.COM file as the
+       new defaults. (In other words, GREP is self-configuring.) This option
+       allows you to tailor the default option settings to your own taste. If
+       you want to see what the defaults are in a particular copy of GREP.COM,
+       type
+
+        GREP ?
+
+       at the DOS prompt. Each option on the help screen will be followed by a
+       + or a - depending on its default setting. This option is off by
+       default.
+
+  -v   Nonmatch: Prints only nonmatching lines. Only lines that do not contain
+       the search string are considered to be nonmatching lines. This option
+       is off by default.
+
+  -w   Word search: Text found that matches the regular expression is
+       considered a match only if the character immediately preceding and
+       following cannot be part of a word. The default word character set
+       includes A to Z, 0 to 9, and the underscore ( _ ). This option is off
+       by default.
+
+       An alternate form of this option lets you specify the set of legal word
+       characters. Its form is -w[set], where set is any valid regular
+       expression set definition.
+
+
+
+
+
+                                  - 13 -
+
+
+
+
+
+
+       If you define the set with alphabetic characters, it is automatically
+       defined to contain both the uppercase and lowercase values for each
+       letter in the set (regardless of how it is typed), even if the search
+       is case-sensitive. If you use the -w option in combination with the -u
+       option, the new set of legal characters is saved as the default set.
+
+  -z   Verbose: GREP prints the file name of every file searched. Each
+       matching line is preceded by its line number. A count of matching lines
+       in each file is given, even if the count is zero. This option is off by
+       default.
+
+------------------------------------------------------------------------------
+
+
+------------------  Remember that each of GREP's options is a switch: Its
+          Order of  state reflects the way you last set it. At any given time,
+        precedence  each option can only be on or off. Each occurrence of a
+------------------  given option on the command line overrides its previous
+                    definition. Given this command line,
+
+                       grep -r -i - -d -i -r -  main( my*.c
+
+                    GREP runs with the -d option on, the -i option on, and the
+                    -r option off.
+
+                    You can install your preferred default setting for each
+                    option in GREP.COM with the -u option. For example, if you
+                    want GREP to always do a verbose search (-z on), you can
+                    install it with the following command:
+
+                       grep -u -z
+
+
+ The search string  ==========================================================
+
+                    To use GREP well, you'll need to become proficient at
+                    writing search strings. The value of searchstring defines
+                    the pattern GREP searches for. A search string can be
+                    either a regular expression or a literal string.
+
+                    o In a regular expression, certain characters have special
+                      meanings: They are operators that govern the search.
+
+                    o In a literal string, there are no operators: Each
+                      character is treated literally.
+
+                    You can enclose the search string in quotation marks to
+                    prevent spaces and tabs from being treated as delimiters.
+                    The text matched by the search string cannot cross line
+                    boundaries; that is, all the text necessary to match the
+                    pattern must be on a single line.
+
+
+
+
+
+
+                                  - 14 -
+
+
+
+
+
+
+                    A regular expression is either a single character or a set
+                    of characters enclosed in brackets. A concatenation of
+                    regular expressions is a regular expression.
+
+
+------------------  When you use the -r option (on by default), the search
+      Operators in  string is treated as a regular expression (not a literal
+           regular  expression). The following characters take on special
+       expressions  meanings:
+------------------
+
+---------------------------------------------------------------------------
+Option Meaning
+---------------------------------------------------------------------------
+
+
+  ^    A circumflex at the start of the expression matches the start of a
+       line.
+
+  $    A dollar sign at the end of the expression matches the end of a
+       line.
+
+  .    A period matches any character.
+
+  *    An expression followed by an asterisk wildcard matches zero or more
+       occurrences of that expression. For example, in to*, the * operates
+       on the expression o; it matches t, to, too, etc. (t followed by zero
+       or more os), but doesn't match ta.
+
+  +    An expression followed by a plus sign matches one or more
+       occurrences of that expression: to+ matches to, too, etc., but not
+       t.
+
+  [ ]  A string enclosed in brackets matches any character in that string,
+       but no others. If the first character in the string is a circumflex
+       (^), the expression matches any character except the characters in
+       the string.
+
+       For example, [xyz] matches x, y, or z, while [^xyz] matches a and b,
+       but not x, y, or z. You can specify a range of characters with two
+       characters separated by a hyphen (-). These can be combined to form
+       expressions (like [a-bd-z?], which matches the ? character and any
+       lowercase letter except c).
+
+  \    The backslash escape character tells GREP to search for the literal
+       character that follows it. For example, \. matches a period instead
+       of "any character." The backslash can be used to quote itself; that
+       is, you can use \\ to indicate a literal backslash character in a
+       GREP expression.
+
+---------------------------------------------------------------------------
+
+              Note  Four of the "special" characters ($, ., *, and +) don't
+                    have any special meaning when used within a bracketed
+
+
+
+                                  - 15 -
+
+
+
+
+
+
+                    set. In addition, the character ^ is only treated
+                    specially if it immediately follows the beginning of
+                    the set definition (immediately after the [ delimiter).
+
+                    Any ordinary character not mentioned in the preceding
+                    list matches that character. For example, the greater
+                    than sign, >, matches the greater than sign (>), #
+                    matches #, and so on.
+
+
+              File  =======================================================
+    specifications
+                    file(s) tells GREP which files (or groups of files) to
+                    search. file(s) can be an explicit file name, or a
+                    "generic" file name incorporating the DOS ? and *
+                    wildcards. In addition, you can enter a path (drive and
+                    directory information) as part of file(s). If you give
+                    file(s) without a path, GREP searches the current
+                    directory.
+
+                    If you don't specify any files, input to GREP must come
+                    from redirection (<) or a vertical bar (|).
+
+
+Some GREP examples  =======================================================
+
+                    The following examples show how to combine GREP's
+                    features to do different kinds of searches. They assume
+                    GREP's default settings are unchanged.
+
+
+------------------  The search string here tells GREP to search for the
+         Example 1  word main with no preceding lowercase letters ([^a-z]),
+------------------  followed by zero or more occurrences of blank spaces
+                    (\ *), then a left parenthesis.
+
+                    Since spaces and tabs are normally considered to be
+                    command-line delimiters, you must quote them if you
+                    want to include them as part of a regular expression.
+                    In this case, the space after main is quoted with the
+                    backslash escape character. You could also accomplish
+                    this by placing the space in double quotes.
+
+                    Command line:
+                                grep -r [^a-z]main\ *( *.c
+
+                    Matches:    main(i:integer)
+                                main(i,j:integer)
+                                if (main  ()) halt;
+                                if (MAIN  ()) halt;
+
+                    Does not match:
+                                mymain()
+
+
+
+
+                                  - 16 -
+
+
+
+
+
+
+                    Files searched:
+                                *.C in current directory.
+
+
+------------------  Because the backslash (\) and period (.) characters
+         Example 2  usually have special meaning in path and file names,
+------------------  you must place the backslash escape character immedi-
+                    ately in front of them if you want to search for them.
+                    The -i option is used here, so the search is not case
+                    sensitive.
+
+                    Command line:
+                                grep -ri [a-c]:\\data\.fil *.c *.inc
+
+                    Matches:    A:\data.fil
+                                c:\Data.Fil
+                                B:\DATA.FIL
+
+                    Does not match:
+                                d:\data.fil
+                                a:data.fil
+
+                    Files searched:
+                                *.C and *.INC in current directory.
+
+
+------------------  This format defines how to search for a given word.
+         Example 3
+------------------  Command line:
+                                grep -ri [^a-z]word[^a-z] *.doc
+
+                    Matches:    every new word must be on a new line.
+                                MY WORD!
+                                word--smallest unit of speech.
+                                In the beginning there was the WORD, and
+                                the WORD
+
+                    Does not match:
+                                Each file has at least 2000 words.
+                                He misspells toward as toword.
+
+                    Files searched:
+                                *.DOC in the current directory.
+
+
+------------------  This format defines another, even more basic single-
+         Example 4  word search.
+------------------
+                    Command line:
+                                grep -iw word *.doc
+
+                    Matches:    every new word must be on a new line
+                                However,
+                                MY WORD!
+
+
+
+                                  - 17 -
+
+
+
+
+
+
+                                word: smallest unit of speech which conveys
+                                In the beginning there was the WORD, and
+
+                    Does not match:
+                                each document contains at least 2000 words!
+                                He seems to continually misspell "toward"
+                                as "toword."
+
+                    Files searched:
+                                *.DOC in the current directory.
+
+
+------------------  This is an example of how to search for a string with
+         Example 5  embedded spaces.
+------------------
+                    Command line:
+                                grep "search string with spaces" *.doc *.c
+                                a:\work\myfile.*
+
+                    Matches:    This is a search string with spaces in it.
+
+                    Does not match:
+                                This search string has spaces in it.
+
+                    Files searched:
+                                *.DOC and *.C in the current directory, and
+                                MYFILE.* in a directory called \WORK on
+                                drive A.
+
+
+------------------  This example searches for any one of the characters
+         Example 6  " . : ? ' and , at the end of a line.
+------------------
+                    The double quote within the range is preceded by an
+                    escape character so it is treated as a normal character
+                    instead of as the ending quote for the string. Also,
+                    the $ character appears outside of the quoted string.
+                    This demonstrates how regular expressions can be
+                    concatenated to form a longer expression.
+
+                    Command line:
+                                grep -rd "[ ,.:?'\"]"$ \*.doc
+
+                    Matches:    He said hi to me.
+                                Where are you going?
+                                In anticipation of a unique situation,
+                                Examples include the following:
+                                "Many men smoke, but fu man chu."
+
+                    Does not match:
+                                He said "Hi" to me
+                                Where are you going? I'm headed to the
+
+
+
+
+
+                                  - 18 -
+
+
+
+
+
+
+                    Files searched:
+                                *.DOC in the root directory and all its
+                                subdirectories on the current drive.
+
+
+------------------  This example ignores case and just prints the names of
+         Example 7  any files that contain at least one match. The three
+------------------  command-line examples show different ways of specifying
+                    multiple options.
+
+                    Command line:
+                                grep -ild " the " \*.doc
+                                or
+                                grep -i -l -d " the " \*.doc
+                                or
+                                grep -il -d " the " \*.doc
+
+                    Matches:    Anyway, this is the time we have
+                                do you think? The main reason we are
+
+                    Does not match:
+                                He said "Hi" to me just when I
+                                Where are you going? I'll bet you're headed
+
+                    Files searched:
+                                *.DOC in the root directory and all its
+                                subdirectories on the current drive.
+
+
+------------------  This example redefines the current set of legal
+         Example 8  characters for a word as the assignment operator (=)
+------------------  only, then does a word search. It matches C assignment
+                    statements, which use a single equal sign (=), but not
+                    equality tests, which use a double equal sign (==).
+
+                    Command line:
+                                grep -w[=] = *.c
+
+                    Matches:    i = 5;
+                                j=5;
+                                i += j;
+
+                    Does not match:
+                                if (i == t) j++;
+                                /* ======================= */
+
+                    Files searched:
+                                *.C in the current directory.
+
+
+
+
+
+
+
+
+
+                                  - 19 -
+
+
+
+
+
+
+===========================================================================
+OBJXREF: The object module cross-reference utility
+===========================================================================
+
+                    OBJXREF examines a list of object files and library
+                    files and produces reports on their contents. One type
+                    of report lists definitions of public names and
+                    references to them. The other type lists the segment
+                    sizes defined by object modules.
+
+                    There are two categories of public names: global
+                    variables and function names. The TEST1.C and TEST2.C
+                    files in the section "Sample OBJXREF reports" (page 25)
+                    illustrate definitions of public names and external
+                    references to them.
+
+                    Object modules are object (.OBJ) files produced by BC,
+                    BCC or TASM. A library (.LIB) file contains multiple
+                    object modules. An object module generated by BC is
+                    given the same name as the .C source file it was com-
+                    piled from. This is also true for BCC, unless a
+                    different output file name is specifically indicated
+                    with the -o BCC command-line option.
+
+
+  The OBJXREF com-  =======================================================
+         mand line
+                    The OBJXREF command line consists of the word OBJXREF
+                    followed by a series of command-line options and a list
+                    of object and library file names, separated by a space
+                    or tab character. The syntax is as follows:
+
+                      OBJXREF  options   filename  filename ...
+
+                    The command-line options determine the kind of reports
+                    that OBJXREF will generate and the amount of detail
+                    that OBJXREF will provide. They are discussed in more
+                    detail in the next section.
+
+                    Each option begins with a forward slash (/) followed by
+                    a one- or two-character option name.
+
+                    Object files and library files may be specified either
+                    on the command line or in a response file. On the com-
+                    mand line, file names are separated by a space or a
+                    tab. All object modules specified as .OBJ files are
+                    included in reports. Like TLINK, however, OBJXREF
+                    includes only those modules from .LIB files which
+                    contain a public name referenced by an .OBJ file or by
+                    a previously included module from a .LIB file.
+
+                    As a general rule, you should list all the .OBJ and
+                    .LIB files that are needed if the program is to link
+
+
+
+
+                                  - 20 -
+
+
+
+
+
+
+                    correctly, including the startup .OBJ file and one or
+                    more C libraries.
+
+                    File names may include a drive and directory path. The
+                    DOS ? and * wildcard characters may be used to identify
+                    more than one file. File names may refer to .OBJ object
+                    files or to .LIB library files. (If you don't give a
+                    file extension, the .OBJ extension is assumed.)
+
+                    Options and file names may occur in any order in the
+                    command line.
+
+                    OBJXREF reports are written to the DOS standard output.
+                    The default is the screen. The reports can be sent to a
+                    printer (as with >LPT1:) or to a file (as with
+                    >lstfile) with the DOS redirection character (>).
+
+                    Entering OBJXREF with no file names or options produces
+                    a summary of available options.
+
+
+------------------  OBJXREF command-line options fall into two categories:
+       The OBJXREF  control options and report options.
+      command-line
+           options
+------------------  Control options
+                    =======================================================
+
+                    Control options modify the default behavior of OBJXREF
+                    (the default is that none of these options are
+                    enabled).
+
+
+                    -------------------------------------------------------
+                    Option Meaning
+                    -------------------------------------------------------
+
+
+                      /I   Ignore case differences in public names. Use
+                           this option if you use TLINK without the /C
+                           option (which makes case differences
+                           significant).
+
+                      /D   Look for .OBJ files in another directory. If you
+                           want OBJXREF to look for .OBJ files in a
+                           directory other than the current one, include
+                           the directory name on the command line, prefixed
+                           with /D:
+
+                              OBJXREF /Ddir1 [; dir2 [; dir3]]
+
+                           or
+
+                              OBJXREF /Ddir1 [/Ddir2] [/Ddir3]
+
+
+
+                                  - 21 -
+
+
+
+
+
+
+                           OBJXREF will search each of the directories in
+                           the specified order for all object and library
+                           files.
+
+        Important!         If you don't use a /D option, OBJXREF will
+                           search only the current directory. If you do use
+                           a /D option, however, the current directory will
+                           not be searched unless it is included in the
+                           directory list. For example, if you wanted
+                           OBJXREF to search first the BORLAND directory
+                           and then the current directory for files, you
+                           would enter
+
+                              OBJXREF /Dborland;.
+
+                           The period denotes the current directory.
+
+
+                      /F   Include full library. All object modules in
+                           specified .LIB files are included even if they
+                           do not contain public names that are referenced
+                           by an object module being processed by OBJXREF.
+                           This provides information on the entire contents
+                           of a library file. (See example 4 in the section
+                           "OBJXREF examples.")
+
+                      /O   Allows you to specify an output file where
+                           OBJXREF will send any reports generated. Its
+                           syntax is as follows:
+
+                              OBJXREF filename.obj /report option
+                              /Ooutputfilename.ext
+
+                           By default all output is sent to the screen.
+
+
+                      /V   Verbose output. Lists names of files read and
+                           displays totals of public names, modules,
+                           segments, and classes.
+
+                      /Z   Include zero-length segment definitions. Object
+                           modules may define a segment without allocating
+                           any space in it. Listing these zero length
+                           segment definitions normally makes the module
+                           size reports harder to use but it can be
+                           valuable if you are trying to remove all defini-
+                           tions of a segment.
+
+                    -------------------------------------------------------
+
+
+
+
+
+
+
+
+                                  - 22 -
+
+
+
+
+
+
+                    Report options
+                    =======================================================
+
+                    Report options govern what sort of report is generated,
+                    and the amount of detail that OBJXREF provides.
+
+
+                    -------------------------------------------------------
+                    Option Report generated
+                    --------------------------------------------------
+
+
+                      /RC  Report by class type: Module sizes ordered
+                           by class type of segment.
+
+                      /RM  Report by module: Public names ordered by
+                           defining module.
+
+                      /RP  Report by public names: Public names in
+                           order with defining module name.
+
+       This is the    /RR  Report by reference: Public name defini-
+          default.         tions and references ordered by name.
+
+                      /RS  Report of module sizes: Module sizes
+                           ordered by segment name.
+
+                      /RU  Report of unreferenced symbol names:
+                           Unreferenced public names ordered by
+                           defining module.
+
+                      /RV  Verbose reporting: OBJXREF produces a
+                           report of every type.
+
+                      /RX  Report by external reference: External
+                           references ordered by referencing module
+                           name.
+
+                    --------------------------------------------------
+
+                    Public names defined in .C files appear in reports with
+                    a leading underscore in the reports unless the -U-
+                    option was specified when the file was compiled (main
+                    appears as _main).
+
+                    You can limit the modules, segments, classes, or public
+                    names that OBJXREF reports on by entering the
+                    appropriate name on the command line prefixed with the
+                    /N option. For example,
+
+                       OBJXREF filelist /RM /NC0
+
+                    tells OBJXREF to generate a report listing information
+                    only for the module named C0.
+
+
+
+                                  - 23 -
+
+
+
+
+
+
+    Response files  =======================================================
+
+                    The command line is limited by DOS to a maximum of 128
+                    characters. If your list of options and file names will
+                    exceed this limit, you must place your file names in a
+                    response file.
+
+                    A response file is a text file that you make with a
+                    text editor. Since you may already have prepared a list
+                    of the files that make up your program for other
+                    Borland C++ programs, OBJXREF recognizes several
+                    response file types.
+
+                    Response files are called from the command line using
+                    one of the following options. The response file name
+                    must follow the option without an intervening space
+                    (so, for example, you would type /Lresp, not /L resp).
+
+                    You can specify more than one response file on the com-
+                    mand line; additional .OBJ and .LIB file names can
+                    precede or follow them.
+
+
+------------------  You can create a free-form response file with a text
+Free-form response  editor. Just list the names of all .OBJ and .LIB files
+             files  needed to make your .EXE file.
+------------------
+     Any file name  To use free-form files with OBJXREF, type in each
+     listed in the  response file name on the command line, preceded by an
+     response file  @, and separate it from other command-line entries with
+ without an exten-  a space or tab:
+sion is assumed to
+  be an .OBJ file.     @filename  @filename ...
+
+
+------------------  You can also use project files of the type generated by
+     Project files  Borland C++'s integrated environment as response files.
+------------------  In the command line, precede the project file name with
+                    /P, like this:
+
+                       /Pfilename
+
+                    If the file name does not include an explicit exten-
+                    sion, a .PRJ extension is assumed.
+
+                    File names in the project file with a .C extension or
+                    no extension are interpreted as specifying the
+                    corresponding .OBJ file. You need not remove file
+                    dependencies specified inside parentheses; they are
+                    ignored by OBJXREF.
+
+              Note
+
+
+
+
+
+                                  - 24 -
+
+
+
+
+
+
+                    By itself, the list of files in a .PRJ file does not
+                    specify a complete program--you must also specify a
+                    startup file (C0x.OBJ) and one or more Borland C++
+                    library files (MATHX.LIB, EMU.LIB, and CX.LIB, for
+                    example). In addition, you may need to use the /D
+                    option to specify the directory where OBJXREF should
+                    look for your .OBJ files.
+
+
+------------------  Files in TLINK response-file format can also be used by
+   Linker response  OBJXREF. A linker response file called from the command
+             files  line is preceded by /L, like so:
+------------------
+                       /Lfilename
+
+                    To see how to use one of these files, refer to Example
+                    2 in the section "Examples of how to use OBJXREF."
+
+
+    Sample OBJXREF  =======================================================
+           reports
+                    Suppose you have two source files in your Borland C++
+                    directory, and want to generate OBJXREF reports on the
+                    object files compiled from them. The source files are
+                    called TEST1.C and TEST2.C, and they look like this:
+
+                     /* test1.c */
+                     int i1;                       /* defines i1 */
+                     extern int i2;                /* refers to i2 */
+                     static int i3;                /* not a public name */
+                     extern void look(void);       /* refers to look */
+
+                     void main(void)               /* defines main */
+                     {
+                        int i4;                    /* not a public name */
+
+                        look();                    /* refers to look */
+                     }
+
+                     /* test2.c */
+                     #include <process.h>
+                     extern int i1;                /* refers to i1 */
+                     int i2;                       /* defines i2 */
+
+                     void look(void)               /* defines look */
+                     {
+                        exit(i1);                  /* refers to exit... */
+                     }                             /* and to i1 */
+
+                    The object modules compiled from these source files are
+                    TEST1.OBJ and TEST2.OBJ. You can tell OBJXREF what kind
+                    of report to generate about these .OBJ files by
+                    entering the file names on the command line, followed
+                    by a /R and a second letter denoting report type.
+
+
+
+                                  - 25 -
+
+
+
+
+
+
+              Note  The following examples show only useful parts of the
+                    output.
+
+
+------------------  A report by public names lists each of the public names
+  Report by public  defined in the object modules being reported on,
+       names (/RP)  followed by the name of the module in which it is
+------------------  defined.
+
+                    If you enter this on the command line:
+
+                       OBJXREF  /RP  test1  test2
+
+                    OBJXREF generates a report that looks like this:
+
+                     SYMBOL           DEFINED IN
+                     _i1              TEST1
+                     _i2              TEST2
+                     _look            TEST2
+                     _main            TEST1
+
+
+------------------  A report by module lists each object module being
+  Report by module  reported on, followed by a list of the public names
+             (/RM)  defined in it.
+------------------
+                    If you enter this on the command line:
+
+                       OBJXREF  /RM  test1  test2
+
+                    OBJXREF generates a report that looks like this:
+
+                     MODULE: TEST1 defines the following symbols:
+                             public: _i1
+                             public: _main
+                     MODULE: TEST2 defines the following symbols:
+                             public: _i2
+                             public: _look
+
+
+------------------  A report by reference lists each public name with the
+         Report by  defining module in parentheses on the same line.
+   reference (/RR)  Modules that refer to this public name are listed on
+------------------  following lines indented from the left margin.
+
+       This is the  If you enter this on the command line:
+     default if no
+  report option is     OBJXREF  /RR  C0  test1  test2  CS.LIB
+        specified.
+                    OBJXREF generates a report that looks like this:
+
+                     _exit (EXIT)
+                          C0
+
+
+
+
+                                  - 26 -
+
+
+
+
+
+
+                          TEST2
+                     _i1 (TEST1)
+                          TEST2
+                     _i2 (TEST2)
+                     _look (TEST2)
+                          TEST1
+                     _main (TEST1)
+                          C0
+
+
+------------------  A report by external references lists each module
+Report by external  followed by a list of external references it contains.
+  references (/RX)
+------------------  If you enter this on the command line:
+
+                       OBJXREF  /RX  C0  test1  test2  CS.LIB
+
+                    OBJXREF generates a report that looks like this:
+
+                     MODULE: C0 references the following symbols:
+                             _main
+                     MODULE: TEST1 references the following symbols:
+                             _i2
+                             _look
+                     MODULE: TEST2 references the following symbols:
+                             _exit
+                             _i1
+
+
+------------------  A report by sizes lists segment names followed by a
+  Report of module  list of modules that define the segment. Sizes in bytes
+       sizes (/RS)  are given in decimal and hexadecimal notation. The word
+------------------  uninitialized appears where no initial values are
+                    assigned to any of the symbols defined in the segment.
+                    Segments defined at absolute addresses in a .ASM file
+                    are flagged Abs to the left of the segment size.
+
+                    If you enter this on the command line:
+
+                       OBJXREF  /RS  test1  test2
+
+                    OBJXREF generates a report that looks like this:
+
+  These files were   TEST1_TEXT
+compiled using the           6 (00006h)   TEST1
+      large memory           6 (00006h)   total
+            model.   TEST2_TEXT
+                            10 (0000Ah)   TEST2
+                            10 (0000Ah)   total
+                     _BSS
+                             4 (00004h)   TEST1, uninitialized
+                             2 (00002h)   TEST2, uninitialized
+                             6 (00006h)   total
+
+
+
+
+                                  - 27 -
+
+
+
+
+
+
+------------------  A report by class type lists segment size definitions
+   Report by class  by segment class. The CODE class contains instructions,
+        type (/RC)  DATA class contains initialized data and BSS class
+------------------  contains uninitialized data. Segments which do not have
+                    a class type will be listed under the notation No class
+                    type.
+
+                    If you enter this on the command line:
+
+                       OBJXREF  /RC  C0  test1  test2  CS.LIB
+
+                    OBJXREF generates a report that looks like this:
+
+                     BSS
+                            4  (00004h)   TEST1
+                            2  (00002h)   TEST2
+                          ...
+                          132  (00084h)   total
+                     CODE
+                            6  (00006h)   TEST1
+                           10  (0000Ah)   TEST2
+                           16  (00010h)   total
+                     DATA
+                          143  (0008Fh)   C0
+                          143  (0008Fh)   total
+
+
+------------------  A report of unreferenced symbol names lists modules
+         Report of  that define public names not referenced in other
+      unreferenced  modules. Such a symbol is either:
+symbol names (/RU)
+------------------  o referenced only from within the defining module and
+                      does not need to be defined as a public symbol (in
+                      that case, if the module is in C, the keyword static
+                      should be added to the definition; if the module is
+                      in TASM, just remove the public definition).
+
+                    o never used (therefore, it can be deleted to save code
+                      or data space).
+
+                    If you enter this on the command line:
+
+                       OBJXREF  /RU  test1  test2
+
+                    OBJXREF generates a report that looks like this:
+
+                       MODULE: TEST2 defines the unreferenced symbol _i2.
+
+
+
+
+
+
+
+
+
+
+                                  - 28 -
+
+
+
+
+
+
+------------------  If you enter /RV on the command line, OBJXREF generates
+ Verbose reporting  one report of each type.
+             (/RV)
+------------------
+Examples of how to  =======================================================
+       use OBJXREF
+                    These examples assume that the application files are in
+                    the current directory of the default drive and that the
+                    Borland C++ startup files (C0x.OBJ) and the library
+                    files are in the \BORLANDC\LIB directory.
+
+
+------------------  C>OBJXREF \BORLANDC\lib\c0l test1 test2
+         Example 1  \BORLANDC\lib\cl.lib
+------------------
+                    In this example, the TEST1.OBJ and TEST2.OBJ files and
+                    the Borland C++ startup file \BORLANDC\LIB\C0L.OBJ and
+                    the library file \BORLANDC\LIB\CL.LIB are specified.
+                    Since no report type is specified, the resulting report
+                    is the default report by reference, listing public
+                    names and the modules that reference them.
+
+
+------------------  C>OBJXREF /RV /Ltest1.arf
+         Example 2
+------------------  The TLINK response file TEST1.ARF contains the same
+                    list of files as the command line in Example 1. The /RV
+                    option is specified, so a report of every type will be
+                    generated. TEST1.ARF contains
+
+                     \BORLANDC\lib\c0l
+                     test1 test2
+                     test1.exe
+                     test1.map
+                     \BORLANDC\lib\cl
+
+
+------------------  C>OBJXREF /RC B:c0s /Ptest1 @libs
+         Example 3
+------------------  The Borland C++ project file TEST1.PRJ specifies
+                    TEST1.OBJ and TEST2.OBJ. The response file @libs
+                    specifies libraries on a disk in the B drive. TEST1.PRJ
+                    contains
+
+                     test1
+                     test2.c
+
+                    The file LIBS contains
+
+                       b:maths.lib b:emu.lib b:cs.lib
+
+
+
+
+
+
+
+                                  - 29 -
+
+
+
+
+
+
+                    The startup and library files specified depend on the
+                    memory model and floating point options used in compil-
+                    ation. The /RC causes a report of class type to be
+                    output.
+
+
+------------------  C>OBJXREF /F /RV \BORLANDC\lib\cs.lib
+         Example 4
+------------------  This example reports on all the modules in the Borland
+                    C++ library file CS.LIB; OBJXREF can produce useful
+                    reports even when the files specified do not make a
+                    complete program. The /F causes all modules in CS.LIB
+                    file to be included in the report.
+
+
+     OBJXREF error  =======================================================
+      messages and
+          warnings  OBJXREF generates two sorts of diagnostic messages:
+                    error messages and warnings.
+
+
+------------------  Out of memory
+    Error messages  OBJXREF performs its cross referencing in RAM memory
+------------------  and may run out of memory even if TLINK is able to link
+                    the same list of files successfully. When this happens,
+                    OBJXREF aborts. Remove memory resident programs to get
+                    more space, or add more RAM.
+
+
+------------------  WARNING: Unable to open input file <filename>
+          Warnings  The input file filename could not be located or opened.
+------------------  OBJXREF proceeds to the next file.
+
+                    WARNING: Unknown option - <option>
+                    The option name option is not recognized by OBJXREF.
+                    OBJXREF ignores the option.
+
+                    WARNING: Unresolved symbol <symbol> in module <module>
+                    The public name symbol referenced in module module is
+                    not defined in any of the .OBJ or .LIB files specified.
+                    OBJXREF flags the symbol in any reports it generates as
+                    being referenced but not defined.
+
+                    WARNING: Invalid file specification <filename>
+                    Some part of the file name filename is invalid. OBJXREF
+                    proceeds to the next file.
+
+                    WARNING: No files matching <filename>
+                    The file named filename listed on the command line or
+                    in a response file could not be located or opened.
+                    OBJXREF skips to the next file.
+
+
+
+
+
+
+                                  - 30 -
+
+
+
+
+
+
+                    WARNING: Symbol <symbol> defined in <module1>
+                    duplicated in <module2>
+                    Public name symbol is defined in modules module1 and
+                    module2. OBJXREF ignores the second definition.
+
+
+
+===========================================================================
+PRJCFG: Configuration file utility
+===========================================================================
+
+
+                    Creates the command-line configuration file from a
+                    project file. You can also use it to create or update a
+                    project file from a configuration file.
+
+                    The command-line compiler looks for a default
+                    configuration file named TURBOC.CFG, but you can
+                    specify a different file with +pathname option. To use
+                    PRJCFG to create a BCC configuration file from a
+                    project file, you would type the following:
+
+                     PRJCFG ProjFile.PRJ ConfigFile.CFG
+
+                    To make a project file from a configuration file, type
+
+                     PRJCFG ConfigFile.CFG ProjFile.PRJ
+
+
+
+===========================================================================
+PRJCNVT: Old projects for new
+===========================================================================
+
+                    This utility converts Turbo C 1.0, 1.5, and 2.0 project
+                    files to Borland C++ project files. The syntax for it
+                    is
+
+                       PRJCNVT infile[.PRJ] [outfile[.PRJ]]
+
+                    or
+
+                       PRJCNVT infile[.TC]  [outfile[.PRJ]]
+
+                    If you specify a configuration file as input, it must
+                    have a project file defined. The compiler options in
+                    the .CFG file and the dependencies in the Turbo C 2.0
+                    .PRJ file will be placed into the corresponding Borland
+                    C++ .PRJ file.
+
+                    If you specify a project file as input, only
+                    dependencies information will be placed into the
+                    Borland C++ .PRJ file. All compiler options will remain
+                    default.
+
+
+
+                                  - 31 -
+
+
+
+
+
+
+                    If you don't provide an extension, .TC is assumed. If
+                    PRJCNVT can't find a .TC file, it looks for a .PRJ
+                    file.
+
+                    The default name of the output file is the base name of
+                    the input file with the extension .PRJ. For example,
+                    STARS.TC will turn into STARS.PRJ. If the input and the
+                    output name are the same, the old file will be renamed
+                    to a .BAK file.
+
+
+
+===========================================================================
+PRJ2MAK: From project file to MAKE file
+===========================================================================
+
+                    This utility converts a .PRJ file to a .MAK file
+                    (containing all relevant switches and settings) for use
+                    with the MAKE utility. These files can be re-used
+                    without accessing the IDE. The syntax for PRJ2MAK is
+
+                       PRJ2MAK projectfile[.PRJ] [makefile[.MAK]
+                    [config[.CFG]]]
+
+                    The extension for the project file name is assumed to
+                    be .PRJ unless you specify otherwise.
+
+                    The default name for the new MAKE file is the base file
+                    name of the .PRJ file with the extension .MAK. The
+                    default name for the new .CFG file is the base file
+                    name of the .MAK file with the extension .CFG.
+
+                    To change the names of the makefile and configuration
+                    files, just specify different names on the command
+                    line.
+
+                    Examples of valid execution:
+
+                       PRJ2MAK MYPROJ.PRJ MAKEFILE.MAK TURBOC.CFG
+
+                    This execution creates a makefile called MAKEFILE.MAK
+                    with a configuration file called TURBOC.CFG.
+                       PRJ2MAK MYPROJ.PRJ MAKEFILE.MAK
+
+                    This execution creates a makefile called MAKEFILE.MAK
+                    with a configuration file called MYPROJ.CFG.
+
+                       PRJ2MAK MYPROJ
+
+                    This execution creates a makefile called MYPROJ.MAK and
+                    a configuration file called MYPROJ.CFG.
+
+                    The makefile that PRJ2MAK creates will set up a
+                    redirection file for the linker response file and for
+
+
+
+                                  - 32 -
+
+
+
+
+
+
+                    the .CFG file. They will be created when you run the
+                    makefile that was generated. The linker response file
+                    is a temporary file and will be deleted. The .CFG file
+                    will be left as a file on disk.
+
+                    PRJ2MAK places options that meet the following
+                    requirements into the .CFG file: Those that are not
+                    default to the Borland C++ command-line compiler and
+                    have been selected in the project file.
+
+                    PRJ2MAK will use the library search path as a command
+                    link option to TLINK, so that TLINK can search that
+                    path for the startup module and for libraries.
+
+
+
+===========================================================================
+THELP: The Turbo Help utility
+===========================================================================
+
+                    THELP.COM is a RAM-resident (TSR) utility that accesses
+                    Borland C++'s online Help information for you when you
+                    aren't using the IDE (that is, if you are using an
+                    editor other than the one in the IDE, or you are using
+                    the command-line version of Borland C++, or if you are
+                    using another product, such as Turbo Debugger). THELP
+                    requires about 21K bytes of memory.
+
+
+       Loading and  =======================================================
+    invoking THELP
+                    You need to first load THELP in order to use it from
+                    within another program (or from the command line). Make
+                    sure that TCHELP.TCH, the text file containing the
+   Warning! If you  Borland C++ online help information, is in the current
+ are going to have  directory. (If you want to keep TCHELP.TCH in another
+ THELP resident in  directory, THELP has a special /F command-line option
+memory at the same  that will enable THELP to find it; the INSTALL program
+  time as SideKick  inserts the correct path information into THELP.)
+   1.x or SideKick
+   Plus, make sure  To load THELP, just type
+    you load THELP
+   before you load     THELP [options]
+         SideKick.
+                    at the DOS command line before you go into your
+                    application. This needs to be done only once, when you
+                    first boot up.
+
+                    Once you are in the other application, you can activate
+                    THELP at any time. Just position the cursor under the
+                    item you want information on, then press the THELP hot
+                    key. The default hot key is 5 on the numeric keypad
+                    (scan code 4ch, shift state 00h).
+
+
+
+
+                                  - 33 -
+
+
+
+
+
+
+  Navigating THELP  =======================================================
+
+                    Use the following keys to navigate through the Help
+                    screens that THELP displays on your monitor:
+
+
+----------------------------------------------------------------------
+Key      What it does
+----------------------------------------------------------------------
+
+
+Up  Down  Left  Right
+         Move the highlight from keyword to keyword within the current
+         Help screen.
+
+Shift-Arrow
+         Moves the cursor while marking a block.
+
+Home and End
+         Move to the beginning and end of a line, respectively.
+
+Tab and Shift-Tab
+         Moves to the next or previous keyword.
+
+PgUp/PgDn
+         Moves from screen to screen if additional screens are
+         available.
+
+Enter    Selects a Help entry for the item highlighted in the current
+         Help screen.
+
+Esc      Ends Help session.
+
+F1       Displays the Help Table of Contents screen.
+
+Shift-F1 Displays the Help Index. You can search for a specific
+         keyword incrementally. For example, you can find printf by
+         typing p r i. With each letter you type, the list jumps to
+         the keyword that starts with p, then to pr, then to pri, and
+         so on.
+
+Alt-F1   Pressing Alt-F1 repeatedly takes you in reverse order through
+         the last 20 screens you have reviewed.
+
+Alt-F    Selects a new Help file (if you have specified more than one
+         help file in the THELP.CFG file or on the
+         command-line).
+
+Ctrl-P   Pastes the marked block or example text into your current
+         application.
+
+----------------------------------------------------------------------
+
+
+
+
+
+                                  - 34 -
+
+
+
+
+
+
+     THELP options  =======================================================
+
+                    Here is a summary of the THELP command-line options. If
+                    you use more than one option, you must separate them
+                    with spaces.
+
+                    The command-line options can be placed in a
+                    configuration file (called THELP.CFG) for convenience.
+                    THELP.CFG must be located in the same directory as
+                    THELP.COM and each option in the configuration file
+                    must be placed on its own line and begin in the
+                    leftmost column.
+
+
+                    -------------------------------------------------------
+Summary of THELP     Option       Specifies
+    command-line    -------------------------------------------------------
+         options
+                     /C#xx        Select color:
+                                     # = color number
+                                     xx = hex color values
+
+                     /Fname       Full path and file name of Help file
+
+                     /H, /?, ?    Display help screen
+
+                     /Kxxyy       Change hot key:
+                                     xx = shift state (hex)
+                                     yy = scan code (hex)
+
+                     /U           Remove THELP from memory
+
+                     /Wx,y,w,h    Sets the window size and location.
+
+                    -------------------------------------------------------
+
+
+------------------  This option lets you customize the background and
+     /C#xx (select  foreground colors of various elements in a help screen.
+            color)  The /C option is followed by the number of the color
+------------------  you want and the hex color values for background and
+                    foreground, respectively.
+
+                    There are twelve possible colors, numbered as follows:
+
+
+                    -------------------------------------------------------
+                      Number Element
+                    -------------------------------------------------------
+
+
+                       0     Color border attribute
+
+
+
+
+
+                                  - 35 -
+
+
+
+
+
+
+                       1     Monochrome border attribute
+                       2     Color text attribute
+                       3     Monochrome text attribute
+                       4     Color keyword attribute
+                       5     Monochrome keyword attribute
+                       6     Color selected keyword word attribute
+                       7     Monochrome selected keyword word attribute
+                       8     Color example text attribute
+                       9     Monochrome example text attribute
+                       A     Color marked block attribute
+                       B     Monochrome marked block attribute
+
+                    -------------------------------------------------------
+
+                    The color values for a standard IBM-compatible color
+                    display are as follows:
+
+
+                    -------------------------------------------------------
+                     First digit (background)   Second digit (foreground)
+                    -------------------------------------------------------
+
+
+                          0   Black              0 Black
+                          1   Blue               1 Blue
+                          2   Green              2 Green
+                          3   Cyan               3 Cyan
+                          4   Red                4 Red
+                          5   Magenta            5 Magenta
+                          6   Brown              6 Brown
+                          7   Gray               7 Gray
+                                                 8 Intense black
+                     ORing the color value       9 Intense blue
+                     with 0x80 produces a        A Intense green
+                     blinking color unless       B Intense cyan
+                     blinking has been           C Intense red
+                     disabled.                   D Intense magenta
+                                                 E Intense brown (yellow)
+                                                 F Intense gray (white)
+
+                    -------------------------------------------------------
+
+                    On monochrome monitors, the attribute values can differ
+                    widely, so you may need to experiment.
+
+
+------------------  The name that follows the /F option should be the full
+ /Fname (full path  drive/directory path name of the help file to use; for
+ and name for help  example,
+             file)
+------------------   THELP /FC:\BORLANDC\OWLHELP.TCH
+                     THELP /FC:\BORLANDC\TCHELP.TCH
+
+
+
+
+
+                                  - 36 -
+
+
+
+
+
+
+                    You can specify multiple help files on the command-line
+                    or in the THELP.CFG file.  THELP supports up to eight
+                    help files.
+
+
+------------------  Any of these options displays a summary of THELP's com-
+     /H, /?, and ?  mand-line options.
+     (display help
+           screen)
+------------------  This option allows you to reassign a function to a new
+  /Kxxyy (reassign  hot key. The option must be followed by the shift state
+          hot key)  (xx) and the scan code (yy) of the new key. Virtually
+------------------  any shift state/scan code combination may be selected.
+                    Here's a quick summary of some common shift states and
+                    scan codes:
+
+
+                    -------------------------------------------------------
+                      Shift states (can be OR'ed together):
+
+                       Right Shift   01h
+                       Left Shift    02h
+                       Ctrl          04h
+                       Alt           08h
+
+                      Scan codes:
+
+                       A   1eh   N   31h   0   0bh   F1  3bh
+                       B   30h   O   18h   1   02h   F2  3ch
+                       C   2eh   P   19h   2   03h   F3  3dh
+                       D   20h   Q   10h   3   04h   F4  3eh
+                       E   12h   R   13h   4   05h   F5  3fh
+                       F   21h   S   1fh   5   06h   F6  40h
+                       G   22h   T   14h   6   07h   F7  41h
+                       H   23h   U   16h   7   08h   F8  42h
+                       I   17h   V   2fh   8   09h   F9  43h
+                       J   24h   W   11h   9   0ah   F10 44h
+                       K   25h   X   2dh
+                       L   26h   Y   15h
+                       M   32h   Z   2ch
+
+                      Enhanced keyboards only (may not work with all
+                      computers or keyboards):
+
+                       F11 57h
+                       F12 58h
+
+                    -------------------------------------------------------
+
+
+
+
+
+
+
+
+
+                                  - 37 -
+
+
+
+
+
+
+------------------  This option removes THELP from memory. If other TSRs
+  /U (remove THELP  have been loaded after THELP, make sure to remove them
+      from memory)  before removing THELP.
+------------------
+
+------------------  Where:
+/Wx,y,w,h (set the    x = window column location (zero based)
+   window size and    y = window row location
+         location)    w = window width
+------------------    h = window height
+
+                    For example, to create a full-screen help window use:
+
+                     /W0,0,80,25
+
+
+
+===========================================================================
+TOUCH
+===========================================================================
+
+                    There are times when you want to force a particular
+                    target file to be recompiled or rebuilt, even though no
+                    changes have been made to its sources. One way to do
+                    this is to use the TOUCH utility. TOUCH changes the
+                    date and time of one or more files to the current date
+                    and time, making it "newer" than the files that depend
+                    on it.
+
+                    You can force MAKE to rebuild a target file by touching
+                    one of the files that target depends on. To touch a
+                    file (or files), type
+
+   You can use the    touch filename [filename ...]
+   DOS wildcards *
+ and ? with TOUCH.  at the DOS prompt. TOUCH will then update the file's
+                    creation date(s). Once you do this, you can invoke MAKE
+                    to rebuild the touched target file(s).
+
+        Important!  Before you use the TOUCH utility, it's vitally
+                    important to set your system's internal clock to the
+                    proper date and time. If you're using an IBM PC, XT, or
+                    compatible that doesn't have a battery-powered clock,
+                    don't forget to set the time and date using the DOS
+                    TIME and DATE commands. Failing to do this will keep
+                    both TOUCH and MAKE from working properly.
+
+
+
+
+
+
+
+
+
+
+
+                                  - 38 -
+
+
+
+
+
+
+===========================================================================
+TRANCOPY: A project transfer item utility
+===========================================================================
+
+                    TRANCOPY copies transfer items from one project to
+                    another. The syntax is
+
+                     TRANCOPY [-r] Source[.PRJ] Dest[.PRJ]
+
+                    TRANCOPY merges the transfer items in Source with the
+                    transfer in Dest; Dest gets the new transfer items.
+
+                    If the -r option is used, the set of the transfer items
+                    in Dest is replaced by the set of transfer items in
+                    Source.
+
+
+
+===========================================================================
+TRIGRAPH: A character-conversion utility
+===========================================================================
+
+                    Trigraphs are three-character sequences that replace
+                    certain characters used in the C language that are not
+                    available on some keyboards. Translating trigraphs in
+                    the compiler would slow compilation down considerably,
+                    so Borland C++ provides a filter named TRIGRAPH.EXE to
+                    handle trigraph sequences when you need to. The syntax
+                    for invoking this program is as follows:
+
+                       TRIGRAPH [-u] file(s) [file(s) ...]
+
+                    The following table shows the trigraph sequences that
+                    TRIGRAPH.EXE recognizes:
+
+
+                    -------------------------------------------------------
+                      Trigraph  Character
+                    -------------------------------------------------------
+
+
+                       ??=        #
+                       ??(        [
+                       ??/        \
+                       ??)        ]
+                       ??'        ^
+                       ??<        {
+                       ??!        |
+                       ??>        }
+                       ??-        ~
+
+                    -------------------------------------------------------
+
+
+
+
+
+                                  - 39 -
+
+
+
+
+
+
+                    TRIGRAPH.EXE works in two directions: It can convert
+                    all trigraphs to their single-character representation,
+                    and it can convert single characters to their trigraph
+                    representation. Ordinarily, TRIGRAPH.EXE converts
+                    trigraphs to single characters. You can specify the
+                    inverse conversion with the -u (UNDO) command-line
+                    option, which must come before any file names on the
+                    command line.
+
+                    TRIGRAPH.EXE takes any number of file specifiers,
+                    including wildcards, on the command line. For each file
+                    specified, it creates a backup copy of the file with
+                    the original file name and an extension of .BAK, and
+                    creates a new file with the original file name and the
+                    appropriate conversions performed. For example,
+
+                       trigraph test.c test1.c
+
+                    removes all trigraphs from the two files TEST.C and
+                    TEST1.C, creating backup files TEST.BAK and TEST1.BAK.
+
+                    As another example, the following command inserts
+                    trigraphs into all the files with the extension .C, and
+                    makes backup copies of all those files, giving them the
+                    extension .BAK.
+
+                       trigraph -u *.c
+
+
+
+===========================================================================
+Transfer macros
+===========================================================================
+
+                    The IDE recognizes certain strings of characters called
+                    transfer macros in the parameter string of the
+                    Modify/New Transfer Item dialog box. There are three
+                    kinds of macros: state, file name, and instruction.
+
+
+      The transfer  State macros
+ macros are listed  =======================================================
+alphabetically and
+ described in more  State macros are expanded according to the state of the
+detail starting on  IDE. The state macros are
+          page 41.
+                    $COL                          $ERRNAME
+                    $CONFIG                       $INC
+                    $DEF                          $LIB
+                    $ERRCOL                       $LINE
+                    $ERRLINE                      $PRJNAME
+
+
+
+
+
+
+                                  - 40 -
+
+
+
+
+
+
+                    File name macros
+                    =======================================================
+
+                    File name macros are actually functions that take file
+                    names as arguments and return various parts of the file
+                    name. They allow you to build up new file name
+                    specifications from existing file names. For example,
+                    you can pass TDUMP a macro like this:
+
+                       $DIR($EXENAME)$NAME($EDNAME).OBJ
+
+                    This macro gives you the output directory path, the
+                    file name only in the active Edit window, and an
+                    explicit extension. If your current directory is
+                    C:\WORK, your output directory is TEST, and the active
+                    editor contains MYPROG.C, then TDUMP receives the
+                    parameter
+
+                       C:\WORK\TEST\MYPROG.OBJ
+
+                    The file name macros are
+
+                    $DIR                          $EXT()
+                    $DRIVE()                      $NAME()
+                    $EDNAME                       $OUTNAME
+                    $EXENAME
+
+
+                    Instruction macros
+                    =======================================================
+
+                    Instruction macros tell the IDE to perform some action
+                    or make some setting. The instruction macros are
+
+                    $CAP EDIT                     $PROMPT
+                    $CAP MSG(filter)              $RC
+                    $DEP()                        $SAVE ALL
+                    $IMPLIB                       $SAVE CUR
+                    $MEM(kb to reserve)           $SAVE PROMPT
+                    $NOSWAP                       $TASM
+
+                    $CAP EDIT: This macro tells the IDE to redirect program
+                    output into a standard file. After the transfer program
+                    is completed, a new editor window is created, and the
+                    captured output is displayed. The captured output
+                    resides in a special Edit window titled Transfer
+                    Output.
+
+                    For $CAP EDIT to work correctly, the transfer program
+                    must write to DOS standard output.
+
+
+
+
+
+
+
+                                  - 41 -
+
+
+
+
+
+
+   You can use any  $CAP MSG(filter): Captures program output into the
+  program that has  Message window, using filter as a DOS filter for
+     line-oriented  converting program output into Message window format.
+   messages output
+    (file and line  We've provided four filters for this macro:
+ number) with this  GREP2MSG.EXE for GREP, IMPL2MSG.EXE for IMPLIB,
+            macro.  RC2MSG.EXE for the Resource Compiler, and TASM2MSG.EXE
+                    for Turbo Assembler (TASM). We've included the source
+                    code for these filters so you can write your own
+                    filters for other transfer programs you install.
+
+                    $COL: Column number of current editor. If the active
+                    window is not an editor, then the string is set to 0.
+
+                    $CONFIG: Complete file name of the current
+                    configuration file. This is a null string if no
+                    configuration file is defined. This macro is intended
+                    for use by programs that access or modify the
+                    configuration file. Besides providing the name of the
+                    file, this macro causes the current configuration to be
+                    saved (if modified) and reloaded when control returns
+                    to the IDE.
+
+ TEML is a Pascal-  Use this macro with the Turbo Editor Macro Language
+like language that  (TEML) compiler. With it, you can edit the TEML script
+ has many built-in  file in an editor and then invoke the Turbo Editor
+  primitive editor  Macro Compiler (TEMC) to process the script. When the
+ commands. Its use  configuration file is reloaded, your new or modified
+  is documented in  editor commands will be in effect. When installing TEMC
+        this file.  as a transfer item, use the following command line:
+
+                       $EDNAME $CONFIG
+
+                    This assumes the current Edit window contains the TEML
+                    script file to be processed.
+
+                    $DEF: Pulls in the contents of the Options|Compiler|
+                    Code Generation "Defines" type-in box. Use this macro
+                    to specify define directives to an external translator.
+
+This macro is only  $DEP(): This macro provides the ability to
+       used by the  automatically rebuild resources as part of a project
+  project manager.  make if one of the resource components has been
+                    modified. For example, let's say your Windows resource
+                    MYAPP1.RES for your application MYAPP1.EXE consists of
+                    the following files:
+
+                    o MYAPP1.RC (the resource source file)
+                    o MYAPP1.H (the header file for MYAPP1.EXE)
+                    o MYAPP1.ICO (the icon for MYAPP1.EXE, included in
+                      MYAPP1.RC)
+                    o MYAPP1.BMP (the bitmap used with MYAPP1.EXE, included
+                      in MYAPP1.RC)
+
+
+
+
+                                  - 42 -
+
+
+
+
+
+
+                    To ensure that MYAPP1.RES gets recompiled any time you
+                    update one of the components, you'd add the following
+                    dependencies to the Options field in the Project|Local
+                    Options dialog box for MYAPP1.RC:
+
+                       $DEP(MYAPP1.H MYAPP1.ICO MYAPP1.BMP)
+
+                    When you choose Compile|Make, the project manager scans
+                    for the $DEP macro and verifies that all explicit
+                    dependencies given are older than the resulting
+                    MYAPP1.RES file. If one or more aren't, the project
+                    manager recompiles MYAPP1.RC.
+
+                    You can give explicit dependencies to any makeable
+                    project item. Just place the files you want the source
+                    to be dependent on in parentheses, separated by blanks,
+                    commas, or semicolons. If autodependency checking is
+                    on, explicit dependencies are checked after any
+                    autodependencies.
+
+                    $DIR(): Directory of the file argument, full path.
+
+                    $DRIVE(): Drive of the file argument, in the form D:.
+
+                    $EDNAME: Complete file name of file in active editor.
+                    This is a null string if the active window is not an
+                    editor.
+
+                    $ERRCOL: Column number of current error in file
+                    $ERRNAME. If there are no messages, then string is
+                    expanded to null string.
+
+                    $ERRLINE: Line number of current error in file
+                    $ERRNAME. If there are no messages, then string is
+                    expanded to null string.
+
+                    $ERRNAME: Complete file name of file referred to by the
+                    selected messages in the Message window. This is a null
+                    string if there are no messages or the currently
+                    selected message does not refer to a file.
+
+                    $EXENAME: Program's file name (including output path),
+                    based on the project name or, if there is no project
+                    defined, then the name of the .EXE that would be
+                    produced from the active editor window. If the Windows
+                    DLL Linker option is selected, the file's extension
+                    will be .DLL.
+
+                    $EXT(): Extension of the file argument; this includes
+                    the dot (for example, .CPP).
+
+                    $IMPLIB: Executes IMPLIB.This macro expands to
+
+
+
+
+
+                                  - 43 -
+
+
+
+
+
+
+                     $NOSWAP $CAP MSG(IMPL2MSG)
+                     $DRIVE($EXENAME)$DIR($EXENAME)$NAME($EXENAME).LIB
+                     $EXENAME|def_name
+
+                    If the Use DLL File Exports radio button is pushed
+                    (Options|MAKE|Generate Import Library), $EXENAME is
+                    part of the expansion. If the Use DEF file Exports
+                    radio button is pushed, the name of the DEF file in the
+                    project (represented by def_name) is used.
+
+                    $INC: Pulls in the contents of the Options|Directories|
+                    Include Directories type-in box.
+
+                    $LIB: Pulls in the contents of the Options|Directories|
+                    Library Directories type-in box.
+
+                    $LINE: Line number of current editor. If the active
+                    window is not an editor, then the string is set to 0.
+
+                    $MEM(Kb to reserve): This macro tells the IDE how much
+                    memory to try to give the transfer program. The IDE
+                    gives up as much memory as possible, to either the
+                    amount specified or the maximum available, whichever is
+                    smaller. You'll get an error if no memory is specified.
+
+                    $NAME(): Name part of the file argument; does not
+                    include the dot.
+
+                    $NOSWAP: This macro tells the IDE not to swap to the
+                    User Screen when running the program. It pops up a box
+                    that indicates which transfer program is running. Use
+                    this macro in conjunction with $CAP.
+
+                    $OUTNAME: This macro expands to the path and file name
+                    that appear in the Project|Local Options Output Path
+                    type-in box (in the active edit window). For example,
+                    if the project contains STARS.C, the default Output
+                    Path type-in is STARS.OBJ. So if STARS.C is in the
+                    active edit window, $OUTNAME expands to STARS.OBJ. If
+                    you've edited the type-in box so it says ..\MOON.XYZ,
+                    $OUTNAME will expand to ..\MOON.XYZ. This macro is
+                    useful when you are specifying modules for your user-
+                    defined translators. For example, you could define a
+                    TLIB translator and set the command line to
+
+                    TLIB MYLIB +$OUTNAME
+
+                    which adds the object module of the file in the active
+                    edit window to the library MYLIB.
+
+                    $PRJNAME: The current project file. Null string if no
+                    project is defined.
+
+
+
+
+
+                                  - 44 -
+
+
+
+
+
+
+                    $PROMPT: This macro tells the IDE to display the
+                    expanded parameter string before calling the transfer
+                    program. The command line that will be passed is
+                    displayed in a dialog box. This allows you to change or
+                    add to the string before it is passed.The position of
+                    $PROMPT command in the command line determines what is
+                    shown in the dialog prompt box. You can place constant
+                    parameters in the command line by placing them before
+                    $PROMPT. For example, the /c in
+
+                       /c $PROMPT dir
+
+                    is constant and doesn't show in the dialog box, but dir
+                    can be edited before the command is run.
+
+                    $RC: This macro is predefined for use with the Resource
+                    Compiler. Since the Resource Compiler can be invoked
+                    for two separate reasons, $RC is expanded differently
+                    depending on whether you are compiling a .RC file into
+                    a .RES file or binding the .RES file to an executable
+                    file.
+
+                    In any case, in order to change the behavior of the
+                    Resource Compiler
+
+                    o when compiling an .RC file, change the command line
+                      for the .RC file in the Command Line Options input
+                      box in the Override Options dialog box (Project|Local
+                      Options)
+
+                    o when binding a .RES file to an .EXE or a DLL, change
+                      the options in the Command Line input box in the
+                      Modify/New Transfer Items dialog box for the Resource
+                      Compiler (Options|Transfer|Edit button)
+
+                    If you are compiling a .RC file into a .RES file, $RC
+                    is expanded like this:
+
+                       $SAVE CUR $NOSWAP $CAP MSG(RC2MSG) -R -I$INC -FO
+                    $OUTNAME $EDNAME
+
+                    If you are binding a .RES to an .EXE file, $RC is
+                    expanded like this:
+
+                       $NOSWAP $CAP MSG(RC2MSG) res_name $EXENAME
+
+                    The variable res_name is defined as one of the
+                    following, in this order:
+
+                    1. If there is a file in the project with a .RES
+                       extension, res_name will be that file.
+
+
+
+
+
+
+                                  - 45 -
+
+
+
+
+
+
+                    2. If there is no file with a .RES extension, and there
+                       is a file with a .RC extension, res_name is the name
+                       given by $OUTNAME for the .RC file.
+
+                    3. If neither of the above apply (implying there are no
+                       resources), res_name is blank.
+
+                    $SAVE ALL: This macro tells the IDE to save all
+                    modified files in all Edit windows that have been
+                    modified, without prompting.
+
+                    $SAVE CUR: This macro tells the IDE to save the file in
+                    the current editor if it has been modified. This
+                    ensures that the invoked program will use the latest
+                    version of the source file.
+
+                    $SAVE PROMPT: This macro tells the IDE to prompt when
+                    there are unsaved files in editor windows. You will be
+                    asked if you want to save any unsaved files.
+
+                    $TASM: This macro is predefined for use with Turbo
+                    Assembler. It uses the TASM2MSG filter to trap TASM
+                    messages. $TASM is essentially shorthand for this:
+
+                     $NOSWAP $SAVE CUR $CAP MSG(TASM2MSG) $EDNAME,$OUTNAME
+
+                    $WRITEMSG(filename): This macro copies the contents of
+                    the Message window to the specified ASCII file. The
+                    translator can parse the file and act on the messages
+                    so desired. For example, $WRITEMSG(C:\MESSAGES.TXT)
+                    writes to the file MESSAGES.TXT on your root directory.
+
+
+       Running DOS  =======================================================
+          commands
+                    If you want to run DOS commands from within the
+                    integrated environment, you can set up a simple
+                    transfer macro that will let you do so. Just add this
+                    transfer item:
+
+                       command /c $MEM(128) $PROMPT
+
+                    When you invoke this transfer item, a dialog box
+                    appears and prompts you for DOS input. Since the
+                    $PROMPT command appears later in the string, the text
+                    command /c won't show up in the dialog's input box.
+                    This lets you just type dir, chkdsk, del *.*, or
+                    whatever DOS command you want to run.
+
+
+
+
+
+
+
+
+
+                                  - 46 -
+
+
+
+
+
+
+   Transfer memory  =======================================================
+          settings
+                    Different programs have different memory needs. For
+                    example, GREP can run in very little memory, where many
+                    popular editors require 200-300K to work well.
+
+                    If you use the $MEM() macro, you can specify (on a
+                    program-by-program basis) how much memory the IDE
+                    should give to the transfer programs. The less memory
+                    you devote to a transfer program, the quicker the
+                    transfer to and from the program occurs.
+
+                    There may be some cases where the IDE cannot give up as
+                    much memory as you requested. When this happens, the
+                    IDE gives up as much as it can. There are certain
+                    states in the IDE that require more memory than others;
+                    for example, while debugging a program, the IDE will
+                    tie up more resources than when not debugging. Use
+                    Program Reset (Ctrl-F2) to free up debugging memory.
+
+                    In those cases where you want the IDE to give up all
+                    its memory, give it a large number, like 640K. How much
+                    memory is actually given up is dependent on how much
+                    you have when you start Borland C++.
+
+
+
+===========================================================================
+Turbo Editor macros
+===========================================================================
+
+                    TEMC.EXE is an editor macro compiler for the IDE. It
+                    processes a script file that defines editor macros and
+                    key bindings, and produces a configuration file that is
+                    read by the IDE to define the effects of keyboard
+                    commands in the editor.
+
+                    The file DEFAULTS.TEM contains the default macro
+                    definitions and key bindings built into the IDE editor.
+                    It serves as an example script, as well as a base from
+                    which to customize the editor.
+
+
+
+===========================================================================
+TEMC command line
+===========================================================================
+
+                    TEMC is invoked from the DOS command line. Type
+
+                     temc [-c] [-u] <script file> <config file>
+
+
+
+
+
+
+                                  - 47 -
+
+
+
+
+
+
+                    The script file extension is .TEM if not specified
+                    otherwise. The configuration file extensions is assumed
+                    to be .TC.
+
+                    The configuration file need not exist. If it does not
+                    exist, it is created. The optional -c switch can also
+                    be specified as /c, and can appear in any argument
+                    position on the command line. If you use this option,
+                    any existing command table in your configuration file
+                    is thrown away before TEMC processes the script file.
+                    When -c is not used, the key bindings in the script
+                    file are merged with those already defined in the
+                    configuration file.
+
+                    TEMC by default modifies the commands used by the IDE
+                    when the Alternate command set is specified in Options|
+                    Environment|Preferences. The optional -u switch, which
+                    can also be specified as /u, causes TEMC to modify the
+                    CUA command set instead.
+
+                    You can use DEFAULTS.TEM to re-create exactly the
+                    default settings of the Alternate command set.  This
+                    file is included as both a sample script file and as
+                    the default command table. You can copy it and modify
+                    it for your own use. A file named CMACROS.TEM is
+                    provided with Borland C++; this file contains many
+                    useful enhancements to the IDE for C and C++
+                    programming that you may wish to install.
+
+
+
+===========================================================================
+Syntax
+===========================================================================
+
+                    The syntax to define a macro is
+
+                     MACRO <macroname>
+                       <command1>;
+                       [ <command2>; ... ]
+                     END;
+
+                    <macroname> can consist of anything that is a legal C
+                    symbol, and <command> can be either the name of another
+                    predefined macro or a predefined TEMC editor command. A
+                    list of editor commands and what they do follows.
+
+                    When you define your macro, the following points are
+                    valid:
+
+                    1. A statement defines either a named macro or a key
+                       binding.
+
+                    2. Spaces and new lines are optional.
+
+
+
+                                  - 48 -
+
+
+
+
+
+
+                    3. Comments are in C-style /* ... */ pairs.
+
+                    4. Unlike C, TEMC's language is case insensitive.
+
+                    5. Some of the predefined editor commands have a syntax
+                       that looks like a C function call with one argument.
+                       For example,
+                        
+                        SetMark(5);
+                        
+                       Depending on the command, the argumment is either a
+                       decimal integer constant, a character constant, or a
+                       string literal. All are specified using C syntax.
+
+                    Here's an example of a macro definition from
+                    DEFAULTS.TEM:
+
+                     MACRO MacScrollUp
+                       ScrollScreenUp; FixCursorPos;
+                     END;
+
+                    The syntax to define a key binding is
+
+                     <key-sequence>: <command>;
+
+                    or
+
+                     <key-sequence>: BEGIN <command1>; [ <command2>; ... ]
+                     END;
+
+                    The <key-sequence> is either a key (a character
+                    optionally preceded by Ctrl or Alt), or a series of
+                    keys separated by a plus sign (+). Note that the
+                    specification of the key characters themselves is case
+                    sensitive. For example, Ctrl-k+B is different than
+                    Ctrl-k+b, even though the latter is the same as CTRL-
+                    K+b.
+
+                    Whitespace is allowed between the key-sequence and the
+                    colon, and each <command> can be either the name of a
+                    previously defined macro, or one of the predefined
+                    editor commands listed in Table 1.1.
+
+
+
+===========================================================================
+Key codes
+===========================================================================
+
+                    The IDE editor makes use of an extended character set
+                    that includes key combinations not normally available
+                    to DOS programs. Key codes can be specified in a script
+                    through any combination of the symbols "Ctrl-",
+                    "Shift-" "Alt-" and a character.
+
+
+
+                                  - 49 -
+
+
+
+
+
+
+                    Some keys cannot be entered directly into a TEMC
+                    script. Those keys can be referred to by their names,
+                    as described in the following table.
+
+                    Any key in a sequence--except the first key--can be
+                    preceded by one of the characters ^ or @. The caret (^)
+                    indicates that any combination of case and "Ctrl" can
+                    be used to type the key; that is, lowercase, uppercase,
+                    or control characters. The @ sign is used to indicate
+                    that case is insignificant for the following character,
+                    although "Ctrl" is not accepted. For example,
+
+                    o Ctrl-k+b specifies a Ctrl-K followed by a lowercase
+                      b.
+
+                    o Ctrl-k+^b specifies a Ctrl-K followed by any of b, B,
+                      or Ctrl-B.
+
+                    o Ctrl-k+@B specifies Ctrl-K followed by either b or B.
+
+
+        Named keys  =======================================================
+
+                    Key are specified as letters, numbers, or characters,
+                    optionally preceded by one or more of Ctrl-, Alt- or
+                    Shift-. The following names specify keys that cannot be
+                    typed as themselves in the TEMC syntax.
+
+
+                    -------------------------------------------------------
+                       Key name    Notes
+                    -------------------------------------------------------
+
+                       Home
+                       End
+                       PgUp
+                       PgDn
+                       LfAr        Left arrow
+                       RgAr        Right arrow
+                       UpAr        Up arrow
+                       DnAr        Down arrow
+                       Ins
+                       Del
+                       Enter
+                       Return      Same as Enter
+                       BkSp        Backspace
+                       Tab
+                       BkTab       No longer available, use Shift-Tab
+                       Esc
+                       Star        * key on the numeric keypad
+                       Minus       - key on the numeric keypad
+                       Plus        + key on the numeric keypad
+                       Space       Spacebar
+                       PrtSc
+
+
+
+                                  - 50 -
+
+
+
+
+
+
+                       F1 to F10   Function keys
+
+                    -------------------------------------------------------
+
+
+
+===========================================================================
+Predefined editor commands
+===========================================================================
+
+                    TEMC lets you use built-in editor commands and user-
+                    defined macros as commands within macros
+                    interchangeably, as long as you don't create any loops
+                    by having two macros calling each other, even via
+                    intermediate macros. Note that some commands cause an
+                    escape from the editor to the surrounding IDE, for
+                    example, by bringing up a dialog box. Your macro will
+                    "pause" until control returns to the editor.
+
+                    A list of all predefined TEMC editor commands is shown
+                    next. Commands that cause an escape from the editor
+                    follow.
+
+
+
+                    -------------------------------------------------------
+     TEMC editor
+        commands
+
+                    Command name                What the editor does
+                    -------------------------------------------------------
+
+                    BackspaceDelete             Deletes character before
+                                                the cursor.
+
+                    BottomOfScreen              Moves cursor to the bottom
+                                                line of the current window,
+                                                leaving column unchanged.
+
+                    CenterFixScreenPos          Adjusts the screen display
+                                                to ensure the cursor is
+                                                visible. If any adjustment
+                                                is necessary, adjust the
+                                                display so the cursor is
+                                                close to being centered in
+                                                the window.
+
+                    CopyBlock                   If there is a valid and
+                                                highlighted (selected)
+                                                text block, then at the
+                                                cursor location, inserts a
+                                                copy of the characters that
+                                                are selected and makes that
+
+
+
+
+                                  - 51 -
+
+
+
+
+
+
+                    Table 1.2: TEMC editor commands (continued)____________
+
+                                                the new selected text
+                                                location.
+
+                    CursorCharLeft              Moves cursor left over one
+                                                character. This command
+                                                will skip over tab
+                                                characters and move to the
+                                                end of the previous line.
+
+                    CursorCharRight             Moves cursor right over one
+                                                character. This  command
+                                                will skip over tab
+                                                characters and advance to
+                                                the beginning of the next
+                                                line.
+
+                    CursorDown                  Moves cursor down one row.
+
+                    CursorLeft                  Moves cursor left one
+                                                screen column.
+
+                    CursorRight                 Moves cursor right one
+                                                screen column.
+
+                    CursorSwitchedLeft          Like CursorLeft, but pays
+                                                attention to cursor through
+                                                tab option setting (see
+                                                SetCursorThroughTabMode).
+
+                    CursorSwitchedRight         Like CursorRight, but pays
+                                                attention to cursor
+                                                through tab option setting
+                                                (see
+                                                SetCursorThroughTabMode).
+
+                    CursorUp                    Moves cursor up one row.
+
+                    DeleteBlock                 If there is a valid and
+                                                highlighted (selected) text
+                                                block, deletes the
+                                                characters that are in it.
+
+                    DeleteChar                  Deletes the character at
+                                                the current cursor
+                                                location.
+
+                    DeleteLine                  Deletes the current line.
+
+                    DeleteToEOL                 Deletes all characters in
+                                                the current line, leaving a
+                                                zero-length line.
+
+
+
+
+                                  - 52 -
+
+
+
+
+
+
+                    Table 1.2: TEMC editor commands (continued)____________
+
+                    DeleteWord                  Deletes from cursor to
+                                                beginning of next word.
+
+                    EndCursor                   Moves cursor to end of file
+                                                buffer.
+
+                    ExtendBlockBeg              Initiates a series of
+                                                commands that will select a
+                                                block of text between the
+                                                initial and ending
+                                                positions of the cursor.
+
+                    ExtendBlockEnd              Ends a series of commands
+                                                begun by ExtendBlockBeg.
+
+                    FixCursorPos                Ensures that the cursor
+                                                value specifies a row
+                                                between 1 and the number of
+                                                lines in the buffer, a
+                                                column greater than 0. If
+                                                the cursor through tab
+                                                option is not set, the
+                                                cursor is not placed in the
+                                                middle of a tab character
+                                                (see
+                                                SetCursorThroughTabMode).
+
+                    FixScreenPos                Adjusts the screen display
+                                                to ensure the cursor is
+                                                visible.
+
+                    FullPaintScreen             Redraws the entire window,
+                                                making no assumptions about
+                                                what is onscreen.
+
+                    HideBlock                   Sets a flag indicating that
+                                                the selected text should
+                                                not be highlighted.
+
+                    HighlightBlock              Sets a flag indicating that
+                                                if the beginning and end
+                                                selected text markers are
+                                                valid, the selected text
+                                                should be highlighted.
+
+                    HomeCursor                  Moves cursor to beginning
+                                                of the file buffer.
+
+                    IndentBlock                 Inserts a space at the
+                                                beginning of each line in
+                                                the highlighted (selected)
+                                                text.
+
+
+
+                                  - 53 -
+
+
+
+
+
+
+                    Table 1.2: TEMC editor commands (continued)____________
+
+                    InsertText                  Inserts the literal
+                                                "string" in the buffer at
+                                                the current cursor
+                                                location. Use the syntax
+                                                InsertText(string) to call
+                                                this command.
+
+                    LeftOfLine                  Moves cursor to beginning
+                                                of the current line.
+
+                    LiteralChar                 Inserts the character at
+                                                the current cursor
+                                                location, without doing any
+                                                special processing for
+                                                newline, tab characters,
+                                                etc. Use the syntax
+                                                LiteralChar(c), where c is
+                                                a character or integer
+                                                value.
+
+                    MarkBufModified             Sets a flag indicating that
+                                                the contents of the buffer
+                                                are different than what is
+                                                in the corresponding disk
+                                                file.
+
+                    MarkBufUnModified           Clears a flag, thus
+                                                indicating that the
+                                                contents of the buffer can
+                                                be assumed to be identical
+                                                to what is in the disk
+                                                file.
+
+                    MatchPairBackward           Same as MatchPairForward
+                                                except if the cursor is on
+                                                a ' or ", searches backward
+                                                for the matching character.
+
+                    MatchPairForward            If the cursor is on one of
+                                                the characters (, ), {, },
+                                                [, ], or on the first
+                                                character of one of the
+                                                pairs /* or */, searches in
+                                                the appropriate direction
+                                                for the closest instance of
+                                                the matching delimiter. If
+                                                the cursor is on the
+                                                character ' or ", searches
+                                                forward for the matching
+                                                character. If a match is
+                                                found, places the cursor
+                                                there.
+
+
+
+                                  - 54 -
+
+
+
+
+
+
+                    Table 1.2: TEMC editor commands (continued)____________
+
+                    MoveBlock                   Like CopyBlock, but also
+                                                deletes the original
+                                                selected text.
+
+                    MoveToBlockBeg              Moves cursor to the
+                                                location marked as the
+                                                beginning of the selected
+                                                text.
+
+                    MoveToBlockEnd              Moves cursor to the
+                                                location marked as the end
+                                                of the selected text.
+
+                    MoveToMark                  Moves the cursor to the
+                                                location saved with
+                                                SetMark(n) command. Use the
+                                                syntax MoveToMark(n), where
+                                                n is a one-digit number,
+                                                0-9.
+
+                    MoveToPrevPos               Moves the cursor to the
+                                                location specified by the
+                                                "previous position marker."
+
+                    MoveToTempPos               Moves the cursor to the
+                                                saved temporary marker.
+
+                    NullCmd                     No operation. Calls the
+                                                editor, but performs no
+                                                function. Can be used to
+                                                cause a keystroke to have
+                                                no effect.
+
+                    OutdentBlock                Deletes a leading space, if
+                                                any, from the beginning of
+                                                each line in the
+                                                highlighted (selected)
+                                                text.
+
+                    PageDown                    Moves cursor down by number
+                                                of lines in the window.
+
+                    PageScreenDown              Scrolls screen down by
+                                                numer of lines in the
+                                                window, leaving cursor
+                                                position unchanged.
+
+                    PageScreenUp                Scrolls screen up by numer
+                                                of lines in the window,
+                                                leaving cursor position
+                                                unchanged.
+
+
+
+
+                                  - 55 -
+
+
+
+
+
+
+                    Table 1.2: TEMC editor commands (continued)____________
+
+                    PageUp                      Moves cursor up by number
+                                                of lines in the window.
+
+                    PaintScreen                 Redraws the entire window,
+                                                assuming that the screen
+                                                still correctly displays
+                                                what the editor last drew
+                                                on it.
+
+                    ReDo                        Performs an Redo operation.
+                                                Exactly what happens
+                                                depends on the option
+                                                settings.
+
+                    RightOfLine                 Moves cursor to end of
+                                                current line.
+
+                    RightOfWord                 Moves cursor to the next
+                                                column that follows the end
+                                                of a word.
+
+                    ScrollScreenDown            Scrolls screen down one
+                                                line, leaving cursor
+                                                position unchanged.
+
+                    ScrollScreenUp              Scrolls screen up one line,
+                                                leaving cursor position
+                                                unchanged.
+
+                    SetAutoIndent               Sets the Auto Indent option
+                                                On.
+
+                    SetAutoOutdent              Sets the Backspace
+                                                Unindents option On.
+
+                    SetBlockBeg                 Sets the beginning of the
+                                                selected text to be the
+                                                character at the current
+                                                cursor location.
+
+                    SetBlockEnd                 Sets the end of the
+                                                selected text to be the
+                                                character at the current
+                                                cursor location.
+
+                    SetCursorThroughTabMode     Sets the Cursor Through
+                                                Tabs option On.
+
+                    SetInsertMode               Sets Insert/Overwrite
+                                                option to Insert.
+
+
+
+
+
+                                  - 56 -
+
+
+
+
+
+
+                    Table 1.2: TEMC editor commands (continued)____________
+
+                    SetMark                     Sets a marker to point to
+                                                the character at the
+                                                current cursor location, so
+                                                a later MoveToMark(n)
+                                                comand can restore the
+                                                cursor. Use the syntax
+                                                SetMark(n), where n is a
+                                                one digit number, 0-9.
+
+                    SetOptimalFillMode          Sets Optimal Fill option
+                                                On.
+
+                    SetPrevPos                  Sets a marker (the previous
+                                                position marker) to point
+                                                to the character at the
+                                                current cursor location.
+                                                This marker location
+                                                changes only by a call to
+                                                SetPrevPos or SwapPrevPos.
+
+                    SetTabbingMode              Sets Use Tab Char option
+                                                On.
+
+                    SetTempPos                  Saves the cursor location
+                                                in a temporary marker that
+                                                can be used by some
+                                                internal editor commands.
+                                                This is not a practical
+                                                application in user-defined
+                                                macros. Use SetMark
+                                                instead.
+
+                    SmartRefreshScreen          Redraws the window,
+                                                skipping any portions that
+                                                the editor is sure are
+                                                unmodified since the last
+                                                redraw.
+
+                    SmartTab                    Inserts space or tab
+                                                characters in accordance
+                                                with the current settings
+                                                of the Use Tab Char option,
+                                                Tab Width.
+
+                    SwapPrevPos                 Exchanges the values of the
+                                                cursor and the "previous
+                                                position marker."
+
+                    ToggleAutoIndent            Toggles the state of the
+                                                Auto Indent option.
+
+
+
+
+
+                                  - 57 -
+
+
+
+
+
+
+                    Table 1.2: TEMC editor commands (continued)____________
+
+                    ToggleAutoOutdent           Toggles the state of the
+                                                Backspace Unindents option.
+
+                    ToggleCursorThroughTabMode  Toggles the state of the
+                                                Cursor Through Tabs option.
+
+                    ToggleHideBlock             Toggles the state of the
+                                                highlight (selected) text
+                                                flag (see HighlightBlock).
+
+                    ToggleInsert                Toggles state of
+                                                Insert/Overwrite option.
+
+                    ToggleOptimalFillMode       Toggles state of Optimal
+                                                Fill option.
+
+                    ToggleTabbingMode           Toggles state of Use Tab
+                                                Char option.
+
+                    TopOfScreen                 Moves cursor to the top
+                                                line currently displayed in
+                                                the window, leaving column
+                                                unchanged.
+
+                    UnDo                        Performs an Undo operation.
+                                                Exactly what happens
+                                                depends on the option
+                                                settings.
+
+                    WordLeft                    Moves cursor to beginning
+                                                of previous word, or to end
+                                                of previous line, whichever
+                                                is first.
+
+                    WordRight                   Moves cursor to beginning
+                                                of next word, or to the end
+                                                of a line, whichever is
+                                                first.
+
+                    -------------------------------------------------------
+
+
+                    The following commands cause an exit from the editor,
+                    for example, by bringing up a dialog box. The macro
+                    resumes when the editor window regains the focus.
+
+
+                    The keys listed next to some of the commands below are
+                    the ones used by default when the Alternate mode of the
+                    IDE is selected.
+
+                    AddWatch            Adds a watch item (Ctrl-F7).
+
+
+
+                                  - 58 -
+
+
+
+
+
+
+                    ChangeDirectory     Opens a dialog box for changing the
+                                        current directory.
+                    ChangeModeFlags     Used after a command such as
+                                        ToggleInsert which changes the
+                                        state of an editor option switch.
+                                        Causes the IDE to update various
+                                        menu items and/or icons.
+                    ClipCopy            Copys selected text to Clipboard
+                                        (Ctrl-Ins).
+                    ClipCut             Cuts selected text to Clipboard
+                                        (Shift-Del).
+                    ClipPaste           Pastes Clipboard into buffer at
+                                        cursor (Shift-Ins).
+                    ClipShow            Shows Clipboard (no hot key
+                                        defined).
+                    CloseWindow         Closes editor window (Alt-F3).
+                    CompileFile         Compiles current buffer (Alt-F9).
+                    CompileMenu         Selects Compile menu (Alt-C).
+                    CompilerOptions     Selects the Options Compiler menu
+                    DebugMenu           Selects Debug menu (Alt-D).
+                    EditMenu            elects Edit menu (Alt-E).
+                    FileMenu            Selects File menu (Alt-F).
+                    GetFindString       Opens a dialog box for the Search
+                                        operation. (Alt-S F)
+                    GotoWindow1         Selects window #1 (Alt-1).
+                    GotoWindow2         Selects window #2 (Alt-2).
+                    GotoWindow3         Selects window #3 (Alt-3).
+                    GotoWindow4         Selects window #4 (Alt-4).
+                    GotoWindow5         Selects window #5 (Alt-5).
+                    GotoWindow6         Selects window #6 (Alt-6).
+                    GotoWindow7         Selects window #7 (Alt-7).
+                    GotoWindow8         Selects window #8 (Alt-8).
+                    GotoWindow9         Selects window #9 (Alt-9).
+                    Help                Opens the Help window (F1).
+                    HelpMenu            Selects Help menu (Alt-H).
+                    HelpIndex           Display the Help system't index
+                                        (Shift-F1)
+                    Inspect             Inspects item (Alt-F4).
+                    LastHelp            Opens previous help window (Alt-
+                                        F1).
+                    MakeProject         Makes project (F9).
+                    Menu                Highlights top menu bar.
+                    Modify              Evaluates expression/modify
+                                        variable (Ctrl-F4).
+                    NextError           Moves to next item in message
+                                        window (Alt-F8).
+                    NextWindow          Selects next window in IDE (F6).
+                    OpenFile            Opens dialog box for File Open
+                                        (F3).
+                    OptionsMenu         Selects Options menu (Alt-O).
+                    PrevError           Moves to previous item in message
+                                        window (Alt-F7).
+                    PrintBlock          Writes selected text to the
+                                        printer.
+
+
+
+                                  - 59 -
+
+
+
+
+
+
+                    ProjectMenu         Selects Project menu (Alt-P).
+                    Quit                Exits the IDE (Alt-X).
+                    ReadBlock           Opens dialog box requesting a file
+                                        name to be read into the buffer at
+                                        the cursor location and marked as
+                                        selected text.
+                    RepeatSearch        Searches again, using previous
+                                        parameters.
+                    Replace             Opens an dialog box for the Replace
+                                        operation.
+                    ResetProgram        Resets program being debugged
+                                        (Ctrl-F2).
+                    RunMenu             Selects Run menu (Alt-R).
+                    RunProgram          Makes and runs current executable
+                                        (Ctrl-F9).
+                    RunToHere           Runs program until statement at
+                                        cursor (F4).
+                    SaveFile            Saves current editor buffer (F2).
+                    SaveFileAs          Opens dialog for File SaveAs.
+                    SearchMenu          Selects Search menu (Alt-S).
+                    Step                Step over (F8).
+                    SystemMenu          Selects Sytem menu (Alt-Spacebar).
+                    ToggleBreakpoint    Sets/Clears a breakpoint at the
+                                        cursor location
+                    Trace               Trace into (F7).
+                    Transfer0           Selects nth item from transfer menu
+                    Transfer1           .
+                    Transfer2           .
+                    Transfer3           .
+                    Transfer4           .
+                    Transfer5           .
+                    Transfer6           .
+                    Transfer7           .
+                    Transfer8           .
+                    Transfer9           .
+                    ViewCallStack       Views Call Stack (Ctrl-F3).
+                    ViewUserScreen      Displays User Screen (Alt-F5).
+                    WindowList          Displays window list (Alt-0).
+                    WindowMenu          Selects Window menu (Alt-W).
+                    WindowCascade
+                    WindowTile
+                    WordHelp            Context sensitive help (Ctrl-F1).
+                    WriteBlock          Opens dialog box requesting a file
+                                        name to which the selected text
+                                        will be written.
+                    ZoomWindow          Zooms/unzoomd current window (F5).
+
+
+
+
+
+
+
+
+
+
+
+                                  - 60 -
+
+
+
+
+
+
+INDEX
+___________________________________________________________________________
+
+
+
+
+
+[ ] GREP operator 15                    command line
+/? THELP help option 35, 37               syntax
+$ GREP operator 15                          CPP 9
+* GREP operator 15                      compilers
++ GREP operator 15                        Turbo editor macro 42
+. GREP operator 15                      $CONFIG transfer macro 42
+\ GREP operator 15                      configuration files 42
+^ GREP operator 15                        BCC file 9
+? THELP option 35, 37                     CPP (preprocessor) and 9
+                                        conversion
+                                          trigraphs 39
+A                                       CPP (preprocessor) 9-11
+autodependencies                          command-line options and syntax 9
+  explicit dependencies and 43            directory 9
+                                          example of use 10
+                                          files
+B                                           compiling 10
+BGIOBJ (graphics converter) 2-9           -P option (source file names and
+  advanced features 5                       line numbers) 10
+  command-line syntax 2, 6                wildcards and 9
+  components 6
+  example 4
+  graphics.h and 7                      D
+  options                               -d GREP option (directories) 12
+    destination file 6                  /D OBJXREF option (directory) 21
+    /F 6                                debugging
+    file name 6                           include files 9
+    file name (/F) 5                      macros 9
+    public name 6                       $DEF transfer macro 42
+    segment class 7                     Defines option
+    segment name 6                        transfer macro 42
+    source file 6                       $DEP transfer macro 42
+                                        dependencies
+                                          explicit 42
+C                                           autodependencies and 43
+-c GREP option (count only) 12          $DIR transfer macro 43
+/C THELP option (select color) 35       directories
+$CAP EDIT transfer macro 41               CPP (preprocessor) 9
+$CAP MSG transfer macro 41                GREP option 12
+case sensitivity                          include files
+  GREP option 12                            transfer macro 44
+characters                                libraries
+  trigraph                                  transfer macro 44
+    converting 39                         .OBJ files 21
+$COL transfer macro 42                    transfer macro 43
+columns                                 DLLs
+  numbers 42                              creating 43
+
+
+
+Index                                                                    61
+
+
+
+
+
+
+DOS                                       path
+  commands                                  macros 43
+    running from the IDE 46               saving
+$DRIVE transfer macro 43                    all 46
+                                          searching 11-19
+                                          source
+E                                           BGIOBJ 6
+editor                                  filters 41
+  macro language (TEML)                   GREP 42
+    using 42                              Resource Compiler 42
+$EDNAME transfer macro 43                 TASM 42
+$ERRCOL transfer macro 43               fonts
+$ERRLINE transfer macro 43                adding to graphics library 3
+$ERRNAME transfer macro 43                files, converting to .OBJ files 2
+errors                                    included with Borland C++ 3
+  linker                                  linker errors and 5
+    graphics drivers and fonts 5          linking 2-9
+  OBJXREF (list) 30                       registering 3, 7
+examples                                  stroked 2-9
+  OBJXREF 25-30                             linking 2
+.EXE files
+  file name transfer macro 43
+  $RC transfer macro and 45             G
+  .RES files and 45                     graphics drivers
+$EXENAME transfer macro 43                adding to graphics library 3
+$EXT transfer macro 43                    converting to .OBJ files 2, 2-9
+                                          included with Borland C++ 3
+                                          linker
+F                                           errors and 5
+/F BGIOBJ option 6                        linking 2
+/F BGIOBJ option (far routines) 5         registering 3, 7
+/F OBJXREF option (include full         graphics.h (header file)
+  library) 22                             BGIOBJ and 7
+/F THELP option 36                      GRAPHICS.LIB
+/F THELP option (Help file path and       adding to 3
+  name) 35                              GREP (file searcher) 11-19
+files                                     capturing messages 42
+  dates                                   examples 16
+    changing 38                           files to search 16
+  destination                             help 12
+    BGIOBJ 6                              literal character 15
+  extensions 43                           matches 15
+  linker response, used by OBJXREF        operators 15
+    25, 29                                optimizing use of 14
+  macros                                  options
+    expanded 9                              case sensitivity (-i) 12
+  matching                                  count only (-c) 12
+    GREP option 12                          default 13, 14
+  names                                     discussion 12
+    macros                                  file names (printing) 14
+      transfer 40                           -i (case sensitivity) 12
+    printing (GREP) 14                      line numbers (-n) 13
+  output, generated by OBJXREF 22           lines, nonmatching (-v) 13
+                                            list matching files (-l) 12
+
+
+
+                                  - 62 -
+
+
+
+
+
+
+    -n (line numbers) 13                K
+    -o (UNIX output format) 13          /K THELP option (change hot key)
+    precedence 14                         35, 37
+    regular expression search (-r)      keyboard
+    13                                    trigraph program 39
+    UNIX format (-o) 13
+    updating (-u) 13
+    -v 14                               L
+    -v (nonmatching lines) 13           -l GREP option (list matching
+    verbose 14                            files) 12
+    word search (-w) 13                 /L OBJXREF command (linker response
+  search strings 14                       file) 25
+    white space in 16                   $LIB transfer macro 44
+  using 11                              libraries
+  wildcards and 16                        directories
+GREP.COM 14                                 transfer macro 44
+GREP2MSG.EXE 42                           files 20
+                                            contents of 20
+                                          graphics
+H                                           adding driver and font files to
+/H THELP option (help) 35, 37               3
+header files                              OBJXREF
+  graphics.h 7                              including all 22
+help                                    $LINE transfer macro 44
+  GREP (file searcher) 12               lines
+  OBJXREF 21                              numbering 44
+  THELP 35, 37                              printing (GREP) 13
+hot keys                                linker
+  scan codes 37                           error: segment exceeds 64K 5
+                                          response files
+                                            used by OBJXREF 25, 29
+I                                       linking
+-i GREP option (case sensitivity)         graphics drivers 2
+  12
+/I OBJXREF option (case
+  sensitivity) 21                       M
+IMPL2MSG.EXE 42                         macros
+$IMPLIB transfer macro 43                 CPP (preprocessor) and 10
+import libraries                          debugging 9
+  IMPLIB program                          editor 42
+    executing 43                          expanded
+  transfer macro 43                         list of 9
+$INC transfer macro 44                    preprocessing 10
+include files                             preprocessor 9
+  debugging 9                           MAKE (program manager)
+  directories                             modifying 38
+    transfer macro 44                     project files and 32
+integrated environment                  $MEM transfer macro 44, 47
+  DOS commands and 46                   memory
+  memory needs 47                         requirements
+                                            IDE 47
+                                          transfer programs 44, 47
+                                        Message window
+                                          capturing output into 41
+
+
+
+Index                                                                    63
+
+
+
+
+
+
+  copying text from 46                      /F (include full library) 22
+messages                                    ignore case (/I) 21
+  capturing from programs 41                include full library (/F) 22
+  column number 43                          include zero-length segment
+  file name 43                              definitions (/Z) 22
+  line number 43                            list file names (/V) 22
+                                            modified reports 23
+                                            /O (output file) 22
+N                                           reports 23
+-n command-line compiler option               by class type (/RC) 23, 27,
+  CPP (preprocessor) and 9                    29
+-n GREP option (line numbers) 13              by external reference (/RX)
+/N OBJXREF option (limit reports)             23, 27
+  23                                          by module (/RM) 23, 26
+$NAME transfer macro 44                       by public names (/RP) 23, 26
+$NOSWAP transfer macro 44                     by reference (/RR) 23, 26, 29
+numbers                                       default type 29
+  column 42                                   examples 25-29
+  line 44                                     of all types (/RV) 23
+                                              of module sizes (/RS) 23, 27
+                                              of unreferenced symbol names
+O                                             (/RU) 23, 28
+-o GREP option (UNIX format output)           output file (/O) 22
+  13                                          verbose (/RV) 23, 29, 30
+/O OBJXREF option (output file for          /V (verbose output) 22
+  reports) 22                               verbose report (/RV) 29
+.OBJ files                                  /Z (include zero-length segment
+  converting font files into 2              definitions) 22
+  converting graphics drivers files       project files
+  into 2                                    as response files 24
+  defined 20                              project files (/P) 24
+  directories 21                          reports 21
+  names 20                                  examples 25-29
+  response files and 24                     modifying 23
+object modules                              output file for (/O) 22
+  defined 20                              response files 20, 24
+  names 20                                  example 29
+OBJXREF (object module cross-               linker 25
+  referencer) 20-31                       warnings 30
+  directories 21                          wildcards and 21
+  error messages 30                     operators
+  examples of reports 26, 27, 28,         GREP 15
+  29                                    $OUTNAME transfer macro 44
+  help 21                               output
+  /L command (linker response             capturing 41
+  files) 25                             output file
+  linker files                            generated by OBJXREF 22
+    as response files 25
+  options 20
+    /N (limit information) 23           P
+    /RV 23                              -P CPP (preprocessor) option
+    /RC 27                                (source file names and line
+    control 21                            numbers) 10
+    directories (/D) 21
+
+
+
+                                  - 64 -
+
+
+
+
+
+
+/P OBJXREF command (project files)      resources
+  24                                      rebuilding automatically 42
+path                                    response files
+  transfer macro 44                       file-name extensions and 24
+precedence                                formats 24
+  GREP options 14                         free-form 24
+PRJ2MAK (project file converter) 32         example 29
+PRJCNVT (project file converter) 31       linker files and 25
+$PRJNAME transfer macro 44                OBJXREF and 20, 24, 25
+programs                                    example 29
+  capturing output 41                     project files and 24
+  file name 43                            TLINK, OBJXREF and 29
+  memory assignments 47                 /RM OBJXREF option (reports) 23
+project files                           /RP OBJXREF option (reports) 23
+  OBJXREF and 24                        /RR OBJXREF option (reports) 23
+  used by OBJXREF 29                    /RS OBJXREF option (reports) 23
+projects                                /RU OBJXREF option (reports) 23
+  files                                 /RV OBJXREF option (reports) 23
+    converting from old versions 31     /RX OBJXREF option (reports) 23
+    converting to MAKE files 32
+    file name transfer macro 44
+$PROMPT transfer macro 44               S
+public names                            $SAVE ALL transfer macro 46
+  defined 20                            $SAVE CUR transfer macro 46
+                                        $SAVE PROMPT transfer macro 46
+                                        scan codes 37
+R                                       searches
+-r GREP option (regular expression        text files 11-19
+  search) 13                            standalone utilities 1
+RC2MSG.EXE 42                           strings
+.RC files                                 searching for
+  compiling into a .RES file 45             as expressions (GREP) 13
+  $RC transfer macro and 45                 in text files 11-19
+/RC OBJXREF option (report) 27          swapping
+/RC OBJXREF option (reports) 23           to User Screen 44
+$RC transfer macro 45                   syntax
+redirecting program output 41             CPP 9
+registerbgidriver (function)
+  BGIOBJ and 3, 7
+registerbgifont (function)              T
+  BGIOBJ and 3, 7                       TASM2MSG.EXE 42
+registerfarbgidriver (function)         $TASM transfer macro 46
+  BGIOBJ and 5, 7                       text
+registerfarbgifont (function)             Message window 46
+  BGIOBJ and 5, 7                       text files
+.RES files                                searching 11-19
+  binding to an .EXE file 45            THELP (Turbo Help utility) 33-38
+  $RC transfer macro and 45               additional Help on highlighted
+Resource Compiler                         word 34
+  behavior                                cursor keys 34
+    changing 45                           index 34
+  capturing messages 42                   invoking 33
+  transfer macro 45                       keywords 34
+                                          loading 33
+
+
+
+Index                                                                    65
+
+
+
+
+
+
+  options 35-38                           $MEM 44
+    colors (/C) 35                        $NAME 44
+    colors (/C)  35                       $NOSWAP 44
+    Help file path (/F) 35                $OUTNAME 44
+    help file path (/F) 36                $PRJNAME 44
+    help on (/?                           $PROMPT 44
+      /H                                  $RC 45
+        ?) 35, 37                         $SAVE ALL 46
+    Help screen colors (/C) 35            $SAVE CUR 46
+    help screen colors (/C) 35            $SAVE PROMPT 46
+    hot keys (/K) 35, 37                  $TASM 46
+    reassign hot keys (/K) 35, 37         $WRITEMSG 46
+    removing THELP (/U) 35, 38          trigraphs
+    screen colors (/C) 35                 translating 39
+    /U (removing THELP) 35, 38            undo option (-u) 40
+    /W (window options) 35              Turbo Assembler
+    window options 38                     capturing messages 42
+    window options (/W) 35                $TASM macro 46
+  paging through 34                     TURBOC.CFG 9
+  paste page 34
+  previous screens 34
+  quitting 34                           U
+  removing from memory 35, 38           -u GREP option (updating) 13
+  scan codes 37                         /U THELP option 38
+  using 34                              /U THELP option (remove THELP) 35
+TLINK (linker)                          UNIX
+  response files                          format (GREP) 13
+    OBJXREF and 25                      User Screen 44
+TOUCH 38                                utilities
+transfer macros                           standalone 1
+  $CAP EDIT 41                            TOUCH 38
+  $CAP MSG 41
+  $COL 42
+  $CONFIG 42                            V
+  $DEF 42                               -v GREP option (nonmatching lines)
+  defined 40                              13
+  $DEP 42                               /V OBJXREF option (verbose output)
+  $DIR 43                                 22
+  DOS commands 46
+  $DRIVE 43
+  $EDNAME 43                            W
+  $ERRCOL 43                            -w GREP option (word search) 13
+  $ERRLINE 43                           /W THELP option (ser window
+  $ERRNAME 43                             size/location) 35
+  $EXENAME 43                           /W THELP option (window options) 38
+  $EXT 43                               wildcards
+  file names 40                           CPP (preprocessor) and 9
+  glossary of 41                          OBJXREF and 21
+  how expanded 40                         TOUCH and 38
+  $IMPLIB 43                            $WRITEMSG transfer macro 46
+  $INC 44
+  instruction 41
+  $LIB 44                               Z
+  $LINE 44                              -z GREP option (verbose) 14
+
+
+
+                                  - 66 -
+
+
+
+
+
+
+/Z OBJXREF option (include zero-
+  length segment definitions) 22
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Index                                                                    67
+

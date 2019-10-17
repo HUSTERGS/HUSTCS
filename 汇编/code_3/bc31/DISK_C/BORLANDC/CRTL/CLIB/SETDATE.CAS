@@ -1,0 +1,65 @@
+/*-----------------------------------------------------------------------*
+ * filename - setdate.cas
+ *
+ * function(s)
+ *        setdate - sets MS-DOS date
+ *        settime - sets MS-DOS time
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+
+
+/*-----------------------------------------------------------------------*
+
+Name            setdate - sets MS-DOS date
+
+Usage           #include <dos.h>
+                void setdate(struct date *dateblk);
+
+Prototype in    dos.h
+
+Description     see getdate
+
+*------------------------------------------------------------------------*/
+void setdate(struct date *dateblk)
+{
+asm     mov     ah,2bh
+asm     LES_    si, dateblk
+asm     mov     cx, W0(ES_ [si])
+asm     mov     dx, W1(ES_ [si])
+asm     int     21h
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            settime - sets MS-DOS time
+
+Usage           #include <dos.h>
+                void settime(struct time *timeblk);
+
+Prototype in    dos.h
+
+Description     see gettime
+
+*------------------------------------------------------------------------*/
+
+void settime(struct time *timeblk)
+{
+asm     mov     ah,2dh
+asm     LES_    si, timeblk
+asm     mov     cx, W0(ES_ [si])
+asm     mov     dx, W1(ES_ [si])
+asm     int     21h
+}
+

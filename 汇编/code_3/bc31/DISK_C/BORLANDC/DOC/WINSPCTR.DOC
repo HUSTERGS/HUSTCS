@@ -1,0 +1,974 @@
+
+
+
+
+
+CONTENTS
+___________________________________________________________________________
+
+
+
+
+
+Introduction . . . . . . . . . . . 1       Register section  . . . . . . 10
+  Getting started  . . . . . . . . 2       Message queue section . . . . 10
+Configuring WinSpector . . . . . . 2       Tasks section . . . . . . . . 10
+  Setting preferences  . . . . . . 3       Modules section . . . . . . . 11
+    Setting the log file                   USER and GDI heap
+    directory  . . . . . . . . . . 3       information . . . . . . . . . 11
+    Setting the log file viewer  . 3       System information section  . 11
+    Overwriting or appending to the    Processing WinSpector data  . . . 11
+    log file . . . . . . . . . . . 4     DFA output  . . . . . . . . . . 12
+    Writing system information to        Using DFA with WINSPCTR.LOG . . 12
+    the log file . . . . . . . . . 5     Using DFA with WINSPCTR.BIN . . 12
+    Sending an exception summary to      Syntax  . . . . . . . . . . . . 13
+    the debugging terminal . . . . 5   Other WinSpector tools  . . . . . 13
+    Writing stack frame data to the      Creating a .MAP file from an
+    log file . . . . . . . . . . . 6     executable  . . . . . . . . . . 14
+    Writing a postmortem dump to the       Syntax  . . . . . . . . . . . 14
+    log file . . . . . . . . . . . 7     Creating a .SYM file from a .MAP
+    Writing user comments to the log     file  . . . . . . . . . . . . . 14
+    file . . . . . . . . . . . . . 8       Syntax  . . . . . . . . . . . 14
+Using WinSpector when an exception         Notes . . . . . . . . . . . . 14
+occurs . . . . . . . . . . . . . . 8     Creating .SYM files from
+  WINSPCTR.BIN . . . . . . . . . . 9     executables . . . . . . . . . . 15
+  WINSPCTR.LOG . . . . . . . . . . 9       Syntax  . . . . . . . . . . . 16
+    Disassembly section  . . . . . 9       Tips  . . . . . . . . . . . . 16
+    Stack trace section  . . . . . 9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                     i
+
+
+
+
+
+
+===========================================================================
+Introduction
+===========================================================================
+
+                    WinSpector and its utilities help you perform a
+                    postmortem examination of Windows Unrecoverable
+                    Application Errors (UAEs).
+
+                    How to use it:
+
+                    1. Run WinSpector.
+
+                    2. When a UAE (exception) occurs, WinSpector writes a
+                       log file to your disk.
+
+                    3. A Windows "Unrecoverable Application Error" box is
+                       displayed.
+
+                    4. Choose OK.
+
+                    5. A WinSpector dialog box with a brief exception
+                       report is displayed.
+
+                    6. Choose OK.
+
+                    7. Read the log file. It contains information that can
+                       help you find the cause of the exception.
+
+                    What it can show you:
+
+                    o the call stack
+
+                    o function and procedures names in the call stack (with
+                      a little help from you)
+
+                    o CPU registers
+
+                    o a disassembly of the instructions
+
+                    o Windows information
+
+
+
+
+
+
+   Getting started  =======================================================
+
+ TOOLHELP.DLL is a  Before using WinSpector, be sure that TOOLHELP.DLL
+  Windows DLL that  (from Windows 3.1 or later) is in your search path. To
+ provides ways for  be safe, don't have other exception debugging tools
+  utilities to get  running concurrent with WinSpector (except Turbo
+    access to low-  Debugger).
+      level system
+      information.  The easiest way to use WinSpector is to put it in the
+   WinSpector uses  "load=" section of your WIN.INI file. Upon starting,
+   TOOLHELP.DLL to  WinSpector will minimize. No additional interaction is
+      know when an  required.
+  exception occurs
+ and to get at the
+system information
+  it writes to the
+         log file.
+
+
+===========================================================================
+Configuring WinSpector
+===========================================================================
+
+                    WinSpector can be configured to suit your needs. Four
+                    options allow you to gather specific information. See
+                    the section "Setting preferences" for information on
+                    these options.
+
+                    o Set System Information
+                    o Stack Frame Data
+                    o User Comments
+                    o PostMortem Dump
+
+                    Three preprocessing utilities help you make .SYM files
+                    available prior to exception. WinSpector uses the .SYM
+                    files to greatly enhance the exception report. See the
+                    section "Other WinSpector tools" for information on
+                    these utilities.
+
+                    o BUILDSYM
+                    o TMAPSYM
+                    o EXEMAP
+
+
+
+
+
+
+
+
+
+                                   - 2 -
+
+
+
+
+
+
+                    DFA, WinSpector's post-processing utility, can use
+                    Turbo Debugger symbolic information to further
+                    enhancing readability of available UAE information.
+
+
+           Setting  =======================================================
+       preferences
+                    WinSpector's options can be set either in the
+                    Preferences dialog box or by entering commands directly
+                    into the WINSPCTR.INI file. Both methods are discussed
+                    here.
+
+
+------------------  The Directory option in the Preferences dialog box lets
+   Setting the log  you decide where the log file is written. If you do not
+    file directory  specify a directory, it defaults to the Windows
+------------------  directory.
+
+                    >> Specifying a directory -----------------------------
+
+                    1. Open the Preferences dialog box.
+
+                    2. Enter the directory name in the Directory input box.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add LogDir=[directory] to the WINSPCTR.INI file.
+
+
+------------------  The Viewer option in the Preferences dialog box is
+   Setting the log  where you specify what program to use for viewing the
+       file viewer  log file. If you do not specify a directory, it
+------------------  defaults to the Windows Notepad.
+
+                    If an exception has occurred during the current Windows
+                    session, choose View Log on the Latest UAE dialog box
+                    or the Preferences dialog box to see the log file. View
+                    Log runs the selected viewing program and passes the
+                    WINSPCTR.LOG file as a command line argument.
+
+                    To view a previous log file, choose View Log file from
+                    the WinSpector system menu.
+
+                    >> Specifying a viewer --------------------------------
+
+                    1. Open the Preferences Dialog Box.
+
+
+
+                                   - 3 -
+
+
+
+
+
+
+                    2. Enter the viewer in the Viewer text box.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add LogViewer=[viewer name] to the WINSPCTR.INI file.
+
+
+------------------  The Append New Reports and Overwrite Previous Reports
+    Overwriting or  options in the Preferences dialog box let you either
+  appending to the  append reports to the previous log file or overwrite
+          log file  the previous log file when a new report is generated.
+------------------  The default setting is to overwrite the previous log
+                    file.
+
+                    If you choose to overwrite the previous log file, the
+                    first time an exception occurs the previous log file is
+                    overwritten. Subsequent exceptions that occur during
+                    the same Windows session will be appended.
+
+                    >> Appending reports to the previous log file ---------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Set Log File to Append New Reports.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add CreateNewLog=0 to the WINSPCTR.INI file.
+
+                    >> Overwriting the previous log file ------------------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Set Log File to Overwrite Previous Reports.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add CreateNewLog=1 to the WINSPCTR.INI file.
+
+
+
+
+
+
+
+                                   - 4 -
+
+
+
+
+
+
+------------------  The System Information option in the Preferences dialog
+    Writing system  box lets you add the Task List, the Module List, and
+information to the  information about the USER and GDI heaps to the log
+          log file  file. The default is to include system information in
+------------------  the report.
+
+                    >> Including system information in the log file -------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, check System Info.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add ShowSystemInfo=1 to the WINSPCTR.INI file.
+
+                    >> Omitting system information from the log file ------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, uncheck System Info.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add ShowSystemInfo=0 to the WINSPCTR.INI file.
+
+
+------------------  The AUX Summary option in the Preferences dialog box
+        Sending an  tells WinSpector to write an abbreviated form of the
+ exception summary  report to the AUX device, in addition to writing the
+  to the debugging  complete log file. To use this option, you need a
+          terminal  terminal connected to AUX or a device driver that
+------------------  redirects AUX to a second monitor. The default is no
+                    output to AUX.
+
+                    >> Sending a summary to AUX ---------------------------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, check Summary To AUX.
+
+                    3. Choose OK.
+
+
+
+
+
+                                   - 5 -
+
+
+
+
+
+
+                    or
+
+                    o Add LogToStdAux=1 to the WINSPCTR.INI file.
+
+                    >> Not sending a summary to AUX -----------------------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, uncheck Summary To AUX.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add LogToStdAux=0 to the WINSPCTR.INI file.
+
+
+------------------  The Stack Frame Data option in the Preferences dialog
+     Writing stack  box lets you add a verbose stack trace display to the
+ frame data to the  log file. For each stack frame that doesn't exceed 256
+          log file  bytes, a hex dump is performed, starting at the SS:BP
+------------------  for that frame. If there are more than 256 bytes
+                    between 2 successive stack frames, the memory display
+                    is omitted for that frame. This data can be used to get
+                    the values of parameters that were passed to the
+                    function. The default is to not generate a verbose
+                    stack trace.
+
+
+                    It is usually easier to let the DFA utility do the hard
+                    work of figuring out what your parameters are. However,
+                    for those cases where you do not have Turbo Debugger
+                    information available, a verbose trace may be helpful.
+
+                    >> Adding stack frame data to the log file ------------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, check Stack Frame Data.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add ShowStackInfo=1 to the WINSPCTR.INI file.
+
+                    >> Omitting stack frame data from the log file --------
+
+
+
+
+                                   - 6 -
+
+
+
+
+
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, uncheck Stack Frame Data.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add ShowStackInfo=0 to the WINSPCTR.INI file.
+
+
+------------------  The PostMortem Dump option in the Preferences dialog
+         Writing a  box generates a WINSPCTR.BIN file.
+postmortem dump to
+      the log file  The DFA utility takes a WINSPCTR.BIN file and Turbo
+------------------  Debugger information (.TDS files) and translates the
+                    raw binary data into a useful form. It generates a file
+                    that contains stack trace similar to the one in the log
+                    file, but with function names and line numbers, as well
+                    as local and global variables.
+
+                    >> Generating a WINSPCTR.BIN file ---------------------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information check PostMortem Dump.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add PostMortemDump=1 to the WINSPCTR.INI file.
+
+                    >> Not generating a WINSPCTR.BIN file -----------------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, uncheck PostMortem Dump
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add PostMortemDump=0 to the WINSPCTR.INI file.
+
+
+
+
+
+
+
+                                   - 7 -
+
+
+
+
+
+
+------------------  The User Comments option in the Preferences dialog box
+      Writing user  lets you enter information about what was happening at
+   comments to the  the time of the exception. A dialog box is displayed
+          log file  immediately after the exception log is written and
+------------------  comments about what was happening can be entered at
+                    that time. Your comments are then appended to the log
+                    file.
+
+                    >> Adding user comments to the log file ---------------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, check User Comments.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add ShowUserInfo=1 to the WINSPCTR.INI file.
+
+                    >> Omitting user comments from the log file -----------
+
+                    1. Open the Preferences Dialog Box.
+
+                    2. Under Report Information, uncheck User Comments.
+
+                    3. Choose OK.
+
+                    or
+
+                    o Add ShowUserInfo=0 to the WINSPCTR.INI file.
+
+
+
+===========================================================================
+Using WinSpector when an exception occurs
+===========================================================================
+
+                    When you get a UAE (in Windows 3.0) or a fault (in
+                    Windows 3.1), WinSpector goes to work, writing the
+                    information you've requested to files. The log file
+                    WINSPCTR.LOG is a text file you can read but
+                    WINSPCTR.BIN is a binary file that the DFA utility
+                    analyzes.
+
+
+
+
+
+
+
+                                   - 8 -
+
+
+
+
+
+
+      WINSPCTR.BIN  =======================================================
+
+                    See the section "Other WinSpector tools" for details
+                    about WINSPCTR.BIN.
+
+
+      WINSPCTR.LOG  =======================================================
+
+                    The first line of the report(s) in WINSPCTR.LOG gives
+                    the date and time when the exception occurred. The
+                    second line lists
+
+                    o what type of exception occurred
+                    o the module name
+                    o the logical address
+                    o the physical address
+                    o the current task at time of exception.
+
+                    If the stack pointer is too small at time of exception,
+                    TOOLHELP.DLL automatically switches the stack. When
+                    this happens, the message "Stack Switched" is appended
+                    to the end of the second line of the log.
+
+
+------------------  The first line of the disassembly section in the log
+       Disassembly  file identifies the assembly language instruction that
+           section  caused the exception.
+------------------
+                    This is followed by the next few instructions in the
+                    program. These subsequent commands are listed to
+                    provide a point of reference for finding the task that
+                    caused the exception.
+
+
+------------------  The first line of the stack trace section of the log
+       Stack trace  identifies the function or procedure that was executing
+           section  at the time of the exception. Stack Trace information
+------------------  includes:
+
+                    o frame number
+
+                    o module name
+
+                    o the name of the closest function before the address
+                      of the one that caused the exception, plus a number
+                      indicating how far away you were from that function
+
+
+
+
+
+                                   - 9 -
+
+
+
+
+
+
+                      (this information is present only if a .SYM file is
+                      present)
+
+                    o logical and physical address for the stack frame
+
+                    o where your program comes back to after the call.
+
+                    When WinSpector gives function names, it looks in the
+                    .SYM file for the closest symbol name that appears
+                    before the address in the call stack. Some .SYM files
+                    do not contain information for all functions. Thus, the
+                    function name appearing in the log file will be that of
+                    the closest function in the .SYM file with an address
+                    preceding the frame address. If the offset field
+                    appears to be too high, function names are suspect.
+
+
+------------------  The register section of the log file gives the values
+  Register section  that are in the standard registers at the time of
+------------------  exception. Limits and access rights are given for the
+                    CS, DS, ES, and SS registers.
+
+
+------------------  The message queue section of the log file gives the
+     Message queue  last message actually received in the middle of
+           section  processing. Also given is a list of any messages that
+------------------  were waiting in the queue at the time of exception.
+                    Listed is the following information.
+
+                    o window handle (identifies what window)
+                    o message ID number (identifies what it was)
+                    o two parameters (present for any given window)
+
+                    What is recorded in the message queue section may not
+                    really be the last message the program received.
+                    Windows may bypass the message queue (using the
+                    SendMessage function, for example). Keep that in mind
+                    when using message queue information.
+
+
+------------------  The tasks section of the log file lists all programs
+     Tasks section  running in the system at the time of exception. Given
+------------------  is:
+
+                    o complete path for executor file
+                    o module name
+                    o windows module handle
+                    o task handle
+
+
+
+                                  - 10 -
+
+
+
+
+
+
+                    o what the data segment value was for the task (the
+                      instance handle)
+
+
+------------------  The Modules section of the log lists the modules that
+   Modules section  were running at time of exception. Given is:
+------------------
+                    o path for executor file
+                    o the date
+                    o the file size
+                    o module name
+                    o module handle
+                    o reference count (how many times the module is in
+                      use).
+
+
+------------------  The USER and GDI heap information section of the log
+ USER and GDI heap  shows what percentage of the USER and GDI heaps was
+       information  available at the time of exception.
+------------------
+
+------------------  The System Information section of the log file shows
+System information  the mode and
+           section  windows version under which your program was run. Also
+------------------  given is:
+
+                    o CPU information
+                    o largest free memory block
+                    o total linear memory space
+                    o free linear memory space
+                    o swap file pages
+
+
+
+===========================================================================
+Processing WinSpector data
+===========================================================================
+
+                    The DFA utility post processes Turbo Debugger
+                    information gathered by WinSpector at the time of
+                    exception. WinSpector writes a WINSPCTR.BIN file at the
+                    time of exception if report information is set to
+                    PostMortem Dump. DFA can then be used to translate the
+                    WINSPCTR.BIN file into a useful format.
+
+
+
+
+
+
+
+                                  - 11 -
+
+
+
+
+
+
+        DFA output  =======================================================
+
+                    The DFA utility writes a file only if Turbo Debugger
+                    information exists for the file in the stack frame. The
+                    DFA output file (DFA.OUT) has a stack trace similar to
+                    the one in the WinSpector log file, except that it has:
+
+                    o function names
+                    o line numbers
+                    o local and global variables
+                    o data segments and their values (including the stack
+                      segment).
+
+                    Only one WINSPCTR.BIN file is written per Windows
+                    session, so post-process files promptly. You may then
+                    want to rename or delete the DFA.OUT and WINSPCTR.LOG
+                    files, to allow for more than one exception in a
+                    session.
+
+    Using DFA with  =======================================================
+      WINSPCTR.LOG
+                    When used with the WINSPCTR.LOG file alone, DFA gives
+                    minimal stack trace information such as addresses.
+                    Source filenames and line numbers are added to the
+                    report when Turbo Debugger information (a .TDS file) is
+                    present either in the executable file or in a separate
+                    file.
+
+
+    Using DFA with  =======================================================
+      WINSPCTR.BIN
+                    When used with the WINSPCTR.BIN file, DFA makes
+                    additional information available:
+
+                    o Stack based variables are added to the log, including
+                      structures and arrays.
+
+                    o Variable types, values, and addresses are listed by
+                      function.
+
+
+                    If a Turbo Debugger .TDS file is present, for each
+                    stack frame, DFA reports:
+
+                    o Section one
+
+                      - source file
+
+
+
+
+                                  - 12 -
+
+
+
+
+
+
+                      - line number
+                      - local variables
+                      - parameters.
+
+                    o Section two
+
+                      - module name for the task with the fault
+                      - filenames
+                      - logical segments
+                      - their selectors
+                      - whether it's data or code.
+
+                    o Section three
+
+                      - global variables
+                      - static variables
+                      - their values at time of exception.
+
+            Syntax  =======================================================
+
+                    DFA [option] WINSPCTR.LOG [WINSPCTR.BIN]
+
+                    The WINSPCTR.LOG file is required. With it, you get
+                    source file and line numbers. With WINSPCTR.BIN
+                    (optional), you get variable information.
+
+                        /O[outputfile]
+                        Renames the output file from the DFA.OUT default
+
+                        /D
+                        Forces DFA to write out a hex dump of the saved
+                    data segments
+
+
+
+===========================================================================
+Other WinSpector tools
+===========================================================================
+
+                    EXEMAP, TMAPSYM, and BUILDSYM are three utilities that
+                    can enhance the information WinSpector provides about
+                    an exception.
+
+
+
+
+
+
+
+
+
+                                  - 13 -
+
+
+
+
+
+
+   Creating a .MAP  =======================================================
+      file from an
+        executable  EXEMAP creates .MAP files for Windows executables. A
+                    .MAP file can be used to create a .SYM file, which can
+                    then be used by WinSpector to enhance the error
+                    reporting. This can be especially useful for use with
+                    .DLLs or other programs that you don't have source code
+                    for.
+
+                    Although the resulting .MAP file isn't as complete as
+                    one generated by the linker, it does include addresses
+                    for exported public functions.
+
+
+------------------  EXEMAP exefilename [output mapfile]
+            Syntax
+------------------  If [output mapfile] is not given, it defaults to
+                    exefilename.MAP.
+
+
+   Creating a .SYM  =======================================================
+  file from a .MAP
+              file  TMAPSYM creates .SYM files from existing .MAP files
+                    (created either by TLINK or by the EXEMAP utility). The
+                    resulting .SYM files make public functions, variable
+                    names, and functions in the entry table of the
+                    executable available to WinSpector. Constants and line
+                    number information is not included in a TMAPSYM
+                    generated .SYM file.
+
+------------------  TMAPSYM filename[.MAP]
+            Syntax
+------------------  The .MAP extension is optional.
+
+
+------------------  Borland C++ precompiled header files use a .SYM
+             Notes  extension and could be inadvertently overwritten when
+------------------  generating a .SYM (symbol) file. If you are using the
+                    command line compiler, there is an option to rename the
+                    header file so that there is no naming conflict.
+
+                    BUILDSYM overwrites any existing .SYM file. To be safe,
+                    copy
+                    existing .SYM files before using BUILDSYM or TMAPSYM.
+
+
+
+
+
+
+
+                                  - 14 -
+
+
+
+
+
+
+     Creating .SYM  =======================================================
+        files from
+       executables  The BUILDSYM utility offers a convenient way to create
+                    .SYM files for one or more executable programs in a
+                    directory.
+
+                    When .SYM files are not available, creating them
+                    without BUILDSYM is a two step process:
+
+                    1. Use the EXEMAP utility on the program to make a .MAP
+                       file
+
+                    2. Use the TMAPSYM utility on the .MAP file to make a
+                       .SYM file
+
+                    BUILDSYM uses EXEMAP and TMAPSYM, but you enter only
+                    one command to complete the process. BUILDSYM also
+                    erases .MAP files from your directory after .SYM files
+                    are created. BUILDSYM's support for wild cards in the
+                    syntax lets you create .SYM files for part or all of a
+                    directory by entering a single command.
+
+                    BUILDSYM requires that EXEMAP and TMAPSYM utilities be
+                    in your search path. Resulting .SYM files are placed in
+                    the current directory. For WinSpector to find a .SYM
+                    file, it must be in the same directory as the
+                    executable where the exception occurred.
+
+                    BUILDSYM:
+
+                    o verifies that the files are really Windows files (if
+                      they're not, BUILDSYM leaves them alone)
+
+                    o calls EXEMAP to create .MAP files
+
+                    o verifies that .MAP files were created
+
+                    o calls TMAPSYM, passing the names of the new .MAP
+                      files, to create .SYM files
+
+                    o deletes the .MAP files (which are no longer needed)
+
+
+
+
+
+
+
+
+
+
+                                  - 15 -
+
+
+
+
+
+
+------------------  BUILDSYM filename
+            Syntax
+------------------  DOS wildcards are supported in the filename portion of
+                    the syntax.
+
+
+------------------  Borland precompiled header files use a .SYM extension
+              Tips  and could be inadvertently overwritten when generating
+------------------  a .SYM file. If you are using the command line
+                    compiler, there is an option to rename the header file
+                    so that there is no naming conflict.
+
+                    BUILDSYM overwrites any existing .SYM file. To be safe,
+                    copy existing .SYM files before using BUILDSYM or
+                    TMAPSYM.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                  - 16 -
+

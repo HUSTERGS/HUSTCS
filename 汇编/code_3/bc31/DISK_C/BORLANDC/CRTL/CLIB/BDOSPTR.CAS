@@ -1,0 +1,51 @@
+/*---------------------------------------------------------------------------
+ * filename - bdosptr.cas
+ *
+ * function(s)
+ *        bdosptr - MS-DOS system call
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <dos.h>
+#include <asmrules.h>
+#include <_io.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            bdosptr - MS-DOS system call
+
+Usage           int bdosptr(int dosfun, void *argument, unsigned dosal);
+
+Prototype in    dos.h
+
+Description     provides direct access to the MS-DOS system calls which
+                require a pointer argument.
+
+Return value    the return value of AX on success, or -1 on failure; errno
+                and _doserrno are also set on failure.
+
+*---------------------------------------------------------------------------*/
+int _CType bdosptr(int cmd, void *arg, unsigned dosal)
+{
+        pushDS_
+asm     mov     ah, byte ptr cmd
+asm     mov     al, byte ptr dosal
+asm     LDS_    dx, arg
+asm     clc
+asm     int     21h
+        popDS_
+asm     jc      bdosptrFailed
+        return(_AX);
+
+bdosptrFailed:
+        return __IOerror(_AX);
+}

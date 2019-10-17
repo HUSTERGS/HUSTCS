@@ -1,0 +1,211 @@
+;[]-----------------------------------------------------------------[]
+;|      EMUVARS.ASI  --  emulator variables for assembler            |
+;[]-----------------------------------------------------------------[]
+
+;
+;       C/C++ Run Time Library - Version 5.0
+; 
+;       Copyright (c) 1986, 1992 by Borland International
+;       All Rights Reserved.
+; 
+
+
+;       This file is designed to be included both by the start-up
+;       module (C0.asm, for C) and by the emulator.  The data is
+;       actually allocated in startup, and externally referenced
+;       from the emulator.
+
+
+; The Use of Interrupt Vectors
+
+;       There are 11 interrupt vectors.  The first 8 map onto the 8 floating
+;       point instruction patterns:
+
+;               {WAIT   ESC n } -->  INT (34h + n), where n is in (0..7)
+
+;       No segment prefixes may apply to these patterns.
+
+;       The ninth interrupt provides instructions with segment prefixes:
+
+;               {WAIT   ES: ESC n } --> INT (3Ch), byte (C0h + n)
+;               {WAIT   CS: ESC n } --> INT (3Ch), byte (80h + n)
+;               {WAIT   SS: ESC n } --> INT (3Ch), byte (40h + n)
+;               {WAIT   DS: ESC n } --> INT (3Ch), byte (00h + n)
+
+
+;       The tenth interrupt corresponds to the sequence NOP, FWAIT, and
+;       is a no-op for emulation purposes.
+
+;       The eleventh interrupt provides Borland-defined shortcuts.
+
+
+
+;       Data space is actually allocated in the stack segment by C0.asm,
+;       the start-up module, and accessed by the emulator via externs.
+;       It is initialized during the first emulated FINIT instruction.
+
+
+EmuAssume@      MACRO   aSeg
+        ASSUME  aSeg : SEG __emu
+ENDM
+
+EmuNothing@     MACRO   aSeg
+        ASSUME  aSeg : NOTHING
+ENDM
+
+; See EMUVARS.H for C equivalents of these declarations.
+
+
+; An iNDP_image is put into memory by the FSTENV instruction.
+
+iNDP_environ    STRUC
+        ndp_control     dw      ?
+        ndp_status      dw      ?
+        ndp_tags        dw      ?
+        ndp_ip          dw      ?
+        ndp_ip_opcode   dw      ?
+        ndp_dp          dw      ?
+        ndp_dptop       dw      ?
+iNDP_environ    ENDS
+
+
+fpu     struc
+
+;       The 80x87 present shortcuts use ws_status too.
+ws_status       dw      ?       ; result of comparisons
+
+; Variables used by emulator and '87 trap handler.
+
+; used for shadow mask if '87 present
+ws_control      dw      ?       ; processing options and exceptions.
+
+; used by trap handler if '87 present
+ws_adjust       dw      ?       ; adjusts TOS at exit
+ws_8087         db      ?       ; same as _8087
+ws_protected    db      ?       ; same as _protected
+ws_type         dw      ?       ; type of error, if fatal
+ws_LDT          dw      ?       ; same as _LDT
+
+; The stack.
+ws_TOS          dw      ?       ; current level of e87 register stack
+ws_lastSP       dw      ?       ; low end of stack
+ws_initSP       dw      ?       ; high end of stack
+
+; Variables used by '87 trap handler.
+environ iNDP_environ    <>
+ecount1         dw      ?
+ecount2         dw      ?
+ws_status2      dw      ?
+fpx1            dt      ?
+fpsword         dw      ?
+
+;       The remaining data areas are not needed if an 87 chip is present.
+
+;ws_fixSeg      dw      ?       ; selector implied by segFix
+ws_BPsafe       dw      ?       ; keep BP --> userRegs here for safety.
+ws_stamp        dd      ?       ; after initialization, 'emu', 87h
+ws_version      dw      ?       ; 1 for TC2,TP5,Q2; 2 for TB2; 3 for TC3,TP6
+ws_stackStyle   db      ?       ; shortcuts-88 stack frame style
+ws_unsigned     db      ?       ; allows handling unsigned integers
+
+IF _Strict87_
+ws_instrnPtr    dd      ?       ; used with error recovery
+ws_dataPtr      dd      ?       ; --------- " ------------
+ws_instruction  dw      ?       ; bytes swapped, used for error recovery
+ENDIF
+
+;       The vector save areas are overlayed by "emws_temp32" and
+;       "emws_MBZ32" for shortcuts when the 80x87 is present.
+;       These two MUST be contiguous.
+
+ws_saveVector   dd      ?       ; prior contents of NMI vector
+ws_nmiVector    dd      ?       ; PC/AT error vector for 80x87 exceptions
+
+;       Indirect Shortcuts-88 entry table.  Maintain exact match to
+;       the order in emuShtCt.asm and e87ShtCt.asm.
+
+IF _shortcuts88_
+        __isc88table    label   DWORD
+        __ifp_ldxds     dd      ?
+        __ifp_ldxss     dd      ?
+        __ifp_ldxes     dd      ?
+        __ifp_ldxcs     dd      ?
+        __ifp_lddds     dd      ?
+        __ifp_lddes     dd      ?
+        __ifp_lddss     dd      ?
+        __ifp_ldint     dd      ?
+        __ifp_lduint    dd      ?
+        __ifp_ldlng1    dd      ?
+        __ifp_ldulng1   dd      ?
+        __ifp_lds1      dd      ?
+        __ifp_ldz       dd      ?
+        __ifp_ld1       dd      ?
+        __ifp_ldpi      dd      ?
+        __ifp_stps      dd      ?
+        __ifp_stplng    dd      ?
+        __ifp_stpuln    dd      ?
+        __ifp_stpuint   dd      ?
+        __ifp_stpint    dd      ?
+        __ifp_stpdes    dd      ?
+        __ifp_stpdds    dd      ?
+        __ifp_stpdss    dd      ?
+        __ifp_stpxes    dd      ?
+        __ifp_stpxds    dd      ?
+        __ifp_stpxss    dd      ?
+        __ifp_ldcw      dd      ?
+        __ifp_error     dd      ?
+        __ifp_neg       dd      ?
+        __ifp_divrv     dd      ?
+        __ifp_subrv     dd      ?
+        __ifp_sub       dd      ?
+        __ifp_mul       dd      ?
+        __ifp_div       dd      ?
+        __ifp_add       dd      ?
+        __ifp_sqr       dd      ?
+        __ifp_rndint    dd      ?
+        __ifp_sin       dd      ?
+        __ifp_cos       dd      ?
+        __ifp_tan       dd      ?
+        __ifp_atan      dd      ?
+        __ifp_log       dd      ?
+        __ifp_log2      dd      ?
+        __ifp_log10     dd      ?
+        __ifp_exp       dd      ?
+        __ifp_exp2      dd      ?
+        __ifp_exp10     dd      ?
+        __ifp_cmp       dd      ?
+        __ifp_tst       dd      ?
+        __ifp_push      dd      ?
+        __ifp_pop       dd      ?
+        __ifp_subds     dd      ?
+        __ifp_subes     dd      ?
+        __ifp_subss     dd      ?
+        __ifp_mulds     dd      ?
+        __ifp_mules     dd      ?
+        __ifp_mulss     dd      ?
+        __ifp_divds     dd      ?
+        __ifp_dives     dd      ?
+        __ifp_divss     dd      ?
+        __ifp_addds     dd      ?
+        __ifp_addes     dd      ?
+        __ifp_addss     dd      ?
+        __ifp_divrvds   dd      ?
+        __ifp_divrves   dd      ?
+        __ifp_divrvss   dd      ?
+        __ifp_subrvds   dd      ?
+        __ifp_subrves   dd      ?
+        __ifp_subrvss   dd      ?
+    IF _TBasic_
+        __ifp_ldlng2    dd      ?
+        __ifp_ldulng2   dd      ?
+        __ifp_lds2      dd      ?
+    ENDIF
+ENDIF ; _shortcuts88_
+
+fpu     ends
+
+; size of emu_temp
+size_emu_temp   equ     12
+
+; The minimum size for the emulator stack.
+MinFpStack      equ     (17 * size_emu_temp)

@@ -1,0 +1,155 @@
+/*---------------------------------------------------------------------------
+ * filename - creata.cas
+ *
+ * function(s)
+ *        CreateFile - create a file
+ *        _creat     - creates a new file or rewrites an existing one.
+ *        creattemp  - creates a new file
+ *        creatnew   - creates a new file
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
+#include <RtlData.h>
+
+#undef creatnew         /* Remove the macro version of creatnew() */
+
+/*--------------------------------------------------------------------------*
+
+Name            CreateFile - create a file
+
+Usage           local to this module
+
+Description     used by _creat, creattemp, and creatnew to create
+                a file.
+
+Return value    success : the new file handle
+                else    : -1 and errno is set to one of the following:
+
+                        ENOENT   Path or file name not found
+                        EMFILE   Too many open files
+                        EACCESS  Permission denied
+
+
+*---------------------------------------------------------------------------*/
+static int near pascal CreateFile(char *pathP,
+                                  int attr,
+                                  unsigned char func,
+                                  unsigned oflags)
+{
+        register int    handle;
+
+        pushDS_
+asm     mov     ah,func
+asm     mov     cx, attr
+asm     LDS_    dx, pathP
+asm     int     21h
+        popDS_
+asm     jc      CreateFileFailed
+        handle = _AX;
+        _RTLInstanceData(_openfd) [handle] = oflags;
+        return handle;
+
+CreateFileFailed:
+        return  __IOerror (_AX);
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _creat - creates a new file or rewrites an existing
+                         one.
+
+Usage           int _creat(const char *filename, int attrib);
+
+Prototype in    io.h
+
+Description     A file created with _creat is always created in the
+                translation mode specified by the global variable
+                _fmode (O_TEXT or O_BINARY).
+
+                _creat accepts attrib, an MS-DOS attribute word.  Any
+                attribute bits may be set with this call.  The file
+                is always opened in binary mode.  Upon successful
+                creation, the file pointer is set to the beginning
+                of the file.  The file is opened for both reading
+                and writing.
+
+                The attrib argument to _creat, creatnew, and creattemp
+                can be one of the following constants (defined in dos.h):
+
+                        FA_RDONLY   Read only attribute
+                        FA_HIDDEN   Hidden file
+                        FA_SYSTEM   System file
+
+Return value    success : the new file handle
+                else    : -1 and errno is set to one of the following:
+
+                        ENOENT   Path or file name not found
+                        EMFILE   Too many open files
+                        EACCESS  Permission denied
+
+*---------------------------------------------------------------------------*/
+int _CType _FARFUNC _creat (const char *pathP, int attr)
+{
+        return( CreateFile((char *)pathP, attr, 0x3C, O_RDWR | O_BINARY ) );
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            creattemp - creates a new file
+
+Usage           int creattemp(const char *filename, int attrib);
+
+Prototype in    io.h
+
+Description     similar to _creat except that the filename is a path
+                name ending with a backslash (\).  A unique file name
+                is selected in the directory given by filename.  The
+                newly created file name is stored in the filename string
+                supplied.  The file is not automatically deleted when the
+                program terminates.
+
+Return value    same as _creat
+
+*---------------------------------------------------------------------------*/
+int _FARFUNC creattemp (char *pathP, int attr)
+{
+  return( CreateFile(pathP, attr, 0x5A, _RTLInstanceData(_fmode) | O_RDWR ) );
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            creatnew - creates a new file
+
+Usage           int creatnew(char *filename, int attrib);
+
+Prototype in    io.h
+
+Description     identical to _creat, with the exception that, if
+                the file exists, the creatnew call returns an
+                error and leaves the file untouched.
+
+Return value    same as _creat
+
+*---------------------------------------------------------------------------*/
+int _FARFUNC creatnew (const char *pathP, int attr)
+{
+  return( CreateFile((char *)pathP, attr, 0x5B, _RTLInstanceData(_fmode) | O_RDWR ) );
+}

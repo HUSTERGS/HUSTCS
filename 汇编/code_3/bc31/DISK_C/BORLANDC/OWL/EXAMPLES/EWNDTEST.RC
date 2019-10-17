@@ -1,0 +1,31 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include "windows.h"
+#include "ewndtest.h"
+#include "owlrc.h"
+
+#include "stdwnds.dlg"
+#include "editacc.rc"
+
+COMMANDS MENU LOADONCALL MOVEABLE PURE DISCARDABLE
+BEGIN
+  POPUP "&Edit"
+  BEGIN
+    MenuItem  "&Undo\aAlt+BkSp", CM_EDITUNDO
+    MenuItem  SEPARATOR
+    MenuItem  "&Cut\aShift+Del", CM_EDITCUT
+    MenuItem  "C&opy\aIns", CM_EDITCOPY
+    MenuItem  "&Paste\aShift+Ins", CM_EDITPASTE
+    MenuItem  "&Delete\aDel", CM_EDITDELETE
+    MenuItem  "C&lear All\aCtrl+Del", CM_EDITCLEAR
+  END
+  POPUP "&Search"
+  BEGIN
+    MenuItem  "&Find...", CM_EDITFIND
+    MenuItem  "&Replace...", CM_EDITREPLACE
+    MenuItem  "&Next\aF3", CM_EDITFINDNEXT
+  END
+  MenuItem  "Send &Text", CM_SENDTEXT
+END
+
+

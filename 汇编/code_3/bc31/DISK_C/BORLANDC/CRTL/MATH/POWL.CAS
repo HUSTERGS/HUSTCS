@@ -1,0 +1,392 @@
+/*------------------------------------------------------------------------
+ * filename - powl.cas
+ *
+ * function(s)
+ *        powl - long double power function, x^y
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+#define  EXTPROC1(x)  asm call near ptr (x)
+
+static  unsigned short   NANLOGL [5] = {0,0,0,0xC024, 0xFFFF};
+
+/*--------------------------------------------------------------------------*
+
+Name            powl - power function, x^y
+
+Usage           long double powl(long double x, long double y);
+
+Prototype in    math.h
+
+Description     Return the value of x to the  power of y. If x is zero then
+                y must be  positive, and if  x is negative  then y must  be
+                integral.
+
+                First the special cases  Y == 0 or X == 0  or X == infinity
+                are detected and given standard answers.
+
+                Two methods of calculation are used, depending upon whether
+                Y is an integer of less than 64 bits. If not, then
+
+                        X^Y = 2^(Log2(X) * Y)
+                            = DoExps ( DoLogs (X, Y), not scaled)
+
+                If Y is  an integer then it can be  represented as a binary
+                number
+
+                        Y = B0 + B1.2 + B2.+ .. Bn.2^n
+
+                where the  B coefficients are 0  or 1, and Bn  is always 1,
+                for some n. The power of X is then calculated as:
+
+                        Z = X;
+                        while (n-- > 0)
+                                Z *= Z;
+                                if (Bn) Z *= X;
+
+                which is  the standard trick  for fast integral  powers. It
+                works for any X, positive or negative, if Y is not zero. In
+                practice  it will  run faster than the  DoExps (DoLogs())
+                method for  |Y|  <  100,  roughly,  and  slower for larger
+                powers. Such large powers are very rare in actual usage.
+
+                Powers greater  than  2^64  in  theory  may  be  integers.
+                However,  it is  also likely  that such  large numbers have
+                lost  precision (especially  when you  consider that  the C
+                data  type "long double"  is 53   bits precise).  These will  be
+                treated as if  fractional. If X is positive  and very close
+                to  1.0,  then an  answer  may  be  possible, but if X is
+                negative an  exception is generated. The  rationale for the
+                exception is  that if the  least bits of  Y have been  lost
+                then  it is  not possible   to be  sure whether  the result
+                should be positive or negative, so there is a total loss of
+                precision.
+
+Return value    Return the value of x to the power of y.
+                When  the correct  value  would  overflow, powl returns the
+                value _LHUGE_VAL.
+
+                If the argument x passed to powl  is less than or equal to 0
+                and y  is not a whole  number, then errno is set to
+                        EDOM    Domain error
+
+                If x and y are both zero, then the return value is 1.0 and
+                there is no error.  Many C compilers consider this a DOMAIN
+                error as technically 0^0 is undefined.  There are continuous
+                function f(x) and g(x) such that f(0) = 0 and g(0) = 0, but
+                with the limit of f(x)/g(x) as x tends to 0 being any real
+                number.  However, there is an elementary theorem that states
+                that f(x) and g(x) are analytic and nonzero, then the limit
+                is always 1.  Thus in a finite precision computing
+                environment, it is hard to imagine a situation where a
+                number other than 1 is desirable.
+
+*---------------------------------------------------------------------------*/
+
+#pragma warn -rvl       /* Function should return a value */
+
+/*
+Identical to expl(), but calls __matherrl with different arguments.
+*/
+static long double near pascal __expl (long double x)
+{
+asm     FLD     LONGDOUBLE (x)
+asm     mov     ax, x [8]       /* select exponent */
+asm     and     ah, 7Fh         /* remove sign bit */
+asm     cmp     ax, 3fffh+13
+asm     jb      exp_OK          /* expl (+-2^13) is the limit for long double */
+
+exp_tooBig:
+asm     mov     ax, 0FFFFh      /* force extreme */
+asm     ja      exp_excess
+asm     mov     ax, x [6]
+
+exp_excess:
+asm     test    BY0 (x [9]), 80h
+asm     jnz     exp_tooTiny
+asm     cmp     ax, 0B172h
+asm     jb      exp_OK
+asm     mov     si, OVERFLOW
+asm     jmp     short   exp_err
+
+exp_tooTiny:
+asm     cmp     ax, 0B16Ch
+asm     jb      exp_OK
+asm     mov     si, UNDERFLOW
+
+exp_err:
+asm     FSTP    ST(0)           /* discard ST */
+#pragma warn -ret
+        /* should use args to powl, but have no access */
+        return  __matherrl (_SI, "powl", NULL, NULL,
+                          (UNDERFLOW == _SI) ? 0.0 : _LHUGE_VAL);
+exp_OK:
+        __expld();
+        return;
+}
+
+#pragma warn -rvl
+#pragma warn -powl
+#pragma warn -use
+long double _FARFUNC powl (long double x, long double y)
+{
+        long double temp;           /* also used as a 64-bit integer */
+        char        negate = 0;     /* boolean, negate after exp() ? */
+        volatile unsigned int Control;
+        volatile unsigned int Status;
+
+asm     FLD     LONGDOUBLE (x)
+asm     mov     bx, 7FFFh                       /* mask just the exponent */
+asm     mov     ax, x [8]
+asm     and     ax, bx
+asm     jz      powl_ofZero
+asm     cmp     ax, bx
+asm     je      powl_ofInfinity
+
+asm     FLD     LONGDOUBLE (y)
+asm     mov     ax, y [8]
+asm     and     ax, bx
+asm     jnz     temp1
+asm     jmp     powl_toZero
+temp1:
+asm     cmp     ax, bx
+asm     je      powl_toInfinity
+asm     jmp     powl_normal
+
+
+/***            Special cases           ***/
+/*
+  Raising any number to infinity is treated as a range error.
+*/
+powl_toInfinity:
+asm     FSTP    LONGDOUBLE (temp)               /* propagate Y thru to result */
+asm     jmp     short   powl_discard
+
+/*
+  Powers of infinity are range errors.
+*/
+powl_ofInfinity:
+asm     FSTP    LONGDOUBLE (temp)               /* propagate X thru to result */
+asm     mov     ax, y[8]
+asm     or      ax, ax
+asm     jge     powl_overflow                   /* jump if exponent nonnegative */
+asm     mov     si, UNDERFLOW
+        temp = 0.0;
+asm     jmp     short   powl_complain
+
+/*
+  Arrive here if Y is zero.  The zero'th power of any number is 1.
+*/
+powl_toZero:
+asm     FSTP    ST(0)                           /* discard Y    */
+asm     FSTP    ST(0)                           /* discard X    */
+asm     FLD1
+        return; /* 1.0 */
+
+powl_discard:
+asm     FSTP    ST(0)                           /* discard X    */
+
+powl_overflow:
+asm     mov     si, OVERFLOW
+asm     jmp     short   powl_complain
+
+/*
+  Powers of 0 are (EDOM, 1, 0) as Y ranges over (negative, zero, positive).
+*/
+powl_ofZero:
+asm     FSTP    ST(0)                           /* discard  X   */
+asm     mov     ax, y [8]
+asm     or      ax, ax                          /* was Y positive ?     */
+asm     jg      powl_zero
+asm     mov     si, DOMAIN
+asm     je      powl_zz
+        temp = _LHUGE_VAL;
+asm     jmp     short   powl_complain
+
+powl_zz:
+        temp = 1.0;
+
+powl_complain:
+        return  __matherrl (_SI, "powl", &x, &y, temp);
+
+powl_zero:
+asm     FLDZ
+        return; /* 0.0 */
+
+/***            End of Special Cases            ***/
+
+
+/*
+  If arrived here then both x and y seem to be ordinary numbers.
+*/
+powl_normal:
+asm     FCLEX
+asm     FRNDINT
+asm     FSTSW   W0 (Status)             /* is Y an integer      */
+asm     FWAIT
+asm     test    BY0 (Status), 20h       /* precision error if not */
+asm     jz      powl_integral
+asm     FSTP    ST(0)                   /* discard Y */
+
+/*
+  Arrive here if the exponent exceeds integer range or if it contains
+  a fractional part.  Calculate using Log and Exp functions.  Just
+  x is on 87-stack.
+*/
+
+powl_fractional:
+/* make sure that x > 0 */
+asm     FTST
+asm     FSTSW   W0 (Status)             /* is Y an integer      */
+asm     FWAIT
+asm     mov     ax, Status
+asm     sahf
+asm     jae     powl_log
+asm     FSTP    ST(0)
+
+        temp = *((long double *) NANLOGL);
+asm     mov     si, DOMAIN
+asm     jmp     short   powl_complain
+
+powl_log:
+/* arg is > 0, so log cannot fail */
+
+#ifdef _Windows
+        _f87_Log();
+#else
+asm     _FAST_  (_FLOG_)
+#endif
+
+/* Disable underflow and overflow exceptions temporarily.
+ */
+asm     fstcw   Control                 /* save old control word */
+asm     fwait
+asm     mov     ax, Control
+asm     mov     cx, ax                  /* save copy in cx */
+asm     or      ax, 18h                 /* mask under/overflow */
+asm     mov     Control, ax
+asm     fldcw   Control
+
+asm     FLD     LONGDOUBLE (y)
+asm     FMUL
+
+/*  Check for exceptions.
+ */
+asm     fstsw   Status                  /* save the status */
+asm     fclex                           /* clear exceptions */
+asm     mov     Control, cx
+asm     fldcw   Control                 /* reload control word */
+asm     test    word ptr Status, 18h    /* did under/overflow occur? */
+asm     jz      powl_noexc              /* if so, discard result */
+asm     jmp     powl_discard
+
+powl_noexc:
+asm     sub     sp, 10
+asm     mov     bx, sp
+asm     FSTP    LONGDOUBLE (SS_ [bx])
+        EXTPROC1 (__expl)
+
+        if (negate)
+        {
+                asm     FCHS
+        }
+        return;
+
+/*
+  If arrived here then Y is some integer of up to 64 bits and has
+  been copied to temp. Y is ST(0), X is ST(1), AX is exponent of Y.
+*/
+powl_integral:
+asm     sub     ax, 3FFFh                       /* remove the bias      */
+asm     cmp     ax, 63                          /* AX = n, the exponent */
+asm     jb      powl_trueIntegral
+asm     FSTP    ST(0)                           /* discard Y */
+powl_fracjmp:
+asm     jmp     short   powl_fractional
+
+/*
+  The shift-and-add method is not accurate for extreme powers since
+  round off errors are magnified.  However, we cannot simply call for
+  evaluation like fractional powers because X may be negative and
+  fractional negative powers are treated as exceptions.
+*/
+powl_trueIntegral:
+asm     cmp     al, 12
+asm     jb      powl_shiftAndAdd
+powl_unsafeRange:
+asm     FISTP   qword ptr (temp)                /* store an integer copy of Y */
+asm     test    BY0 (x [9]), 80h                /* X less than 0 ?      */
+asm     jz      powl_fracjmp                    /* X not signed, so no worry */
+asm     FCHS                                    /* make X absolute      */
+asm     test    BY0 (temp), 01h                 /* odd or even ?        */
+asm     jz      powl_fracjmp                    /* even powers are positive */
+/*
+  If we arrive here then X was negative and Y was odd.  Calculate with
+  abs(X) and then negate result.
+*/
+        negate = 1;
+asm     jmp     short   powl_fracjmp
+
+
+/*
+  Arrive here for modest integral powers of any number.  We must also
+  check for overflow, by making a worst-case check on log (X^Y).  If
+  it has a potential to overflow, then we use the exp(log()) method.
+*/
+powl_shiftAndAdd:
+asm     mov     bx, x [8]
+asm     shl     bx, 1
+asm     sub     bx, 7FFEh                       /* BX estimates log2 (X) */
+asm     mov     dx, bx
+asm     xchg    cx, ax
+asm     inc     cx                              /* 2^CL is max possible Y */
+asm     shl     bx, cl                          /* multiply BX by max Y */
+asm     sar     bx, cl
+asm     dec     cx
+asm     xchg    ax, cx
+asm     cmp     bx, dx                          /* did BX lose any bits ? */
+asm     jne     powl_unsafeRange
+
+asm     FLD     ST (1)                          /* Z = X        */
+asm     mov     dx, y [6]
+asm     shl     dx,1
+
+powl_iWhileBit:
+asm     dec     al
+asm     jl      powl_maybeInverse
+
+asm     FMUL    ST(0), ST(0)                    /* Z *= Z       */
+
+asm     shl     dx, 1
+asm     jnc     powl_iWhileBit
+
+asm     FMUL    ST(0), ST(2)                    /* Z *= X       */
+
+asm     jmp     short   powl_iWhileBit
+
+powl_maybeInverse:
+asm     FSTP    ST(1)                           /* overwrite Y  */
+asm     test    BY0 (y [9]), 80h                /* was Y a negative power ? */
+asm     FSTP    ST(1)                           /* overwrite X */
+asm     jz      powl_iDone
+asm     FLD1
+asm     FDIVRP  ST(1), ST(0)                    /*   if so, invert result. */
+powl_iDone:
+        return;
+}

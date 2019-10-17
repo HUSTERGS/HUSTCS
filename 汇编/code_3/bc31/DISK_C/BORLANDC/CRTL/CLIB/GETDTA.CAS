@@ -1,0 +1,52 @@
+/*---------------------------------------------------------------------------
+ * filename - getdta.cas
+ *
+ * function(s)
+ *        getdta - gets disk transfer address
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            getdta - gets disk transfer address
+
+Usage           char far *getdta(void);
+
+Related
+functions usage void setdta(char far *dta);
+
+Prototype in    dos.h
+
+Description     getdta returns the current setting of the disk
+                transfer address (DTA).
+
+                In the small and medium memory models, it is assumed that the
+                segment is the current data segment. If C is used exclusively,
+                this will be the case, but assembly routines may set the disk
+                transfer address to any hardware address.
+
+                In the compact, large, or huge memory models, the address
+                returned by getdta is the correct hardware address and may be
+                located outside the program.
+
+Return value    getdta returns a pointer to the current disk
+                transfer address.
+
+*---------------------------------------------------------------------------*/
+char far *getdta(void)
+{
+asm     mov     ah, 02Fh
+asm     int     021H
+        return (char _es *) _BX;
+}

@@ -1,0 +1,154 @@
+/*-----------------------------------------------------------------------*
+ * filename - ldivt.cas
+ *
+ * function(s)
+ *        ldiv - long integer division
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <stdlib.h>
+
+
+/*-----------------------------------------------------------------------*
+
+Name            ldiv - long integer division
+
+Usage           ldiv_t ldiv(long numer, long denom);
+
+Prototype in    stdlib.h
+
+Description     ldiv computes  the quotient and remainder  of the ldivision
+                of the numerator "numer" by the denominator "denom". If the
+                result cannot be represented, the behavior is undefined.
+
+Return value    ldiv returns  a structure of  type ldiv_t, comprising  both
+                the quotient and the remainder.
+
+*------------------------------------------------------------------------*/
+ldiv_t  _FARFUNC ldiv(long numer, long denom)
+{
+        ldiv_t  ldivR;
+
+/*      Save frame pointer      */
+
+asm     push    bp
+asm     xor     cx, cx
+
+/*      Get both operands       */
+
+asm     mov     ax, W0(numer)
+asm     mov     dx, W1(numer)
+asm     mov     bx, W0(denom)
+asm     mov     bp, W1(denom)
+
+/*      Zero low word of high 32 bits of 64-bit remainder       */
+
+asm     xor     si, si
+
+/* Signed division should be done. Convert negative values to positive
+   and  do an  unsigned division.  Store the  sign value  in the  next
+   higher bit of cl  (test mask of 4). Thus when we  are done, testing
+   that bit will determine the sign of the result.
+*/
+
+/*     Negate numerator if negative number      */
+
+asm     or      dx, dx
+asm     jns     PosNumer
+asm     neg     dx
+asm     neg     ax
+asm     sbb     dx, si
+asm     inc     cl
+
+PosNumer:
+
+/*      Negate denominator if negative number   */
+
+asm     or      bp, bp
+asm     jns     PosDenom
+asm     neg     bp
+asm     neg     bx
+asm     sbb     bp, si
+asm     xor     cl, 1
+
+PosDenom:
+
+/*      Save sign of the result         */
+
+asm     push    cx
+
+/*      Use machine divide if high words are both zero  */
+
+asm     mov     di, bp
+asm     or      di, dx
+asm     jnz     noQuickDiv
+asm     div     bx
+asm     xchg    si, dx
+asm     jmp     short commonOut
+
+/*      Unsigned long division  */
+
+noQuickDiv:
+
+asm     mov     cx, 32          /* Shift counter */
+asm     mov     di, si          /* Fake a 64 bit dividend (clear high word) */
+
+xLoop:
+
+asm     shl     ax, 1           /* Shift dividend left one bit */
+asm     rcl     dx, 1
+asm     rcl     si, 1
+asm     rcl     di, 1
+asm     cmp     di, bp          /* Dividend larger? */
+asm     jb      noSub
+asm     ja      Subtract
+asm     cmp     si, bx          /* Maybe */
+asm     jb      noSub
+
+Subtract:
+
+asm     sub     si, bx
+asm     sbb     di, bp          /* Subtract the divisor */
+asm     inc     ax              /* build quotient */
+noSub:
+asm     loop    xLoop
+
+/*      When done with the loop the four register value look like:
+
+        |     di     |     si     |     dx     |     ax     |
+        |        remainder        |         quotient        |
+*/
+
+commonOut:
+
+asm     pop     cx              /* Restore sign of the result */
+asm     jcxz    Divided
+asm     neg     di
+asm     neg     si
+asm     sbb     di, 0           /* Negate remainder */
+asm     neg     dx
+asm     neg     ax
+asm     sbb     dx, 0           /* Negate quotient */
+
+/*      Restore frame pointer, and set ldiv_t structure         */
+
+Divided:
+
+asm     pop     bp
+asm     mov     W0(ldivR), ax
+asm     mov     W1(ldivR), dx
+asm     mov     W0(ldivR+4), si
+asm     mov     W1(ldivR+4), di
+
+        return ldivR;
+}

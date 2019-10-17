@@ -1,0 +1,508 @@
+LIBRARY BC30RTL
+
+DESCRIPTION     'Runtime Library for BC++'
+
+EXETYPE WINDOWS
+
+SEGMENTS
+    _TEXT   PRELOAD
+    _TEXTA  LOADONCALL
+
+CODE LOADONCALL MOVEABLE DISCARDABLE
+
+DATA MOVEABLE SINGLE PRELOAD
+
+HEAPSIZE 4096
+
+EXPORTS
+            WEP                            @1
+            __GETRTLINSTANCEDATA           @2
+            ___getStream                   @3
+            ___getTzname                   @4
+            ___getTimezone                 @5
+            ___getDaylight                 @6
+            ___get_sys_nerr                @7
+            ___get_sys_errlist             @8
+            ___getDOSErrno                 @9
+            ___getErrno                    @10
+            _access                        @11
+            _atoi                          @12
+            _atol                          @13
+            __BCD_POW10                    @14
+            __BCD_LOG10                    @15
+            __BCD_TOBINARY                 @16
+            __BCD_TODECIMAL                @17
+            @$BRSH$QM7ISTREAMM3BCD         @18  ; operator >>(istream far&,bcd far&)
+            @$BLSH$QM7OSTREAMM3BCD         @19  ; operator <<(ostream far&,bcd far&)
+            _bdos                          @20
+            _bsearch                       @21
+            @_cast_memptr$qnvt1uiuiui      @22  ; _cast_memptr(void far*,void far*,unsigned int,unsigned int,unsigned int)
+            _chmod                         @23
+            __chmod                        @24
+            _chsize                        @25
+            _close                         @26
+            __close                        @27
+            _fcloseall                     @28
+            @$bmul$qm7complext1            @29  ; operator *(complex far&,complex far&)
+            @abs$qm7complex                @30  ; abs(complex far&)
+            @norm$qm7complex               @31  ; norm(complex far&)
+            @complex@0$brmul$qm7complex    @32  ; complex::operator *=(complex far&)
+            @$brsh$qm7istreamm7complex     @33  ; operator >>(istream far&,complex far&)
+            @$blsh$qm7ostreamm7complex     @34  ; operator <<(ostream far&,complex far&)
+            @complex@0$brdiv$qm7complex    @35  ; complex::operator /=(complex far&)
+            @$bdiv$qdm7complex             @36  ; operator /(double,complex far&)
+            @$bdiv$qm7complext1            @37  ; operator /(complex far&,complex far&)
+            @tanh$qm7complex               @38  ; tanh(complex far&)
+            @tan$qm7complex                @39  ; tan(complex far&)
+            @sqrt$qm7complex               @40  ; sqrt(complex far&)
+            @sinh$qm7complex               @41  ; sinh(complex far&)
+            @sin$qm7complex                @42  ; sin(complex far&)
+            @pow$qm7complext1              @43  ; pow(complex far&,complex far&)
+            @pow$qdm7complex               @44  ; pow(double,complex far&)
+            @pow$qm7complexd               @45  ; pow(complex far&,double)
+            @log10$qm7complex              @46  ; log10(complex far&)
+            @log$qm7complex                @47  ; log(complex far&)
+            @exp$qm7complex                @48  ; exp(complex far&)
+            @cosh$qm7complex               @49  ; cosh(complex far&)
+            @cos$qm7complex                @50  ; cos(complex far&)
+            @atan$qm7complex               @51  ; atan(complex far&)
+            @asin$qm7complex               @52  ; asin(complex far&)
+            @acos$qm7complex               @53  ; acos(complex far&)
+            @arg$qm7complex                @54  ; arg(complex far&)
+            _creat                         @55
+            __creat                        @56
+            _creatnew                      @57
+            _creattemp                     @58
+            _strftime                      @59
+            _mktime                        @60
+            _localtime                     @61
+            _gmtime                        @62
+            _ctime                         @63
+            _asctime                       @64
+            _rewinddir                     @65
+            _closedir                      @66
+            _readdir                       @67
+            _opendir                       @68
+            _dosexterr                     @69
+            _eof                           @70
+            _fclose                        @71
+            _fdopen                        @72
+            _fflush                        @73
+            _fgets                         @74
+            _findfirst                     @75
+            _findnext                      @76
+            _filelength                    @77
+            _flushall                      @78
+            _fnmerge                       @79
+            _fnsplit                       @80
+            _fopen                         @81
+            _fprintf                       @82
+            _fputs                         @83
+            _fread                         @84
+            _freopen                       @85
+            _fscanf                        @86
+            _ftell                         @87
+            _fseek                         @88
+            _fstat                         @89
+            _ftime                         @90
+            __fullpath                     @91
+            _fwrite                        @92
+            __fgetc                        @93
+            _fgetc                         @94
+            _getcwd                        @95
+            __getdcwd                      @96
+            _getenv                        @97
+            _ldiv                          @98
+            _localeconv                    @99
+            _setlocale                     @100
+            _lock                          @101
+            _unlock                        @102
+            _locking                       @103
+            _lsearch                       @104
+            _lfind                         @105
+            _ultoa                         @106
+            _ltoa                          @107
+            _itoa                          @108
+            __makepath                     @109
+            _memccpy                       @110
+            _memchr                        @111
+            _memcmp                        @112
+            _memcpy                        @113
+            _memicmp                       @114
+            _setmem                        @115
+            _memset                        @116
+            _mktemp                        @117
+            _movedata                      @118
+            _movmem                        @119
+            _memmove                       @120
+            _wctomb                        @121
+            _wcstombs                      @122
+            _mbtowc                        @123
+            _mbstowcs                      @124
+            _mblen                         @125
+            _open                          @126
+            __open                         @127
+            _perror                        @128
+            _printf                        @129
+            __fputc                        @130
+            _fputchar                      @131
+            _fputc                         @132
+            _putenv                        @133
+            _puts                          @134
+            _putw                          @135
+            _qsort                         @136
+            ___read                        @137
+            _read                          @138
+            _rename                        @139
+            _rewind                        @140
+            _scanf                         @141
+            _setmode                       @142
+            _setvbuf                       @143
+            __splitpath                    @144
+            __fnsplit                      @145
+            _vsprintf                      @146
+            _sprintf                       @147
+            _vsscanf                       @148
+            _sscanf                        @149
+            _stat                          @150
+            _strcat                        @151
+            _strchr                        @152
+            _strcmp                        @153
+            _strcpy                        @154
+            _strcspn                       @155
+            __strtime                      @156
+            __strdate                      @157
+            _strdup                        @158
+            __strerror                     @159
+            _strerror                      @160
+            _stricmp                       @161
+            _strlen                        @162
+            _strlwr                        @163
+            _strncat                       @164
+            _strncmp                       @165
+            _strncpy                       @166
+            _strnicmp                      @167
+            _strnset                       @168
+            _strpbrk                       @169
+            _strrchr                       @170
+            _strrev                        @171
+            _strset                        @172
+            _strspn                        @173
+            _strstr                        @174
+            _strtok                        @175
+            _strtol                        @176
+            _strtoul                       @177
+            _strupr                        @178
+            _swab                          @179
+            _tempnam                       @180
+            _unixtodos                     @181
+            _dostounix                     @182
+            _tmpfile                       @183
+            _tmpnam                        @184
+            _tzset                         @185
+            _ungetc                        @186
+            _utime                         @187
+            _vfprintf                      @188
+            _vfscanf                       @189
+            _vprintf                       @190
+            _vscanf                        @191
+            ___write                       @192
+            __write                        @193
+            _write                         @194
+            __xfclose                      @195
+            __xfflush                      @196
+            __fsopen                       @197
+            __fmemccpy                     @198
+            __fmemchr                      @199
+            __fmemcmp                      @200
+            __fmemcpy                      @201
+            __fmemicmp                     @202
+            __fmemset                      @203
+            __fsetmem                      @204
+            __fmemmove                     @205
+            __fmovmem                      @206
+            __fstrcat                      @207
+            __fstrchr                      @208
+            __fstrcmp                      @209
+            __fstrcpy                      @210
+            __fstrcspn                     @211
+            __fstrdup                      @212
+            __fstricmp                     @213
+            __fstrlen                      @214
+            __fstrlwr                      @215
+            __fstrncat                     @216
+            __fstrncmp                     @217
+            __fstrncpy                     @218
+            __fstrnicmp                    @219
+            __fstrnset                     @220
+            __fstrpbrk                     @221
+            __fstrrchr                     @222
+            __fstrrev                      @223
+            __fstrset                      @224
+            __fstrspn                      @225
+            __fstrstr                      @226
+            __fstrtok                      @227
+            __fstrupr                      @228
+            __hqsort                       @229
+            @streambuf@0dbp$qv             @230 ; streambuf::dbp()
+            @fstreambase@0attach$qi        @231 ; fstreambase::attach(int)
+            @filebuf@0attach$qi            @232 ; filebuf::attach(int)
+            @filebuf@0close$qv             @233 ; filebuf::close()
+            @filebuf@0$bctr$qv             @234 ; filebuf::filebuf()
+            @filebuf@0$bctr$qi             @235 ; filebuf::filebuf(int)
+            @filebuf@0$bctr$qinzci         @236 ; filebuf::filebuf(int,char far*,int)
+            @filebuf@0$bdtr$qv             @237 ; filebuf::~filebuf()
+            @filebuf@0openprot             @238 ; filebuf::openprot
+            @filebuf@0overflow$qi          @239 ; filebuf::overflow(int)
+            @filebuf@0open$qnxzcii         @240 ; filebuf::open(const char far*,int,int)
+            @filebuf@0setbuf$qnzci         @241 ; filebuf::setbuf(char far*,int)
+            @filebuf@0seekoff$ql8seek_diri @242 ; filebuf::seekoff(long,seek_dir,int)
+            @filebuf@0sync$qv              @243 ; filebuf::sync()
+            @filebuf@0underflow$qv         @244 ; filebuf::underflow()
+            @fstreambase@0close$qv         @245 ; fstreambase::close()
+            @fstreambase@0$bctr$qv         @246 ; fstreambase::fstreambase()
+            @fstreambase@0$bctr$qnxzcii    @247 ; fstreambase::fstreambase(const char far*,int,int)
+            @fstreambase@0$bctr$qi         @248 ; fstreambase::fstreambase(int)
+            @fstreambase@0$bctr$qinzci     @249 ; fstreambase::fstreambase(int,char far*,int)
+            @fstreambase@0$bdtr$qv         @250 ; fstreambase::~fstreambase()
+            @fstreambase@0open$qnxzcii     @251 ; fstreambase::open(const char far*,int,int)
+            @fstreambase@0setbuf$qnzci     @252 ; fstreambase::setbuf(char far*,int)
+            @ifstream@0$bctr$qv            @253 ; ifstream::ifstream()
+            @ifstream@0$bctr$qnxzcii       @254 ; ifstream::ifstream(const char far*,int,int)
+            @ifstream@0$bctr$qi            @255 ; ifstream::ifstream(int)
+            @ifstream@0$bctr$qinzci        @256 ; ifstream::ifstream(int,char far*,int)
+            @ifstream@0$bdtr$qv            @257 ; ifstream::~ifstream()
+            @fstream@0$bctr$qv             @258 ; fstream::fstream()
+            @fstream@0$bctr$qnxzcii        @259 ; fstream::fstream(const char far*,int,int)
+            @fstream@0$bctr$qi             @260 ; fstream::fstream(int)
+            @fstream@0$bctr$qinzci         @261 ; fstream::fstream(int,char far*,int)
+            @fstream@0$bdtr$qv             @262 ; fstream::~fstream()
+            @strstream@0$bctr$qv           @263 ; strstream::strstream()
+            @strstream@0$bctr$qnzcii       @264 ; strstream::strstream(char far*,int,int)
+            @strstream@0$bdtr$qv           @265 ; strstream::~strstream()
+            @iostream_withassign@0$basg$qm3ios @266 ; iostream_withassign::operator =(ios far&)
+            @iostream_withassign@0$basg$qn9streambuf @267 ; iostream_withassign::operator =(streambuf far*)
+            @iostream@0$bctr$qn9streambuf  @268 ; iostream::iostream(streambuf far*)
+            @iostream@0$bctr$qv            @269 ; iostream::iostream()
+            @iostream_withassign@0$bctr$qv @270 ; iostream_withassign::iostream_withassign()
+            @iostream@0$bdtr$qv            @271 ; iostream::~iostream()
+            @iostream_withassign@0$bdtr$qv @272 ; iostream_withassign::~iostream_withassign()
+            @istrstream@0$bctr$qnzc        @273 ; istrstream::istrstream(char far*)
+            @istrstream@0$bctr$qnzci       @274 ; istrstream::istrstream(char far*,int)
+            @istrstream@0$bdtr$qv          @275 ; istrstream::~istrstream()
+            @istream_withassign@0$basg$qm7istream @276 ; istream_withassign::operator =(istream far&)
+            @istream_withassign@0$basg$qn9streambuf @277 ; istream_withassign::operator =(streambuf far*)
+            @istream@0$bctr$qv             @278 ; istream::istream()
+            @istream@0$bctr$qn9streambuf   @279 ; istream::istream(streambuf far*)
+            @istream@0$bctr$qn9streambufin7ostream @280 ; istream::istream(streambuf far*,int,ostream far*)
+            @istream_withassign@0$bctr$qv  @281 ; istream_withassign::istream_withassign()
+            @istream@0do_get$qv            @282 ; istream::do_get()
+            @istream@0ipfx$qi              @283 ; istream::ipfx(int)
+            @istream@0$bdtr$qv             @284 ; istream::~istream()
+            @istream_withassign@0$bdtr$qv  @285 ; istream_withassign::~istream_withassign()
+            @istream@0eatwhite$qv          @286 ; istream::eatwhite()
+            @istream@0$brsh$qn9streambuf   @287 ; istream::operator >>(streambuf far*)
+            @istream@0$brsh$qnzc           @288 ; istream::operator >>(char far*)
+            @istream@0$brsh$qmd            @289 ; istream::operator >>(double far&)
+            @istream@0$brsh$qmf            @290 ; istream::operator >>(float far&)
+            @istream@0$brsh$qmi            @291 ; istream::operator >>(int far&)
+            @istream@0$brsh$qmg            @292 ; istream::operator >>(long double far&)
+            @istream@0$brsh$qml            @293 ; istream::operator >>(long far&)
+            @istream@0$brsh$qmzc           @294 ; istream::operator >>(char far&)
+            @istream@0$brsh$qms            @295 ; istream::operator >>(short far&)
+            @istream@0$brsh$qmuc           @296 ; istream::operator >>(unsigned char far&)
+            @istream@0$brsh$qmui           @297 ; istream::operator >>(unsigned int far&)
+            @istream@0$brsh$qmul           @298 ; istream::operator >>(unsigned long far&)
+            @istream@0$brsh$qmus           @299 ; istream::operator >>(unsigned short far&)
+            @istream@0get$qm9streambufzc   @300 ; istream::get(streambuf far&,char)
+            @istream@0get$qv               @301 ; istream::get()
+            @istream@0getline$qnzcizc      @302 ; istream::getline(char far*,int,char)
+            @istream@0get$qmzc             @303 ; istream::get(char far&)
+            @istream@0get$qnzcizc          @304 ; istream::get(char far*,int,char)
+            @istream@0get$qmuc             @305 ; istream::get(unsigned char far&)
+            @istream@0ignore$qii           @306 ; istream::ignore(int,int)
+            @istream@0$brsh$qnqm3ios$m3ios @307 ; istream::operator >>(ios far&(far*)(ios far&))
+            @istream@0putback$qzc          @308 ; istream::putback(char)
+            @istream@0read$qnzci           @309 ; istream::read(char far*,int)
+            @istream@0seekg$ql8seek_dir    @310 ; istream::seekg(long,seek_dir)
+            @istream@0seekg$ql             @311 ; istream::seekg(long)
+            @istream@0tellg$qv             @312 ; istream::tellg()
+            @istream@0$bctr$qiin7ostream   @313 ; istream::istream(int,int,ostream far*)
+            @istream@0$bctr$qinzci         @314 ; istream::istream(int,char far*,int)
+            @resetiosflags$ql              @315 ; resetiosflags(long)
+            @setbase$qi                    @316 ; setbase(int)
+            @setiosflags$ql                @317 ; setiosflags(long)
+            @setw$qi                       @318 ; setw(int)
+            @setfill$qi                    @319 ; setfill(int)
+            @setprecision$qi               @320 ; setprecision(int)
+            @ofstream@0$bctr$qv            @321 ; ofstream::ofstream()
+            @ofstream@0$bctr$qnxzcii       @322 ; ofstream::ofstream(const char far*,int,int)
+            @ofstream@0$bctr$qi            @323 ; ofstream::ofstream(int)
+            @ofstream@0$bctr$qinzci        @324 ; ofstream::ofstream(int,char far*,int)
+            @ofstream@0$bdtr$qv            @325 ; ofstream::~ofstream()
+            @ostrstream@0$bctr$qnzcii      @326 ; ostrstream::ostrstream(char far*,int,int)
+            @ostrstream@0$bctr$qv          @327 ; ostrstream::ostrstream()
+            @ostrstream@0$bdtr$qv          @328 ; ostrstream::~ostrstream()
+            @ostream_withassign@0$basg$qm7ostream @329 ; ostream_withassign::operator =(ostream far&)
+            @ostream@0$blsh$qg             @330 ; ostream::operator <<(long double)
+            @ostream_withassign@0$basg$qn9streambuf @331 ; ostream_withassign::operator =(streambuf far*)
+            @ostream@0$bctr$qv             @332 ; ostream::ostream()
+            @ostream@0$bctr$qn9streambuf   @333 ; ostream::ostream(streambuf far*)
+            @ostream_withassign@0$bctr$qv  @334 ; ostream_withassign::ostream_withassign()
+            @ostream@0$bdtr$qv             @335 ; ostream::~ostream()
+            @ostream_withassign@0$bdtr$qv  @336 ; ostream_withassign::~ostream_withassign()
+            @ostream@0flush$qv             @337 ; ostream::flush()
+            @ostream@0$blsh$qn9streambuf   @338 ; ostream::operator <<(streambuf far*)
+            @ostream@0$blsh$qul            @339 ; ostream::operator <<(unsigned long)
+            @ostream@0$blsh$ql             @340 ; ostream::operator <<(long)
+            @ostream@0$blsh$qzc            @341 ; ostream::operator <<(char)
+            @ostream@0$blsh$qnqm3ios$m3ios @342 ; ostream::operator <<(ios far&(far*)(ios far&))
+            @ostream@0do_opfx$qv           @343 ; ostream::do_opfx()
+            @ostream@0do_osfx$qv           @344 ; ostream::do_osfx()
+            @ostream@0outstr$qnxzct1       @345 ; ostream::outstr(const char far*,const char far*)
+            @ostream@0$blsh$qnv            @346 ; ostream::operator <<(void far*)
+            @ostream@0seekp$ql8seek_dir    @347 ; ostream::seekp(long,seek_dir)
+            @ostream@0seekp$ql             @348 ; ostream::seekp(long)
+            @ostream@0tellp$qv             @349 ; ostream::tellp()
+            @ostream@0write$qnxzci         @350 ; ostream::write(const char far*,int)
+            @ostream@0$bctr$qinzc          @351 ; ostream::ostream(int,char far*)
+            @ostream@0$bctr$qi             @352 ; ostream::ostream(int)
+            @stdiobuf@0$bctr$qn4FILE       @353 ; stdiobuf::stdiobuf(FILE far*)
+            @stdiobuf@0$bdtr$qv            @354 ; stdiobuf::~stdiobuf()
+            @stdiobuf@0overflow$qi         @355 ; stdiobuf::overflow(int)
+            @stdiobuf@0pbackfail$qi        @356 ; stdiobuf::pbackfail(int)
+            @stdiobuf@0seekoff$ql8seek_diri @357 ; stdiobuf::seekoff(long,seek_dir,int)
+            @stdiobuf@0sync$qv             @358 ; stdiobuf::sync()
+            @stdiobuf@0underflow$qv        @359 ; stdiobuf::underflow()
+            @stdiostream@0$bctr$qn4FILE    @360 ; stdiostream::stdiostream(FILE far*)
+            @stdiostream@0$bdtr$qv         @361 ; stdiostream::~stdiostream()
+            @strstreambuf@0$bctr$qv        @362 ; strstreambuf::strstreambuf()
+            @strstreambuf@0$bctr$qnql$nvnqnv$v @363 ; strstreambuf::strstreambuf(void far*(far*)(long),void(far*)(void far*))
+            @strstreambuf@0$bctr$qi        @364 ; strstreambuf::strstreambuf(int)
+            @strstreambuf@0$bctr$qnzcit1   @365 ; strstreambuf::strstreambuf(char far*,int,char far*)
+            @strstreambuf@0$bctr$qnucit1   @366 ; strstreambuf::strstreambuf(unsigned char far*,int,unsigned char far*)
+            @strstreambuf@0doallocate$qv   @367 ; strstreambuf::doallocate()
+            @strstreambuf@0$bdtr$qv        @368 ; strstreambuf::~strstreambuf()
+            @strstreambuf@0freeze$qi       @369 ; strstreambuf::freeze(int)
+            @strstreambuf@0init$qnzcit1    @370 ; strstreambuf::init(char far*,int,char far*)
+            @strstreambuf@0overflow$qi     @371 ; strstreambuf::overflow(int)
+            @strstreambuf@0setbuf$qnzci    @372 ; strstreambuf::setbuf(char far*,int)
+            @strstreambuf@0seekoff$ql8seek_diri @373 ; strstreambuf::seekoff(long,seek_dir,int)
+            @strstreambuf@0str$qv          @374 ; strstreambuf::str()
+            @strstreambuf@0sync$qv         @375 ; strstreambuf::sync()
+            @strstreambuf@0underflow$qv    @376 ; strstreambuf::underflow()
+            @strstreambase@0$bctr$qnzcit1  @377 ; strstreambase::strstreambase(char far*,int,char far*)
+            @strstreambase@0$bctr$qv       @378 ; strstreambase::strstreambase()
+            @strstreambase@0$bdtr$qv       @379 ; strstreambase::~strstreambase()
+            @streambuf@0doallocate$qv      @380 ; streambuf::doallocate()
+            @streambuf@0$bctr$qv           @381 ; streambuf::streambuf()
+            @streambuf@0$bctr$qnzci        @382 ; streambuf::streambuf(char far*,int)
+            @streambuf@0do_snextc$qv       @383 ; streambuf::do_snextc()
+            @streambuf@0do_sgetn$qnzci     @384 ; streambuf::do_sgetn(char far*,int)
+            @streambuf@0do_sputn$qnxzci    @385 ; streambuf::do_sputn(const char far*,int)
+            @streambuf@0$bdtr$qv           @386 ; streambuf::~streambuf()
+            @streambuf@0overflow$qi        @387 ; streambuf::overflow(int)
+            @streambuf@0pbackfail$qi       @388 ; streambuf::pbackfail(int)
+            @streambuf@0setbuf$qnzci       @389 ; streambuf::setbuf(char far*,int)
+            @streambuf@0setb$qnzct1i       @390 ; streambuf::setb(char far*,char far*,int)
+            @streambuf@0setg$qnzct1t1      @391 ; streambuf::setg(char far*,char far*,char far*)
+            @streambuf@0setp$qnzct1        @392 ; streambuf::setp(char far*,char far*)
+            @streambuf@0sgetn$qnzci        @393 ; streambuf::sgetn(char far*,int)
+            @streambuf@0seekoff$ql8seek_diri @394 ; streambuf::seekoff(long,seek_dir,int)
+            @streambuf@0seekpos$qli        @395 ; streambuf::seekpos(long,int)
+            @streambuf@0sputn$qnxzci       @396 ; streambuf::sputn(const char far*,int)
+            @streambuf@0setbuf$qnzcii      @397 ; streambuf::setbuf(char far*,int,int)
+            @streambuf@0sync$qv            @398 ; streambuf::sync()
+            @ios@0bitalloc$qv              @399 ; ios::bitalloc()
+            @streambuf@0underflow$qv       @400 ; streambuf::underflow()
+            @ios@0clear$qi                 @401 ; ios::clear(int)
+            @ios@0$bctr$qv                 @402 ; ios::ios()
+            @ios@0$bctr$qn9streambuf       @403 ; ios::ios(streambuf far*)
+            @ios@0usercount                @404 ; ios::usercount
+            @ios@0nextbit                  @405 ; ios::nextbit
+            @ios@0stdioflush               @406 ; ios::stdioflush
+            @ios@0$bdtr$qv                 @407 ; ios::~ios()
+            @ios@0floatfield               @408 ; ios::floatfield
+            @ios@0adjustfield              @409 ; ios::adjustfield
+            @ios@0basefield                @410 ; ios::basefield
+            @ios@0flags$ql                 @411 ; ios::flags(long)
+            @ios@0init$qn9streambuf        @412 ; ios::init(streambuf far*)
+            @ios@0iword$qi                 @413 ; ios::iword(int)
+            @ios@0pword$qi                 @414 ; ios::pword(int)
+            @ios@0setf$ql                  @415 ; ios::setf(long)
+            @ios@0setf$qll                 @416 ; ios::setf(long,long)
+            @ios@0setstate$qi              @417 ; ios::setstate(int)
+            @ios@0skip$qi                  @418 ; ios::skip(int)
+            @ios@0sync_with_stdio$qv       @419 ; ios::sync_with_stdio()
+            @ios@0tie$qn7ostream           @420 ; ios::tie(ostream far*)
+            @ios@0unsetf$ql                @421 ; ios::unsetf(long)
+            @ios@0usersize$qi              @422 ; ios::usersize(int)
+            @ios@0xalloc$qv                @423 ; ios::xalloc()
+            __matherrl                     @424
+            ___matherrl                    @425
+            _pow10                         @426
+            _pow10l                        @427
+            _fmod                          @428
+            _floorl                        @429
+            _ldexp                         @430
+            _matherr                       @431
+            _fmodl                         @432
+            _atan2l                        @433
+            _poly                          @434
+            _sinl                          @435
+            _sqrtl                         @436
+            _cosl                          @437
+            _sqrt                          @438
+            _tanl                          @439
+            _powl                          @440
+            _ldexpl                        @441
+            _tanh                          @442
+            _tanhl                         @443
+            _coshl                         @444
+            _expl                          @445
+            _logl                          @446
+            _exp                           @447
+            _floor                         @448
+            _frexp                         @449
+            _hypot                         @450
+            _log10                         @451
+            _modf                          @452
+            _pow                           @453
+            _sin                           @454
+            _sinh                          @455
+            _tan                           @456
+            _log                           @457
+            __matherr                      @458
+            _cos                           @459
+            _ceil                          @460
+            _acos                          @461
+            _asin                          @462
+            _cosh                          @463
+            _atan2                         @464
+            _frexpl                        @465
+            _sinhl                         @466
+            _modfl                         @467
+            _log10l                        @468
+            _ceill                         @469
+            _acosl                         @470
+            _asinl                         @471
+            ___assertfail                  @472
+            __FpeHandler                   @473
+            _signal                        @474
+            _raise                         @475
+            __farreallocf                  @476
+            __farfreef                     @477
+            __farcallocf                   @478
+            __farmallocf                   @479
+            _fgetchar                      @480
+            @filebuf@0$bctr$qinuci         @481 ; filebuf::filebuf(int,unsigned char far*,int)
+            @ifstream@0$bctr$qnxucii       @482 ; ifstream::ifstream(const unsigned char far*,int,int)
+            @ifstream@0$bctr$qinuci        @483 ; ifstream::ifstream(int,unsigned char far*,int)
+            @fstream@0$bctr$qnxucii        @484 ; fstream::fstream(const unsigned char far*,int,int)
+            @fstream@0$bctr$qinuci         @485 ; fstream::fstream(int,unsigned char far*,int)
+            @ofstream@0$bctr$qnxucii       @486 ; ofstream::ofstream(const unsigned char far*,int,int)
+            @ofstream@0$bctr$qinuci        @487 ; ofstream::ofstream(int,unsigned char far*,int)
+            @istrstream@0$bctr$qnuc        @488 ; istrstream::istrstream(unsigned char far*)
+            @istrstream@0$bctr$qnuci       @489 ; istrstream::istrstream(unsigned char far*,int)
+            @ostrstream@0$bctr$qnucii      @490 ; ostrstream::ostrstream(unsigned char far*,int,int)
+

@@ -1,0 +1,117 @@
+/*------------------------------------------------------------------------
+ * filename - ctrl87.cas
+ *
+ * function(s)
+ *        _control87 - access floating-point control word
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+#pragma inline
+
+#include <float.h>
+#include <dos.h>
+#include "emuvars.h"
+
+/*---------------------------------------------------------------------*
+
+Name            _control87 - access floating-point control word
+
+Usage           unsigned int _control87(unsigned int new, unsigned int mask);
+
+Prototype in    float.h
+
+Description     This function is used to retrieve or change the floating-
+                point control word.
+
+                For every bit that is on in mask, the corresponding bit
+                in the floating-point control word is set to the value
+                of that bit in new.
+
+Return value    The new floating-point control word value is returned.
+
+Notes:
+The Denormal exception is always trapped on the 8087 and 80287, but
+never on the 80387.  The emulator never generates it.
+
+The Invalid exception is always trapped, as FPU stack overflows and
+underflows can sometimes be repaired transparently, but sometimes
+also cause nonrecoverable fatal errors.
+
+The return value should be what the user expects, as the processing
+of the Denormal and Invalid bits is done surreptitiously.
+
+Caution:
+The control word should not be changed directly, unless you wish
+to bypass the RTL trap handling.
+
+It is dangerous to unmask an exception unless the status bit is already
+clear.  To be safe, call _clear87() first.
+
+*---------------------------------------------------------------------*/
+
+unsigned int _control87(unsigned int new, unsigned int mask)
+{
+        volatile unsigned int Control;
+
+#ifndef _Windows
+#pragma warn -asm
+asm     emul
+#pragma warn .asm
+#endif
+
+asm     fstcw   Control
+        _AX = new;
+        _BX = mask;
+asm     and     ax, bx
+asm     not     bx
+asm     fwait
+        _DX = Control;
+asm     and     dx, bx
+
+#ifdef _Windows
+asm     or      ax, dx
+#else
+asm     or      dx, ax
+
+/* DX has what the user thinks he wants, but we don't give it to him */
+/* we store it in memory as a shadow mask instead */
+
+asm     mov     cl, dl
+asm     and     cl, 3Fh         /* remove reserved bits */
+asm     mov     byte ptr SS: _emu.control [0], cl
+
+asm     mov     ax, dx
+asm     cmp     byte ptr SS: _emu._8087, 0
+asm     jz      control
+
+#if     DeepStack
+        _AX = _DX & ~(EM_DENORMAL | EM_INVALID);
+#else
+        _AX = _DX & ~EM_DENORMAL;
+#endif
+
+/* if using a 80387, mask denormal exceptions */
+asm     cmp     byte ptr SS: _emu._8087, 3
+asm     jl      control
+asm     or      al, EM_DENORMAL
+
+#endif
+
+control:
+        Control = _AX;
+asm     fldcw   Control
+
+#if !defined(_Windows)
+/* tell the user we did what he asked */
+/* what he doesn't know won't hurt him */
+asm     xchg    ax, dx
+#endif
+        return _AX;
+}

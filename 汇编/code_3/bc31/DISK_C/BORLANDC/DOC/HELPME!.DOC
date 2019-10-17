@@ -1,0 +1,1279 @@
+              Borland C++: ANSWERS TO COMMON QUESTIONS
+
+
+ G e t t i n g     S t a r t e d
+ ----------------------------------------------------------------------
+ Q. How do I install Borland C++?
+ A. Run the INSTALL program from DISK 1. To start the installation, change
+    your current drive to the one that has the install program on it and
+    type INSTALL. You will be given instructions in a box at the bottom of
+    the screen for each prompt. For example, if you will be installing from
+    drive A:, type:
+
+       A:
+       INSTALL
+
+    At this point, the INSTALL program will appear with menu selections
+    and descriptions to guide you through the installation process.
+
+ Q. How do I run Borland C++?
+ A. After you have installed Borland C++, be sure to add the path to
+    the 'BIN' subdirectory of your BC++ installation (e.g., C:\BORLANDC\BIN)
+    to your DOS path. Now you can type "BC" at the DOS prompt and from any
+    directory and you're ready to go.
+
+ Q. What is a configuration file?
+ A. A configuration file tells Borland C++ what options to default to
+    and where to look for its library and header files. BC.EXE and
+    BCW.EXE both look for a configuration file named TCCONFIG.TC, and
+    BCC.EXE looks for a file named TURBOC.CFG.
+
+ Q. How do I create a configuration file?
+ A. When you run the INSTALL program it creates a configuration
+    file named TURBOC.CFG for BCC.EXE. This file is just an
+    ASCII file, which you can change with any text editor. It
+    contains the path information for the library and header
+    files for BCC.EXE to use. The INSTALL program does not
+    create a TCCONFIG.TC file for BC.EXE and BCW.EXE because it
+    installs the directory information directly into BC.EXE. You
+    can create a configuration file for the IDEs by running BC.EXE,
+    setting your options however you want to set them, and typing
+    Alt-O/S.
+
+ C o m m o n   C + +   Q u e s t i o n s
+ ----------------------------------------------------------
+
+ Q. When linking C or Assembly language modules with C++ modules I get
+    undefined symbol errors at link time.  It appears that none of the C
+    or Assembly public symbols can be found.
+ A. C++ is a strongly typed language.  In order to support the language
+    to its fullest, Borland C++ must attach information to the symbols
+    generated for function names and variables.  When this is done, the
+    symbol will no longer match the standard C style function name.  In
+    order to link correctly, the compiler must be notified that the symbol
+    is declared in an external module without type information tacked on
+    to the symbol.  This is done by prototyping the function as type
+    extern "C".   Here is a quick example:
+       extern "C" int normal_c_func( float, int, char );  // name not altered
+       void cplusplus_function( int );  // name altered
+    See related comments under Linker Errors and in the Paradox Engine
+    question in this section. There is also more on extern "C" in the
+    Borland C++ Programmer's Guide, Chapter 1.
+
+ Q. Classes with static data members are getting linker errors ("undefined").
+ A. This code is built into Turbo C++ 1.0 but not in Borland C++ 2.0, 3.0,
+    or 3.1. In the 1.0 compiler, static members without definitions were given
+    a default value of 0.  This default definition will no longer be made in
+    the compiler.  The programmer must now give an explicit definition for each
+    static member.  Here is a quick example:
+       class A
+       {
+	  static int i;
+       };
+    A linker error saying that A::i is not defined will result unless the
+    source also contains a line such as:
+       int A::i = 1; //i needs to defined but not necessarily initialized
+
+    In the case of a template class, you need to similarly define static
+    data outside the class definition, and also include the actual type
+    information for any type you plan to instantiate the template class
+    with. For example:
+       template <class T>
+       class A
+       {
+          static int i;
+       };
+       A<int>::i;  //provide definition for an integer type
+       A<Myclass>::i; //provide definition for a user-defined type
+
+ Q. What potential problems can arise from typecasting a base class pointer
+    into a derived class pointer so that the derived class's member functions
+    can be called?
+ A. Syntactically this is allowable. There is always the possibility of
+    a base pointer actually pointing to a base class. If this is
+    typecast to a derived type, the function being called may not exist
+    in the base class. Therefore, you would be grabbing the address of
+    a function that does not exist.
+
+ Q: What's the difference between the keywords STRUCT and CLASS?
+ A: The members of a STRUCT are PUBLIC by default, while in CLASS,
+    they default to PRIVATE. They are otherwise functionally equivalent.
+
+ Q: I have declared a derived class from a base class, but I can't access any
+    of the base class members with the derived class function.
+ A: Derived classes DO NOT get access to private members of a base class.
+    In order to access members of a base class, the base class members must
+    be declared as either public or protected. If they are public, then
+    any portion of the program can access them. If they are protected, they
+    are accessible by the class members, friends, and any derived classes.
+
+ Q: How can I use the Paradox Engine 1.0 with C++?,
+ A: Because the Paradox Engine functions are all compiled as C functions,
+    you will have to assure that the names of the functions do not get
+    "mangled" by the C++ compiler. To do this you need to prototype the
+    Engine functions as extern "C". (Name mangling and the use of extern "C"
+    are both described in detail in the Borland C++ Programmer's Guide.)
+    In the pxengine.h header file insert the following code at the lines
+    indicated.
+
+       /* inserted at line # 268 */
+       #ifdef __cplusplus
+       extern "C" {
+       #endif
+
+       /* inserted at line # 732, just before the final #endif */
+       #ifdef __cplusplus
+       }
+       #endif
+
+    Paradox Engine version 2.0 is "aware" of C++ and thus does not require
+    any modifications to its header file.
+
+ Q: I have a class that is derived from three base classes. Can I insure that
+    one base class constructor will be called before all other constructors?
+ A: If you declare the base class as a virtual base class, its constructor
+    will be called before any non-virtual base class constructors. Otherwise
+    the constructors are called in left-to-right order on the declaration
+    line for the class.
+   
+ Q: Are the standard library I/O functions still available for use with
+    the C++ iostreams library?
+ A: Yes, using
+
+       #include <stdio.h>
+
+    functions such as printf() and scanf() will continue to be
+    available. However, using them in conjunction with stream oriented
+    functions can lead to unpredictable behaviour.
+
+ Q: When debugging my program in Turbo Debugger, I notice that none of my
+    inline functions are expanded inline. Instead, they are all done as
+    function calls.
+ A: Whenever you compile your program with debugging information included,
+    no functions are expanded inline. To verify that your inline functions
+    are indeed expanding inline, compile a module with the -S flag of the
+    command-line compiler, then examine the .ASM file that is generated.
+
+ Q. In C++, given two variables of the same name, one local and one global,
+    how do I access the global instance within the local scope?
+ A. Use the scope (::) operator. For example:
+
+       int x = 10;
+       for(int x=0; x < ::x; x++)
+       {
+           cout << "Loop # " << x << "\n"; // This will loop 10 times
+       }
+
+ Q. Will the following two functions be overloaded by the compiler, or
+    will the compiler flag it as an error? Why?
+        void test( int x, double y); and  int test( int a, double b);
+ A. The compiler will flag this as a redeclaration error because
+    neither return types nor argument names are considered when determining
+    unique signatures for overloading functions. Only number and type
+    of arguments are considered.
+
+ Q. If I pass a character to a function which only accepts an int,
+    what will the compiler do? Will it flag it as an error?
+ A. No. The compiler will promote the char to an int and use the integer
+    representation in the function instead of the character itself. The
+    exception here is in the case of a template function, where no implicit
+    conversions or promotions take place.
+
+ Q. I was trying to allocate an array of function pointers using the new
+    operator but I keep getting declaration syntax errors using the following
+    syntax:  new int(*[10])();   What's wrong?
+ A. The new operator is a unary operator and binds first to the int keyword
+    producing the following:  (new int) (*[10])();
+    You need to put parentheses around the expression to produce the
+    expected results:  new (int (*[10]()); //array of function pointers
+
+ Q. What are inline functions? What are their advantages? How are they
+    declared?
+ A. An inline function is a function which gets textually inserted by
+    the compiler, much like macros. The advantage is that execution time
+    is shortened because linker overhead is minimized. They are declared
+    by using the inline keyword when the function is declared:
+
+       inline void func(void) { cout << "printing inline function \n"; }
+
+    or by including the function declaration and code body within a class:
+
+       class test
+       {
+       public:
+       void func(void) { cout << "inline function within a class.\n"}
+       };
+
+ Q. If I don't specify either public or private sections in a class,
+    what is the default?
+ A. In a class, all members are private by default if neither public nor
+    private sections are declared.
+
+ Q. If I don't specifiy either the public or private keyword when
+    inheriting from a base class, what is the default?
+ A. In Borland C++ 2.0, the default is public inheritance, but in versions
+    3.0 and 3.1, the default is private inheritance.
+
+ Q. What does the _seg modifier do?
+ A. Using _seg causes a pointer to become a storage place for a
+    segment value, rather than an offset ( or a segment/offset ).
+    For instance, if "int _seg *x" contains the value 0x40,
+    then when you use "*x", the value pointed to will be at
+    segment 0x40, offset 0. If you add a value to the pointer,
+    the value is multiplied by the size of the pointer type. That
+    new value is used as an offset, and is combined with the segment
+    value contained in the pointer. For instance,
+
+       int _seg *x;
+       int value;
+
+       x = (int _seg *)0x40;
+       value = *(x + 20);
+
+    value is assigned the value of the integer at 0x40:0x28
+    (Remember, 20 * sizeof(int) = 40 = 0x28).
+
+    You can find a more detailed description of _seg in the Borland C++
+    Programmer's Guide, Chapter 9.
+
+ Q. Can I statically allocate more than 64K of data in a single module?
+ A. Yes. Far data items are now supported:
+
+       ...
+       char far array1[60000L];
+       char far array2[60000L];
+       ...
+
+    For arrays larger than 64k use:
+
+       char huge array3[100000L];
+
+ Q. What is a friend member function?
+ A. Declaring a friend gives non-members of a class access to the
+    non-public members of a class.
+
+ Q. Why do I get a "Type name expected" error on my definition of a
+    friend class in my new class?
+ A. You need to let the compiler know that the label you use for your
+    friend class is another class. If you do not want to define your
+    entire class, you can simply have "class xxx", where xxx is your
+    label. For example:
+
+    class Boo; //forward class declaration is required
+
+    class Foo{
+          friend class Boo;
+          ...
+    };
+
+ Q: How can I output hex values in upper case using the iostream libraries?
+ A: You need to set the state of the stream using setf(). For example,
+
+       #include <iostream.h>
+
+       int main(void)
+       {
+          cout << hex;
+          cout << "\nNot upper-case : " << 255;
+          cout.setf(ios::upper-case);
+          cout << "\nUppercase     : " << 255;
+          return 0;
+        }
+
+ Q. What is the "this" pointer?
+ A. "this" is a local variable in the body of a non-static member function.
+    It is a pointer to the object for which the function was invoked. It
+    cannot be used outside of a class member function body.
+
+ Q. Why does a binary member function only accept a single argument?
+ A. The first argument is defined implicitly.
+
+ Q. Looking through the class libraries there are definitions in classes
+    which look like:
+       class test {
+           int funct( void ) const;
+       };
+    What is the const keyword doing here?
+ A. There is a pointer to the object for which a function is called
+    known as the 'this' pointer.  By default the type of 'this'
+    is  X *const ( a constant pointer).  The const keyword changes the
+    type to const X *const ( a constant pointer to constant data ).
+
+ Q: I want to use _new_handler and set_new_handler.
+ A: Borland C++ supports _new_handler and set_new_handler.
+    You can find a discussion of them in Chapter 3 of the Borland C++
+    Programmer's Guide. The type of _new_handler is as follows.
+        typedef void (*vfp)(void);
+        vfp _new_handler;
+        vfp set_new_handler( vfp );
+
+ Q: I would like to use C++ fstreams on a file opened in binary mode,
+    how is this done?
+ A: Use ios::binary as the open mode for the file:
+        #include <fstream.h>
+        ifstream binfile;
+        binfile.open("myfile.bin", ios::binary);
+
+ Q: How can I get at the DOS file handle associated with my iostream?
+ A: Using a combination of member functions fd() and rdbuf() you can
+    get at the file handle.
+        #include <fstream.h>
+        #define fstrno(s)  (((s).rdbuf())->fd())
+        ifstream test("test.txt");
+        cout << "handle is " << fstrno(test) << '\n';
+
+ Q: How can I increase the number of FILES available to my program under
+    Borland C++ 3.1?
+ A: Increasing the number of available files involves changing the
+    following 3 files located in the Run-Time Library: _NFILE.H,
+    FILES.C, and FILES2.C. For instructions on how to do this, download
+    TI870 from the Borland fax line.
+
+ Q: When using the BIDS library, if I try to create an Array or Bag of
+    integers, I get the error "multiple declaration for detach()...".
+ A: If you try to create a BI_ArrayAsVector<int>, BI_SArrayAsVector<int>,
+    or BI_BagAsVector<unsigned>, the compiler will yield an error message.
+    This is because each of these templates provides a version of detach()
+    that takes an argument whose type is the type for which the template is
+    being instantiated, plus a version that takes an argument of type int or
+    unsigned int, which lets you specify the index for the item to be detached.
+    Therefore, when instantiated with an integer, these two versions have
+    the same signature, which is what causes the error. Integer types are
+    not allowed here due to resulting ambiguity between the type and the
+    index of the Bag or Array.
+
+ Q: How do I get DPMI programs like BC++ 3.0 and 3.1 to run in a DOS 
+    session under OS/2 2.0?
+ A: The DPMI programs within BC++ 3.0 and 3.1 can be run under
+    OS/2 2.0 in a DOS (MVDM) session if the DPMI_DOS_API flag is enabled.
+    To set this, pull up the menu for the DOS icon with the right mouse
+    button, then mouse click on the arrow button appearing to the right
+    of the OPEN menu choice.  Choose SETTINGS from the resulting menu,
+    then go to the SESSION tab of the notebook and click on the DOS
+    SETTINGS button. Highlight DPMI_DOS_API in the listbox. Finally, make
+    sure ENABLED is chosen in the upper right pulldown listbox, and save.
+
+ Q: How come the bioscom() function does not work on my computer?
+
+ A: bioscom() uses DOS interrupt 0x14 directly, and thus bioscom()'s
+    functionality is tied directly to the BIOS of your computer.  MS-DOS
+    support for the serial communications port may be inadequate in several
+    respects for high-performance serial I/O applications.  First, MS-DOS
+    provides no portable way to test for the existence or status of a
+    particular serial port in a system.  If a program "opens" COM2 and
+    writes data to it, and the physical COM2 adapter is not present in the
+    system, the program may simply hang.  Similarly, if the serial port
+    exists, but no character has been received and the program attempts to
+    read a character, the program will hang until one is available.  There
+    is no traditional function call to check if a character is waiting.
+    MS-DOS also provides no portable method to initialize the communication
+    adapter to a particular baud rate, word length, and parity.  An
+    application must resort to ROM BIOS calls, manipulate the hardware
+    directly, or rely on the user to configure the port properly with the
+    MODE command before running the application that uses it.  Because of
+    all the problems mentioned above, we strongly recommend getting a third
+    party communications package when attempting to do serial communications,
+    or downloading the example program SERIAL.ZIP from our BBS at (408)
+    439-9096.
+
+
+ C o m m o n    W i n d o w s   Q u e s t i o n s
+ ----------------------------------------------------------------------
+ Q. Why isn't my DLL working correctly?
+ A. One possibility is that you are not linking in the correct 'cw'
+    library.  If you are building a small model DLL, you should be using
+    cwc, not cws.  If you are building a medium model DLL, you should
+    be using cwl, not cwm.  Compact and large models should use cwc
+    and cwl respectively.
+
+ Q. I have a project that works fine using Borland C++ 2.0. When I use
+    Borland C++ 3.1, the linker cannot find my cwinX.lib file, where X
+    corresponds to the memory model I am using. What's wrong?
+ A. Borland C++ 3.1 uses different library names than Borland C++ 2.0.
+    Instead of cwinX.lib, use cwX.lib in your project files, when using
+    Borland C++ 3.1.
+
+ Q. Why isn't my program working correctly?  I'm getting a message box from
+    Windows saying "Unrecoverable Application Error".
+ A. One possible answer is that the program was not built correctly.
+    For example, the linker did not get the correct information to export
+    functions.  Diagnostic messages from the linker could indicate this.
+    To check that you have built your program on DLL as expected, review
+    the section in Chapter 8 of the Programmer's Guide that deals with 
+    exports. This section has a table with 8 columns describing the possible
+    combinations you might have used to build your program.  If the setup
+    of your program corresponds to one of the last three columns, chances
+    are that your program was not built correctly ( or, at least, as you
+    intended ). Column 5 corresponds to the 'classical' method of building
+    Windows programs (that is, all exports are declared in the module
+    definition file (the .def file )).
+
+    The columns that use -WE or -WDE will build 'better' code in sense that
+    the compiler will not make 'exportable' any functions that it does not
+    actually export.  However, it is here that many people will run into
+    problems.  If you have any functions declared as exports in the .def
+    file but the module is compiled with -WE or -WDE, then you probably
+    have built the program incorrectly (the function will be exported only
+    if it is preceded by _export in the source code).
+
+ Q. How do I use the _export key word?
+ A. Put the "_export" immediately before the function name in the function
+    declaration to export that function.
+    Here is a quick example:
+       long FAR PASCAL _export func(void) {...}
+
+ Q. I tried to run <filename>.EXE under Windows 3.0. A window popped up
+    titled 'Application Compatibility Warning', and said,
+       'The application you are about to run... '.
+ A. You did not run the resource compiler, i.e.,
+       C:> RC <filename>.RC
+    at the command line at the time you created this program.  If you plan
+    to create a menu with menuitems in your window, you will need to create
+    an RC file.  If your program has menus and is a simple window that does
+    not need an RC file, run the resource compiler with <filename>.EXE.
+
+ Q. I ran the resource compiler and got the error message:
+       RC: fatal error RW1010: Could not open <filename>.RC
+ A. You do not have an RC file created for <filename>. If you do not need
+    an RC file for this particular application, run the resource compiler
+    with <filename>.EXE.  This will create an application that will be able
+    to run on Windows 3.0.
+
+ Q. I run BCC.EXE and then RC.EXE and get the error message:
+       RC: warning RW4002: Non-discardable segment # set to PRELOAD
+ A. If # equals 1, then you forgot the CODE PRELOAD statement in your
+    <filename>.DEF file.  If # equals 2, then you forgot the DATA PRELOAD
+    statement in your <filename>.DEF file.  If two of these warnings occur,
+    you have either forgotten both CODE and DATA statements or have not
+    created a <filename>.DEF file.
+
+ Q. I run RC.EXE and get the error message:
+       RC: fatal error RW1030: <filename>.EXE: Unable to open
+ A. You need to list more information after the CODE statement in your
+    <filename>.DEF file (that is, CODE PRELOAD).
+
+ Q. I run BCC.EXE and get the error message:
+       Fatal: <filename>.def (<line #>): syntax error
+ A. Check your DATA statement on line number # in <filename>.DEF for the
+    correct code (that is, DATA PRELOAD).
+
+ Q. I run the Borland C++ IDE directly from Windows, rather than from the
+    DOS command line.  It does not get a DOS path and cannot find the
+    resource compiler RC, as that transfer item does not have an explicit
+    path listed.
+ A. Either run from a DOS shell (i.e., start DOS, then start Borland C++) or
+    modify the path for the transfer item so it explicitly knows where RC.EXE
+    lives.
+ 
+ Q. What is new in Windows 3.1 programming?
+ A. The file WIN31.DOC, found in the DOC directory, describes new
+    techniques for writing Windows 3.1 applications as well as how to
+    convert Windows 3.0 code to Windows 3.1 code.  There is also a lot of
+    very useful documentation in the online Help files.  New functions and 
+    messages, OLE, DDEML, Common Dialogs, TOOLHELP and many more topics 
+    are covered in the new online Help files.
+
+
+ Q. If I use the new compiler, will my application remain compatible with
+    Windows 3.0?
+ A. The file WIN31.DOC, found in the DOC directory discusses how to
+    maintain compatibility with Windows 3.0.
+
+ Q. What are WIN30, WIN31, and STRICT?  Why do I get error messages about
+    them when I compile?
+ A. The symbols WIN30, WIN31, and STRICT are new to Windows 3.1.  They are
+    used to control what is defined in the WINDOWS.H header file.  The
+    file WIN31.DOC, found in the DOC directory, has additional
+    information on these symbols.
+
+    The WIN30 and WIN31 symbols help define the version of Windows that
+    your application expects to run under.  The STRICT symbol is used to
+    enforce stricter data types, which is especially helpful when writing
+    C++ code.  When STRICT is defined, WIN31 must also be defined.  To
+    make your OWL code strict compliant you will need to change some data
+    types, such as the hInstance arguments to WinMain() and the
+    TApplication constructor. For example,
+
+    int WinMain( HANDLE, HANDLE, LPSTR, int );           // Non STRICT style
+    int WinMain( HINSTANCE, HINSTANCE, LPSTR, int );     // STRICT style
+
+    To define WIN30, WIN31, or STRICT you can declare them either in your
+    code:
+
+        #define WIN31
+        #define STRICT
+
+    at the command line:
+
+        -DWIN31 -DSTRICT
+
+    or in the IDE (via OPTIONS|COMPILER|CODE GENERATION|DEFINES):
+
+        WIN31;STRICT
+
+    Note that WIN30 and WIN31 are only meaningful for OWL applications.
+    STRICT can be used with and without OWL.
+
+ Q. Why do I get a 'suspicious pointer conversion' warning or 'cannot
+    convert' error (in C++ code) when I try to use the address of my
+    window procedure or call back function?
+ A. Windows 3.1 has introduced a new type, WNDPROC, which takes the place
+    of the FARPROC type in some cases, such as the data type of the
+    lpfnWndProc member of the WNDCLASS structure.  If you are getting a
+    warning or error when setting up a WNDCLASS structure that will be
+    passed to RegisterClass(), use a WNDPROC cast to resolve the type
+    mismatch.  If you were previously using a FARPROC cast, simply change
+    it to a WNDCLASS cast. For example,
+
+    void FAR PASCAL f( void );
+    WNDCLASS wcTemp;
+    wcTemp.lpfnWndProc = f;              // Warning in C or error in C++
+    wcTemp.lpfnWndProc = (FARPROC)f;     // Windows 3.0 style type cast
+    wcTemp.lpfnWndProc = (WNDPROC)f;     // Windows 3.1 style type cast
+
+ Q. How can I use the new features of Windows 3.1 in my applications?
+ A. There are a number of examples that shipped with the new compiler
+    that use the new features of Windows 3.1, such as OLE, DDEML and
+    Common Dialogs.  There are also lengthy descriptions of programming
+    techniques for the new features of Windows 3.1 in the online Help
+    files.
+
+ Q. Why don't some of the new Windows 3.1 API functions, such as
+    ChooseColor(), do anything when I call them?
+ A. The new Windows 3.1 functions that are passed structures as parameters
+    require that the size field of the structure be initialized to the size
+    of the structure.  This technique allows for backward compatability in
+    future versions of these functions.  If the size field is not set
+    correctly the function will not do anything. For example,
+
+    CHOOSECOLOR ccTemp;                          // Data structure
+    ccTemp.lStructSize = sizeof( ccTemp );       // Set the size first!
+    if( ChooseColor( &ccTemp ) != 0 ) etc . . .  // Then call the function
+
+ Q. Why is my DDEML application crashing?
+ A. DDEML can crash in seemingly random ways if the conversation handle
+    or application instance identifier is incorrect or corrupted.   Use
+    TDW to watch the value of the conversation handle and the application
+    instance identifier.  If it changes, is corrupted, or you
+    inadvertently pass the DDE Management Library an invalid value, that
+    particular call may not fail but DDEML may become unstable and crash
+    at some time in the future.  Also note that before DdeInitialize() is
+    called for the first time, the application instance identifier
+    argument MUST be set to 0.
+
+
+ I n t e g r a t e d    E n v i r o n m e n t
+ ----------------------------------------------------------------------
+ Q: Why doesn't my mouse work well with Borland C++?
+ A: The most likely cause is that you are using an older mouse driver. 
+    You'll need to get a newer version.  Driver versions required for 
+    full compatibility include:
+        Logitech driver 5.01+, Microsoft 7.04+, Genius 9.06+.
+
+
+ Q. Why is Borland C++ not able to find any of my #include files?
+ A. The compiler searches for include files in the Borland C++ Include
+    Directories path. You can specify this path through the
+    Options|Directories menu. The INSTALL program initially sets this
+    path to the directory where it copied all the Borland C++ *.h files.
+
+ Q. Why do I get the message:
+       Linker Error: Unable to open input file 'C0x.OBJ'
+ A. The linker searches for Borland C++ start-up and library files in the
+    Borland C++ Library Directories path. You can specify this path through
+    the Options|Directories menu. The INSTALL program initially sets this
+    path to the directory where it copied the start-up and library files.
+    Also be sure that you installed the memory model that the linker
+    is looking for. The 'x' in the error message corresponds to the memory
+    model, e.g. 's' for small, 'l' for large, etc.
+
+ Q. How do I get Borland C++ to link in my own libraries or use multiple
+    source files?
+ A. Borland C++'s Project Manager is designed to allow you to work with
+    multiple files.
+
+ Q. Why does the linker tell me that all the graphics library routines
+    are undefined?
+ A. The Options|Linker|Libraries|Graphics Library item must be set ON
+    if you are using any Borland C++ graphics functions and have not
+    specified GRAPHICS.LIB in a project file.
+
+ Q. Why does Borland C++ report "Unable to open include file 'stdarg.h'"
+    when I try to #include <stdio.h>?
+ A. The most probable reason is that you have exceeded the number
+    of files that DOS can have open simultaneously. Add the line
+
+       FILES=20
+
+    to your DOS CONFIG.SYS file. This allows DOS to open up to 20
+    files at the same time. CONFIG.SYS will only be effective after
+    you have rebooted your computer. See the IBM DOS Reference
+    Manual for details on the CONFIG.SYS file.
+
+ Q. I run BC.EXE directly from Windows, rather than from the
+    DOS command line.  It does not get a DOS path and cannot find the
+    resource compiler RC, as that transfer item does not have an explicit
+    path listed.
+ A. Either run from a DOS shell (i.e., start DOS, then start Borland C++)
+    or modify the path for the transfer item so it explicitly knows where
+    RC.EXE lives.
+
+ Q. Where is the BCINST.EXE utility I have used in previous versions
+    of the compiler?
+ A. The capabilities of BCINST have been incorporated into other areas
+    of the product and thus BCINST is no longer necessary.  To remap
+    key bindings, use the Turbo Editor Macro Compiler (TEMC).  Colors
+    can be changed from within the IDE under Options | Environment | Colors.
+
+ Q. When I Make, Run, or Trace a program, Borland C++ sometimes goes
+    through the compile and link process even when the object files
+    are up-to-date.
+ A. Borland C++'s MAKE logic works solely on a file's date and time
+    stamp. If one of your source files is marked with a date
+    that's sometime in the future, the object files that are
+    created from it will always be older than the source file,
+    and Borland C++ will always try to rebuild the file. You can fix
+    this by using TOUCH.COM to set the file to the current date
+    and time. You should also make sure that your system's date
+    and time are always properly set. TOUCH.COM is documented in
+    the file UTIL.DOC.
+
+ Q. How come my old Turbo C project files don't work anymore?
+ A. Project files now contain much more information about a project now,
+    and hence are no longer stored in ASCII format. To create a project
+    file, select PROJECT from the main menu, and follow the menus. To
+    convert your old project files to the new format, use the supplied
+    utility file PRJCNVT.EXE (documented in UTIL.DOC).
+
+ Q. How can I convert my Turbo C 2.0 project files to the new
+    format?
+ A. There is a conversion utility in your Borland C++ BIN directory
+    called PRJCNVT.EXE. This program will perform the conversion.
+
+ Q. How come my project file is automatically loaded when I start Borland C++?
+    I want to work on a different program.
+ A. If there is only one project file in the current directory, Borland C++
+    will load and use that one file. If there are no project files, or
+    if there are multiple project files, Borland C++ does not automatically
+    load one. Go ahead and create a new project. To use a specific project
+    file, you can specify the name of that project file on the command
+    line used to start Borland C++. For example, 'bc farley.prj' would
+    start up BC++ and load the 'farley' project.
+
+ Q. My right mouse button appears to do nothing. Can I change this so it
+    will set breakpoints?
+ A. Yes, under the menu for Options|Environment|Mouse there is a
+    dialog box for the right mouse button. You can change it to set
+    breakpoints, or to do many other things.
+
+ Q. How can I find out where my "null pointer assignment" is occurring?
+ A. Set a watch on the following expressions:
+
+            *(char *)0,4m
+            (char *)4
+
+    Step through the program. When the values change, the just-executed line
+    is the one that is causing the problem.
+
+ Q. When I compile my program, I get the following error:
+
+       Error: C:\BORLANDC\INCLUDE\STDIO.H: Overlays only supported in
+       medium, large, and huge memory models
+
+    What is happening?
+ A. The Overlay Support option has been selected and does not work
+    in the tiny, small, or compact memory models. You can turn this option
+    off with:
+      Options | Compiler | Code Generation | Overlay Support
+
+    Also note that overlays are not supported under Windows.
+   
+ Q. When I try to load a new file after editing a file, the first
+    file remains on the screen. How do I close the first file?
+ A. Use Alt-F3 (or Ctrl-F4) to close the current file. Also, use 
+    F6 to move from one file to the next, if there is more than 
+    one file open at a time.
+
+ Q. I'm doing a search and replace operation, and the editor prompts me for
+    each replacement. I've selected "Change All", but it still does it.
+ A. To disable the prompting, you must unselect the "Prompt on replace"
+    option on the left side of the dialog box.
+
+ Q. When I try to use the any of the pseudo registers, like _AX, I
+    get the error message "Undefined symbol '_AX' in function..."
+    when I compile. Why?
+ A. You are only allowed to use the pseudo registers in the Borland
+    C++ and ANSI modes of the compiler. You can change this setting
+    in the Options | Compiler | Source menu.
+
+ Q. Since I don't have a mouse, can I still copy blocks of code
+    from one file to another?
+ A. Yes. You can mark the beginning and end of a block by moving
+    to the appropriate area and pressing Ctrl-K-B (mark beginning) and
+    Ctrl-K-K (mark end). You can then use the copy and paste commands
+    in the Edit menu.
+
+ Q: How do I stop all of the files I have ever edited from constantly
+    being open when I bring up Borland C++?
+ A: By default, Borland C++ saves what is called the desktop configuration.
+    This configuration is saved in a file with a .DSK extension.  By deleting
+    any files of this type (usually located in the current directory and/or
+    the BORLANDC\BIN directory), then entering Options/Environment/Preferences
+    and removing the check from 'auto save desktop', you will begin with a
+    clean desktop each time you invoke Borland C++.
+
+ Q: How do I view 32-bit registers when I compile my code with Options|
+    Compiler|Advanced Code Generation|Instruction Set|80386 set?
+ A: Add the appropriate 32-bit register psuedovariable to the Watch 
+    window. For example, if you were interested in the value of EAX,
+    you'd add _EAX to the Watch window.
+
+ C o m m a n d  -  L i n e    C o m p i l e r
+ ----------------------------------------------------------------------
+ Q. Why is Borland C++ not able to find any of my #include files?
+ A. The compiler searches for include files in the Borland C++ Include
+    Directories path. You specify this path with the -I option. The INSTALL
+    program initially writes a configuration file (TURBOC.CFG) that
+    sets this path to the directory where it copied all the Borland C++
+    *.h files. You may edit this file to change the default path, or create
+    this file in your current working directory and place any relevant paths
+    and other command line compiler options in it. A sample turboc.cfg file
+    may contain the following:
+       -ml
+       -IC:\BC31\INCLUDE;C:\BC31\CLASSLIB\INCLUDE
+       -LC:\BC31\LIB;C:\BC31\CLASSLIB\LIB
+
+ Q. Why do I get the message:
+       Linker Error: Unable to open input file 'C0x.OBJ'
+ A. The linker searches for Borland C++ start-up and library files in the
+    Borland C++ Library Directories path. You can specify this path with
+    the -L option. If you allow BCC to invoke the linker, it will search
+    the directories in the configuration file (TURBOC.CFG) written by the
+    INSTALL program (see above). If you run TLINK, the configuration file
+    is not read. TLINK does use the configuration file TLINK.CFG, so you can
+    specify library paths in this file.
+
+ Q. Why does the linker tell me that all the graphics library routines are
+    undefined?
+ A. BCC will not search the graphics library unless you tell it to.
+    You should specify the graphics library on the command line. For
+    example, to compile BGIDEMO, type
+
+       BCC BGIDEMO.C GRAPHICS.LIB<Enter>
+
+ Q. I run BCC.EXE and get the error message:
+       Fatal: <filename>.def (<line #>): syntax error
+ A. Check your DATA statement on line number # in <filename>.def for the
+    correct code (that is, DATA PRELOAD).
+
+
+ G e n e r a l     I / O
+ ----------------------------------------------------------------------
+ Q. The '\n' in cprintf() does not return the cursor to the
+    beginning of the line. It only moves the cursor down one line.
+ A. cprintf() interprets '\n' as a Line Feed. To force the cursor to
+    the beginning of the line, manually insert a Carriage Return:
+
+      cprintf("\n\r");
+
+ Q. How do I print to the printer from a Borland C++ program?
+ A. Borland C++ uses a FILE pointer (stdprn) defined in the STDIO.H
+    file. You do not need to open stdprn before using it:
+
+       #include <stdio.h>
+       int main(void)
+       {
+           fprintf(stdprn, "Hello, printer!\n");
+       }
+
+    Note that if your printer is line-buffered, the output is
+    flushed only after a '\n' is sent.
+
+ Q. I am reading and writing binary files. My program is translating
+    the Carriage Return (0x0D) and Line Feed (0x0A) characters. How do
+    I prevent this from happening?
+ A. Files opened in text mode will translate these characters for
+    DOS. To read a file in binary mode, open it in binary mode.
+    For example,
+
+      #include <stdio.h>
+      int main(void)
+      {
+         FILE *binary_fp;
+         char buffer[100];
+
+         binary_fp = fopen("MYFILE.BIN", "rb");
+
+         fread(buffer, sizeof(char), 100, binary_fp);
+
+                    :
+      }
+
+    The default file mode is text.
+
+ Q. Why don't printf() and puts() print text in color?
+ A. Use the console I/O functions cprintf() and cputs() for color output.
+
+      #include <conio.h>
+      int main(void)
+      {
+          textcolor(BLUE);
+          cprintf("I'm blue.");
+      }
+
+ Q. How do I print a long integer?
+ A. Use the "%ld" format:
+
+      long int l = 70000L;
+      printf("%ld", l);
+
+ Q. How do I print a long double?
+ A. Use the "%Lf" format.
+
+      long double ldbl = 1E500;
+      printf("%Lf", ldbl);
+
+
+ E x a m p l e   P r o g r a m s
+ ----------------------------------------------------------------------
+ Q. How do I compile and run the BGIDEMO program?
+ A. 1. Make sure that the following Borland C++ files are in your
+       current directory:
+
+         BGIDEMO.C
+         *.BGI
+         *.CHR
+
+       OR change the third parameter of the initgraph() function call to
+       the full directory path to the location of the above files (using
+       double backslashes). For example:
+
+           initgraph(&gdriver, &gmode, "c:\\borlandc\\bgi");
+
+    2. Run Borland C++.
+
+    3. Load BGIDEMO.C into the Editor by pressing F3, then typing
+       BGIDEMO<Enter>
+
+    3. Go to the Run menu and choose the Run item.
+
+ Q. How do I create a COM file?
+ A. DOS versions 3.2 and earlier include an EXE2BIN utility that
+    converts EXE files to COM files. Users who do not have EXE2BIN can
+    use TLINK, the Borland C++ command-line linker, to create a COM file
+    instead of an EXE file. Use the /t option. For example:
+
+       BCC -mt -lt tiny
+
+    will create TINY.COM instead of TINY.EXE. The -l switch passes
+    the /t argument to the linker in this case.
+
+    There are certain limitations in converting an EXE file to a COM
+    file. These limitations are documented in the IBM Disk Operating
+    System manual under EXE2BIN.
+
+    Borland C++'s TINY model is compatible with the COM format, but programs
+    that use Borland C++'s floating-point routines cannot be used in a
+    TINY model application.
+
+ Q: The following program compiles/links successfully in C but
+    not in C++.  Why?
+
+    #include <stdlib.h>
+
+    int compare(const int *one, const int *two)
+    {
+       if (*one > *two)
+          return  -1;
+       else
+          return 1;
+    }
+
+    int a[3] = { 50, 10, 20 };
+
+    void main()
+    {
+         qsort(a, 3, sizeof(a[0]), compare);
+    }
+
+ A: The fourth parameter to compare is the function pointer, and
+    here's how it's declared in stdlib.h:
+
+    void qsort (void *__base, size_t __nelem, size_t __width,
+                int _Cdecl (*__fcmp)(const void *, const void *));
+
+    However, the above program WILL NOT compile in C++, because of the
+    strong typing features of the C++ language.  The compiler refuses to
+    convert the void parameters in the declaration to __fcmp function to
+    int parameters. However, because C++ permits casting of function pointers,
+    you can fix the call to QSORT in C++ like this:
+
+    qsort(a, 3, sizeof(a[0]), (int (*)(const void *,const void *))compare);
+
+    By casting the COMPARE function to be of the same type as the
+    declaration in stdlib.h, C++ will accept and compile it.
+
+ Q: How can I allocate a doubly dimensioned array?
+ A: You may use either malloc() with C or C++, or the new operator with
+    C++:
+
+    malloc():  to create a 2 by 3 character array
+
+        int i;
+        char** p;
+        p = (char **) malloc(2);
+        for (i=0; i<2; i++) p[i] = (char *) malloc(3);
+
+    new:
+
+        int j;
+        char** q;
+        q = new char* [2];
+        for (j=0; j<2; j++) q[j] = new char [3];
+
+
+
+
+ G r a p h i c s
+ ----------------------------------------------------------------------
+ Q. Why do I get the error message:
+
+       BGI Error: graphics not initialized (use 'initgraph')
+
+    when I use a graphics function? My program has already
+    called initgraph().
+ A. For some reason initgraph() failed. To find out why, check
+    the return value of graphresult(). For example:
+
+      #include <graphics.h>
+      int main(void)
+      {
+        int gerr;   /* graphics error */
+        int gdriver = DETECT, gmode;
+
+        /* Initialize graphics using auto-detection and look
+           for the .BGI and .CHR files in the C:\BORLANDC\BGI directory.
+        */
+        initgraph(&gdriver, &gmode, "C:\\BORLANDC\\BGI");
+
+        if ((gerr = graphresult()) != grOk)
+        {
+            printf("Error : %s\n", grapherrormsg(gerr));
+            exit(1);
+        }
+               :
+      }
+
+ 
+
+ M a t h  /  F l o a t i n g    P o i n t
+ ----------------------------------------------------------------------
+ Q. Why do I get incorrect results from all the math library
+    functions like cos(), tan() and atof()?
+ A. You must #include <math.h> before you call any of the standard
+    Borland C++ math functions. In general, Borland C++ assumes that a function
+    that is not declared returns an int. In the case of math functions,
+    they usually return a double. For example
+
+        /* WRONG */                       /* RIGHT */
+                                          #include <math.h>
+        int main(void)                    int main(void)
+        {                                 {
+          printf("%f", cos(0));             printf("%f", cos(0));
+        }                                 }
+
+ Q. How do I "trap" a floating-point error?
+ A. See the signal() and matherr() functions in the Borland C++ Library
+    Reference. The signal() function may be used to trap errors in the
+    80x87 or the 80x87 emulator. The matherr() function traps errors
+    in the Math Library functions.
+
+
+ L i n k e r    E r r o r s
+ ----------------------------------------------------------------------
+ Q. I am linking C functions with C++ functions.  The linker reports that
+    all of my C functions are undefined.  Why?
+ A. Linking C++ modules with C modules requires the use of a linkage
+    specification.  Prototypes for C functions within C++ modules must
+    be in one of the following forms:
+
+        extern "C" declaration
+        extern "C" { declarations }
+
+    For example, if a C module contains functions
+    "char *SCopy(char*, char*);" and "void ClearScreen(void)", they
+    must be declared in a C++ module in one of the following ways:
+
+        extern "C" char *SCopy(char*, char*);
+        extern "C" void ClearScreen(void);
+
+    or
+
+        extern "C" {
+            char *SCopy(char*, char*)
+            void ClearScreen(void);
+        }
+
+    For further examples, see the standard header files.  For additional
+    comment, see Common C++ Questions.
+
+ Q. Why do I get the message:
+      Linker Error: Unable to open input file 'C0x.OBJ'
+ A. See the "Integrated Environment" section above.
+
+ Q. Why do I get the message:
+      Linker Error: Undefined symbol '_main' in module C0
+ A. Every C program must contain a function called main(). This
+    is the first function executed in your program. The function
+    name must be all in lower case. If your program does not
+    have one, create one. If you are using multiple source files,
+    the file that contains the function main() must be one of
+    the files listed in the Project.
+
+    Note that an underscore character '_' is prepended to all
+    external Borland C++ symbols.
+
+ Q. Why does the linker tell me that all the graphics library
+    routines are undefined?
+ A. See the "Integrated Environment" and "Command-line Compiler"
+    sections above.
+
+ Q. What is a 'Fixup overflow'?
+ A. This usually means you are attempting to link object files that were
+    not all compiled under the same memory model. See the listing of TLINK
+    error messages in the Borland C++ Tools and Utilities Guide.
+
+ Q. I am linking my own assembly language functions with Borland C++.
+    The linker reports that all of my functions are undefined.
+ A. Make sure that you have put an underbar character '_' in front of all
+    assembly language function names to be called by Borland C++. Your
+    assembly language program should be assembled with Case Sensitivity.
+    If compiling as C++ (rather than C), see the "Common C++ Questions"
+    section above which discusses the use of extern "C".
+
+ Q: I am getting an error out of the linker "segment group exceeds 64K :
+    _text".
+ A: If you are using the BGIOBJ utility, the default segment into which
+    the objects will be place is _text.  You should try using BGIOBJ with
+    the /f option to place the resultant objects into a separate segment.
+    You will then need to use the functions registerfarbgidriver and
+    registerfarbgifont to register the objects for the graphics system.
+    See UTIL.DOC for instructions on using these functions.
+
+ Q: I am attempting to link Turbo C 2.0 objects into my Borland C++ programs,
+    but continually get unresolved external symbols at link time.
+ A: The names of many of the "helper" functions have changed from what they
+    were in Turbo C 2.0. If you are getting undefined symbols like _LXLSH and
+    _FMUL, this is the problem you are running into.  Your best solution is to
+    get the source code to the old object modules and recompile with Borland
+    C++. The only other possibility would be to extract the helper function
+    objects from the Turbo C 2.0 libraries and link them into the Borland C++
+    program.
+
+ Q: Why am I getting the error "printf: floating point formats not linked"?
+ A: You probably have your libraries out of order on the tlink command
+    line. Here's how to directly use tlink:
+
+    tlink <options> <objs>,exe_name,map_name,<libs>
+
+    <options>:  The options are listed by simply typing TLINK at the command
+                line.
+
+    <objs>:     The ordering of the obj's is critical.  The first one must
+                be c0x (where 'x' corresponds to: s,m,c,l,h depending on
+                which memory model is being used).  Then the list of the
+                remaining object files go next.
+
+    exe_name:   This entry is optional.  If a name is not specified, the
+                comma MUST be supplied anyway.
+
+    map_name:   This entry is optional.  If a name is not specified, the
+                comma MUST be supplied anyway.
+
+    <libs>:     The ordering of the lib's is critical.  Any user-supplied
+                and/or third party libraries must be listed first.  If the
+                program is using any BGI routines, the graphics library must
+                be next.  Next comes the emu.lib (for emulation) or the
+                fp87.lib (if you are exclusively planning to use the
+                coprocessor).  The mathx library comes next, where 'x'
+                corresponds to the first letter of the memory model in use.
+                Finally the cx.lib must be last in the list, where 'x'
+                corresponds to the first letter of the memory model in use.
+
+    For example, if you are using the large memory model and BGI routines,
+    the tlink line might look like the following:
+
+           tlink /v c0l myobj,,,mylib graphics emu mathl cl
+
+    If the object file or library is not in the current directory, the
+    complete pathname must be supplied.  Frequently this causes the command
+    line to exceed 128 characters, which will force the use of a linker
+    response file (this is decribed in the User's Manual).
+
+
+ Q. I'm porting an application that uses communal variables to C++.
+    I've set up the compiler to recognize them, but I still get linker
+    errors:
+
+      Error: <name> defined in module <a> is duplicated in module <b>
+
+ A. C++ doesn't support explicit COMDEFs; you must use static
+    variables or switch to C.
+
+ O t h e r    Q u e s t i o n s
+ ----------------------------------------------------------------------
+ Q. I get a "floating point formats not linked" message when I run
+    my program. What can I do about it?
+ A. Floating point formats (for scanf() and related functions) are
+    not always linked, for savings in executable size. To force their
+    inclusion, put the following somewhere in your source files:
+
+      extern unsigned _floatconvert;
+      #pragma extref _floatconvert
+
+ Q. How do I change the stack size?
+ A. The size of the stack of a Borland C++ program is determined at
+    run time by the global variable _stklen. To change the size
+    to, for example, 10,000 bytes, include the following line in
+    your program:
+
+      extern unsigned _stklen = 10000;
+
+    This statement must not be inside any function definition.
+    The default stack size is 4,096 bytes (4K), and you may increase
+    the stack to 65519 (0xFFEF) or just under 64K in the compact, large,
+    or huge memory models.
+
+ Q. I'm getting a 'Stack Overflow!' message when I run my program.
+    How can I work around this?
+ A. If you are using the compact, large, of huge memory models, you may
+    increase the stack size by following the procedure above. In the
+    smaller memory models, your only option is to decrease the amount
+    of stack space or near heap space used in your program. Stack
+    overflows are usually caused by a large amount of local data or
+    recursive functions. You can decrease the amount of stack space
+    used in several ways:
+    1) By declaring your local variables static (see the BC++ Programmer's
+       Guide for the effects of using the "static" keyword):
+
+         int main(void)                int main(void)
+         {                             {
+             char x[5000];     -->          static char x[5000];
+                 :                                :
+         }                             }
+    2) By making your variables global rather than local:
+
+        char x[5000];    //global allocation above main()
+        int main(void)
+        {
+               :
+        }
+   3) Or by allocating your variables dynamically off the far heap:
+
+        #include <alloc.h>
+        int main(void)
+        {
+           char far* x;
+           x = (char far*)farmalloc(5000);  //dynamic allocation
+           // or in the case of C++ you can use the new operator
+           // x = new char[5000];
+              :
+        }
+
+ Q. My program comes up with the message 'Null pointer assignment'
+    after it terminates. What does this mean?
+ A. Before a small-data model Borland C++ program returns to DOS, it will
+    check to see if the beginning of its data segment has been corrupted.
+    This message is to warn you that you have used uninitialized pointers
+    or that your program has corrupted memory in some other way.
+
+ Q. Why are .EXE files generated by BC.EXE larger than those generated by
+    BCC.EXE?
+ A. In the default configuration, BC.EXE includes debugging information in
+    the .EXE files that it creates, and BCC.EXE does not. If you don't want
+    to produce this debugging information, you can shut it off in the
+    Integrated Development Environment by selecting Alt-O|B|N.
+
+ Q. Why do I get "declaration syntax error" messages on dos.h?
+ A. You have set the "ANSI keywords only" option ON. Keep this option OFF
+    when using any keywords specific to Borland C++. See the Borland C++
+    Programmer's Guide for a list of keywords.
+
+ Q. I get errors when compiling the windows.h header file.  Why?
+ A. Be sure that you have "Borland C++" selected as your keywords option.
+    This option can be toggled under Options | Compiler | Source.
+
+ Q. I have a working program that dynamically allocates memory
+    using malloc() or calloc() in small data models (tiny, small,
+    and medium). When I compile this program in large data models
+    (compact, large, and huge), my program hangs.
+ A. Make sure that you have #include <alloc.h> in your program.
+
+ Q. I am linking my own assembly language functions with Borland C++.
+    But the linker reports that all of my functions are undefined.
+ A. See answer above in the "Linker" section.
+
+ Q. My far pointers "wrap around" when they are incremented over 64K.
+    How do I reference a data object that is greater than 64K?
+ A. Use huge pointers.
+
+ Q. How do I interface Borland C++ routines to a Turbo Pascal program?
+ A. See the example programs CPASDEMO.PAS and CPASDEMO.C.
+
+ Q. How do I get Clipper to link with Borland C++?
+ A. If you are having trouble, contact Nantucket Technical Support.
+
+ Q. I'm trying to build an app based on one of Borland's libraries
+    (ObjectWindows, Turbo Vision, the container classes in the
+    CLASSLIB directory, or the Runtime Library),  and I get
+    linker errors, or it won't run right. What's going wrong?
+
+ A. You may be using a switch that affects linkage in your files,
+    that was not used when the library itself was compiled, or you
+    need to change the library in question. Here are some examples:
+
+    - If you use far vtables (-Vf or Options|Compiler|C++|Far
+      virtual tables) to compile a file you developed which
+      includes iostream.h, it won't build correctly until you
+      rebuild the iostream library with the same option.
+
+    - If you use word alignment (-a or Options|Compiler|Code
+      Generation|Word alignment) in building a Turbo Vision
+      application, you must build the Turbo Vision library from
+      source with the same option.
+
+    - If you opt to use the templates implementation of the container
+      class library to build ObjectWindows applications, you must
+      rebuild the necessary ObjectWindows libraries from source
+      using the templates implementation of the class library
+      (the BIDxxxx.LIB files.)
+
+ Q. I got a "bad call to intrinsic function" message when attempting
+    to compile one of my source files. What does this mean?
+ A. This message appeared because you tried to use an intrinsic
+    function in a small model DLL. Either avoid using intrinsic
+    functions in your DLL (see Appendix A of the User's Guide), or
+    turn off the -Oi and -O2 switches (Options|Compiler|Optimizations|
+    inline intrinsic or |Fastest Code).
+
+ Q: I open up a file in append mode, and append some data to the
+    end of the file.  When I look at the data in an ascii editor, I can't
+    see the appended data.  Why?
+ A: The data is being appended after the End-of-File mark, and the
+    ascii editor is not displaying the data after the EOF mark.  To
+    eliminate the EOF mark:
+    1)  Get the file length with the filelength() function:
+            FILE *file_pointer = fopen( "file.nam","a" );
+            long length = filelength( fileno( file_pointer ));
+    2)  Use the chsize() function to change the file length to the
+        current length-1:
+            chsize( fileno( file_pointer ), (length -1));
+    3)  Then write your appended data to the file.
+
+ Q: I run my program, allocate some memory, and check the amount of
+    memory available with coreleft().  Then I free some memory and call
+    coreleft() again.  It reports the same number.  Why?
+ A: Coreleft does NOT return the amount of memory available.  It returns
+    the total memory available above the highest block allocated.  It does
+    NOT return any amount of memory available in "holes" below the highest
+    allocated block.

@@ -1,0 +1,101 @@
+/*------------------------------------------------------------------------
+ * filename - cosh.cas
+ *
+ * function(s)
+ *        cosh - hyperbolic function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            cosh - hyperbolic function
+
+Usage           double cosh(double x);
+
+Prototype in    math.h
+
+Description     cosh computes the hyperbolic cosine of the input value.
+
+Return value    cosh returns the hyperbolic cosine of the input value.
+                For  large arguments  (magnitude greater  than or  equal to
+                710.475)  the result  will be  HUGE_VAL of  the appropriate
+                sign and errno will be set to:
+                        ERANGE  Range error.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+
+double _FARFUNC cosh( double  x )
+{
+asm     FLD1
+asm     mov     ax, 7FFFh
+asm     FCHS                    /* TOS = -1.0   */
+asm     and     ax, x [6]       /* select exponent and most signif. bits */
+
+asm     FLD     DOUBLE (x)
+asm     cmp     ax, 4086h
+asm     jnb     cosh_tooBig     /* exp (+-710.475) considered too large */
+asm     cmp     ax, 3F20h
+asm     jb      cosh_tiny
+cosh_justFits:
+
+#ifdef _Windows
+        _f87_Exp();
+#else
+asm     _FAST_  (_FEXP_)
+#endif
+
+asm     FLD1
+asm     FDIV    st, st(1)       /* Exp (-x) */
+asm     FADDP   st(1), st
+asm     FSCALE                  /* cosh (x) = (exp(x) + exp(-x)) / 2 */
+asm     FSTP    st(1)
+
+cosh_end:
+        return;
+
+cosh_tooBig:
+asm     ja      cosh_over
+asm     cmp     W0 (x [4]), 033CEh
+asm     jb      cosh_justFits
+
+cosh_over:
+
+asm     FSTP    ST(0)                   /* pop two items off the stack */
+asm     FSTP    ST(0)
+
+#pragma warn -ret
+        return _matherr (OVERFLOW, "cosh", &x, NULL, HUGE_VAL);
+#pragma warn .ret
+
+/*
+  cosh is more accurately calculated by the polynomial
+
+        (1 + x^2/2)
+
+  when x is tiny (|x| < 2^-13).
+*/
+cosh_tiny:
+asm     FMUL    ST(0), ST(0)
+asm     FSCALE                  /* divide by 2  */
+asm     FSUBRP  ST(1), ST(0)    /* +1 == - (-1) */
+asm     jmp     short   cosh_end
+}
+#pragma warn .rvl

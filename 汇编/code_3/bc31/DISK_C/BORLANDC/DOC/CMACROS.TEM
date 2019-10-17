@@ -1,0 +1,178 @@
+/******************************************************************
+This file contains a TEML script that is helpful to C and C++
+programmers.  To use the macros in this file run TEMC to compile
+it and add it to the appropriate tcconfig.tc file.  The syntax for
+this is:
+
+TEMC cmacros.tem tcconfig.tc
+
+This will add the macros and key definitions in cmacros.tem to what
+already exists in tcconfig.tc.
+
+For more information on TEMC, please refer to the file UTIL.DOC.
+
+******************************************************************/
+
+/******************************************************************
+
+Macro:   Sample macro to comment a function
+
+Use:     Put the cursor immediately after a function name which is
+			at the left of the screen, then press Alt-T. Do not include
+			the return type or parameters before using this macro.
+
+******************************************************************/
+
+macro MakeFuncText
+	 InsertText("\n\n");            /* add white space */
+	 CursorUp;
+	 CursorUp;
+	 LeftOfLine;                    /* go before beginning of intended
+                                       function name */
+	 SetBlockBeg;                   /* mark function name */
+	 WordRight;
+	 SetBlockEnd;
+	 LeftOfLine;
+	 CursorDown;
+	 CopyBlock;                     /* copy for prototyping */
+	 CursorUp;
+	 LeftOfLine;
+	 InsertText("\nFunction: ");     /* add "Function" to comment area */
+	 RightOfLine;
+	 CursorUp;                      /* put in comment lines before and
+												  after */
+	 LeftOfLine;
+	 InsertText("/*******************************************************");
+     CursorDown;
+	 RightOfLine;
+     InsertText("\n\n");
+     LeftOfLine;
+     InsertText("Description:\n");
+     LeftOfLine;
+     InsertText("*******************************************************/\n");
+     CursorDown;                     /* go back to end of name */
+     RightOfLine;
+end;                                /* MakeFuncText */
+
+/*******************************************************************
+
+MACRO: MakeStub
+
+DESCRIPTION:  Creates a stub, based on a user-entered function name.
+   It assumes the cursor is positioned immediately after the name,
+   and the name is at the left of the screen.
+
+*******************************************************************/
+
+macro MakeStub
+    LeftOfLine;           /* go before beginning of intended
+                             function name */
+    InsertText("void ");  /* void return type */
+    RightOfLine;
+    InsertText("( void )\n{\n");  /* void parameter */
+    InsertText("printf(\"This is ");
+    CursorUp;
+    CursorUp;
+    LeftofLine;
+    WordRight;
+    SetBlockBeg;
+    WordRight;
+    CursorLeft;
+    CursorLeft;
+    SetBlockEnd;
+    CursorDown;
+    CursorDown;
+    RightofLine;
+    InsertText(" ");
+    CopyBlock;
+    SetBlockBeg;
+    SetBlockEnd;
+    RightofLine;
+    InsertText("\\n\");");
+    InsertText("\n}");
+end;
+
+/*******************************************************************
+
+MACRO: MakeComment
+
+DESCRIPTION:  Inserts comment bars
+
+*******************************************************************/
+
+macro MakeComment
+   InsertText("/******************************");
+   InsertText("*************************************\n\n");
+   InsertText("*******************************");
+   InsertText("************************************/\n");
+   CursorUp;
+   CursorUp;
+end;
+
+/*******************************************************************
+
+MACRO: MakeMain
+
+DESCRIPTION:  Inserts outline of main program
+
+*******************************************************************/
+
+macro MakeMain
+   InsertText("int main(void)\n{\n\n  return 0;\n");
+   LeftOfLine;
+   InsertText("}");
+   CursorUp;
+   CursorUp;
+   CursorRight;
+end;
+
+/*******************************************************************
+
+MACRO: MainCppIO
+
+DESCRIPTION:  Inserts outline of main program for C++ which uses
+   iostream.h.
+
+*******************************************************************/
+
+macro MainCppIO
+   InsertText("#include <iostream.h>\n\n");
+   InsertText("int main(void)\n{\n\n  return 0;\n");
+   LeftOfLine;
+   InsertText("}");
+   CursorUp;
+   CursorUp;
+   CursorRight;
+end;
+
+/*******************************************************************
+
+MACRO: MainCIO
+
+DESCRIPTION:  Inserts outline of main program for C which uses
+  stdio.h
+
+*******************************************************************/
+
+macro MainCIO
+   InsertText("#include <stdio.h>\n\n");
+   InsertText("int main(void)\n{\n\n  return 0;\n");
+   LeftOfLine;
+   InsertText("}");
+   CursorUp;
+   CursorUp;
+   CursorRight;
+end;
+
+/*******************************************************************
+
+KEYBOARD ASSIGNMENTS:
+
+*******************************************************************/
+
+Alt-K : MakeComment;
+Alt-M : MakeMain;
+Alt-N : MainCPPIO;
+Alt-I : MainCIO;
+Alt-Z : MakeStub;
+Alt-T : MakeFuncText;

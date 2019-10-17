@@ -1,0 +1,193 @@
+/*---------------------------------------------------------------------------
+ * filename - absread.cas
+ *
+ * function(s)
+ *         absread  - absolute disk read
+ *         abswrite - absolute disk write
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <errno.h>
+
+static int big_partition( int driveno )
+{
+  static int old_driveno = -1, old_partition;
+  struct fatinfo p;
+
+  if( driveno != old_driveno )     /* try to avoid disk reads if possible */
+  {
+    old_driveno = driveno;
+
+    getfat( driveno+1, &p );
+
+    old_partition = ((unsigned long)p.fi_sclus * p.fi_nclus) > 0xFFFF ? 1 : 0;
+  }
+
+  return( old_partition );
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            absread - absolute disk read
+
+Usage           int absread(int drive, int nsects, long sectno, void *buffer);
+
+Prototype in    dos.h
+
+Description     reads specific disk sectors via DOS interrupt 0x25
+
+Return value    If successful, 0
+                On error, -1 and errno set to the value returned in AX.
+
+*---------------------------------------------------------------------------*/
+int absread(int drive, int nsects, long lsect, void *buffer)
+{
+  SaveSI
+  SaveDI
+  pushDS_
+
+  if( big_partition( drive ) )
+  {
+    asm     mov     al,drive
+    asm     push    ss
+    asm     pop     ds
+    asm     sub     sp,10
+    asm     mov     bx,sp
+    asm     mov     dx,word ptr lsect
+    asm     mov     word ptr [bx],dx
+    asm     mov     dx,word ptr lsect+2
+    asm     mov     word ptr [bx+2],dx
+    asm     mov     cx,nsects
+    asm     mov     word ptr [bx+4],cx
+    asm     mov     dx,word ptr buffer
+    asm     mov     word ptr [bx+6],dx
+
+#if (LDATA)
+    asm     mov     dx,word ptr buffer+2
+    asm     mov     word ptr [bx+8],dx
+#else
+    asm     mov     word ptr [bx+8],ds
+#endif
+
+    asm     mov     cx,-1
+    asm     int     25h
+    asm     sbb     cx,cx
+    asm     add     sp,10
+  }
+  else
+  {
+    asm     mov     al,drive
+    asm     mov     cx,nsects
+    asm     mov     dx,lsect
+    asm     LDS_    bx,buffer
+    asm     int     25h
+    asm     sbb     cx,cx
+  }
+
+  asm     pop     bx                      /* clear old flags */
+          popDS_
+  asm     jcxz    absOK
+
+#if defined(__HUGE__)
+  asm     mov     bx,seg errno
+  asm     mov     es,bx
+  asm     mov     es:errno,ax
+#else
+  asm     mov     errno,ax
+#endif
+
+  return(-1);
+
+absOK:
+  return(0);
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            abswrite - absolute disk write
+
+Usage           int abswrite(int drive, int nsects, long sectno, void *buffer);
+
+Prototype in    dos.h
+
+Description     writes specific disk sectors via DOS interrupt 0x26
+
+Return value    If successful, 0
+                On error, -1 and errno set to the value returned in AX.
+
+*---------------------------------------------------------------------------*/
+int abswrite(int drive, int nsects, long lsect, void *buffer)
+{
+  SaveSI
+  SaveDI
+  pushDS_
+
+  if( big_partition( drive ) )
+  {
+    asm     mov     al,drive
+    asm     push    ss
+    asm     pop     ds
+    asm     sub     sp,10
+    asm     mov     bx,sp
+    asm     mov     dx,word ptr lsect
+    asm     mov     word ptr [bx],dx
+    asm     mov     dx,word ptr lsect+2
+    asm     mov     word ptr [bx+2],dx
+    asm     mov     cx,nsects
+    asm     mov     word ptr [bx+4],cx
+    asm     mov     dx,word ptr buffer
+    asm     mov     word ptr [bx+6],dx
+
+#if (LDATA)
+    asm     mov     dx,word ptr buffer+2
+    asm     mov     word ptr [bx+8],dx
+#else
+    asm     mov     word ptr [bx+8],ds
+#endif
+
+    asm     mov     cx,-1
+    asm     int     26h
+    asm     sbb     cx,cx
+    asm     add     sp,10
+  }
+  else
+  {
+    asm     mov     al,drive
+    asm     mov     cx,nsects
+    asm     mov     dx,lsect
+    asm     LDS_    bx,buffer
+    asm     int     26h
+    asm     sbb     cx,cx
+  }
+
+  asm     pop     bx                      /* clear old flags */
+          popDS_
+  asm     jcxz    absOK
+
+#if     defined(__HUGE__)
+  asm     mov     bx,seg errno
+  asm     mov     es,bx
+  asm     mov     es:errno,ax
+#else
+  asm     mov     errno,ax
+#endif
+
+  return(-1);
+
+absOK:
+  return(0);
+}
+

@@ -1,0 +1,35 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+
+100 BITMAP backgrnd.bmp
+
+101 BITMAP ship.bmp
+
+102 BITMAP monoship.bmp
+
+100 MENU
+BEGIN
+	POPUP "&File"
+	BEGIN
+		MENUITEM "&Quit", 100
+	END
+
+	POPUP "&Demo"
+	BEGIN
+		MENUITEM "&MoveTo/LineTo Demo", 200
+		MENUITEM "&Font Demo", 202
+		MENUITEM "&BitBlt Demo", 203
+		MENUITEM "&Arty Demo", 204
+	END
+
+	POPUP "&Window"
+	BEGIN
+		MENUITEM "&Tile", 24336
+		MENUITEM "&Cascade", 24337
+		MENUITEM "Close A&ll", 24338
+		MENUITEM "&Arrange Icons", 24335
+	END
+
+END
+
+

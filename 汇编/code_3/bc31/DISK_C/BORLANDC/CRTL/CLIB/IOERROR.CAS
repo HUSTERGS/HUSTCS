@@ -1,0 +1,194 @@
+/*-----------------------------------------------------------------------*
+ * filename - ioerror.cas
+ *
+ * function(s)
+ *        __IOerror - set error variables, return -1
+ *        __DOSerror - set error variables, return _doserrno
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <_io.h>
+#include <errno.h>
+#include <RtlData.h>
+
+#if !defined( _RTLDLL )
+int     _doserrno = 0;
+#endif
+
+char    _dosErrorToSV [] =
+{
+    0,                  /*  0 - OK                   */
+    EINVAL,             /*  1 - e_badFunction        */
+    ENOENT,             /*  2 - e_fileNotFound       */
+    ENOENT,             /*  3 - e_pathNotFound       */
+    EMFILE,             /*  4 - e_tooManyOpen        */
+    EACCES,             /*  5 - e_accessDenied       */
+    EBADF,              /*  6 - e_badHandle          */
+    ENOMEM,             /*  7 - e_mcbDestroyed       */
+    ENOMEM,             /*  8 - e_outOfMemory        */
+    ENOMEM,             /*  9 - e_badBlock           */
+    E2BIG,              /* 10  e_badEnviron         */
+    ENOEXEC,            /* 11  e_badFormat          */
+    EACCES,             /* 12  e_badAccess          */
+    EINVAL,             /* 13  e_badData            */
+    EFAULT,             /* 14  reserved             */
+    EXDEV,              /* 15  e_badDrive           */
+    EACCES,             /* 16  e_isCurrentDir       */
+    ENOTSAM,            /* 17  e_notSameDevice      */
+    ENOENT,             /* 18  e_noMoreFiles        */
+    EROFS,              /* 19  e_readOnly           */
+    ENXIO,              /* 20  e_unknownUnit        */
+    EBUSY,              /* 21  e_notReady           */
+    EIO,                /* 22  e_unknownCommand     */
+    EIO,                /* 23  e_dataError          */
+    EIO,                /* 24  e_badRequestLength   */
+    EIO,                /* 25  e_seekError          */
+    EIO,                /* 26  e_unknownMedia       */
+    ENXIO,              /* 27  e_sectorNotFound     */
+    EBUSY,              /* 28  e_outOfPaper         */
+    EIO,                /* 29  e_writeFault         */
+    EIO,                /* 30  e_readFault          */
+    EIO,                /* 31  e_generalFault       */
+    EACCES,             /* 32  e_sharing            */
+    EACCES,             /* 33  e_lock               */
+    ENXIO,              /* 34  e_diskChange         */
+    ENFILE,             /* 35  e_FCBunavailable     */
+    ENFILE,             /* 36  e_sharingOverflow    */
+    EFAULT, EFAULT,
+    EFAULT, EFAULT,
+    EFAULT, EFAULT,
+    EFAULT, EFAULT,
+    EFAULT, EFAULT,
+    EFAULT, EFAULT,
+    EFAULT,             /* 37-49  reserved          */
+    ENODEV,             /* 50  e_networkUnsupported */
+    EBUSY,              /* 51  e_notListening       */
+    EEXIST,             /* 52  e_dupNameOnNet       */
+    ENOENT,             /* 53  e_nameNotOnNet       */
+    EBUSY,              /* 54  e_netBusy            */
+    ENODEV,             /* 55  e_netDeviceGone      */
+    EAGAIN,             /* 56  e_netCommandLimit    */
+    EIO,                /* 57  e_netHardError       */
+    EIO,                /* 58  e_wrongNetResponse   */
+    EIO,                /* 59  e_netError           */
+    EINVAL,             /* 60  e_remoteIncompatible */
+    EFBIG,              /* 61  e_printQueueFull     */
+    ENOSPC,             /* 62  e_printFileSpace     */
+    ENOENT,             /* 63  e_printFileDeleted   */
+    ENOENT,             /* 64  e_netNameDeleted     */
+    EACCES,             /* 65  e_netAccessDenied    */
+    ENODEV,             /* 66  e_netDeviceWrong     */
+    ENOENT,             /* 67  e_netNameNotFound    */
+    ENFILE,             /* 68  e_netNameLimit       */
+    EIO,                /* 69  e_netBIOSlimit       */
+    EAGAIN,             /* 70  e_paused             */
+    EINVAL,             /* 71  e_netRequestRefused  */
+    EAGAIN,             /* 72  e_redirectionPaused  */
+    EFAULT, EFAULT,
+    EFAULT, EFAULT,
+    EFAULT, EFAULT,
+    EFAULT,             /* 73- 79  reserved         */
+    EEXIST,             /* 80  e_fileExists         */
+    EFAULT,             /* 81  reserved             */
+    ENOSPC,             /* 82  e_cannotMake         */
+    EIO,                /* 83  e_failInt24          */
+    ENFILE,             /* 84  e_redirectionLimit   */
+    EEXIST,             /* 85  e_dupRedirection     */
+    EPERM,              /* 86  e_password           */
+    EINVAL,             /* 87  e_parameter          */
+    EIO,                /* 88  e_netDevice          */
+};
+
+
+/*-----------------------------------------------------------------------*
+
+Name            __IOerror - set error variables
+
+Usage           #include <_io.h>
+                int  pascal  __IOerror (int dosErr);
+
+Prototype in    _io.h
+
+Description     dosErr  is  a  MSDOS  error  number,  or,  if negative, the
+                negative of a System V error number.
+
+                __IOerror  sets the  error  number  into  _doserrno. If not
+                negative then  translate it into  System V equivalent.  Put
+                (translated) value into _errno.
+
+Return value    __IOerror returns -1, the usual RTL error return.
+
+*------------------------------------------------------------------------*/
+int pascal near __IOerror(int dosErr)
+{
+        int     val = dosErr;
+
+        if (val < 0)
+                goto ser_maybeSVerr;
+
+        if (val <= e_dosFinalError)
+                goto ser_dosError;
+
+/*
+  Being defensive, we must assume that the error routine can be passed
+  a bad argument.  In such circumstances, complaining about the
+  parameter seems the most reasonable thing to do.
+*/
+ser_errorFault:
+        val = e_parameter;
+
+ser_dosError:
+        _doserrno = val;
+
+        val = _dosErrorToSV[val];
+        goto ser_end;
+
+/*
+  This function may be called with a negated System V error code when
+  no appropriate MSDOS error code exists.  In such cases the doserrno
+  is set to non-zero, but using a number which has no known cause.
+*/
+
+ser_maybeSVerr:
+        val = -val;
+        if (val > _sys_nerr)
+                goto ser_errorFault;
+
+        _doserrno = -1;
+
+ser_end:
+        errno = val;
+        return -1;
+}
+
+/*-----------------------------------------------------------------------*
+
+Name            __DOSerror - set error variables
+
+Usage           #include <_io.h>
+                int  pascal  __DOSerror (int dosErr);
+
+Prototype in    _io.h
+
+Description     __DOSerror is identical to __IOerror, except that
+                it returns the DOS error code passed to it, instead
+                of -1.
+
+Return value    __DOSerror returns dosErr.
+
+*------------------------------------------------------------------------*/
+int pascal near __DOSerror(int dosErr)
+{
+    __IOerror(dosErr);
+    return (dosErr);
+}

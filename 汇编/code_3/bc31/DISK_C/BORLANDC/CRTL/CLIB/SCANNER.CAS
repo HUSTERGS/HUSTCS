@@ -1,0 +1,1270 @@
+/*-----------------------------------------------------------------------*
+ * filename - scanner.cas
+ *
+ * function(s)
+ *        _scanner - reads formatted input
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <_scanf.h>
+
+#define I asm
+
+/*-----------------------------------------------------------------------*
+
+The scanner is a simple table-driven design, for speed and flexibility.
+There are two tables.  The first table classifies all 7-bit ASCII chars
+and then the second table is the switch table which points to the function
+blocks which handle the various classes of characters.
+
+All characters with the 8'th bit set are currently classed as don't cares,
+which is the class of character also used for normal alphabetics.
+
+Warning: If you reject gotos you will be allergic to this.  Normally
+        I avoid gotos but for fast lexical analysis I make an exception.
+
+*------------------------------------------------------------------------*/
+
+typedef enum
+{
+    _zz,        /* terminator   */
+    _ws,        /* space        */
+    _dc,        /* dont care    */
+    _pc,        /* percent      */
+    _su,        /* suppress     */
+    _nu,        /* numeral      */
+    _ch,        /* character    */
+    _de,        /* decimal      */
+    _un,        /* unsigned decimal - same as decimal   */
+    _in,        /* general int  */
+    _fl,        /* float        */
+    _ld,        /* long double  */
+    _ha,        /* half         */
+    _lo,        /* long         */
+    _oc,        /* octal        */
+    _st,        /* string       */
+    _sc,        /* scanset      */
+    _ct,        /* count of characters scanned  */
+    _he,        /* hexadecimal  */
+    _pt,        /* pointer      */
+    _ne,        /* near         */
+    _fa,        /* far          */
+}
+    charClass;
+
+
+static  const   char    scanCtype [128] =
+{
+/*  NUL SOH STX ETX EOT ENQ ACK BEL  BS  HT  LF  VT  FF  CR  SO  SI     */
+    _zz,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_ws,_ws,_ws,_ws,_ws,_dc,_dc,
+
+/*  DLE DC1 DC2 DC3 DC4 NAK SYN ETB CAN  EM SUB ESC  FS  GS  RS  US     */
+    _dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,_dc,
+
+/*  SP   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /      */
+    _ws,_dc,_dc,_dc,_dc,_pc,_dc,_dc,_dc,_dc,_su,_dc,_dc,_dc,_dc,_dc,
+
+/*   0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?      */
+    _nu,_nu,_nu,_nu,_nu,_nu,_nu,_nu,_nu,_nu,_dc,_dc,_dc,_dc,_dc,_dc,
+
+/*   @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O      */
+    _dc,_dc,_dc,_dc,_de,_fl,_fa,_fl,_ha,_in,_dc,_dc,_ld,_dc,_ne,_oc,
+
+/*   P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _      */
+    _dc,_dc,_dc,_dc,_dc,_un,_dc,_dc,_he,_dc,_dc,_sc,_dc,_sc,_dc,_dc,
+
+/*   `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o      */
+    _dc,_dc,_dc,_ch,_de,_fl,_fl,_fl,_ha,_in,_dc,_dc,_lo,_dc,_ct,_oc,
+
+/*   p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~ DEL      */
+    _pt,_dc,_dc,_st,_dc,_un,_dc,_dc,_he,_dc,_dc,_dc,_dc,_dc,_dc,_dc,
+};
+
+
+
+/*-----------------------------------------------------------------------*
+
+Name            _scanner - reads formatted input
+
+Usage           int  _scanner ( int   (*Get)(void *srceP),
+                                void  (*UnGet) (int ch, void *srceP),
+                                void   *srceP,
+                                const char   *formP,
+                                va_list varPP )
+
+Prototype in
+
+Description     _scanner does all the work for the scanf family of
+                functions.
+
+                The "source" *srceP is scanned according to the rules found in the
+                format string *formP and the results are put to the places pointed
+                to by the array of pointers *varPP.
+
+                The "Get" and "UnGet" functions allow the redefinition of the
+                source to be a file or any other serial character stream.  They
+                may be the fget()/ungetc() or any equivalent pair which operates
+                on the srceP data stream/string.
+
+
+                The syntax of the format string is:
+
+                format ::= ([isspace] [literal | '%%' | '%' conversion])*
+
+                conversion ::= ['*'] [width] ['l' | 'h'] [type]
+
+                width ::= number;
+
+                type ::= 'd'|'D'|'u'|'U'|'o'|'O'|'x'|'X'|'i'|'I'|'n'|
+                         'e'|'E'|'f'|'F'|'g'|'G'|'p'|'N'|'F'|'s'|'c'|'['
+
+Return value
+
+*------------------------------------------------------------------------*/
+#pragma warn -use
+#pragma warn -rvl
+int  near _scanner( int   near (*Get)   (void *srceP),
+                    void  near (*UnGet) (int ch, void *srceP),
+                    void       *srceP,
+                    const char *formP,
+                    va_list     varPP )
+{
+
+
+        char    flags;
+        int     count = 0;
+        int     charCt = 0;
+        int     status;
+        int     width;
+        char    bitSet [32];    /* for scan sets */
+
+        register SI, DI;        /* prevent the compiler making its own usage */
+
+
+/**************************************************************************
+        'C' equivalent of inline code( for documentation )
+**************************************************************************/
+#if 0
+REG     char    a, b;
+REG     short   wP;
+REG     char   *cP;
+        long    lRes;
+
+        long double  ldRes;
+
+#error  /* The C text is algorithm commentary, not tested source ! */
+        /* It is provided to clarify the intent of the assembler.  */
+
+ssNEXT:
+        if (\0 == (b = *(formP++)))
+                return  count;  /* the normal end */
+
+        if ((b != '%')  || ('%' == (b = *(formP++)))
+        {
+                charCtt ++;
+                if ((a = Get (srceP)) == EOF)
+                        goto ssNextEOF;
+                if (!(b & 0x80) && (_ws == scanCtype [b]))  /* white space ? */
+                {
+                        while (!(a & 0x80) && (_ws == scanCtype [a]))
+                        {
+                                charCt ++;
+                                if ((a = Get (srceP)) == EOF)
+                                        goto ssNextEOF;
+                        }
+                        UnGet (a, srceP);
+                        charCt --;
+                }
+                else    /* literal match required */
+                        if (a != b)
+                                goto  ssEND;
+                goto  ssNEXT;
+        }
+
+/* if fall through to here then begin a conversion specification  */
+#if LDATA
+        flags = isFarPtr;
+#else
+        flags = 0;
+#endif
+        width  = -1;
+
+ssSwitch:
+        switch ((b & 0x80) ? _dc : scanCtype [b])
+        {
+                case (_su) :    flags |= isSuppressed;
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_ha) :    flags |= isHalf;
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_lo) :    flags |= isLong;
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_ld) :    flags |= isLongDouble;
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_nu) :    width = (width < 0) ? b - '0' :
+                                        10 * width + b - '0';
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_ne) :    flags &= ~isFarPtr;
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_fa) :    flags |= isFarPtr;
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_pt) :    goto  ssPTR;
+
+                case (_de) :    base = 10;
+                                goto  ssINT;
+
+                case (_oc) :    base = 8;
+                                goto  ssINT;
+
+                case (_he) :    base = 16:
+                                goto  ssINT;
+
+                case (_in) :    base = 0;
+                                goto  ssINT;
+
+                case (_ct) :    lRes = charCt;
+                                if ((flags & isSuppressed) == 0)
+                                        goto  ssPUTINT;
+                                b = *(formP++);
+                                goto  ssSwitch;
+
+                case (_fl) :    goto  ssFLOAT;
+                case (_st) :    goto  ssTOKEN;
+                case (_ch) :    goto  ssCHAR;
+                case (_sc) :    goto  ssSCANSET;
+                case (_dc) :    goto  ssEND;
+
+                default: /*  never occurs.  */;
+        }
+
+ssINT:
+        lRes = _scantol (Get, UnGet, srceP, base, width & 0x7FFF,
+                        &charCt, &status);
+ssPUTINT;
+        if (('A' <= b) && (b <= 'Z'))
+                flags |= isLong;
+
+        if ((flags & isSuppressed) == 0)
+        {
+                if (flags & isLong)
+                        (long *) *(*(varPP++)) = lRes;
+                else if (flags & isHalf)
+                        (short *) *(*(varPP++)) = lRes;
+                else (int   *) *(*(varPP++)) = lRes;
+                if (b != 'n')
+                        count ++;
+        }
+        goto  ssNEXT;
+
+ssPTR:
+        lRes = _scantol (Get, UnGet, srceP, 16, 4, &charCt, &status);
+        if (status <= 0)
+                goto ssEND;
+        if (flags & isFarPtr)
+        {
+                if (':' != (b = Get (srceP)))
+                {
+                        UnGet (b, srceP);
+                        goto  ssEND;
+                }
+                charCt ++;
+                lRes = (lRes << 16) + _scantol (Get, UnGet, srceP, 16, 4,
+                                                &charCt, &status);
+                if (status <= 0)
+                        goto ssEND;
+        }
+        if ((flags & isSuppressed) == 0)
+        {
+                if (flags & isFarPtr)
+                        (long *) *(*(varPP++)) = lRes;
+                else    (short *) *(*(varPP++)) = lRes;
+                        count ++;
+        }
+        goto  ssNEXT;
+
+
+ssFLOAT:
+        ldRes = _scantod (Get, UnGet, srceP, width & 0x7FFF, &charCt, &status);
+        if ((flags & isSuppressed) == 0)
+        {
+                if (flags & isLong)
+                        (double *) *(*(varPP++)) = ldRes;
+                else if (flags & isLongDouble)
+                        (long double *) *(*(varPP++)) = ldRes;
+                else
+                        (float *) *(*(varPP++)) = ldRes;
+                count ++;
+        }
+        goto  ssNEXT;
+
+ssTOKEN:
+        while (_ws == scanCtype [a = Get (srceP)])
+                charCt ++;
+        charCt ++;
+        if (EOF == a)
+                goto ssEND;
+        if ((flags & isSuppressed) == 0)
+        {
+                cP = *(varPP++);
+                count ++;
+        }
+        while (_ws < scanCtype [a])   /* \0 or white space will terminate */
+        {
+                if ((flags & isSuppressed) = 0)
+                        *(cP++) = a;
+                charCt ++;
+                a = Get (srceP);
+        }
+        if ((flags & isSuppressed) == 0)
+                *cP = \0;
+        goto  ssNEXT;
+
+ssCHAR:
+        if (width < 0)
+                width = 1;
+        if (width)
+        {
+                charCt ++;
+                if ((a = Get (srceP)) == EOF)
+                        goto ssEOF;
+        }
+        if ((flags & isSuppressed) == 0)
+        {
+                cP = *(varPP++);
+                count ++;
+        }
+        if (width)
+        do
+        {
+                if ((flags & isSuppressed) == 0)
+                        *(cP++) = a;
+                if (width --)
+                        break;
+                charCt ++;
+                if (EOF == (a = Get (srceP)))
+                        break;
+        }
+        goto  ssNEXT;
+
+
+ssSCANSET:
+
+/*      scanset ::= ['^'] [']'] [nonFinalSet] ']'       */
+
+        wP = & bitSet;
+        for (i = 16; *(wP++) = 0; i--);
+
+        exclude = false;
+        if ('^' == (a = *(formP++)))
+        {
+                exclude = true;
+                a = *(formP++);
+        }
+
+        for (;;)            /* fill in the bit set */
+        {
+                b = a;
+                if (0 == a)          /* unexpected end of format */
+                        goto ssEND;
+                bitSet [a] = true;
+                if (']' == (a = *(formP++)))
+                        break;
+                if (('-' == a) && (b < *formP) && (']' != *formP))
+                {
+                        a = *(formP++);
+                        while ( ++b < a)
+                                bitSet [b] = true;
+                }
+        }
+
+        if (width = -1)
+                width = 0x7FFF;
+        if (width)
+        {
+                charCt ++;
+                if ((a = Get (srceP)) == EOF)
+                        goto ssEOF;
+        }
+        if ((flags & isSuppressed) == 0)
+        {
+                cP = *(varPP++);
+                count ++;
+        }
+        while ((--width >= 0) && (exclude != (bitSet [a])) && (EOF != a))
+        {
+                if ((flags & isSuppressed) == 0)
+                        *(cP++) = a;
+                charCt ++;
+                a = Get (srceP);
+        }
+        if (width >= 0)
+        {
+                UnGet (a, srceP);
+                charCt --;
+        }
+        if ((flags & isSuppressed) == 0)
+                *(cP++) = '\0';
+        goto  ssNEXT;
+
+
+ssEND:
+        return (count) ? count : -1;
+
+#endif
+/************************** End of C documentation *************************/
+
+        goto RealCodeStart;
+scn_Label_it:
+/*-------------------Start of Local nested PROCs --------------------------*/
+
+/*
+  This function returns with the 'carry bit' set if an error occurred in a HUGE
+  model program. A HUGE program being asked to scan NEAR pointers is a runtime
+  error. The macro SCANNEXTARGPOINTER is used to call this function. This
+  resolves all the memory model dependant junk right here so we don't
+  have to pepper the code with it all over.  Note that since TC's preprocessor
+  will 'see' the macro before TASM, we can use TC's conditional compilation
+  within the MACRO and TASM sees the preprocessed result.
+*/
+
+I SCANNEXTARGPOINTER MACRO      /* Note, Preprocessor sees this before TASM! */
+I       call scn_NextArgPtr
+#ifdef __HUGE__
+I       jnc     $+5
+I       jmp     scn_END         /* Can't scan NEAR w/HUGE model */
+#endif
+I       ENDM
+
+I scn_NextArgPtr PROC NEAR
+I       LES_    di, varPP
+I       test    BY0 (flags), isFarPtr
+I       jz      scn_nextNear
+
+I       les     di, ES_ [di]            /* ES: [di] = & result          */
+I       add     W0 (varPP), 4
+#ifdef __HUGE__
+I       clc                             /* Clear carry bit              */
+#endif
+I       ret
+
+scn_nextNear:
+#ifdef __HUGE__
+I       stc                             /* Set carry bit                */
+#else
+I       mov     di, ES_ [di]            /* [di] = & DS: result          */
+I       push    ds
+I       pop     es
+I       add     W0 (varPP), 2
+#endif
+I       ret
+I scn_NextArgPtr ENDP
+
+/*---------------------End of Local nested PROCs --------------------------*/
+
+RealCodeStart :
+
+I       push    ES
+I       cld
+
+scn_NEXT:
+I       mov     si, formP
+
+scn_nextChar:
+#if LDATA
+I       mov     ES, W1 (formP)
+#endif
+I       lods    BY0 (ES_ [si])   /* *(formP++)   */
+I       or      al, al
+I       jz      scn_respondJmp   /* '\0' terminates the format string    */
+
+I       cmp     al, '%'
+I       je      scn_CONV         /* conversion specs begin with '%'      */
+
+scn_percent:                     /* but "%%" returns to here     */
+I       cbw
+I       xchg    di, ax
+        charCt ++;
+        Get (srceP);
+
+I       or      ax, ax
+I       jl      scn_EOFjmp
+I       cbw
+I       or      di, di
+I       js      scn_mustMatch
+I       cmp     BY0 (scanCtype [di]), _ws  /* does format specify space ? */
+I       jne     scn_mustMatch
+
+scn_matchSpace:                         /* a format space matches any   */
+I       xchg    ax, bx                  /*   number of source spaces    */
+I       or      bl, bl
+I       js      scn_spaceEnded
+I       cmp     BY0 (scanCtype [bx]), _ws
+I       jne     scn_spaceEnded
+
+        charCt ++;
+        Get (srceP);
+
+I       or      ax, ax
+I       jg      scn_matchSpace
+
+scn_EOFjmp:
+I       jmp     scn_EOF
+
+
+scn_spaceEnded:
+        UnGet (_BX, srceP);             /*   part of the next field     */
+        charCt --;
+I       jmp     short scn_nextChar
+
+
+scn_mustMatch:                      /* non-space format characters must be  */
+I       cmp     ax, di              /*   matched in the input source.       */
+I       je      scn_nextChar
+        UnGet (_AX, srceP);             /*   part of the next field     */
+        charCt --;
+        goto  scn_END;
+
+
+/*    Jump via here in the normal case of end of format string.   */
+scn_respondJmp:
+        goto  scn_respond;
+
+
+/*   If arrive here then a conversion specification has been entered.  */
+scn_CONV:
+I       mov     W0 (width), -1
+#if LDATA
+I       mov     ES, W1 (formP)
+I       mov     BY0 (flags), isFarPtr
+#else
+I       mov     BY0 (flags), 0
+#endif
+
+scn_convNext:
+I       lods    BY0 (ES_ [si])          /* *(formP++)   */
+I       cbw
+I       mov     W0 (formP), si          /* remember the position        */
+I       xchg    di, ax
+I       or      di, di
+I       jl      scn_anyOther
+I       mov     bl, scanCtype [di]
+I       xor     bh,bh
+
+        switch ((charClass) _BX)
+        {                               /***    Switch Begins   ***/
+
+case (_pc):
+I   xchg    ax, di
+        goto scn_percent;               /* "%%"  is literal '%' */
+
+case (_zz):             /* zero */
+case (_dc):             /* "don't care" came in spot where we 'care' */
+case (_ws):             /* unwanted space occurred.      */
+scn_anyOther:
+        goto  scn_END;  /* any invalid specifier causes abrupt end. */
+
+
+case (_su):             /* Suppressed fields are scanned */
+I       or      BY0 (flags), isSuppressed /*   but the result is not stored. */
+I       jmp     short   scn_convNext
+
+case (_nu):                     /* Scan widths set limits on field sizes. */
+I       sub     di, '0'
+I       xchg    width, di
+I       or      di, di
+I       jl      scn_convNext
+
+I       mov     ax, 10
+I       mul     di
+I       add     width, ax
+I       jmp     short   scn_convNext
+
+
+case (_ld):                             /* The LongDouble flag is used  */
+I       or      BY0 (flags),isLongDouble /* scanning for long doubles,  */
+        goto scn_convNext;              /* nothing else                 */
+
+case (_lo):                             /* The "long" flag is used when */
+I       or      BY0 (flags), isLong     /*   scanning for long integers */
+        goto scn_convNext;              /*     or doubles.              */
+
+case (_ha):                             /* The "half" flag is used when */
+I       or      BY0 (flags), isHalf     /*   scanning for short ints    */
+        goto scn_convNext;              /*     or floats                */
+
+case (_ne):                             /* The "near" flag is used      */
+I       and     BY0 (flags), NOT isFarPtr /*  when scanning for */
+        goto scn_convNext;              /*     16-bit pointers          */
+
+case (_fa):                             /* The "far" flag is used       */
+I       or      BY0 (flags), isFarPtr   /*   when scanning for          */
+        goto scn_convNext;              /*     32-bit pointers          */
+
+case (_ct):                             /* The count of source chars read */
+I       mov     ax, charCt              /*   characters used.   */
+I       sub     dx, dx
+I       test    BY0 (flags), isSuppressed
+I       jz      scn_PUTINT
+        goto scn_convNext;
+
+case (_oc):
+I       mov     si, 8                   /* radix = 8    */
+I       jmp     short   scn_INT
+
+case (_un):
+case (_de):
+I       mov     si, 10                  /* radix = 10   */
+I       jmp     short   scn_INT
+
+case (_he):
+I       mov     si, 16                  /* radix = 16   */
+I       jmp     short   scn_INT
+
+case (_in):
+I       xor     si, si           /* source syntax will decide radix      */
+
+/*
+  Arrive here if an integer is expected.  Signed or unsigned are treated
+  similarly, the _scantol routine will handle either and there is no method
+  (or good purpose) to complaining about a '-' if the user enters it.
+*/
+scn_INT:
+scn_UINT:
+    if (((_DI & 0x20) == 0) && (_DI != 'X'))
+            flags |= isLong;  /* bit 5 is set if lower case */
+
+    _scantol (Get, UnGet, srceP, _SI, width & 0x7FFF, &charCt, &status);
+
+I       cmp     W0 (status), 0
+I       jle     scn_intEnd
+
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_intUpdated
+
+I       inc     W0 (count)
+
+scn_PUTINT:                             /* from %n specifications       */
+I       SCANNEXTARGPOINTER              /* This is a MACRO! */
+
+/*   On the iAPX-86 family  int == short,  so we can ignore "isHalf".   */
+scn_intStos:
+I       stosw
+I       test    BY0 (flags), isLong
+I       jz      scn_intUpdated
+I       xchg    ax, dx
+I       stosw
+
+scn_intUpdated:
+        goto  scn_NEXT;
+
+scn_intEnd:
+I       jl      scn_intEOF
+        goto  scn_END;
+
+scn_intEOF:
+        goto  scn_EOF;
+
+
+/*
+  Pointer formats are in Intel style, either hhhh (DS default) or
+  hhhh:hhhh for far.
+*/
+case (_pt):
+        _SimLocalCall_
+I       jmp     scn_SkipSpace           /* CX zapped, result in AL      */
+        UnGet (_AX, srceP);
+        charCt --;
+
+I       and     W0 (width), 7FFFh
+
+        _SimLocalCall_
+I       jmp     scn_InHex4              /* CX zapped, next char in AX,  */
+                                        /*   numeric result in DX       */
+I       push    dx                      /* save the MSW of pointer */
+
+I       cmp     al, ':'
+I       je      scn_ptrLSW
+
+I       or      ax, ax
+I       jle     scn_noLookAhead
+
+        UnGet (_AX, srceP);
+        charCt --;
+scn_noLookAhead:
+
+I       pop     dx                      /* retrieve, use as LSW         */
+
+#ifdef __HUGE__
+I       jmp     short   scn_ptrEndJmp
+#else
+I       mov     bx, DS
+I       jmp     short   scn_pointerReady
+#endif
+
+scn_ptrLSW:
+        _SimLocalCall_
+I       jmp     scn_InHex4              /* CX zapped, next char in AX,  */
+                                        /*   numeric result in DX       */
+I       pop     bx                      /* retrieve the MSW     */
+
+I       or      ax, ax
+I       jle     scn_notAhead
+
+I       push    dx
+I       push    bx
+    UnGet (_AX, srceP);
+    charCt --;
+I       pop     bx
+I       pop     dx
+scn_notAhead:
+
+scn_pointerReady:
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_ptrUpdated
+
+I       SCANNEXTARGPOINTER              /* This is a MACRO! */
+
+I       inc     W0 (count)
+
+I       xchg    ax, dx
+I       stosw
+I       test    BY0 (flags), isFarPtr
+I       jz      scn_ptrUpdated
+I       xchg    ax, bx
+I       stosw
+
+scn_ptrUpdated:
+    goto  scn_NEXT;
+
+scn_ptrEnd:
+I       jl      scn_jmpEOF
+scn_ptrEndJmp:
+    goto  scn_END;
+
+scn_jmpEOF:
+I       jmp     scn_EOF
+
+
+/*-------------------------------------------------------------------------
+  'e', 'f', 'g', 'E' and 'G' formats are all equivalent for input
+  since  _scantod and _scantoLd  recognize all variants.
+-------------------------------------------------------------------------*/
+
+case (_fl):
+
+#if LDATA
+I       push    SS
+#endif
+I       lea     ax, status
+I       push    ax                      /*      , &status */
+#if LDATA
+I       push    SS
+#endif
+I       lea     ax, charCt
+I       push    ax                      /*      , &charCt */
+I       mov     ax, 07FFFh
+I       and     ax, width               /*      , 0x7FFF & width */
+I       push    ax
+#if LDATA
+I       push    W1 (srceP)
+#endif
+I       push    W0 (srceP)              /*      , srceP */
+I       push    W0 (UnGet)              /*      , UnGet */
+I       push    W0 (Get)                /*      , Get */
+I       call    near ptr _scantod       /* ST(0) = _scantod (   */
+I       add     sp, (3 * dPtrSize) + 2 + (2 * 2)   /* code pointer size is 2 */
+
+I       cmp     W0 (status), 0
+I       jle     scn_endFloat
+
+        if (!(flags & isSuppressed))
+        {
+I               SCANNEXTARGPOINTER              /* This is a MACRO!     */
+
+I               inc     W0 (count)
+
+I               test    BY0 (flags), isLong     /* is it 'double'       */
+I               jz      test_LongDOuble
+I               mov     ax, isLong
+I               jmp     short push_type
+
+test_LongDOuble:
+I               test    BY0 (flags), isLongDouble /* is it 'long double'*/
+I               jz      its_default_float
+I               mov     ax, isLongDouble
+I               jmp     short push_type
+
+its_default_float:
+I               xor     ax, ax                  /* default is 'float'   */
+
+push_type:
+I               push    ax
+#if LDATA
+I               push    es
+#endif
+I               push    di
+I               call    near ptr _scanrslt
+I               add     sp, dPtrSize + 2
+
+                goto scn_NEXT;                  /* This item is complete*/
+        }
+
+scn_popFloat:           /* if suppressed then discard result of _scantod. */
+        _scanpop();                             /* pop stack    */
+
+scn_UpdatedReal:
+        goto scn_NEXT;
+
+scn_endFloat:           /* if failed then discard result of _scantod. */
+        _scanpop();                             /* pop stack    */
+I       jl      scn_jmpEOF
+        goto scn_END;
+
+
+/***************************************************************************
+  The 's' conversion specifies to take a "token" from the source.
+  The token is the next contiguous group of non-space characters.
+***************************************************************************/
+
+case (_st):
+
+scn_untilToken:
+        _SimLocalCall_
+I       jmp     scn_SkipSpace           /* CX zapped, result in AL      */
+
+scn_maybeToken:
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_tokenWidth
+
+I       SCANNEXTARGPOINTER              /* This is a MACRO! */
+
+I       inc     W0 (count)
+
+scn_tokenWidth:
+I       and     width, 7FFFh            /* default width becomes 7FFFh  */
+I       jz      scn_tokenEnd
+
+scn_whileToken:
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_tokenNextCh
+I       stosb
+
+scn_tokenNextCh:
+    charCt ++;
+I       push    ES
+    Get (srceP);
+I       pop     ES
+
+I       or      ax, ax
+I       jle     scn_tokenEnd            /* end if \0 or EOF    */
+I       or      al, al
+I       js      scn_isToken
+I       xchg    bx, ax
+I       cmp     scanCtype [bx], _ws
+I       xchg    ax, bx
+I       jng     scn_tokenEnd            /* end if space */
+
+scn_isToken:
+I       dec     W0 (width)
+I       jg      scn_whileToken          /* width limits loop count      */
+
+scn_tokenEnd:
+I       push    ES
+    UnGet (_AX, srceP);
+I       pop     ES
+    charCt --;
+
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_tokenUpdated
+I       mov     al, 0           /* terminate result token string.       */
+I       stosb
+
+scn_tokenUpdated:
+    goto  scn_NEXT;
+
+
+/*
+  The 'c' option captures a literal character array.  Leading and embedded
+  space characters are taken, not skipped.  The array size must be filled:
+  if too few characters are in the source then the conversion fails and is
+  not counted.
+*/
+case (_ch):
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_checkWidth
+
+I       SCANNEXTARGPOINTER              /* This is a MACRO! */
+
+scn_checkWidth:
+I       mov     si, width               /* if width was -1 (default), then  */
+I       or      si, si                  /*  set it to 1.  Note that a zero  */
+I       jnl     scn_charWidened         /*    width is valid (consider how  */
+I       mov     si, 1                   /*     an '*' width might be used). */
+
+scn_charWidened:
+I       jz      scn_charEnd             /* skip if user set a zero width */
+
+scn_charLoop:
+        charCt ++;
+I       push    ES
+        Get (srceP);
+I       pop     ES
+I       or      ax, ax
+I       jl      scn_charEOF
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_charNoPut
+I       stosb
+
+scn_charNoPut:
+I       dec     si                      /* width */
+I       jg      scn_charLoop
+
+scn_charEnd:
+I       test    BY0 (flags), isSuppressed
+I       jnz     scn_charNext
+I       inc     W0 (count)
+
+scn_charNext:
+        goto  scn_NEXT;
+
+scn_charEOF:                            /* source was incomplete */
+        goto  scn_EOF;
+
+
+/*
+  The '[' conversion is the most complicated.  The contents of "[...]"
+  form a scan set.  Basically it is similar to the 's' format, except that
+  the contents (or complement) of the scan set decide the valid characters
+  of the token, and leading or embedded spaces are not ignored.
+
+        scanset ::= ['^'] [']'] [nonFinalSet] ']'
+
+  The nonFinalSet includes any set of characters, and also allows ranges
+  such as "A-Z".  The '-' standing for itself is distinguished from the
+  range range indicator by ordering: a range is understood if the first
+  and last characters are in ascending order, otherwise all three
+  characters are simply themselves.
+
+  The scanning is performed using a bit set, with one bit for every 8-bit
+  character.  This imposes some set-up time (around 40 microseconds on a
+  PC to clear the bit set) but it quickly pays off in speed per character.
+  It is also the only sensible way to implement large scan sets including
+  ranges.
+*/
+case (_sc):
+#if LDATA
+I       push    ES
+#endif
+I       sub     ax, ax
+I       cld
+I       push    SS
+I       pop     ES
+I       lea     di, bitSet
+I       mov     cx, 16
+I       rep stosw                       /* clear 256 bits.      */
+#if LDATA
+I       pop     ES
+#endif
+/*
+  Now the format must be processed to decide the rules of the scan set.
+  If the first character is '^' then it means the scan set is to be
+  exclusive (ie.  any matching character will terminate a scan).
+*/
+I       lods    BY0 (ES_ [si])                  /* *(formP++)   */
+I       and     BY0 (flags), NOT isExclusive
+I       cmp     al, '^'
+I       jne     scn_scanInc
+I       or      BY0 (flags), isExclusive
+I       lods    BY0 (ES_ [si])                  /* *(formP++)   */
+scn_scanInc:
+/*
+  If the ']' character is wanted as part of the scan set then it must be
+  first character to appear.  A consequence is that a scan set must have
+  at least one member character.  The syntax of the scan set requires up
+  to three characters to be considered (since ranges have three chars).
+  DL holds the previous character, AL the current, and [si] the next.
+*/
+I       mov     ah, 0
+
+scn_scanSetBit:
+I       mov     dl, al
+I       mov     di, ax
+I       mov     cl, 3
+I       shr     di, cl
+I       mov     cx, 107h
+I       and     cl, dl
+I       shl     ch, cl
+I       or      bitSet [di], ch
+
+scn_setNext:
+I       lods    BY0 (ES_ [si])          /* *(formP++)   */
+
+I       cmp     al, 0                   /* unexpected end of format ?   */
+I       jz      scn_scanOpen
+I       cmp     al, ']'                 /* normal end of scan set specification */
+I       je      scn_scanBounded
+I       cmp     al, '-'                 /* possible range specification */
+I       jne     scn_scanSetBit
+I       cmp     dl, ES_ [si]
+I       ja      scn_scanSetBit
+I       cmp     BY0 (ES_ [si]), ']'
+I       je      scn_scanSetBit
+/*
+  If arrived here then a range has been specified, and note that the first
+  bit of the range has already been set.
+*/
+I       lods    BY0 (ES_ [si])                  /* *(formP++)   */
+I       sub     al, dl                  /* AL is count of bits needed.  */
+I       je      scn_setNext
+I       add     dl, al                  /* DL = (A + Z-A) = Z, final char. */
+scn_setRange:
+I       rol     ch, 1                   /* next bit position is in ..   */
+I       adc     di, 0                   /* .. next byte if wrap-around. */
+I       or      bitSet [di], ch
+I       dec     al
+I       jnz     scn_setRange
+I       jmp     short   scn_setNext
+
+
+scn_scanOpen:                        /* scan set was not written correctly */
+    goto  scn_END;                   /* abandon the conversion       */
+
+
+scn_scanBounded:                     /* the closing ']' has been found. */
+I       mov     formP, si            /* remember formP next position */
+
+I       and     W0 (width), 7FFFh    /* convert default -1 to large positive */
+I       mov     si, width
+
+I       test    BY0 (flags), isSuppressed /* if suppressed, then just skip */
+I       jnz     scn_scanLoop              /*   input, generate no result  */
+
+I       SCANNEXTARGPOINTER              /* This is a MACRO! */
+
+scn_scanLoop:
+I       dec     si
+I       jl      scn_scanLimited
+
+        charCt ++;
+I       push    ES
+        Get (srceP);
+I       pop     ES
+
+I       or      ax, ax
+I       jl      scn_scanEOF
+
+I       xchg    si, ax
+I       mov     bx, si
+I       mov     cl, 3                   /* calculate bit equivalent of char */
+I       shr     si, cl
+I       mov     cx, 107h
+I       and     cl, bl
+I       shl     ch, cl
+I       test    ch, bitSet [si] /* is the character in the scan set ?   */
+I       xchg    ax, si
+I       xchg    ax, bx
+I       jz      scn_scanNotIn
+
+
+/*      If arrived here then the char was in the scan set.     */
+I       test    BY0 (flags), isExclusive        /* exclusive scan ?     */
+I       jz      scn_scanAccept
+I       jmp     short   scn_scanTerminate
+
+/*      If arrived here then the char was not in the scan set.     */
+scn_scanNotIn:
+I       test    BY0 (flags), isExclusive        /* exclusive scan ?     */
+I       jz      scn_scanTerminate
+
+/*      If arrived here, then AL holds an acceptable character     */
+scn_scanAccept:
+I       test    BY0 (flags), isSuppressed /* if suppressed, then just skip */
+I       jnz     scn_scanLoop              /*   input, generate no result. */
+
+I       stosb                           /* move character to result string */
+I       jmp     short   scn_scanLoop
+
+I
+/*    If arrived here then the end of the scanned token has been found.   */
+scn_scanTerminate:
+I       push    ES
+        UnGet (_AX, srceP);         /* unget the terminator */
+I       pop     ES
+        charCt --;
+
+I       inc     si
+I       cmp     si, width
+I       jnl     scn_scanEND     /* No match at all was seen */
+
+/*     If arrived here then the maximum width was hit or scan is complete.   */
+scn_scanLimited:
+I       test    BY0 (flags), isSuppressed   /* if suppressed, then just skip */
+I       jnz     scn_scanUpdated             /*   input, generate no result  */
+I       inc     W0 (count)
+scn_scanEND:
+I       test    BY0 (flags), isSuppressed   /* if suppressed, then just skip */
+I       jnz     scn_scanUpdated             /*   input, generate no result  */
+I       mov     al, 0
+I       stosb
+
+scn_scanUpdated:
+        goto  scn_NEXT;
+
+scn_scanEOF:
+I       inc     si
+I       cmp     si, width
+I       jnl     scn_EOF             /* input failed before token */
+
+I       test    BY0 (flags), isSuppressed       /* if suppressed, just skip */
+I       jnz     scn_EOF
+I       mov     al, 0
+I       stosb
+I       inc     W0 (count)
+
+/*      jmp     scn_EOF         */
+}                               /***    End of Switch   ***/
+
+/*
+  Input failure before a conversion succeeds.  Give a count of
+  the number or input fields successfully taken: if failed before
+  any input accepted, return EOF;
+*/
+scn_EOF:
+        UnGet (EOF, srceP);
+I       cmp     W0 (count), 1           /* generates carry if count = 0 */
+I       sbb     W0 (count), 0           /*    so bad count becomes -1   */
+
+        /*      Arrive here for conversion failures.    */
+scn_END:
+
+/*
+  If arrived here then the scan ended gracefully.  Return a count of input
+  fields accepted.
+*/
+scn_respond:
+
+scn_exit:
+I       pop     ES
+        return count;
+
+
+/*      --- Local Subroutines ---       */
+
+/*      --- SkipSpace ---       skip spaces at beginning of a spec      */
+scn_SkipSpace:
+        charCt ++;
+        Get (srceP);
+
+I       or      ax, ax
+I       jle     scn_skipEOF             /* \0 or EOF    */
+I       or      al, al
+I       js      scn_skipEnd
+I       xchg    bx, ax
+I       cmp     scanCtype [bx], _ws     /* white space ?        */
+I       xchg    ax, bx
+I       je      scn_SkipSpace
+
+scn_skipEnd:
+I       pop     cx              /* get return address           */
+I       add     cx, 3           /* avoid the 3-byte jump        */
+I       jmp     cx              /* RETNEAR                      */
+
+scn_skipEOF:
+I       jz      scn_skipEnd
+I       pop     cx                      /* discard normal return  */
+I       jmp     short   scn_EOF         /* HUGE has no default DS */
+
+
+
+/*      --- InHex4---           Collect up to 4 hex digits
+
+result: CX zapped, next char in AX, numeric result in DX.
+*/
+scn_InHex4:
+I       sub     dx, dx
+I       mov     cx, 4
+
+scn_h4loop:
+I       dec     W0 (width)
+I       jl      scn_h4limited
+
+I       push    dx
+I       push    cx
+        charCt ++;
+        Get (srceP);
+I       pop     cx
+I       pop     dx
+
+I       or      ax, ax
+I       jle     scn_h4end       /* \0 or EOF    */
+I       dec     cl
+I       jl      scn_h4end       /* maximum of 4 digits  */
+
+I       mov     ch, al
+I       sub     ch, '0'
+I       jb      scn_h4end
+I       cmp     ch, 10
+I       jb      scn_h4isDigit
+I       sub     ch, 'A' - '0'
+I       jb      scn_h4end
+I       cmp     ch, 6
+I       jb      scn_h4isHex
+I       sub     ch, 'a' - 'A'
+I       jb      scn_h4end
+I       cmp     ch, 6
+I       jnb     scn_h4end
+
+scn_h4isHex:
+I       add     ch, 10
+scn_h4isDigit:
+I       shl     dx, 1
+I       shl     dx, 1
+I       shl     dx, 1
+I       shl     dx, 1
+I       add     dl, ch
+I       jmp     scn_h4loop
+
+scn_h4limited:
+I       sub     ax, ax          /* no lookahead                 */
+
+scn_h4end:
+I       cmp     cl, 4
+I       je      scn_h4eof
+I       pop     cx              /* get return address           */
+I       add     cx, 3           /* avoid the 3-byte jump        */
+I       jmp     cx              /* RETNEAR                      */
+
+scn_h4eof:
+I       pop     cx              /* discard normal return */
+I       jmp     scn_EOF         /* reject input         */
+
+}
+#pragma warn .use
+#pragma warn .rvl
+

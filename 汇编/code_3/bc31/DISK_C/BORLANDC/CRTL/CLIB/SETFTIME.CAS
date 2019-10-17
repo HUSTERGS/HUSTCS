@@ -1,0 +1,47 @@
+/*-----------------------------------------------------------------------*
+ * filename - setftime.cas
+ *
+ * function(s)
+ *        setftime - gets file date and time
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            setftime - gets file date and time
+
+Usage           #include <io.h>
+                int setftime(int handle, struct ftime *ftimep);
+
+Prototype in    io.h
+
+Description     see getftime
+
+*------------------------------------------------------------------------*/
+int setftime(int handle, struct ftime *ftimep)
+{
+asm     mov     ax, 05701h
+asm     mov     bx, handle
+asm     LES_    di, ftimep
+asm     mov     cx, ES_[di]
+asm     mov     dx, ES_[di+2]
+asm     int     021h
+asm     jc      setftimeFailed
+        return (0);
+
+setftimeFailed:
+        return __IOerror (_AX);
+}

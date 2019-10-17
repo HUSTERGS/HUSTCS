@@ -1,0 +1,135 @@
+/*------------------------------------------------------------------------
+ * filename - sinh.cas
+ *
+ * function(s)
+ *        sinh - hyperbolic sine function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            sinh - hyperbolic sine function
+
+Usage           double sinh(double x);
+
+Prototype in    math.h
+
+Description     sinh computes the hyperbolic sine of the input value.
+
+Return value    sinh returns the hyperbolic sine of the input value.
+                For large arguments (magnitude greater than or equal to
+                710.475) the result will be an EDOM error.
+
+*---------------------------------------------------------------------------*/
+
+/*
+Algorithm.
+
+The usual formula is:
+        sinh(x) = .5*(exp(x) - exp(-x))
+but there is a loss of precision in using this formula directly near 0.
+
+Since sinh(-x) = -sinh(x), compute sinh(|x|) and adjust the sign later.
+
+If 0 <= x < 2^-33, return x.
+
+If x >= 710.475 call matherr.
+
+If x >= .3465, use
+        y = exp(x)
+        sinh(x) = (y - 1/y)/2
+
+If 2^-33 <= x < .3465, use
+        y = exp(x) - 1
+        sinh(x) = (y + y/(1 + y))/2
+where special chip functions are used to get exp(x)-1 accurately.
+
+*/
+
+#pragma warn -rvl
+
+double _FARFUNC sinh( double  x )
+{
+asm     FLD1
+asm     mov     ax, 7FFFh
+asm     FCHS                    /* TOS = -1.0   */
+asm     mov     dx, x [6]
+asm     and     ax, dx  /* select exponent and most signif. bits */
+
+asm     FLD     DOUBLE (x)
+asm     cmp     ax, 4086h
+asm     jnb     sinh_tooBig     /* exp (+-710.475) is the limit */
+
+asm     FABS
+asm     cmp     ax, 3FD6h
+asm     jb      sinh_small
+
+sinh_justFits:
+#ifdef _Windows
+        _f87_Exp();
+#else
+asm     _FAST_  (_FEXP_)
+#endif
+
+asm     FLD1
+asm     FDIV    st, st(1)       /* Exp (-x)     */
+asm     FSUBP   st(1), st
+asm     FSCALE                  /* sinh (x) = (exp(x) - exp(-x)) / 2    */
+
+sinh_end:
+asm     FSTP    st(1)   /* discard the -1 */
+/* change sign if original argument was negative */
+asm     test    dh, 80h
+asm     jz      sinh_end2
+asm     FCHS
+sinh_end2:
+        return;
+
+sinh_tooBig:
+asm     ja      sinh_over
+asm     cmp     W0 (x [4]), 33CEh
+asm     jb      sinh_justFits
+
+sinh_over:
+asm     FSTP    ST(0)                   /* discard ST and ST(1) */
+asm     FSTP    ST(0)
+
+#pragma warn -ret
+        return  _matherr (OVERFLOW, "sinh", &x, NULL,
+                                                (_DX & 0x8000) ? - HUGE_VAL : HUGE_VAL);
+#pragma warn .ret
+
+sinh_small:
+asm     cmp     ax, 3DE0h
+asm     jb      sinh_end                /* x tiny, return x */
+
+asm     FLDL2E
+asm     FMUL
+asm     F2XM1
+/* TOS = y = exp(x) - 1 */
+asm     FLD1
+asm     FADD    st(0),st(1)
+/* stack = 1+y,y,-1 */
+asm     FDIVR   st(0),st(1)
+asm     FADD
+asm     FSCALE
+        goto sinh_end;
+}
+#pragma warn .rvl

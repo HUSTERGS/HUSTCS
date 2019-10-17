@@ -1,0 +1,17 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+//
+// paltest.dlg
+
+ABOUT DIALOG DISCARDABLE LOADONCALL PURE MOVEABLE 10, 35, 141, 146
+STYLE WS_POPUP | WS_CAPTION | WS_SYSMENU | 0x80L
+CAPTION "About "
+BEGIN
+  CONTROL "&OK" 1, "BUTTON", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 52, 112, 38, 15
+  CONTROL "Palette Tester" -1, "STATIC", WS_CHILD | WS_VISIBLE | 0x1L, 45, 5, 53, 9
+  CONTROL "Borland C++ Demo" -1, "STATIC", WS_CHILD | WS_VISIBLE | 0x1L, 14, 74, 115, 12
+  CONTROL "Copyright © 1992 " -1, "STATIC", WS_CHILD | WS_VISIBLE | 0x1L, 42, 86, 59, 10
+  CONTROL "Left button click to show colors in logical palette" -1, "STATIC", WS_CHILD | WS_VISIBLE | 0x1L, 13, 26, 116, 23
+  CONTROL "Right button click to rotate colors in logical palette" -1, "STATIC", WS_CHILD | WS_VISIBLE | 0x1L, 16, 50, 110, 21
+  CONTROL "Borland International" -1, "STATIC", WS_CHILD | WS_VISIBLE | 0x1L, 36, 97, 70, 9
+END
+

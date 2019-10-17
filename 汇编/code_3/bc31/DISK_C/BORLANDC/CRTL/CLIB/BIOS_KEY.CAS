@@ -1,0 +1,87 @@
+/*---------------------------------------------------------------------------
+ * filename - bios_key.cas
+ *
+ * function(s)
+ *        _bios_keybrd - keyboard interface (MSC compatible)
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <bios.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _bios_keybrd - keyboard interface
+
+Usage           unsigned _bios_keybrd(unsigned cmd);
+
+Prototype in    bios.h
+
+Description     performs various keyboard operations using BIOS
+                interrupt 0x16.  The parameter cmd determines the exact
+                function:
+
+                _KEYBRD_READ        (0x00) = Get next key
+                _KEYBRD_READY       (0x01) = Test for key
+                _KEYBRD_SHIFTSTATUS (0x02) = Get shift status
+
+                _NKEYBRD_READ       (0x10) = Get next key for enhanced keyboard
+                _NKEYBRD_READY      (0x11) = Test for key for enhanced keyboard
+                _NKEYBRD_SHIFTSTATUS(0x12) = Get shift status for enhanced
+                                             keyboard
+
+                This function is compatible with Microsoft C, and is identical
+                to the older bioskey() function, except for the type of the
+                return value and the cmd parameter.
+
+Return value    value returned to the AX register for the function specified
+                when cmd is 0x00, 0x10, 0x02, or 0x12.
+
+                When cmd is 0x01 or 0x11 it returns zero if no key is waiting,
+                0xFFFF if control break was pressed, otherwise the keycode.
+
+*---------------------------------------------------------------------------*/
+
+unsigned _bios_keybrd(unsigned cmd)
+{
+//  Clear zero flag
+    asm xor  al, al
+
+    asm mov  ah, cmd
+    asm int  16h
+
+//  If zero flag set then no key is waiting
+    asm jz   nokey
+
+//  If we aren't checking status, just return key
+    asm test byte ptr (cmd), 1
+    asm jnz  keydone
+
+//  Here we have status command and key waiting
+//  If keycode is zero (control-break) then signal with 0FFFFh
+    asm or   ax, ax
+    asm jnz  keydone
+    asm mov  ax, 0FFFFh
+    asm jmp  keydone
+
+nokey:
+//  Zero flag wasn't set, if not checking status just return key
+    asm test byte ptr (cmd), 1
+    asm jz   keydone
+
+//  Here we have status command and no key waiting
+    asm xor  ax, ax
+
+keydone:
+    return _AX;
+}

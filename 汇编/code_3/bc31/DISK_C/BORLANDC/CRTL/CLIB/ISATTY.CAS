@@ -1,0 +1,49 @@
+/*-----------------------------------------------------------------------*
+ * filename - isatty.cas
+ *
+ * function(s)
+ *        isatty - checks for device type
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <io.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            isatty - checks for device type
+
+Usage           int isatty(int handle);
+
+Prototype in    io.h
+
+Description     isatty  is  a  function   that  determines  whether  handle
+                represents any one of the following character devices:
+                        - a terminal
+                        - a console
+                        - a printer
+                        - a serial port
+
+Return value    If  the  device  is  character  device,  isatty  returns  a
+                non-zero  integer.  If  it  is  not  such  a device, isatty
+                returns 0.
+
+*------------------------------------------------------------------------*/
+int isatty( int handle )
+  {
+  asm   mov     ax,4400h
+  asm   mov     bx,handle
+  asm   int     21h
+  asm   xchg    ax,dx
+  asm   and     ax,0080h
+
+  return( _AX );
+  }

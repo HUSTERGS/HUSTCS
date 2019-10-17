@@ -1,0 +1,157 @@
+/*---------------------------------------------------------------------------
+ * filename - dostimu.cas
+ *
+ * function(s)
+ *        __DOStimeToU - converts DOS time to UNIX time
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <_io.h>
+#include <time.h>
+
+extern unsigned _monthDay[];
+
+
+/*--------------------------------------------------------------------------*
+
+Name            __DOStimeToU - converts DOS time to UNIX time
+
+Usage           long  pascal __DOStimeToU (unsigned long timeStamp);
+
+Prototype in    _io.h
+
+Description     The timeStamp is a record containing bit-fields with the date
+                and time in the style of PCDOS file time-stamps.
+
+Return value    UNIX time: number of seconds since
+                       00:00:00 January 1, 1970 (GMT)
+
+*---------------------------------------------------------------------------*/
+long pascal near __DOStimeToU(unsigned long timeStamp)
+{
+    unsigned hour, yday, year;
+    long     lcl_timezone;
+    int      lcl_daylight;
+
+    lcl_timezone = timezone;
+    lcl_daylight = daylight;
+
+asm     mov     cx, W0 (timeStamp)
+asm     mov     dx, W1 (timeStamp)
+
+asm     mov     si, cx          /* save time in an idle register        */
+asm     mov     di, dx          /* save date    */
+
+/*
+  DX holds the date in compacted form:
+
+        yyyyyy mmmm ddddd       year (0 = 1980..119), mon (1..12) day (1..31)
+
+  Lets begin by counting the completed days this year.
+*/
+asm     mov     bx, 01E0h
+asm     and     bx, dx          /* isolate the month    */
+asm     mov     cl, 5
+asm     shr     bx, cl
+asm     and     dx, 1Fh         /* BX = month 1..12, DX = day 1..31     */
+
+asm     mov     cx, 0FE00h
+asm     and     cx, di          /* isolate the year     */
+asm     shr     cx, 1
+asm     xchg    cl, ch          /* CX is now the year since 1980.       */
+
+asm     test    cl, 3           /* is this a leap year ?        */
+asm     jnz     dtu_notLeapNow
+asm     cmp     bl, 2           /* is it later than February ?  */
+asm     jna     dtu_notLeapNow
+asm     inc     dx              /* add a leap day       */
+dtu_notLeapNow:
+
+asm     shl     bx, 1
+asm     mov     bx, _monthDay [bx - 2]
+asm     add     bx, dx
+asm     dec     bx              /* BX = completed days only !   */
+asm mov yday, bx
+/*
+  Next we need to calculate how many days are counted in the completed
+  years since 1970, including 1970.
+*/
+asm     add     cl, 10          /* year since 1970      */
+asm mov year, cx
+
+asm     mov     ax, cx          /* how many leap days occurred ? */
+asm     inc     ax              /* count is effectively from 1969.      */
+asm     shr     ax, 1
+asm     shr     ax, 1           /* divided by 4 */
+asm     add     bx, ax          /* add leap days to this year's days    */
+/*
+  In 130 years (start 1970 .. end 2099) there will be 47,481 days.
+*/
+asm     mov     ax, 365
+asm     mul     cx
+asm     add     bx, ax          /* 47,481 will fit into 16 bits.        */
+/*
+  Each day has 86400 seconds.  This is conveniently substituted by
+  (2 * 43200).
+*/
+asm     mov     ax, 43200
+asm     mul     bx
+asm     shl     ax, 1
+asm     rcl     dx, 1           /* DX:AX = years counted as seconds     */
+/*
+  swap out the days' total, fetch today's time
+*/
+asm     xchg    si, ax
+asm     mov     bx, dx          /* BX:SI holds years' seconds.  */
+/*
+  AX = time field, structured as:
+
+        hhhhh mmmmmm sssss      hours (0..23), mins (0..59), secs/2 (0..29)
+*/
+asm     push    ax
+asm     mov     cl, 3
+asm     shr     ax, cl          /* AH = hours   */
+asm mov byte ptr hour, ah
+asm mov byte ptr hour+1, 0
+asm     dec     cx
+asm     shr     al, cl          /* AL = minutes */
+asm     mov     cx, 60
+asm     xchg    al, cl
+asm     mul     ah
+asm     add     ax, cx          /* AX = 60*hours + mins = total mins    */
+asm     mov     cl, 60
+asm     mul     cx
+asm     pop     cx
+asm     and     cx, 1Fh         /* isolate the two-second counts        */
+asm     shl     cx, 1
+asm     add     ax, cx
+asm     adc     dl, dh          /* DX:AX = seconds in the day   */
+asm     add     ax, si
+asm     adc     dx, bx          /* DX:AX = total seconds        */
+/*
+  MSDOS time was local time, so we need to change it to GMT.
+*/
+asm     add     ax, W0 (lcl_timezone)
+asm     adc     dx, W1 (lcl_timezone)
+asm     cmp     W0 (lcl_daylight), 0
+asm jz  dtu_done    /* skip if DST disabled     */
+asm     push    ax
+asm push    dx
+    _SI = __isDST( hour, yday, 0, year ) ? 3600 : 0;
+asm pop dx
+asm pop ax
+asm sub ax, si      /* adjust for daylight savings  */
+asm sbb dx, 0
+dtu_done:
+        return( MK_LONG );   /* DX:AX contains count of seconds since Unix birthday */
+}

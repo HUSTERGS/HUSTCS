@@ -1,0 +1,50 @@
+;[]-----------------------------------------------------------------[]
+;|      EMURULES.ASI  --  global equates for the FPU                 |
+;[]-----------------------------------------------------------------[]
+
+;
+;       C/C++ Run Time Library - Version 5.0
+; 
+;       Copyright (c) 1987, 1992 by Borland International
+;       All Rights Reserved.
+; 
+
+
+emInt           equ     34h     ; vectors 34h..3Dh are used
+shortcutInt     equ     3Eh     ; vector 3Eh is for shortcut entry.
+emIntCode       equ     034CDh          ; Int   34h ..
+
+; Do not change these, unless you know what you are doing.
+_emulateInline_ equ     1       ; include code to handle 34..3D emulations.
+_singlePrec_    equ     0       ; include Single Precision code ?
+_Strict87_      equ     0       ; if false, skip some time-wasting obscure
+                                ;       87 details in the emulation
+_decimal_       equ     1       ; make it include x87 load/store decimal
+_longDoubles_   equ     1       ; for compilers which support long doubles
+__SMALL__       equ     1       ; arbitrary choice: emu works with any model
+_shortcuts88_   equ     0       ; TB inspired shortcuts
+_TBasic_        equ     0       ; Turbo Basic version
+_TestaRossa_    equ     0       ; TestaRossa version
+
+; Ok to change these.
+Quattro3        equ     0       ; GUI Quattro version
+StackDeep       equ     0       ; simulate a deep stack with Invalid traps
+DualMode        equ     1       ; use 286 protected mode
+
+; FPU version number:
+;       ?: TC1, Q1
+;       1: TC2, TP5, Q2
+;       2: TB2          - never shipped
+;       2: TC3, Q3
+EmuVersion      equ     2
+
+; For TC3, I recommend
+;       Quattro3 = 0
+;       DualMode = 0
+;       StackDeep = 0
+
+; For BC1, I recommend
+;       Quattro3 = 0
+;       DualMode = 1
+;       StackDeep = 1
+

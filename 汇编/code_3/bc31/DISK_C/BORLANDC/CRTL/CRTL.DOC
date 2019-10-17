@@ -1,0 +1,405 @@
+
+  BORLAND C++ RUNTIME LIBRARY SOURCE CODE 3.0 DOCUMENTATION
+  _________________________________________________________
+
+  Please read this document carefully. It contains information on
+  how to install the Borland C++ Runtime Library source files, an
+  overview of what the Runtime Library contains, instructions for
+  modifying Runtime Library files, and Borland's licensing
+  agreement.
+
+
+  TABLE OF CONTENTS
+  _________________
+
+     1.  Installing Library Sources
+     2.  Runtime Library Overview
+     3.  Modifying Library Files
+     4.  License Agreement
+     5.  More information on the batch files
+
+
+  1. INSTALLING LIBRARY SOURCES
+  _____________________________
+
+  The following diagram shows the recommended directory structure
+  for the libraries on a hard disk. This is also the directory
+  structure created by the hard disk installation program, INSTALL.
+  All of the batch files that build the RTL files assume this
+  directory structure.
+
+  In the diagram, and in the text that follows, we assume that you
+  have installed the RTL directory structure in a subdirectory
+  named \CRTL. If you have put the RTL directory structure in a
+  subdirectory other than \CRTL, simply substitute the path to that
+  directory wherever \CRTL appears.
+
+  RECOMMENDED LIBRARY DIRECTORY STRUCTURE
+  _______________________________________
+
+  \CRTL                    library root directory; all batch files
+                           are contained here (BATCH.ZIP)
+  \CRTL\LOG                compiler and assembler error message
+                           logs
+  \CRTL\LIB                library files are created here
+  \CRTL\RTLINC             library header files (RTLINC.ZIP)
+  \CRTL\CLIB               general library sources (CLIB1.ZIP,
+                           CLIB2.ZIP).
+  \CRTL\IOSTREAM           C++ stream I/O library sources
+                           (IOSTREAM.ZIP)
+  \CRTL\MATH               math library sources (MATH.ZIP)
+  \CRTL\EMU                floating point initialization.
+                           (FPINIT.ASM in MATH.ZIP)
+  \CRTL\WINLIB             Windows library sources (WINLIB.ZIP)
+  \CRTL\WINLIB\NOTIMP      Stubs for library functions not
+                           implemented under Windows.
+
+  To install the library source files on your hard disk, insert the
+  library source distribution disk 1 in your floppy drive, and
+  enter the following command at the DOS prompt:
+
+       A:INSTALL
+
+  The INSTALL program will default to the library directories as
+  shown above and extract the source and header/include files,
+  placing them in the appropriate directories. It will also extract
+  several batch files that may be used to recompile and/or rebuild
+  the C and MATH libraries. It is a good idea to have a look at
+  these batch files, to see how the source modules are compiled and
+  how the libraries are built.
+
+  The following batch files will be placed in \CRTL:
+
+  BUILD.BAT      Compiles and assembles ALL modules in one or more
+                 libraries, for one or more memory models.
+
+  ALL.BAT        Compiles and assembles ALL modules in ALL
+                 libraries, for ALL memory models.
+
+  These batch files assume the recommended directory structure. For
+  usage information and an example, see section 5 or enter the name
+  of the batch file without any parameters.
+
+  If you choose to compile or assemble a module without using the
+  batch files, be aware that certain files need special switches.
+  Make sure to check the configuration files (TASM.CFG and
+  TURBOC.CFG) and the batch files to find the necessary switches.
+
+
+  2. RUNTIME LIBRARY OVERVIEW
+  ___________________________
+
+  Most of the library routines require .H files from Borland C++,
+  and you'll also need TLIB, the object file librarian.
+
+  The runtime libraries are blocks of object code grouped together
+  in several library files.  These library files contain the
+  general library routines and the standard math routines.
+
+  FPINIT.ASM is provided to allow you to modify the floating-point
+  initialization and termination process.  If you used the
+  installation batch file, this file will be found in a
+  subdirectory called EMU. FPINIT.ASM is used to create two OBJ
+  files, one for the emulator (FPINIT.OBJ) and one for inline 8087
+  instructions (FP87INIT.OBJ). The following command lines will
+  create these two files from the EMU subdirectory.
+
+       TASM /MX /t /z fpinit
+       TASM /MX /t /z /DFP87 fpinit, fp87init
+
+  Most of the modules contained in the runtime libraries are object
+  files produced by compiling the library source files with the
+  Borland C++ compiler.  Some of the files contain inline assembly
+  language code; therefore you will need a TASM 2.0 (or compatible)
+  Macro Assembler to compile those source files. Finally, a few
+  modules are written entirely in assembly language.
+
+  Here is a key to some of the file extensions found in the RTL:
+
+  .C             C source file
+  .CPP           C++ source file
+  .H             C header file
+  .CAS           C source file with inline assembler
+  .ASM           Assembler source file
+  .ASI           Include file needed for .ASM files
+  .CFG           Configuration files for Borland C++ and Turbo
+                 Assembler.
+  .ZIP           Archive file
+
+  The library source files have been grouped together into several
+  "archive" files (.ZIP extensions). An archive file contains a
+  collection of files in a compressed form. You use the UNZIP
+  utility to extract files from the archive. Here is the usage
+  information for UNZIP:
+
+  Usage: UNZIP [options] zipfile [destpath] [files...]
+
+  Options:
+  /o = overwrite existing files         /v = verbose listing of archive(s)
+  /c = extract file(s) to the console   /p = extract file(s) to the printer
+  /t = test archive integrity
+
+  zipfile    Archive file name, wildcards *,? ok.  Default extension is .ZIP
+  destpath   Destination for extracted files.
+  files      Name(s) of files to extract.  Wildcards *,? ok.
+             Default is ALL files.
+
+  Examples:
+    UNZIP CLIB1                     - Unpack all files in CLIB1 to
+                                       current drive and directory.
+    UNZIP MATH C:\CRTL\MATH        - Unpack all files in MATH.ZIP to
+                                       C:\LIBRARY\MATH directory.
+    UNZIP CLIB2 C: *.CPP *.CAS      - Unpack all .CPP and .CAS files in
+                                       CLIB2.ZIP to drive C.
+
+
+  3. MODIFYING LIBRARY FILES
+  __________________________
+
+  This section describes how to modify a source module, compile or
+  assemble it, and replace it in a library. If you have installed
+  the source using INSTALL, there are several batch files included
+  to make your job easier; see section 5 for more information.
+
+  You can modify a library file by first changing the corresponding
+  source file, compiling (or assembling) the modified source file
+  into an object file, and finally rebuilding the library files
+  from its constituent object files.
+
+  In order to compile most of the library source files, the
+  standard header files and the library header files (contained in
+  RTLINC.ZIP) #included in most of the C source files must be
+  present on your system. They must be made available to Borland
+  C++ through the -I option.
+
+  The following steps are recommended for modifying a library
+  module. You might want to modify all the modules you need, then
+  rebuild the library (or libraries) from scratch.
+
+     1.  Install all the source files on a hard disk using the
+         installation procedure described in section 1.  Even
+         though you will not be modifying all of the source files,
+         the makefiles that build the libraries assume that all
+         source files are present.
+
+     2.  Figure out which module you need to modify, and to which
+         library file(s) it belongs.
+
+         The library listing feature of TLIB will be helpful here,
+         since it shows all the modules in a library file, together
+         with all the functions that the modules define. Use "tlib
+         lib-name,con" or "tlib lib-name,listfile-name."
+
+         Note that the general routine libraries (CS.LIB, CC.LIB,
+         CM.LIB, CL.LIB, and CH.LIB) all contain the same set of
+         modules, compiled for different memory models; likewise
+         for the math routine libraries (MATHS.LIB, MATHC.LIB,
+         MATHM.LIB, MATHL.LIB, and MATHH.LIB), and the Windows
+         libraries (CWS.LIB, CWC.LIB, CWM.LIB, CWL.LIB, and
+         CWH.LIB).
+
+     3.  Apply and test all the changes you need to make.
+
+         To test a C library module, write a simple testing
+         program, and compile and link both modules at the same
+         time; for example:
+
+              BCC  [options]  tsrchp  searchp.cas
+
+         That way you make sure the tested module will not be
+         linked in from the library.
+
+         For an assembler file, assemble the library file, then
+         link it with a test file using BCC; for example:
+
+              TASM lrsh /MX;
+
+              BCC  [options]  tstshf  lrsh.obj
+
+     4.  Recompile the module and replace it in the library
+         file(s).
+
+         The batch file BUILD.BAT is provided on the distribution
+         disk to help with rebuilding the libraries. It compiles or
+         assembles all modules that are more recent than the
+         corresponding object files, or which do not have object
+         files, then rebuilds the library from its object files.
+
+         For batch file usage information and examples, see section
+         5 or enter the name of the batch file without any
+         parameters.
+
+         If you are using a floppy-based system, don't use these
+         batch files. At this point, it's easier just to update the
+         library with the .OBJ file. Remember, TLIB creates a
+         backup of the library file, so make sure you have plenty
+         of space.
+
+  4. LICENSE AGREEMENT
+  ____________________
+
+  Borland C++ Runtime Library Source Code
+  Borland's No-Nonsense License Agreement
+
+  Borland International, Inc. (Borland) is offering you a license
+  to the source code to the Borland C++ Runtime Library portion of
+  Borland C++ (the Source Programs), including updates that may
+  later be supplied by Borland at additional cost, but not
+  including the source code of the 8087 emulator or the graphics
+  library.
+
+  The Source Programs are protected by both United States copyright
+  law and international treaty provisions. Therefore, you must
+  treat the Source Programs just like a book, with the following
+  single exception:  Borland authorizes you to make archival copies
+  of the Source Programs for the sole purpose of backing-up your
+  programs and protecting your investments from loss.
+
+  By "just like a book," Borland means, for example, that the
+  Source Programs may be used by any number of people and may be
+  freely moved from one computer workstation to another, so long as
+  there is no possibility of them being used at one computer
+  workstation at the same time they are being used at another. Just
+  as a book can't be read by two different people in two different
+  places at the same time, neither can the Source Programs be used
+  by two different people in two different places at the same time.
+  (Unless, of course, Borland's copyright has been violated.)
+
+  You may modify the Source Programs, but the modified source code,
+  regardless of the extent of the modifications, shall always
+  remain Borland's source code. You may not remove or modify
+  Borland's copyright and other proprietary copyright notices, and
+  you may not transport any of the Source Programs to another
+  computer operating system or environment. You are responsible for
+  all claims, liability, and damages arising from your own
+  modifications and the products which include them.
+
+  You may use the Source Programs to support your licensed copies
+  of Borland C++. This means you may include all or some of the
+  original or modified Source Programs routines in your own Borland
+  C++ based programs, but you may only distribute binary copies of
+  such routines when linked into your executable programs. You may
+  not distribute any source code for the original or modified
+  Borland C++ Runtime Library under any circumstances. You are not,
+  of course, restricted from distributing your own source code.
+
+  All rights not specifically granted in this license are reserved
+  by Borland.
+
+
+  5. MORE INFORMATION ON THE BATCH FILES
+  ______________________________________
+
+  The following descriptions are of the batch files you may find
+  useful when modifying the library source files.  All of them
+  assume that you have installed the sources by using INSTALL.
+  Usage information can also be found by entering the name of the
+  batch file without any parameters.
+
+  There are two batch files that you can use to build libraries:
+  ALL.BAT and BUILD.BAT. The batch files work by invoking MAKE with
+  a master MAKEFILE, \CRTL\MAKEFILE. This makefile, in turn,
+  invokes MAKE with makefiles for specific libraries. These
+  library-specific makefiles have the extension .MAK.  For example,
+  one of the the makefiles that is used to build the Windows
+  libraries is \CRTL\WINLIB\WINLIB.MAK.
+
+  Note that the makefiles invoke TLIB with the /0 option when
+  replacing modules in the CLIB and WINLIB libraries, and with the
+  /0 /E options when replacing modules in the MATH libraries. If
+  you want to build one or more library files to include debugging
+  information (so that you can step through library calls with TC
+  or TD), you have to remove both the /E and /0 options from the
+  TLIB command line(s), as these options effectively remove all
+  debugging information from library files.
+
+  ENVIRONMENT VARIABLES
+  _____________________
+
+  The batch files use two environment variables to determine which
+  memory models should be used, and where the error log should be
+  saved.
+
+  The environment variable MODEL specifies which memory models
+  should be used.  Set it to all the memory model letters you want
+  to use. Separate the letters with spaces, and be sure to use only
+  lower-case letters. For example, if you want to compile for all
+  memory models, use all the model letters:
+
+       set MODEL=s c m l h
+
+  If you want to compile for just one memory model, set MODEL to a
+  single letter: use the command:
+
+       set MODEL=s
+
+  If you don't set MODEL, the batch files will use all memory
+  models.
+
+  The environment variable LOGFILE determines where the compiler
+  and assembler error messages will be saved.  If you want the
+  error messages to be displayed on the screen, use the following
+  command before you run the batch files:
+
+       set LOGFILE=CON
+
+  If you don't set LOGFILE, the batch files will set it to the
+  default value ..\LOG\CRTL.LOG. The directory ..\LOG is a
+  subdirectory of \CRTL, and if doesn't already exist, you must
+  create it with the command:
+
+       MKDIR \CRTL\LOG
+
+  The batch files also use environment variables to control the
+  operation of the compiler, assembler, and librarian. These
+  variables are set in VARS.BAT.  You can edit this file to change
+  the operation of the tools. For example, if you want to compile
+  with debugging information turned on, add -v to the line in
+  VARS.BAT that defines the TC environment variable, and remove /0
+  from the line that defines the TLIB environment variable.
+
+  You should always run VARS.BAT before running BUILD.BAT.
+
+  BUILD.BAT
+  _________
+
+  This batch file will recompile all modified modules (or modules
+  which have no corresponding object files) for a specific library
+  (or all libraries) for one or more memory models. It places the
+  resultant object files in the appropriate subdirectory (for
+  example, the S subdirectory for small model). It then rebuilds
+  the library from its object files.
+
+  The "libtype" parameter specified which library should be built:
+  CLIB, WINLIB, WINDLL, STARTUP, or MATH.  If you want to build all
+  libraries, specify ALL.
+
+  The environment variable MODEL specifies which memory models are
+  to be used. If MODEL is not set, BUILD.BAT uses all memory
+  models.
+
+  The current directory must be \CRTL when you run BUILD.BAT.
+
+  Usage:
+
+       build libtype
+
+  Examples:
+
+       build all
+       build math
+       build clib
+
+  Note that recompiling all the source files using this batch file
+  may take a considerable amount of time.  But once the files have
+  been compiled, subsequent runs of BUILD.BAT will compile only
+  those modules that have changed.
+
+
+  ALL.BAT
+  _______
+
+  This batch file builds all libraries in all memory model by
+  repeatedly invoking BUILD.BAT.  Not only will this will take a
+  considerable amount of time, but will also consume large amounts
+  of disk space.

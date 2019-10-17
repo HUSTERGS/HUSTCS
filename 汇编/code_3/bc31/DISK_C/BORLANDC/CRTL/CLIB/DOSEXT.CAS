@@ -1,0 +1,64 @@
+/*---------------------------------------------------------------------------
+ * filename - dosext.cas
+ *
+ * function(s)
+ *        dosexterr - gets extended error
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+
+/* DOS 3.0 only */
+
+/*--------------------------------------------------------------------------*
+
+Name            dosexterr - gets extended error
+
+Usage           int dosexterr(struct DOSERR *eblkp);
+
+Prototype in    dos.h
+
+Description     this function fills the DOSERR structure pointed to by
+                eblkp with extended error information after an MS-DOS
+                call has failed.  The values obtained to fill the
+                structure are obtained via DOS call 0x59.
+
+Return value    Extended error value
+
+*---------------------------------------------------------------------------*/
+int _FARFUNC dosexterr(struct DOSERROR *eblkp)
+{
+
+/*  Function 0x59 may destroy all registers execept CS:IP and SS:SP  */
+
+        SaveSI
+        SaveDI
+asm     push    ds
+asm     push    bp
+asm     mov     bx, 0
+asm     mov     ah, 059h
+asm     int     021h
+asm     pop     bp
+#if !LDATA
+asm     pop     ds          /* If small model restore DS, otherwise wait */
+#endif
+asm     LDS_    di, eblkp
+asm     mov     [di].de_exterror, ax
+asm     mov     [di].de_class,    bh
+asm     mov     [di].de_action,   bl
+asm     mov     [di].de_locus,    ch
+#if LDATA
+asm     pop     ds          /* Restore DS, already done for small data */
+#endif
+        return _AX;
+}

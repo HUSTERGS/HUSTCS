@@ -1,0 +1,75 @@
+/*------------------------------------------------------------------------
+ * filename - frexpl.cas
+ *
+ * function(s)
+ *        frexpl - splits a long double number into mantissa and exponent
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            frexpl - splits a long double number into mantissa and exponent
+
+Usage           long double frexpl(long double value, int *expP);
+
+Prototype in    math.h
+
+Description     Split  a  floating  point  number  into  its  exponent  and
+                fractional parts, with the  exponent placed into *expP, and
+                the fraction is the function return value.
+
+Return value    frexpl returns  value - (*expP = chop (value));
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC frexpl (long double value, int *expP)
+{
+        volatile unsigned statword;
+asm     FLD     LONGDOUBLE (value)
+
+asm     LES_    bx, expP
+asm     mov     W0 (ES_ [bx]), 0
+
+/* if value was +-0, return it */
+asm     FTST
+asm     FSTSW   statword
+asm     FWAIT
+asm     mov     ah, BY1(statword)
+asm     sahf
+asm     jz      done
+
+asm     FXTRACT                 /* ST(1) = exponent, (pushed) ST = fraction */
+asm     FXCH
+
+/*
+  The FXTRACT instruction normalizes the fraction 1 bit higher than
+  wanted for the definition of frexpl() so we need to tweak the result
+  by scaling the fraction down and incrementing the exponent.
+*/
+
+asm     FISTP   W0 (ES_ [bx])
+asm     FLD1
+asm     FCHS
+asm     FXCH
+asm     FSCALE                  /* fraction scaled as C expects */
+asm     inc     W0 (ES_ [bx])   /* exponent biased to match     */
+asm     FSTP    ST(1)           /* discard -1, leave fraction as TOS */
+
+done:
+        return;
+}
+#pragma warn .rvl

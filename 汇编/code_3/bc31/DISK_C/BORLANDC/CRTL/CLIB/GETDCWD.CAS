@@ -1,0 +1,103 @@
+/*---------------------------------------------------------------------------
+ * filename - _getdcwd.cas
+ *
+ * function(s)
+ *        _getdcwd - gets current directory for specified drive
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+
+#include <asmrules.h>
+#include <alloc.h>
+#include <dir.h>
+#include <dos.h>
+#include <errno.h>
+#include <string.h>
+
+
+/*---------------------------------------------------------------------*
+
+Name            _getdcwd - gets working directory for specific drive
+
+Usage           char *_getdcwd(int drive char *buf, int n);
+
+Prototype in    dir.h
+
+Description     _getdcwd gets the full path name of the working directory
+                of the specified drive (including the drive name), up to n
+                bytes long, and stores it in buf. If the full path name length
+                (including the null-terminator) is longer than n, an
+                error occurs.  The drive is 0 for the default drive, 1=A,
+                2=B, etc.
+
+                If buf is NULL, a buffer n bytes long will be allocated
+                for you with malloc. You can later free the allocated buffer
+                by passing the _getdcwd return value to the function free.
+
+Return value    _getdcwd returns buf; on error, it returns NULL.
+
+                In the event of an error return, the global variable errno is
+                set to one of the following:
+
+                        ENOMEM  Not enough core
+                        ERANGE  Result out of range
+
+*---------------------------------------------------------------------*/
+
+char * _FARFUNC _getdcwd(int drive, char *bufP, int bufL)
+{
+        char    bufI[MAXDIR + 3];
+        unsigned drv;
+
+        /* Construct drive name */
+        if ((drv = drive) == 0)
+        {
+                _AH = 0x19;             /* get current drive */
+                geninterrupt(0x21);
+                drv = _AL + 1;
+        }
+        bufI[0] = drv + 'A' - 1;
+        bufI[1] = ':';
+        bufI[2] = '\\';
+
+        /* Get current directory in a work buffer */
+#if LDATA
+asm     push    ds
+asm     mov     ax, ss
+asm     mov     ds, ax
+#endif
+asm     lea     si, bufI[3]
+asm     mov     ah, 047h
+asm     mov     dl, drv
+asm     int     021H
+#if LDATA
+asm     pop     ds
+#endif
+        if (_FLAGS & 1)         /* carry indicates error */
+                return NULL;
+
+        if (strlen(bufI) >= bufL)
+        {
+                errno = ERANGE;
+                return  NULL;
+        }
+
+        /* Allocate a buffer if bufP is NULL */
+        if (bufP == NULL)
+                if ((bufP = malloc(bufL)) == NULL)
+                {
+                        errno = ENOMEM;
+                        return  NULL;
+                }
+        strcpy(bufP, bufI);
+        return  bufP;
+}

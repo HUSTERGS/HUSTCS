@@ -1,0 +1,2548 @@
+
+
+
+
+
+CONTENTS
+___________________________________________________________________________
+
+
+
+
+
+Changes to windows.h from 3.0 to           Message cracker examples  . . 26
+3.1  . . . . . . . . . . . . . . . 1       Message handler function
+Catching coding errors at                  signatures  . . . . . . . . . 28
+compile-time: STRICT . . . . . . . 1       Improving reusability:
+  Why STRICT?  . . . . . . . . . . 2       Template_DefProc  . . . . . . 28
+  Compiling 3.0 applications . . . 3       Private and registered window
+  New typedefs, constants, and             messages  . . . . . . . . . . 29
+  helper macros  . . . . . . . . . 4       Message crackers and window
+    COMSTAT structure change . . . 5       instance data . . . . . . . . 30
+  Making your code STRICT                  Message crackers and dialog
+  compliant  . . . . . . . . . . . 6       procedures  . . . . . . . . . 33
+  STRICT conversion hints  . . .  10       Message crackers and window
+  Common compiler warnings and             subclassing . . . . . . . . . 34
+  errors . . . . . . . . . . . .  11       Dialog procedures: A better
+Macro APIs and message crackers . 14       way . . . . . . . . . . . . . 36
+  Macro APIs . . . . . . . . . .  15         Executing default dialog
+      3.1-only macro APIs  . . .  18         procedure functionality . . 37
+  Control message APIs . . . . .  18         Returning message results from
+    Control API Examples . . . .  18         dialog procedures . . . . . 37
+  Message cracker macros . . . .  22         How it works  . . . . . . . 37
+    Using message crackers and               A simplified example using
+    forwarders . . . . . . . . .  23         predefined macro APIs . . . 39
+    Saving time and improving              Converting existing code to use
+    readability with HANDLE_MSG . 24       message crackers  . . . . . . 41
+    How message crackers work  .  25
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                     i
+
+
+
+
+
+
+TABLES
+___________________________________________________________________________
+
+
+
+
+
+1: New handle types  . . . . . . . 5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    ii
+
+
+
+
+
+
+===========================================================================
+Changes to windows.h from 3.0 to 3.1
+===========================================================================
+
+                    The windows.h header file included with Borland C++ 3.1
+                    contains various features that make application
+                    development faster and easier by helping you find
+                    problems as you compile your code. These improvements
+                    include:
+
+                    o STRICT option provides stricter type checking,
+                      helping you find type mismatch errors quickly.
+
+                    o windows.h has been completely reorganized so that
+                      related functions, types, structures, and constants
+                      are grouped together.
+
+                    o New UINT type used for 32-bit Windows upward
+                      compatibility
+
+                    o New unique typedefs for all handle types, such as
+                      HINSTANCE and HMODULE.
+
+                    o Various constants and typedefs missing in the 3.0
+                      windows.h have been added.
+
+                    o Windows 3.0 compatibility: windows.h can be used to
+                      compile applications that run under Windows 3.0.
+
+                    o Proper use of "const" for API pointer parameters and
+                      structure fields where pointer is read-only.
+
+                    If you have ObjectWindows, also see OWL31.DOC in your
+                    OWL\DOC directory for details about how these changes
+                    affect ObjectWindows and your ObjectWindows
+                    applications.
+
+
+
+===========================================================================
+Catching coding errors at compile-time: STRICT
+===========================================================================
+
+                    The new windows.h supports an option called STRICT that
+                    enables the strictest possible compiler error checking.
+                    Strict compile-time checking helps you find programming
+                    errors when you compile your application, rather than
+                    at runtime.
+
+
+
+
+
+
+                    The idea is that you define STRICT before including
+                    windows.h, which causes the various types and function
+                    prototypes in windows.h to be declared in a way that
+                    enforces very strict type checking. For example,
+                    without STRICT, it is possible to pass an HWND to a
+                    function that requires an HDC without any kind of
+                    compiler warning: with STRICT defined, this results in
+                    a compiler error.
+
+                    Specific features provided by the STRICT option
+                    include:
+
+                    o Strict handle type checking (you can't pass an HWND
+                      where an HDC is declared).
+
+                    o Correct and more consistent declaration of certain
+                      parameter and return value types (for example,
+                      GlobalLock returns void FAR* instead of LPSTR).
+
+                    o Fully prototyped typedefs for all callback function
+                      types (for example, dialog procedures, hook
+                      procedures, and window procedures)
+
+                    o Windows 3.0 backward compatible: STRICT can be used
+                      with the 3.1 windows.h for creating applications that
+                      will run under Windows 3.0.
+
+                    o The COMM DCB and COMSTAT structures are now declared
+                      in an ANSI compatible way.
+
+
+       Why STRICT?  =======================================================
+
+                    The best way to think of STRICT is as a way for you to
+                    get the most out of the error checking capabilities
+                    built into Borland C++. STRICT is of great benefit
+                    especially with code under development, because it
+                    helps you catch bugs right away when you compile your
+                    code, rather than having to track it down at runtime
+                    with a debugger. By catching certain kinds of bugs
+                    right away, it's less likely that you'll ship your
+                    applications with bugs that weren't encountered in
+                    testing.
+
+                    STRICT also makes it easier to migrate your code to the
+                    32-bit Windows platform later, because it will help you
+                    locate and deal with type incompatibilities that will
+                    arise when migrating to 32 bits.
+
+
+
+                                   - 2 -
+
+
+
+
+
+
+                    It's not very difficult to convert your application to
+                    use STRICT, and it can be done in stages if needed.
+
+                    In order to take advantage of the STRICT option, you
+                    will probably have to make some simple changes to your
+                    source code (described in detail later).
+
+                    We think you'll find that STRICT makes modifying,
+                    maintaining, and even reading your code much easier,
+                    and well worth the effort to convert your application.
+
+
+     Compiling 3.0  =======================================================
+      applications
+                    Unless you define STRICT, your 3.0 applications will
+                    compile with windows.h without serious modifications.
+                    The type declarations for many of the Windows APIs and
+                    callback functions have changed; those changes are
+                    backward compatible for C code, but not for C++ code.
+                    If you use C++, you'll notice compile- and link-time
+                    errors in many Windows API functions because of changes
+                    to types like WORD to UINT. See the following sections
+                    for more information.
+
+                    All of the features of Borland C++ 3.1 can be used to
+                    develop applications that will run under Windows 3.0.
+                    There are two things you must do:
+
+                    1. Define WINVER to 0x0300 before including windows.h
+
+                       This ensures that only 3.0 compatible functions,
+                       structures, and definitions are available for use.
+                       You can do this in your makefile with
+                       -DWINVER=0x0300 in the compiler command line, in the
+                       IDE in the Options|Compiler|Code Generation|Defines
+                       input box, or in your code by adding "#define WINVER
+                       0x0300" before you include windows.h.
+
+                    2. Use the -30 parameter to BRC or RC.
+
+                       This marks your executable as a 3.0 application, so
+                       that Windows 3.0 won't prevent it from running with
+                       a "This application requires a later version of
+                       Windows" message. You will typically run RC twice in
+                       your makefile: Once to produce the .res file (with
+                       the -r switch), and a second time to combine your
+                       linked .exe and .res files into the final
+                       application. The -30 parameter must be used with the
+
+
+
+                                   - 3 -
+
+
+
+
+
+
+                       second invocation of RC. See Chapter 4 in the
+                       Borland C++ User's Guide for instructions on how to
+                       add the -30 parameter to your IDE projects.
+
+
+     New typedefs,  =======================================================
+    constants, and
+     helper macros  The following typedefs and constants have been added to
+                    windows.h. All are 3.0 compatible:
+
+            WINAPI  Used in place of FAR PASCAL in API declarations. If you
+                    are writing a DLL with exported API entry points, you
+                    can use this for your own APIs.
+
+          CALLBACK  Used in place of FAR PASCAL in application callback
+                    routines such as window procedures and dialog
+                    procedures
+
+            LPCSTR  Same as LPSTR, except used for read-only string
+                    pointers. Typedefed as const char FAR*.
+
+              UINT  Portable unsigned integer type whose size is determined
+                    by host environment (16 bits for Win 3.1). Synonym for
+                    "unsigned int". Used in place of WORD except in the
+                    rare cases where a 16-bit unsigned quantity is desired
+                    even on 32-bit platforms.
+
+           LRESULT  Type used for declaration of all 32-bit polymorphic
+                    return values.
+
+            LPARAM  Type used for declaration of all 32-bit polymorphic
+                    parameters.
+
+            WPARAM  Type used for declaration of all 16-bit polymorphic
+                    parameters.
+
+   MAKELPARAM(low,  Macro used for combining two 16-bit quantities into an
+             high)  LPARAM.
+
+  MAKELRESULT(low,  Macro used for combining two 16-bit quantities into an
+             high)  LRESULT.
+
+  MAKELP(sel, off)  Macro used for combining a selector and an offset into
+                    a FAR VOID* pointer.
+
+    SELECTOROF(lp)  Macro used to extract the selector part of a far ptr.
+                    Returns a UINT.
+
+
+
+
+                                   - 4 -
+
+
+
+
+
+
+      OFFSETOF(lp)  Macro used to extract the offset part of a far ptr.
+                    Returns a UINT.
+
+ FIELDOFFSET(type,  Macro used for calculating the offset of a field in a
+            field)  data structure. The type parameter is the type of
+                    structure, and field is the name of the field whose
+                    offset is desired.
+
+
+                    -------------------------------------------------------
+New handle types      Typedef           Meaning
+                    -------------------------------------------------------
+
+                      HINSTANCE         Instance handle type
+                      HMODULE           Module handle type
+                      HLOCAL            Local handle type
+                      HGLOBAL           Global handle type
+                      HTASK             Task handle type
+                      HFILE             File handle type
+                      HRSRC             Resource handle type
+                      HGDIOBJ           Generic GDI object handle type
+                                        (except HMETAFILE)
+                      HMETAFILE         Metafile handle type
+                      HDWP              DeferWindowPos handle
+                      HACCEL            Accelerator table handle
+          3.1 only    HDRVR             Driver handle
+
+                    -------------------------------------------------------
+
+
+------------------  The 3.0 declaration of the COMSTAT structure was not
+ COMSTAT structure  ANSI compatible: ANSI does not allow the use of
+            change  BYTE-sized bitfield declarations. To allow windows.h to
+------------------  be used with full ANSI compliance, the COMSTAT
+                    structure has changed. The 7 bit fields below are now
+                    accessed as byte flags of the single status field:
+
+
+                    -------------------------------------------------------
+                      Old field name    Bit of status field
+                    -------------------------------------------------------
+
+                      fCtsHold          CSTF_CTSHOLD
+                      fDsrHold          CSTF_DSRHOLD
+                      fRlsdHold         CSTF_RLSDHOLD
+                      fXoffHold         CSTF_XOFFHOLD
+                      fXoffSent         CSTF_XOFFSENT
+
+
+
+
+                                   - 5 -
+
+
+
+
+
+
+                      fEof              CSTF_EOF
+                      fTxim             CSTF_TXIM
+
+                    -------------------------------------------------------
+
+                    No change is required if you are compiling with WINVER
+                    set to 0x0300 and are not using STRICT.
+
+                    If you have code that accesses any of these fields,
+                    here's how you have to change your code:
+
+Old code                      New code
+---------------------------------------------------------------------------
+
+if (comstat.fEof || ...)      if ((comstat.status & CSTF_EOF) || ...)
+comstat.fCtsHold = TRUE;      comstat.status |= CSTF_CTSHOLD;
+comstat.fTxim = FALSE;        comstat.status ~= CSTF_TXIM;
+
+                    Be careful to properly parenthesize "&" expressions.
+                    See windows.h for more details.
+
+
+  Making your code  =======================================================
+  STRICT compliant
+                    Using STRICT with your existing Windows application
+                    code is not very difficult. Here's what you need to do:
+
+                    o Decide what you want be STRICT compliant.
+
+                      The first step is to decide what you want to be
+                      STRICT compliant.
+
+                      STRICT is most valuable with newly developed code or
+                      code that you're maintaining or changing regularly.
+                      If you have a lot of stable code that has already
+                      been written and tested, and is not changed or
+                      maintained very often, you may decide that it's not
+                      worth the trouble to convert to STRICT.
+
+                      If you are writing a C++ application, you don't have
+                      the option of applying STRICT to only some of your
+                      source files. Because of the way C++ "type safe
+                      linking" works, you may get linking errors if you mix
+                      and match STRICT and non-STRICT source files in your
+                      application.
+
+                    o Enable strict compiler error checking
+
+
+
+
+                                   - 6 -
+
+
+
+
+
+
+                      First, turn on all Borland C++'s warning and error
+                      messages. In the IDEs, you can use Options|Compiler|
+                      Messages|Display|All; for the command-line compiler,
+                      use the -w switch. Do this without turning on STRICT
+                      for now.
+
+                      In you're writing applications in C, you might want
+                      to compile them as C++ to take advantage of C++'s
+                      stricter type checking and type-safe linking. You can
+                      do this by renaming .C files to .CPP or by using the
+                      IDEs' Options|Compiler|C++ Options|C++ Always option
+                      or the command-line compiler's -p switch.
+
+                    o Change your code to use new STRICT types
+
+                      First you need to go through your own source and
+                      header files and change type declarations to use the
+                      new types defined in windows.h. Below are the common
+                      types that should be changed:
+
+
+                      -----------------------------------------------------
+                        Old type          New type(s)
+                      -----------------------------------------------------
+
+                        HANDLE            HINSTANCE, HMODULE, HGLOBAL,
+                                          HLOCAL, etc. as appropriate
+
+                        WORD              UINT (EXCEPT where you really
+                                          want a 16-bit value even on a
+                                          32-bit platform) or WPARAM
+
+                        LONG              LPARAM or LRESULT as appropriate
+
+                        FARPROC           WNDPROC, DLGPROC, HOOKPROC, etc.
+                                          as appropriate (MakeProcInstance
+                                          and FreeProcInstance calls
+                                          require casting)
+
+                      -----------------------------------------------------
+
+                      See "Strict Conversion Notes" below for particular
+                      things to watch out for when changing your code.
+
+                      The UINT type is important for 32-bit Windows
+                      migration. On 16-bit windows, WORD and UINT are
+                      identical: 16 bit unsigned quantities. On a 32-bit
+                      platform, a UINT will be 32 bits and WORD is 16 bits.
+
+
+
+                                   - 7 -
+
+
+
+
+
+
+                      This allows much more efficient code to be generated
+                      on the 32-bit platform where UINTs are used. You
+                      should use WORD in your code ONLY in those places
+                      where you want a 16 bit value, even on a 32-bit
+                      platform.
+
+                      Because C++ mangles function names, any callback
+   C++ users note!    function whose arguments have changed between Windows
+                      3.0 and 3.1 (from WORD to UINT, for example) will
+                      generate link-time errors. You must either change the
+                      argument types or replace the 3.1 version of
+                      windows.h with the 3.0 version (in win30.h). It's
+                      highly recommended that you change the parameter
+                      types.
+
+                      You may also want to use CALLBACK instead of FAR
+                      PASCAL in the declaration of your various callback
+                      functions, though this isn't necessary.
+
+                      You may be able to save yourself some work by not
+                      converting the body of your window and dialog
+                      procedures to use WPARAM, LPARAM, and LRESULT right
+                      away, since those types are compatible with WORD and
+                      LONG, even in STRICT.
+
+                    o Make sure your functions are declared before use
+
+                      To compile as C++ or with all warnings enabled, all
+                      of your application functions must be properly
+                      declared before they are used. It's best to have all
+                      your declarations in an include file, rather than
+                      declaring them in your source files as needed: it's
+                      much easier to maintain your code this way should you
+                      need to change any of the declarations in the future.
+                      Chances are you will need to be making changes to the
+                      function declarations as you change over to the new
+                      STRICT data types.
+
+                      While it's not strictly necessary to do so, it's a
+                      good idea to provide function parameter names in your
+                      function prototypes. This makes header files much
+                      easier to read, and provides a degree of
+                      self-documentation.
+
+                    o Recompile without STRICT and fix resulting warnings
+
+                      Without defining STRICT anywhere, recompile your
+                      application and fix any warnings that result. You can
+
+
+
+                                   - 8 -
+
+
+
+
+
+
+                      use the Borland C++ IDE's Search|Next Error (Alt+F7)
+                      command to speed up those fixes.
+
+                      Some common compiler warnings--and how you should
+                      deal with them--are described later in this section.
+                      Use the rules found there to make the appropriate
+                      changes to your source.
+
+                    o Run the app to make sure all is well.
+
+                      After you've gotten your application to compile
+                      cleanly as C++ or with all warnings enabled, it's a
+                      good idea to run your app and put it through it's
+                      paces to make sure all is well.
+
+                    o Define STRICT
+
+                      After you've made a first pass and gotten things to
+                      compile cleanly without STRICT, it's time to turn it
+                      on and make the next round of changes.
+
+                      If you've decided that you want to make your entire
+                      app STRICT, then the best and easiest thing to do is
+                      define STRICT in your makefile, by passing the
+                      -DSTRICT flag to the compiler or to use the Options|
+                      Compiler|Code Generation|Defines input box. If you
+                      want to do it on a per-source file basis, then simply
+                      define STRICT in the source file before you include
+                      windows.h.
+
+                    o Recompile and clean up resulting errors
+
+                      Once you've made the changes to your window and
+                      dialog procedures as outlined above, you're ready to
+                      recompile everything.
+
+                      After turning on STRICT you'll probably get new
+                      errors and warnings that you'll need to go through
+                      and clean up.
+
+                      You might also get link-time errors because of
+   C++ users note!    mismatched function parameter types. Check your
+                      function prototypes and definititions carefully.
+
+                      The list of warnings and errors below will explain
+                      how to deal with most of the problems that arise.
+
+
+
+
+
+                                   - 9 -
+
+
+
+
+
+
+ STRICT conversion  =======================================================
+             hints
+                    1. Always declare function pointers with the proper
+                       function type, rather than FARPROC. You'll need to
+                       cast function pointers to and from the proper
+                       function type when using MakeProcInstance,
+                       FreeProcInstance, and other functions that take or
+                       return a FARPROC:
+
+                        BOOL CALLBACK DlgProc(HWND hwnd, UINT msg,
+                                              WPARAM wParam,
+                                              LPARAM lParam);
+                        DLGPROC lpfnDlg;
+
+                        lpfnDlg=(DLGPROC)MakeProcInstance(DlgProc, hinst);
+                        ...
+                        FreeProcInstance((FARPROC)lpfnDlg);
+
+                    2. Take special care with HMODULEs and HINSTANCEs. For
+                       the most part, the Kernel module management
+                       functions use HINSTANCEs, but there are a few APIs
+                       that return or accept only HMODULEs.
+
+       WinMain and  3. If you've copied any API function declarations from
+   LibMain are two     windows.h, they may have changed, and your local
+  common examples.     declaration may be out of date. Remove your local
+                       declaration.
+
+                    4. Properly cast the results of LocalLock and
+                       GlobalLock to the proper kind of data pointer.
+                       Parameters to these and other memory management
+                       functions should be cast to LHANDLE or GHANDLE, as
+                       appropriate.
+
+                    5. Properly cast the result of GetWindowWord and
+                       GetWindowLong and the parameters to SetWindowWord
+                       and SetWindowLong.
+
+                    6. When casting SendMessage, DefWindowProc, and
+                       SendDlgItemMsg or any other function that returns an
+                       LRESULT or LONG to a handle of some kind, you must
+                       first cast the result to a UINT:
+
+                        HBRUSH hbr;
+
+                        hbr = (HBRUSH)(UINT)SendMessage(hwnd, WM_CTLCOLOR,
+
+
+
+
+
+                                  - 10 -
+
+
+
+
+
+
+                                                        ..., ...);
+
+                    7. The CreateWindow and CreateWindowEx hmenu parameter
+                       is sometimes used to pass an integer control ID. In
+                       this case you must cast this to an HMENU:
+
+                        HWND hwnd;
+                        int id;
+
+                        hwnd = CreateWindow("Button", "Ok", BS_PUSHBUTTON,
+                                            x, y, cx, cy, hwndParent,
+                                            (HMENU)id, //Cast required here
+                                            hinst, NULL);
+
+                    8. Polymorphic data types (WPARAM, LPARAM, LRESULT,
+                       void FAR *) should be assigned to variables of a
+                       known type as soon as possible. You should avoid
+                       using them in your own code when the type of the
+                       value is known. This will minimize the number of
+                       potentially unsafe and non-32-bit-portable casting
+                       you will have to do in your code. The macro APIs and
+                       message cracker mechanisms provided in windowsx.h
+                       will take care of almost all packing and unpacking
+                       of these data types, in a 32-bit portable way.
+
+                    9. Become familiar with the common compiler warnings
+                       and errors that you're likely to encounter as you
+                       convert to STRICT.
+
+
+   Common compiler  =======================================================
+      warnings and
+            errors  Here are some common compiler warnings and errors you
+                    might get when trying to make your application compile
+                    cleanly as C++ or with all messages enabled, with or
+                    without STRICT.
+
+                    These are also the kinds of warnings and errors you'll
+                    receive as you maintain STRICT source code.
+
+Warning: Function should return a vlue
+                    This warning means that a function declared to return a
+                    value does not return a value. In older, non-ANSI C
+                    code, it was common to declare functions that did not
+                    return a value with no return type:
+
+                     foo(i)
+                     int i;
+
+
+
+                                  - 11 -
+
+
+
+
+
+
+                     {
+                       ...
+                     }
+
+                    Functions declared in this manner are treated by the
+                    compiler as being declared to return an "int". If the
+                    function does not return anything, it should be
+                    declared "void":
+
+                     void foo(int i)
+                     {
+                       ...
+                     }
+
+
+Warning: Call to function <function> with no prototype
+                    This means that a function was used before it was fully
+                    prototyped, or declared. It can also arise when a
+                    function that takes no arguments is not prototyped with
+                    void:
+
+                     void bar(); /* Should be: bar(void) */
+
+                     main()
+                     {
+                       bar();
+                     }
+
+Error: Lvalue required
+Error: Type mismatch in parameter
+                    These errors indicate that you are trying to assign or
+                    pass a non-pointer type when a pointer type is
+                    required. With STRICT defined, all handle types as well
+                    as LRESULT, WPARAM, and LPARAM are internally declared
+                    as pointer types, so trying to pass an int, WORD, or
+                    LONG as a handle will result in these errors.
+
+                    These errors should be fixed by properly declaring the
+                    non-pointer values you're assigning or passing. In the
+                    case of special constants  such as (HWND)1 to indicate
+                    "insert at bottom" to the window positioning
+                    functions, you should use the new macro such as
+                    HWND_BOTTOM.
+
+                    Only in rare cases should you suppress a type mismatch
+                    error with a cast: This can often generate incorrect
+                    code.
+
+
+
+
+                                  - 12 -
+
+
+
+
+
+
+Error: Type mismatch in parameter <parameter>
+foo.c(335) : warning C4049: 'argument' : indirection to different types
+                    These warnings indicate that you are passing or
+                    assigning a pointer of the wrong type. This is the
+                    warning you get if you pass the wrong type of handle to
+                    a function. This is because under STRICT all handle
+                    types are defined as pointers to unique structures.
+
+                    To suppress these warnings, fix the type mismatch error
+                    in your code. Once again, it's dangerous to suppress
+                    these warnings with a cast, since there may be an
+                    underlying type error in your app.
+
+Error: Type mismatch in redeclaration of <parameter>
+                    This error will result if you have inconsistent
+                    declarations of a variable, parameter, or function in
+                    your source code.
+
+Warning: Conversion may lose significant digits
+                    This warning results when a value is converted by the
+                    compiler, such as from LONG to int. You're being warned
+                    because you may lose information from this cast.
+
+                    If you're sure there are no information-loss problems,
+                    you can suppress this warning with the appropriate
+                    explicit cast to the smaller type.
+
+Warning: Non-portable pointer conversion
+                    This error results when you cast a near pointer or a
+                    handle to a 32-bit value such as LRESULT, LPARAM, LONG
+                    or DWORD. This warning almost always represents a bug,
+                    because the hi-order 16 bits of the value will contain
+                    a non-zero value. The compiler first converts the
+                    16-bit near pointer to a 32-bit far pointer by placing
+                    the current data segment value in the high 16 bits,
+                    then converts this far pointer to the 32-bit value.
+
+                    To avoid this warning and ensure that a 0 is placed in
+                    the hi 16 bits, you must first cast the handle to a
+                    UINT:
+
+                     HWND hwnd;
+                     LRESULT result = (LRESULT)(UINT)hwnd;
+
+                    In cases where you DO want the 32-bit value to contain
+                    a far pointer, you can avoid the warning with an
+                    explicit cast to a far pointer:
+
+
+
+
+                                  - 13 -
+
+
+
+
+
+
+                     char near* pch;
+                     LPARAM lParam = (LPARAM)(LPSTR)pch;
+
+Error: Size of the type is unknown or zero
+                    This error results from trying to change the value of a
+                    void pointer with + or +=. These typically result from
+                    the fact that certain Windows functions that return
+                    pointers to arbitrary types (such as GlobalLock and
+                    LocalLock) are defined to return void FAR* rather than
+                    LPSTR.
+
+                    To solve these problems, you should assign the void*
+                    value to a properly- declared variable (with the
+                    appropriate cast):
+
+                     BYTE FAR* lpb = (BYTE FAR*)GlobalLock(h);
+
+                     lpb += sizeof(DWORD);
+
+
+Error: Not an allowed type
+                    This error typically results from trying to dereference
+                    a void pointer. This usually results from directly
+                    using the return value of GlobalLock or LocalLock as a
+                    pointer. To solve this problem, assign the return value
+                    to a variable of the appropriate type (with the
+                    appropriate cast) before using the pointer:
+
+                     BYTE FAR* lpb = (BYTE FAR*)GlobalLock(h);
+
+                     *lpb = 0;
+
+Warning: Parameter <parameter> is never used
+                    This message can result in callback functions when your
+                    code does not use certain parameters. You can either
+                    turn off this warning, or use the argsused pragma to
+                    suppress it.
+
+
+
+===========================================================================
+Macro APIs and message crackers
+===========================================================================
+
+                    The macro APIs, message crackers and control APIs are
+                    defined in  the file windowsx.h.  The new handle types,
+                    structures, and  helper macros as well as the STRICT
+                    option are a part of the standard windows.h.
+
+
+
+                                  - 14 -
+
+
+
+
+
+
+        Macro APIs  =======================================================
+
+                    windowsx.h contains a number of new APIs implemented as
+                    macros that call other APIs.  Generally they make your
+                    code both easier to read and write, and they can save
+                    you lots of typing.  These macros are all portable to
+                    32-bit Windows.
+
+
+void FAR* WINAPI GlobalAllocPtr(WORD flags, DWORD cb)
+                    Same as GlobalAlloc, except that it returns a far
+                    pointer directly.
+
+void FAR* WINAPI GlobalReAllocPtr(void FAR* lp, DWORD cbNew, WORD flags)
+                    Same as GlobalReAlloc, except that it takes and returns
+                    a far pointer.
+
+BOOL WINAPI GlobalFreePtr(void FAR* lp)
+                    Same as GlobalFree, except used with far pointer
+                    alloced (or realloced) with functions above.
+
+BOOL WINAPI GlobalLockPtr(void FAR* lp)
+                    Same as GlobalLock, except used with far pointer.
+
+BOOL WINAPI GlobalUnlockPtr(void FAR* lp)
+                    Same as GlobalUnlock, except used with far pointer.
+
+HMODULE WINAPI GetInstanceModule(HINSTANCE hInstance);
+                    Maps an instance handle to a module handle.
+
+void    WINAPI UnlockResource(HGLOBAL hResource);
+                    Unlocks a global resource handle locked with
+                    LockResource.
+
+BOOL    WINAPI DeletePen(HPEN hpen)
+                    Deletes a pen (with proper typecasting)
+
+HPEN    WINAPI GetStockPen(int i);
+                    Returns one of the stock pens indicated by i (properly
+                    cast to HPEN).
+
+HPEN    WINAPI SelectPen(HDC hdc, HPEN hpenSelect)
+                    Selects a pen and returns previously selected pen (with
+                    proper type casting).
+
+BOOL    WINAPI DeleteBrush(HBRUSH hbr)
+
+
+
+
+
+                                  - 15 -
+
+
+
+
+
+
+                    Deletes a brush (with proper typecasting)
+
+HBRUSH  WINAPI GetStockBrush(int i);
+                    Returns one of the stock brushes indicated by i
+                    (properly cast to HBRUSH).
+
+HBRUSH  WINAPI SelectBrush(HDC hdc, HBRUSH hbrSelect)
+                    Selects a brush and returns previously selected brush
+                    (with proper type casting).
+
+BOOL    WINAPI DeleteFont(HFONT hfont)
+                    Deletes a font (with proper typecasting)
+
+HFONT   WINAPI GetStockFont(int i);
+                    Returns one of the stock fonts indicated by i (properly
+                    cast to HFONT)
+
+HFONT   WINAPI SelectFont(HDC hdc, HFONT hfontSelect)
+                    Selects a font and returns previously selected font
+                    (with proper type casting).
+
+BOOL    WINAPI DeleteBitmap(HBITMAP hbm)
+                    Deletes a bitmap (with proper typecasting)
+
+HBITMAP WINAPI SelectBitmap(HDC hdc, HBITMAP hbmSelect)
+                    Selects a bitmap and returns previously selected bitmap
+                    (with proper type casting)
+
+BOOL    WINAPI DeleteRgn(HRGN hrgn)
+                    Deletes a region (with proper typecasting)
+
+int     WINAPI CopyRgn(HRGN hrgnDst, HRGN hrgnSrc);
+                    Copies hrgnSrc to hrgnDst.
+
+int     WINAPI IntersectRgn(HRGN hrgnResult, HRGN hrgnA, HRGN hrgnB);
+                    Intersects hrgnA with hrgnB, setting hrgnResult to the
+                    result.
+
+int     WINAPI SubtractRgn(HRGN hrgnResult, HRGN hrgnA, HRGN hrgnB);
+                    Subtracts hrgnB from hrgnA, setting hrgnResult to the
+                    result.
+
+int     WINAPI UnionRgn(HRGN hrgnResult, HRGN hrgnA, HRGN hrgnB);
+                    Computes the union of hrgnA and hrgnB, setting
+                    hrgnResult to the result.
+
+int     WINAPI XorRgn(HRGN hrgnResult, HRGN hrgnA, HRGN hrgnB);
+
+
+
+
+                                  - 16 -
+
+
+
+
+
+
+                    XORs hrgnA with hrgnB, setting hrgnResult to the
+                    result.
+
+void    WINAPI InsetRect(RECT FAR* lprc, int dx, int dy)
+                    Insets the edges of a rectangle by dx and dy.
+
+HINSTANCE WINAPI GetWindowInstance(HWND hwnd)
+                    Returns the instance handle associated with a window.
+
+DWORD   WINAPI GetWindowStyle(HWND hwnd)
+                    Returns the window style of a window.
+
+DWORD   WINAPI GetWindowExStyle(HWND hwnd)
+                    Returns the extended window style of a window
+
+int     WINAPI GetWindowID(HWND hwnd)
+                    Returns the window ID of a window.
+
+void    WINAPI SetWindowRedraw(HWND hwnd, BOOL fRedraw)
+                    Disables or enables drawing in a window, without hiding
+                    the window.
+
+WNDPROC WINAPI SubclassWindow(HWND hwnd, WNDPROC lpfnWndProc)
+                    Subclasses a window by storing a new window procedure
+                    address.  Returns previous window procedure address.
+
+BOOL    WINAPI IsMinimized(HWND hwnd)
+                    Returns TRUE if hwnd is minimized
+
+BOOL    WINAPI IsMaximized(HWND hwnd)
+                    Returns TRUE if hwnd is maximized
+
+BOOL    WINAPI IsRestored(HWND hwnd)
+                    Returns TRUE if hwnd is restored.
+
+BOOL    WINAPI IsLButtonDown(void)
+                    Returns TRUE if the left mouse button is down.
+
+BOOL    WINAPI IsRButtonDown(void)
+                    Returns TRUE if the right mouse button is down.
+
+BOOL    WINAPI IsMButtonDown(void)
+                    Returns TRUE if the middle mouse button is down.
+
+
+
+
+
+
+
+
+                                  - 17 -
+
+
+
+
+
+
+                    3.1-only macro APIs
+                    =======================================================
+
+void    WINAPI MapWindowPoints(HWND hwndFrom, HWND hwndTo, POINT FAR* lppt,
+WORD cpt);
+                    Maps cpt points at *lppt from the coordinate system of
+                    hwndFrom to that of hwndTo.
+
+void    WINAPI MapWindowRect(HWND hwndFrom, HWND hwndTo, RECT FAR* lprc)
+                    Maps a rectangle from the coordinate system of hwndFrom
+                    to that of hwndTo.
+
+
+   Control message  =======================================================
+              APIs
+                    New APIs have been added for use in dealing with the
+                    various controls. These APIs are implemented as macros
+                    that call SendMessage, and they take care of packing
+                    the various parameters into wParam and lParam and
+                    casting the return value as needed.
+
+                    These macros are fully portable to 32-bit Windows: The
+                    32-bit versions will transparently take into account
+                    any differences in parameter packing on the 32-bit
+                    platform.
+
+                    These macros make your source code smaller and more
+                    readable.  They're especially valuable with STRICT in
+                    order to prevent type errors and incorrect message
+                    parameter passing.
+
+                    There is a 1-to-1 correspondence between a control API
+                    and a window message or window manager API.  In the
+                    interests of brevity, the control APIs are simply
+                    listed below: For more information, you can check out
+                    the macro definitions in windowsx.h and the
+                    documentation for the corresponding window message.
+
+                    Some of the new control APIs are usable with Windows
+                    3.1 only, and are not available if you #define WINVER
+                    0x0300.
+
+
+------------------  Here is an example showing how these new APIs are used.
+       Control API  First, here is some code that uses old-style
+          Examples  SendMessage calls to print all the lines in an edit
+------------------  control:
+
+
+
+
+                                  - 18 -
+
+
+
+
+
+
+void PrintLines(HWND hwndEdit)
+{
+  int line;
+  int lineLast = (int)SendMessage(hwndEdit, EM_GETLINECOUNT,
+                                    0, 0L);
+  for (line = 0; line < lineLast; line++)
+  {
+    int cch;
+    char ach[80];
+
+    *((LPINT)ach) = sizeof(ach);
+    cch = (int)SendMessage(hwndEdit, EM_GETLINE,
+                           line, (LONG)(LPSTR)ach);
+    printf(ach);
+    // ... or whatever ...
+  }
+}
+
+                    Using control APIs, this code would be simplified as
+                    follows:
+
+void PrintLines(HWND hwndEdit)
+{
+  int line;
+  int lineLast = Edit_GetLineCount(hwndEdit);
+
+  for (line = 0; line < lineLast; line++)
+  {
+    int cch;
+    char ach[80];
+
+    cch = Edit_GetLine(hwndEdit, line, ach, sizeof(ach));
+
+    printf(ach);
+    // ... or whatever ...
+  }
+}
+
+                    The new style code is much easier to read (and write),
+                    doesn't generate compiler warnings, and doesn't have
+                    any non-portable casts.
+
+                    Here is a complete list of the control APIs.  See
+                    windowsx.h for more info.
+
+                        Static_Enable(hwnd, fEnable)
+                        Static_GetText(hwnd, lpch, cchMax)
+                        Static_GetTextLength(hwnd)
+
+
+
+                                  - 19 -
+
+
+
+
+
+
+                        Static_SetText(hwnd, lpsz)
+                        Static_SetIcon(hwnd, hIcon)
+                        Static_GetIcon(hwnd, hIcon)
+
+                        Button_Enable(hwnd, fEnable)
+                        Button_GetText(hwnd, lpch, cchMa
+                        Button_GetTextLength(hwnd)
+                        Button_SetText(hwnd, lpsz)
+                        Button_GetCheck(hwnd)
+                        Button_SetCheck(hwnd, check)
+                        Button_GetState(hwnd)
+                        Button_SetState(hwnd, state)
+                        Button_SetStyle(hwnd, style, fRedraw)
+
+                        Edit_Enable(hwnd, fEnable)
+                        Edit_GetText(hwnd, lpch, cchMax)
+                        Edit_GetTextLength(hwnd)
+                        Edit_SetText(hwnd, lpsz)
+                        Edit_LimitText(hwnd, cchMax)
+                        Edit_GetLineCount(hwnd)
+                        Edit_GetLine(hwnd, line, lpch, cchMax)
+                        Edit_GetRect(hwnd, lprc)
+                        Edit_SetRect(hwnd, lprc)
+                        Edit_SetRectNoPaint(hwnd, lprc)
+                        Edit_GetSel(hwnd)
+                        Edit_SetSel(hwnd, ichStart, ichEnd)
+                        Edit_ReplaceSel(hwnd, lpszReplace)
+                        Edit_GetModify(hwnd)
+                        Edit_SetModify(hwnd, fModified)
+                        Edit_LineFromChar(hwnd, ich)
+                        Edit_LineIndex(hwnd, line)
+                        Edit_LineLength(hwnd, line)
+                        Edit_Scroll(hwnd, dv, dh)
+                        Edit_CanUndo(hwnd)
+                        Edit_Undo(hwnd)
+                        Edit_EmptyUndoBuffer(hwnd)
+                        Edit_SetPasswordChar(hwnd, ch)
+                        Edit_SetTabStops(hwnd, cTabs, lpTabs)
+                        Edit_SetWordBreak(hwnd, lpfnWordBreak)
+                        Edit_FmtLines(hwnd, fAddEOL)
+                        Edit_GetHandle(hwnd)
+                        Edit_SetHandle(hwnd, h)
+                        Edit_GetFirstVisible(hwnd)
+
+                        ScrollBar_Enable(hwnd, flags)
+                        ScrollBar_Show(hwnd, fShow)
+                        ScrollBar_SetPos(hwnd, pos, fRedraw)
+                        ScrollBar_GetPos(hwnd)
+
+
+
+                                  - 20 -
+
+
+
+
+
+
+                        ScrollBar_SetRange(hwnd, posMin, posMax, fRedraw)
+                        ScrollBar_GetRange(hwnd, lpposMin, lpposMax)
+
+                        ListBox_Enable(hwnd, fEnable)
+                        ListBox_GetCount(hwnd)
+                        ListBox_ResetContent(hwnd)
+                        ListBox_AddString(hwnd, lpsz)
+                        ListBox_InsertString(hwnd, lpsz, index)
+                        ListBox_AddItemData(hwnd, data)
+                        ListBox_InsertItemData(hwnd, lpsz, index)
+                        ListBox_DeleteString(hwnd, index)
+                        ListBox_GetTextLen(hwnd, index)
+                        ListBox_GetText(hwnd, index, lpszBuffer)
+                        ListBox_GetItemData(hwnd, index)
+                        ListBox_SetItemData(hwnd, index, data)
+                        ListBox_FindString(hwnd, indexStart, lpszFind)
+                        ListBox_FindItemData(hwnd, indexStart, data)
+                        ListBox_SetSel(hwnd, fSelect, index)
+                        ListBox_SelItemRange(hwnd, fSelect, first, last)
+                        ListBox_GetCurSel(hwnd)
+                        ListBox_SetCurSel(hwnd, index)
+                        ListBox_SelectString(hwnd, indexStart, lpszFind)
+                        ListBox_SelectItemData(hwnd, indexStart, data)
+                        ListBox_GetSel(hwnd, index)
+                        ListBox_GetSelCount(hwnd)
+                        ListBox_GetTopIndex(hwnd)
+                        ListBox_GetSelItems(hwnd, cItems, lpIndices)
+                        ListBox_SetTopIndex(hwnd, indexTop)
+                        ListBox_SetColumnWidth(hwnd, cxColumn)
+                        ListBox_GetHorizontalExtent(hwnd)
+                        ListBox_SetHorizontalExtent(hwnd, cxExtent)
+                        ListBox_SetTabStops(hwnd, cTabs, lpTabs)
+                        ListBox_GetItemRect(hwnd, index, lprc)
+                        ListBox_SetCaretIndex(hwnd, index)
+                        ListBox_GetCaretIndex(hwnd)
+                        ListBox_SetAnchorIndex(hwnd, index)
+                        ListBox_GetAnchorIndex(hwnd)
+                        ListBox_Dir(hwnd, attrs, lpszFileSpec)
+                        ListBox_AddFile(hwnd, lpszFilename)
+
+          3.1 only      ListBox_SetItemHeight(hwnd, index, cy)
+          3.1 only      ListBox_GetItemHeight(hwnd, index)
+
+                        ComboBox_Enable(hwnd, fEnable)
+                        ComboBox_GetText(hwnd, lpch, cchMax)
+                        ComboBox_GetTextLength(hwnd)
+                        ComboBox_SetText(hwnd, lpsz)
+                        ComboBox_LimitText(hwnd, cchLimit)
+
+
+
+                                  - 21 -
+
+
+
+
+
+
+                        ComboBox_GetEditSel(hwnd)
+                        ComboBox_SetEditSel(hwnd, ichStart, ichEnd)
+                        ComboBox_GetCount(hwnd)
+                        ComboBox_ResetContent(hwnd)
+                        ComboBox_AddString(hwnd, lpsz)
+                        ComboBox_InsertString(hwnd, index, lpsz)
+                        ComboBox_AddItemData(hwnd, data)
+                        ComboBox_InsertItemData(hwnd, index, data)
+                        ComboBox_DeleteString(hwnd, index)
+                        ComboBox_GetLBTextLen(hwnd, index)
+                        ComboBox_GetLBText(hwnd, index, lpszBuffer)
+                        ComboBox_GetItemData(hwnd, index)
+                        ComboBox_SetItemData(hwnd, index, data)
+                        ComboBox_FindString(hwnd, indexStart, lpszFind)
+                        ComboBox_FindItemData(hwnd, indexStart, data)
+                        ComboBox_GetCurSel(hwnd)
+                        ComboBox_SetCurSel(hwnd, index)
+                        ComboBox_SelectString(hwnd, indexStart, lpszSelect)
+                        ComboBox_SelectItemData(hwnd, indexStart, data)
+                        ComboBox_Dir(hwnd, attrs, lpszFileSpec)
+                        ComboBox_ShowDropdown(hwnd, fShow)
+
+          3.1 only      ComboBox_GetDroppedState(hwnd)
+          3.1 only      ComboBox_GetDroppedControlRect(hwnd, lprc)
+          3.1 only      ComboBox_GetItemHeight(hwnd)
+          3.1 only      ComboBox_SetItemHeight(hwnd, cyItem)
+          3.1 only      ComboBox_GetExtendedUI(hwnd)
+          3.1 only      ComboBox_SetExtendedUI(hwnd, flags)
+
+
+   Message cracker  =======================================================
+            macros
+                    The message cracker macros provide a convenient,
+                    portable, and type-safe mechanism for dealing with
+                    window messages, their parameters, and their return
+                    values.
+
+                    The basic idea is that instead of having to pick apart
+                    message parameters with casts and HIWORD/LOWORD and
+                    such, you simply declare and implement a function that
+                    has the properly typed parameters and return value.
+                    The message crackers efficiently pick apart the message
+                    parameters, call your function, and return the
+                    appropriate value from the window message.
+
+                    Message forwarder macros allow you to forward a message
+                    via DefWindowProc, SendMessage, or CallWindowProc. The
+                    macros do the work of packing explicitly typed
+
+
+
+                                  - 22 -
+
+
+
+
+
+
+                    arguments into wParam and lParam and calling the
+                    appropriate function.
+
+                    With these macros, you don't have to worry about what
+                    parameters go where and what kind of casting you need
+                    to do.  They are also portable to 32-bit Windows (where
+                    some of the message parameters have changed).
+
+
+------------------  For each window message, there are two macros: A
+     Using message  cracker and a forwarder. To see how these macros work,
+      crackers and  let's use the WM_CREATE message as an example. Here is
+        forwarders  a code fragment showing how a window procedure could
+------------------  use message crackers to handle the WM_CREATE message.
+                    For now, our WM_CREATE message processing will simply
+                    call DefWindowProc.
+
+                    NOTE: The following examples use STRICT-style
+                    declarations, but you can use message crackers without
+                    STRICT.
+
+// Message handler function prototype (declared in a .h file)
+
+BOOL MyCls_OnCreate(HWND hwnd, CREATESTRUCT FAR* lpCreateStruct);
+
+// Window procedure for class "MyCls" (defined in a .c file)
+
+LRESULT _export CALLBACK MyCls_WndProc(HWND hwnd, UINT msg,
+                                       WPARAM wParam,
+                                       LPARAM lParam)
+{
+  switch (msg)
+  {
+    case WM_CREATE:
+      return HANDLE_WM_CREATE(hwnd, wParam, lParam,
+                              MyCls_OnCreate);
+    default:
+      return DefWindowProc(hwnd, msg, wParam, lParam);
+  }
+}
+
+// WM_CREATE message handler function.
+// For now, just calls DefWindowProc.
+
+BOOL MyCls_OnCreate(HWND hwnd,
+                    CREATESTRUCT FAR* lpCreateStruct)
+{
+  return FORWARD_WM_CREATE(hwnd, lpCreateStruct, DefWindowProc);
+
+
+
+                                  - 23 -
+
+
+
+
+
+
+}
+
+                    Some important points:
+
+                    o You must declare and implement a function to handle
+                      the message, which must have a particular "signature"
+                      (the order and type of the parameters, and the type
+                      of the return value, if any).
+
+                    o You pass this message handler function as the last
+                      parameter to the HANDLE_WM_XXX function. This
+                      function must be declared and fully prototyped before
+                      being used with a message cracker.
+
+                    o You must always return the value returned by the
+                      HANDLE_WM_XXX function, even if the message handler
+                      function is declared void.
+
+                    o The FORWARD_WM_XXX function always has the same
+                      signature (parameters and return type) as its
+                      corresponding message handler function, with the
+                      addition of the last parameter, which is the API or
+                      function to be used to forward the message.
+
+                    o You don't need to use message crackers to handle all
+                      your messages. Old-style message handling code can be
+                      mixed with message crackers in the same window
+                      procedure.
+
+                    o By convention, message handler functions are named
+                      "Class_OnXXX", where Class is the window class name
+                      and XXX is the name of the corresponding message,
+                      minus the "WM_" and using mixed case instead of all
+                      caps. This is just a convention: you can use any name
+                      you like for the function (although you can't alter
+                      its signature).
+
+
+------------------  The HANDLE_MSG macro can be used to reduce the amount
+   Saving time and  of "noise" in your window procedures and save yourself
+         improving  some typing.  The HANDLE_MSG macro replaces the "case
+  readability with  WM_XXX:", the HANDLE_WM_XXX call, and the return.  So,
+        HANDLE_MSG  instead of
+------------------
+
+case WM_CREATE:
+  return HANDLE_WM_CREATE(hwnd, wParam, lParam, MyCls_OnCreate);
+
+
+
+
+                                  - 24 -
+
+
+
+
+
+
+                    you can just type:
+
+HANDLE_MSG(hwnd, WM_CREATE, MyCls_OnCreate);
+
+                    HANDLE_MSG is optional.  Some people prefer to "spell
+                    out" the goings-on in their window procedures, and
+                    others prefer the convenience and brevity of the
+                    HANDLE_MSG form.
+
+                    HANDLE_MSG requires that you name your window procedure
+                    message parameters wParam and lParam. The examples in
+                    this document use HANDLE_MSG.
+
+
+------------------  To see how message crackers work, we'll take a look at
+       How message  the definition of the message cracker macros as found
+     crackers work  in windowsx.h (these definitions are somewhat
+------------------  simplified for the sake of clarity):
+
+// BOOL Cls_OnCreate(HWND hwnd, CREATESTRUCT FAR* lpCreateStruct)
+
+#define HANDLE_WM_CREATE(hwnd, wParam, lParam, fn) \
+((fn)(hwnd, (CREATESTRUCT FAR*)lParam) ? 0L : (LRESULT)-1L)
+
+#define FORWARD_WM_CREATE(hwnd, lpCreateStruct, fn) \
+(BOOL)(DWORD)(fn)(hwnd, WM_CREATE, 0, (LPARAM)lpCreateStruct)
+
+                    The comment shows the signature of the message handler
+                    function that you must declare and implement.
+
+                    Essentially all these macros do is convert the wParam
+                    and lParam message parameters to and from specific,
+                    explicitly typed parameters and invoke a function.
+
+                    The HANDLE_WM_CREATE macro calls the handler function
+                    with the appropriate parameters, obtained by casting
+                    wParam and lParam appropriately.  The return value of
+                    the handler value is mapped to the proper LRESULT
+                    return value, in this case 0L or -1L.  If the handler
+                    function returns no value, then 0L is returned.
+
+                    The FORWARD_WM_CREATE macro calls the supplied message
+                    function (which must have the same signature as
+                    DefWindowProc) with the proper hwnd, wParam, and lParam
+                    parameters calculated from the parameters supplied to
+                    the macro.
+
+                    The HANDLE_MSG macro is quite simple too:
+
+
+
+                                  - 25 -
+
+
+
+
+
+
+#define HANDLE_MSG(hwnd, message, fn)    \
+case message: return HANDLE_##message(fn, hwnd, wParam, lParam)
+
+                    It simply does the "case" for you, and returns the
+                    result of the proper HANDLE_WM_XXX function.  The
+                    message parameter names wParam and lParam are
+                    hard-wired into this macro.
+
+
+------------------  Here is a more detailed example of a window procedure
+   Message cracker  for the "Template" class that uses message crackers and
+          examples  message forwarders:
+------------------
+// Excerpt from header file for class Template
+
+// Window procedure prototype
+
+LRESULT _export CALLBACK Template_WndProc(HWND hwnd, WORD msg,
+                                          WPARAM wParam,
+                                          LPARAM lParam)
+
+// Default message handler
+
+#define Template_DefProc    DefWindowProc
+
+// Template class message handler functions,
+// declared in a header file:
+
+void Template_OnMouseMove(HWND hwnd, int x,
+                          int y, UINT keyFlags);
+void Template_OnLButtonDown(HWND hwnd, BOOL fDoubleClick,
+                            int x, int y, UINT keyFlags);
+void Template_OnLButtonUp(HWND hwnd, int x,
+                          int y, UINT keyFlags);
+HBRUSH Template_OnCtlColor(HWND hwnd, HDC hdc,
+                           HWND hwndChild, int type);
+
+
+// Exerpt from c source file for class Template
+
+// Template window procedure implementation.
+
+LRESULT _export CALLBACK Template_WndProc(HWND hwnd, WORD msg,
+                                          WPARAM wParam,
+                                          LPARAM lParam)
+{
+  switch (msg)
+  {
+
+
+
+                                  - 26 -
+
+
+
+
+
+
+    HANDLE_MSG(hwnd, WM_MOUSEMOVE, Template_OnMouseMove);
+    HANDLE_MSG(hwnd, WM_LBUTTONDOWN, Template_OnLButtonDown);
+    HANDLE_MSG(hwnd, WM_LBUTTONDBLCLK, Template_OnLButtonDown);
+    HANDLE_MSG(hwnd, WM_LBUTTONUP, Template_OnLButtonUp);
+    default:
+      return Template_DefProc(hwnd, msg, wParam, lParam);
+  }
+}
+
+// Message handler function implementations:
+
+void Template_OnMouseMove(HWND hwnd, int x, int y, UINT keyFlags)
+{
+...
+}
+
+void Template_OnLButtonDown(HWND hwnd, BOOL fDoubleClick,
+                            int x, int y, UINT keyFlags)
+{
+...
+}
+
+void Template_OnLButtonUp(HWND hwnd, int x, int y, UINT keyFlags)
+{
+...
+}
+
+HBRUSH Template_OnCtlColor(HWND hwnd, HDC hdc,
+                           HWND hwndChild, int type)
+{
+  switch (type)
+  {
+    case CTLCOLOR_BTN:
+      // Pass the WM_CTLCOLOR message on to the parent,
+      // and use the edit control colors.
+      return FORWARD_WM_CTLCOLOR(GetParent(hwnd), hdc, hwndChild,
+                                 CTLCOLOR_EDIT, SendMessage);
+      break;
+
+    default:
+      // Perform default processing of the message.
+      return FORWARD_WM_CTLCOLOR(hwnd, hdc, hwndChild,
+                                 type, Template_DefProc);
+  }
+}
+
+
+
+
+
+
+                                  - 27 -
+
+
+
+
+
+
+------------------  For the most part, the OnXXX message handler function
+   Message handler  parameters have the same name and type as those shown
+          function  in the documentation of the corresponding window
+        signatures  message. To find out exactly what those messages are,
+------------------  look at the commented function prototype in windowsx.h
+                    before the message cracker for the message you're
+                    interested in.
+
+                    There are a few cases where the OnXXX functions work a
+                    bit differently than the corresponding window message:
+
+                    o OnCreate (and OnNCCreate) must return TRUE if all is
+                      well, or the window will not be created and
+                      CreateWindow will return NULL.
+
+                    o The signatures for OnKey and On?ButtonDown functions
+                      are a little different from their corresponding
+                      messages.  OnKey handles both key up and key down
+                      messages with the fDown parameter. The On?ButtonDown
+                      functions handle double click messages too, with the
+                      fDoubleClick parameter (though you must be sure to
+                      register your window class with CS_DBLCLKS if you
+                      want to handle double clicks).
+
+                    o The OnChar function is not passed the virtual key or
+                      key flags information, as this information is not
+                      usable in a WM_CHAR handling. This is because
+                      different virtual keys can generate the same WM_CHAR
+                      messages, and certain key macro processors will
+                      generate WM_CHAR messages with no virtual key or
+                      flags.
+
+
+------------------  For every window class, there is a function that must
+         Improving  be called to perform the default processing for that
+      reusability:  window.  Normally, this call is DefWindowProc, but if
+  Template_DefProc  you're subclassing a window, it's CallWindowProc, or if
+------------------  you're implementing an MDI child window, it's
+                    DefMDIChildProc, etc.
+
+                    A very common programming mistake is to copy code from
+                    another window procedure without making the appropriate
+                    change to the default message handler function. This
+                    can lead to subtle, hard to track down bugs.
+
+
+
+
+
+
+
+                                  - 28 -
+
+
+
+
+
+
+                    This is the purpose of the Template_DefProc macro
+                    defined and used in the example above.  Every class
+                    should have an appropriate XXX_DefProc macro (or
+                    function) defined which will perform default message
+                    processing.
+
+                    In the example above, the default message handler is
+                    DefWindowProc, so Template_DefProc is defined as
+                    follows:
+
+                     #define Template_DefProc   DefWindowProc.
+
+                    For an MDI child window, it might be:
+
+                     #define MdiWnd_DefProc     DefMDIChildProc
+
+                    The advantage of this scheme is that to steal code from
+                    another window procedure, you need only change the
+                    class name prefix, and the proper default handling will
+                    be taken care of automatically.
+
+
+------------------  Message crackers and forwarders work well with new
+       Private and  window messages that you define.  You must write a
+ registered window  message cracker and forwarder macro for the new message
+          messages  -- the easiest way to do this is to copy and modify
+------------------  existing macros from windowsx.h.
+
+                    If your new message value is a constant (e.g.,
+                    WM_USER+100), then you can use HANDLE_MSG to handle the
+                    message in your window procedure.  However, if your new
+                    message is registered with RegisterWindowMessage,
+                    HANDLE_MSG can't be used, because variables cannot be
+                    used as switch statement case values: only constants
+                    can.  In this case, you can handle it as follows:
+
+// In Template class initialization code:
+
+UINT WM_NEWMESSAGE = 0;
+
+WM_NEWMESSAGE = RegisterWindowMessage("WM_NEWMESSAGE");
+
+    ...
+
+// In Template_WndProc: window procedure:
+
+LRESULT _export CALLBACK Template_WndProc(HWND hwnd, WORD msg,
+                                          WPARAM wParam,
+
+
+
+                                  - 29 -
+
+
+
+
+
+
+                                          LPARAM lParam)
+{
+  if (msg == WM_NEWMESSAGE)
+    HANDLE_WM_NEWMESSAGE(hwnd, wParam, lParam,
+                         Template_OnNewMessage);
+
+  switch (msg)
+  {
+    HANDLE_MSG(hwnd, WM_MOUSEMOVE, Template_OnMouseMove);
+    ...
+  }
+}
+
+
+------------------  It's very common for a window to have some additional
+  Message crackers  "instance data" associated with it that is kept in a
+        and window  separate data structure allocated by the application.
+     instance data  This separate data structure is associated with its
+------------------  corresponding window by storing a pointer to the
+                    structure in a  specially-named window property or in a
+                    window word (allocated by setting  the cbWndExtra field
+                    of the WNDCLASS structure when the class is
+                    registered).
+
+                    The message crackers fully support this style of
+                    programming by allowing you to pass a pointer to the
+                    instance data as the first parameter to the message
+                    handlers instead of a window handle.  The following
+                    example should make this clear:
+
+
+// Window instance data structure.
+// Must include window handle field.
+
+typedef struct _FOO
+{
+    HWND hwnd;
+    int otherStuff;
+} FOO;
+
+// "Foo" window class was registered with
+// cbWndExtra = sizeof(FOO*), so we can use
+// a window word to store back pointer.
+// Window properties can also be used.
+
+// These macros get and set the hwnd -> FOO* backpointer.
+// Use GetWindowWord or GetWindowLong as appropriate based
+// on the default size of data pointers.
+
+
+
+                                  - 30 -
+
+
+
+
+
+
+#if (defined(__SMALL__) | defined(__MEDIUM__))
+#define Foo_GetPtr(hwnd) \
+        (FOO*)GetWindowWord((hwnd), 0)
+#define Foo_SetPtr(hwnd, pfoo) \
+        (FOO*)SetWindowWord((hwnd), 0, (WORD)(pfoo))
+#else
+#define Foo_GetPtr(hwnd) \
+        (FOO*)GetWindowLong((hwnd), 0)
+#define Foo_SetPtr(hwnd, pfoo) \
+        (FOO*)SetWindowLong((hwnd), 0, (LONG)(pfoo))
+#endif
+
+// Default message handler
+
+#define Foo_DefProc DefWindowProc
+
+// Message handler functions, declared with a FOO* as their
+// first argument, rather than an HWND.  Other than that,
+// their signature is identical to that shown in windowsx.h.
+
+BOOL Foo_OnCreate(FOO* pfoo, CREATESTRUCT FAR* lpcs);
+void Foo_OnPaint(FOO* pfoo);
+
+// Code to register the Foo window class:
+
+BOOL Foo_Init(HINSTANCE hinst)
+{
+    WNDCLASS cls;
+
+    cls.hCursor         = ...;
+    cls.hIcon           = ...;
+    cls.lpszMenuName    = ...;
+    cls.hInstance       = hinst;
+    cls.lpszClassName   = "Foo";
+    cls.hbrBackground   = ...;
+    cls.lpfnWndProc     = Foo_WndProc;
+    cls.style           = CS_DBLCLKS;
+    cls.cbWndExtra      = sizeof(FOO*);  // room for instance
+                                         // data ptr
+    cls.cbClsExtra      = 0;
+
+    return RegisterClass(&cls);
+}
+
+// The window procedure for class "Foo".  This demonstrates how
+// instance data is attached to a window and passed to the
+// message handler functions.  It's fully STRICT enabled,
+// and Win 3.0 compatible.
+
+
+
+                                  - 31 -
+
+
+
+
+
+
+LRESULT CALLBACK _export Foo_WndProc(HWND hwnd, UINT msg,
+                                     WPARAM wParam,
+                                     LPARAM lParam)
+{
+  FOO* pfoo = Foo_GetPtr(hwnd);
+
+  if (pfoo == NULL)
+  {
+    // If we're creating the window, then try to allocate it.
+
+    if (msg == WM_NCCREATE)
+    {
+      // Create the instance data structure, set up the hwnd
+      // backpointer field, and associate it with the window.
+
+      pfoo = (FOO*)LocalAlloc(LMEM_FIXED | LMEM_ZEROINIT,
+                              sizeof(FOO));
+
+      // If an error occured, return 0L to fail the CreateWindow
+      // call. This will cause CreateWindow to return NULL.
+
+      if (pfoo == NULL)
+        return 0L;
+
+      pfoo->hwnd = hwnd;
+      Foo_SetPtr(hwnd, pfoo);
+
+      // NOTE: the rest of the FOO structure should be
+      // initialized inside of Template_OnCreate
+      // (or Template_OnNCCreate).
+      // Further creation data may be accessed through the
+      // CREATESTRUCT FAR* parameter.
+    }
+    else
+    {
+      // It turns out WM_NCCREATE is NOT necessarily the first
+      // message recieved by a top-level window
+      // (WM_GETMINMAXINFO is).
+      // Pass messages that precede WM_NCCREATE on through to
+      // Foo_DefProc
+
+      return Foo_DefProc(hwnd, msg, wParam, lParam);
+    }
+  }
+
+  if (msg == WM_NCDESTROY)
+  {
+    // The window is being destroyed: free up the FOO structure.
+
+
+
+                                  - 32 -
+
+
+
+
+
+
+    // NOTE: If you want to handle WM_NCDESTROY with a message
+    // cracker (NOT RECOMMENDED), you can uncomment the lines
+    // below.
+
+    // LRESULT result = HANDLE_MSG(hwnd, WM_NCDESTROY,
+                                   Client_OnNCDestroy);
+
+    // Deallocation of any fields of the FOO structure should
+    // be done inside the OnNCDestroy function.
+
+    LocalFree((HLOCAL)pfoo);
+
+    pfoo = NULL;
+    Foo_SetPtr(hwnd, NULL);
+
+    //return result;
+  }
+
+  switch (msg)
+  {
+    HANDLE_MSG(pfoo, WM_CREATE, Foo_OnCreate);
+    HANDLE_MSG(pfoo, WM_PAINT, Foo_OnPaint);
+    ...
+
+    default:
+      return Foo_DefProc(hwnd, msg, wParam, lParam);
+  }
+}
+
+
+------------------  Dialog procedures are different from window procedures
+  Message crackers  in that they return a BOOL indicating whether the
+        and dialog  message was processed rather than an LRESULT. For this
+        procedures  reason, you can't use HANDLE_MSG: You must invoke the
+------------------  message cracker macro explicitly.
+
+                    Here's an example that shows how you'd use message
+                    crackers in a dialog procedure:
+
+                     BOOL MyDlg_OnInitDialog(HWND hwndDlg, HWND hwndFocus,
+                                             LPARAM lParam);
+                     void MyDlg_OnCommand(HWND hwnd, int id, HWND hwndCtl,
+                                          UINT codeNotify);
+
+                     BOOL _export CALLBACK MyDlg_DlgProc(HWND hwndDlg, UINT
+                     msg,
+                                                         WPARAM wParam,
+                     LPARAM lParam)
+
+
+
+                                  - 33 -
+
+
+
+
+
+
+                     {
+                       switch (msg)
+                       {
+                         // Since HANDLE_WM_INITDIALOG returns an LRESULT,
+                         // we must cast it to a BOOL before returning.
+
+                         case WM_INITDIALOG:
+                           return (BOOL)HANDLE_WM_INITDIALOG(hwndDlg,
+                     wParam, lParam,
+                                                             MyDlg_OnInitDialog);
+
+                         case WM_COMMAND:
+                           HANDLE_WM_COMMAND(hwndDlg, wParam, lParam,
+                                             MyDlg_OnCommand);
+                           return TRUE;
+                           break;
+
+                         default:
+                           return FALSE;
+                       }
+                     }
+
+                    If you'd like to process messages that return values
+                    such as WM_ERASEBKGND in your dialog procedure, or
+                    would like to make it easier to share code between your
+                    window procedures and your dialog procedures, you may
+                    want to make use of the techniques shown later in
+                    "Dialog Procedures: A Better Way."
+
+
+------------------  Message crackers can also be used to simplify window
+  Message crackers  subclassing code. With message crackers, unprocessed
+        and window  messages must be forwarded using the appropriate
+       subclassing  FORWARD_WM_* macro.  When you are subclassing a window,
+------------------  the proper way to forward unprocessed messages is by
+                    calling CallWindowProc, passing it the previous window
+                    procedure address, along with the four standard window
+                    message parameters.
+
+                    The FORWARD_WM_* macros can't be used directly with
+                    CallWindowProc, because they can only invoke functions
+                    having the standard window procedure signature:
+                    CallWindowProc has an extra WNDPROC parameter.
+
+                    This problem is handled easily by simply declaring
+                    XXX_DefProc as a function instead of a macro.  Your
+                    function must call CallWindowProc instead of calling
+                    DefWindowProc:
+
+
+
+                                  - 34 -
+
+
+
+
+
+
+                    Here's an example showing how this works:
+
+// Global variable that holds the previous window
+// procedure address of the subclassed window:
+
+WNDPROC Foo_lpfnwpDefProc = NULL;
+
+// Code fragment to subclass a window
+// and store previous wndproc value:
+
+void SubclassFoo(HWND hwndFoo)
+{
+  // Global application instance handle:
+  extern HINSTANCE g_hinstFoo;
+  ...
+
+  // SubclassWindow is a macro API that calls SetWindowLong
+  // as appropriate to change the window procedure of hwndFoo.
+
+  Foo_lpfnwpDefProc = SubclassWindow(hwndFoo,
+                      (WNDPROC)MakeProcInstance
+                      ((FARPROC)Foo_WndProc, g_hinstFoo));
+  ...
+}
+
+// Default message handler function
+
+// This function invokes the superclasses' window procedure.
+// It must be declared with the same signature as any window
+// procedure, so it can be used with the FORWARD_WM_* macros.
+
+LRESULT Foo_DefProc(HWND hwnd, UINT msg,
+                    WPARAM wParam, LPARAM lParam)
+{
+  return CallWindowProc(Foo_lpfnwpDefProc,
+                        hwnd, msg, wParam, lParam);
+}
+
+// Foo window procedure.  Everything here is the same as in the
+// normal non-subclassed case: the differences are encapsulated // in
+Foo_DefProc.
+
+LRESULT CALLBACK Foo_WndProc(HWND hwnd, UINT msg,
+                             WPARAM wParam, LPARAM lParam)
+{
+  switch (msg)
+  {
+    HANDLE_MSG(hwnd, WM_CHAR, Foo_OnChar);
+
+
+
+                                  - 35 -
+
+
+
+
+
+
+    ...
+    default:
+      // Be sure to call Foo_DefProc, NOT DefWindowProc!
+
+      return Foo_DefProc(hwnd, msg, wParam, lParam);
+  }
+}
+
+// Message handlers
+
+void Foo_OnChar(HWND hwnd, UINT ch, int cRepeat)
+{
+  if (ch == ... || whatever)
+  {
+    // handle it here
+  }
+  else
+  {
+    // Forward the message on to Foo_DefProc
+    FORWARD_WM_CHAR(hwnd, ch, cRepeat, Foo_DefProc);
+  }
+}
+
+
+------------------  There are two longstanding sources of confusion and
+Dialog procedures:  bugs in Windows dialog procedures: 1. There is no way
+      A better way  to return a value from a message handled by a dialog
+------------------  procedure, and 2. it's not possible to execute the
+                    default dialog behavior for a message before executing
+                    your own code in your dialog procedure.
+
+                    Here is a simple solution to both of these problems
+                    that is compatible with both Windows 3.0 and 3.1.  It
+                    unifies the way window procedures and dialog procedures
+                    are coded, and it works very nicely with message
+                    crackers.
+
+              Note  These techniques, like message crackers, are completely
+                    optional.  You can use these techniques with or without
+                    message crackers.
+
+                    You can code a dialog procedure just as if it were a
+                    window procedure: you have the same freedom to return
+                    values and execute the default dialog processing
+                    messages as you do with window procedures.  It's also
+                    easier to copy or share code between dialog and window
+                    procedures.
+
+
+
+
+                                  - 36 -
+
+
+
+
+
+
+                    Executing default dialog procedure functionality
+                    =======================================================
+
+                    Although Windows provides the DefDlgProc API, it can't
+                    be used as is for our purposes because its
+                    implementation calls the dialog procedure again.  If we
+                    called it from our dialog procedure, the dialog
+                    procedure would be called again, recursively, until we
+                    run out of stack space and crash.  To prevent this
+                    infinite recursion, we need only detect that we're
+                    being called recursively and return FALSE, which will
+                    cause the default processing to be performed.
+
+
+                    Returning message results from dialog procedures
+                    =======================================================
+
+                    Windows 3.0 and 3.1 both support a general mechanism
+                    for returning values from messages handled in dialog
+                    procedures.  Essentially, you store the return value
+                    with SetWindowLong, which will get returned from the
+                    message when your dialog procedure returns TRUE.
+
+                    There are some special cases you have to worry about:
+                    in some cases, the return value must be returned in
+                    place of the BOOL return value.
+
+
+                    How it works
+                    =======================================================
+
+                    Here is some code that shows how all this comes
+                    together:
+
+// function prototypes in header file..
+
+BOOL CALLBACK _export MyDlg_OldProc(HWND hwndDlg, UINT msg,
+                                    WPARAM wParam,
+                                    LPARAM lParam);
+
+LRESULT MyDlg_DlgProc(HWND hwndDlg, UINT msg,
+                      WPARAM wParam, LPARAM lParam);
+
+
+// implementation in .c file..
+
+// static (or global) variable for preventing infinite recursion
+
+
+
+
+                                  - 37 -
+
+
+
+
+
+
+static BOOL fMyDlgRecurse = FALSE;
+
+BOOL CALLBACK _export MyDlg_OldProc(HWND hwndDlg, UINT msg,
+                                    WPARAM wParam,
+                                    LPARAM lParam);
+{
+  LRESULT result;
+
+  // Check for possible recursion.  If so, just return FALSE
+  // after clearing the recursion flag, to ensure that the
+  // default processing is executed.
+
+  if (fMyDlgRecurse)
+  {
+    fMyDlgRecurse = FALSE;
+    return FALSE;
+  }
+
+  result = MyDlg_DlgProc(hwndDlg, msg, wParam, lParam);
+
+  // Here if we handled the message, and want to return result.
+
+  switch (msg)
+  {
+    // The following messages are special-cased by the dialog
+    // manager, and assumed to be returned as a BOOL from the
+    // dialog procedure:
+
+    case WM_INITDIALOG:
+    case WM_CTLCOLOR:
+    case WM_COMPAREITEM:
+    case WM_VKEYTOITEM:
+    case WM_CHARTOITEM:
+    case WM_QUERYDRAGICON:
+      return (BOOL)LOWORD(result);
+
+    default:
+      // All other messages use the DWL_MSGRESULT window words:
+      SetWindowLong(hwndDlg, DWL_MSGRESULT, (LPARAM)result);
+      return TRUE;
+  }
+}
+
+LRESULT MyDlg_DlgProc(HWND hwndDlg, UINT msg,
+                      WPARAM wParam, LPARAM lParam);
+{
+  switch (msg)
+  {
+
+
+
+                                  - 38 -
+
+
+
+
+
+
+    HANDLE_MSG(hwndDlg, WM_INITDIALOG, MyDlg_OnInitDialog);
+    HANDLE_MSG(hwndDlg, WM_COMMAND, MyDlg_OnCommand);
+
+    default:
+      // Call DefDlgProc to invoke default dialog processing
+      // for messages we don't handle ourself.  Set recursion
+      // flag before we go, so MyDlg_OldDlgProc knows to
+      // return FALSE.
+
+      fMyDlgRecurse = TRUE;
+      return DefDlgProc(hwndDlg, msg, wParam, lParam);
+  }
+}
+
+                    You must declare a static (or global) BOOL variable
+                    that is initialized to FALSE.  It's safe to use the
+                    same global variable for all your dialogs, even if one
+                    dialog procedure brings up another dialog box.
+
+                    What's important is that the same boolean variable be
+                    used in the "OldDlgProc" and before the call to
+                    DefDlgProx: a local BOOL variable must NOT be used, or
+                    infinite recursion will result.
+
+
+                    A simplified example using predefined macro APIs
+                    =======================================================
+
+                    Three macro APIs are defined in windowsx.h that
+                    drastically simplify the code shown above.  They are
+                    SetDlgMsgResult, DefDlgProcEx, and
+                    CheckDefDlgRecursion.
+
+                    Here's the same dialog code, this time using these
+                    macro APIs:
+
+// prototypes..
+
+BOOL CALLBACK _export MyDlg_OldProc(HWND hwndDlg, UINT msg,
+                                    WPARAM wParam,
+                                    LPARAM lParam);
+
+LRESULT MyDlg_DlgProc(HWND hwndDlg, UINT msg,
+                      WPARAM wParam, LPARAM lParam);
+
+
+// implementation..
+
+
+
+
+                                  - 39 -
+
+
+
+
+
+
+static BOOL fDefDlgEx = FALSE;
+
+BOOL CALLBACK _export MyDlg_OldProc(HWND hwndDlg, UINT msg,
+                                    WPARAM wParam,
+                                    LPARAM lParam);
+{
+  CheckDefDlgRecursion(&fDefDlgEx);
+  return SetDlgMsgResult(hwndDlg, msg,
+         MyDlg_DlgProc(hwndDlg, msg, wParam, lParam));
+}
+
+LRESULT MyDlg_DefProc(HWND hwndDlg, UINT msg,
+                      WPARAM wParam, LPARAM lParam);
+{
+  return DefDlgProcEx(hwnd, msg, wParam, lParam, &fDefDlgEx);
+}
+
+LRESULT MyDlg_DlgProc(HWND hwndDlg, UINT msg,
+                      WPARAM wParam, LPARAM lParam);
+{
+  switch (msg)
+  {
+    HANDLE_MSG(hwndDlg, WM_INITDIALOG, MyDlg_OnInitDialog);
+    HANDLE_MSG(hwndDlg, WM_COMMAND, MyDlg_OnCommand);
+
+    default:
+      return MyDlg_DefProc(hwnd, msg, wParam, lParam);
+  }
+}
+
+                    As mentioned earlier, it's safe to use the same boolean
+                    fDefDlgEx variable for all your dialog procedures, or
+                    you can define one for each of your dialogs. What's
+                    important is that the same boolean variable be used for
+                    the CheckDefDlgRecursion call AND the DefDlgProcEx call
+                    in a given dialog procedure: a local BOOL variable must
+                    NOT be used, or infinite recursion will result.
+
+                    You can also use the same _DefProc function declaration
+                    for all of your dialog procedures that use the same
+                    fDefDlgEx variable: for example, you could implement
+                    the following function:
+
+
+LRESULT CommonDlg_DefProc(HWND hwndDlg, UINT msg,
+                          WPARAM wParam, LPARAM lParam)
+{
+  return DefDlgProcEx(hwnd, msg, wParam, lParam, &fDefDlgEx);
+
+
+
+                                  - 40 -
+
+
+
+
+
+
+}
+
+                    then, for each dialog class, #define something like:
+
+                     #define MyDlg_DefProc  CommonDlg_DefProc
+
+
+------------------  Converting existing code over to use message crackers
+        Converting  is not particularly difficult.  Here are some
+  existing code to  suggestions that should help:
+       use message
+          crackers  o Have a look at the sample app MAKEAPP for some more
+------------------    detailed examples of the use of message crackers and
+                      message forwarders.
+
+                    o It's a good idea (though not necessary) to first
+                      convert your code to use STRICT.  With STRICT
+                      enabled, the compiler can help you find parameter
+                      type mismatch and other errors much easier.
+
+                    o It's best to declare all your message handler
+                      functions in an include file, rather than declaring
+                      them directly in the .c file that uses them.  You
+                      don't have to use the ClassName_OnXXX naming
+                      convention for your function, but we've found that
+                      it's quite a helpful way to organize the code for a
+                      window class.
+
+                    o When declaring or implementing a message forwarder
+                      function, just use your editor to search for and copy
+                      the message handler function prototype comment from
+                      windowsx.h and paste it into your source code. This
+                      way you don't have to type it from scratch.
+
+                    o Use the FORWARD_WM_* macros to send or forward
+                      non-control messages to other windows by passing
+                      SendMessage as the first parameter.
+
+                    o If you have defined your own private window messages,
+                      you should define a message cracker and forwarder for
+                      each.  This is pretty simple to do: Just copy an
+                      existing cracker and forwarder from windowsx.h and
+                      edit it. Be sure to fully parenthesize your use of
+                      macro parameters, and be careful with the casts you
+                      use.
+
+                    Converting existing window and dialog procedures to
+                    message crackers can be a fair amount of work,
+
+
+
+                                  - 41 -
+
+
+
+
+
+
+                    especially if the window and dialog procedures are
+                    large.  You can mix and match old-style message
+                    handlers with message crackers, so you may want to use
+                    message crackers for new message handlers, or for
+                    existing code you plan on modifying extensively.
+
+                    Converting dialog procedures over to the new-style
+                    LRESULT-returning dialog procedures is also something
+                    that isn't required for all your dialog procedures.
+                    You can convert those that you plan to modify, or that
+                    contain code that you may want to reuse in other dialog
+                    procedures.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                  - 42 -
+

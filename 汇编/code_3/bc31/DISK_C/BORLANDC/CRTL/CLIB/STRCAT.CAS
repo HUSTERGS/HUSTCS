@@ -1,0 +1,101 @@
+/*-----------------------------------------------------------------------*
+ * filename - strcat.c
+ *
+ * function(s)
+ *        strcat - appends one string to another
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <string.h>
+
+/*---------------------------------------------------------------------*
+
+Name            strcat - appends one string to another
+
+Usage           char *strcat(char *destin, const char *source);
+
+Prototype in    string.h
+
+Description     strcat appends a copy of source to the end of destin. The
+                length of the resulting string is strlen(destin) +
+                strlen(source).
+
+Return value    returns a pointer dest
+
+*---------------------------------------------------------------------*/
+#undef strcat                   /* not an intrinsic */
+
+#if defined(__FARFUNCS__)
+#include <_farfunc.h>
+#endif
+
+char *_CType _FARFUNC strcat(register char *dest, const char *src)
+{
+        SaveSI
+        SaveDI
+
+asm     cld
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     push    ds
+#endif
+#if LDATA
+asm     les     di, dest        /* es:di = dest */
+#else
+asm     mov     di, dest        /* es:di = dest */
+asm     push    ds
+asm     pop     es
+#endif
+asm     mov     dx, di          /* save dest offset in dx */
+asm     xor     al, al
+asm     mov     cx, -1          /* find end of dest */
+asm     repne  scasb
+#if LDATA
+asm     push    es
+#endif
+asm     lea     si,[di-1]       /* es:si points to terminating null in dest */
+asm     LES_    di, src
+asm     mov     cx,-1           /* figure out strlen(src) */
+asm     repne  scasb
+asm     not     cx              /* CX = strlen(src) + 1 */
+asm     sub     di,cx           /* point es:di back to start of src */
+#if LDATA
+asm     push    es
+asm     pop     ds              /* set DS: to seg of src */
+asm     pop     es              /* restore ES: as seg of dest */
+#endif
+asm     xchg    si, di          /* DS:SI = src, ES:DI = dest+strlen(dest) */
+asm     test    si,1            /* odd src? */
+asm     jz      move_rest
+asm     movsb                   /* move a byte to make src even */
+asm     dec     cx
+move_rest:
+asm     shr     cx, 1
+asm     rep  movsw
+asm     jnc     move_last
+asm     movsb
+move_last:
+asm     xchg    ax, dx                  /* return addr of string */
+#if LDATA
+asm     mov     dx, es
+#endif
+#if  defined(__LARGE__) || defined(__COMPACT__)
+asm     pop     ds
+#endif
+
+#if LDATA
+        return( (char *)(MK_LONG) );
+#else
+        return( (char *)_AX );
+#endif
+}
+

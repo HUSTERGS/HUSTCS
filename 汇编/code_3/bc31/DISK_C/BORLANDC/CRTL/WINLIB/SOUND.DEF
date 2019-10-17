@@ -1,0 +1,23 @@
+LIBRARY     SOUND                         
+
+DESCRIPTION 'Windows Sound Driver        '
+
+EXPORTS
+            CLOSESOUND                    @2   
+            COUNTVOICENOTES               @13  
+            DOBEEP                        @17  
+            GETTHRESHOLDEVENT             @14  
+            GETTHRESHOLDSTATUS            @15  
+            MYOPENSOUND                   @18  
+            OPENSOUND                     @1   
+            SETSOUNDNOISE                 @7   
+            SETVOICEACCENT                @5   
+            SETVOICEENVELOPE              @6   
+            SETVOICENOTE                  @4   
+            SETVOICEQUEUESIZE             @3   
+            SETVOICESOUND                 @8   
+            SETVOICETHRESHOLD             @16  
+            STARTSOUND                    @9   
+            STOPSOUND                     @10  
+            SYNCALLVOICES                 @12  
+            WAITSOUNDSTATE                @11  

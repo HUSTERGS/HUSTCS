@@ -1,0 +1,96 @@
+/*------------------------------------------------------------------------
+ * filename - polyl.cas
+ *
+ * function(s)
+ *        polyl - generates a long double polynomial from arguments
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            polyl - generates a polynomial from arguments
+
+Usage           long double     polyl(long double x, int n, long double c []);
+
+Prototype in    math.h
+
+Description     polyl  generates  a  polynomial in  x,  of  degree  n, with
+                coefficients c[0],  c[1], ..., c[n].  For example, if  n=4,
+                the generated polynomial is
+
+                        c[4].x^4 + c[3].x^3 + c[2].x^2] + c[1].x + c[0]
+
+                The polynomial is calculated using Horner's method:
+
+                        polylnom = (..((x.c[n] + c[n-1]).x + c[n-2])..).x + c[0]
+
+Return value    polyl returns the  value of the polynomial as  evaluated for
+                the given x.
+                If n < 0  then the result is a domain error.
+                A range error occurs if the result exceeds long double range.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+long double     polyl (long double x, int n, long double c [])
+{
+        volatile unsigned    sw;
+
+asm     FLD     LONGDOUBLE (x)
+asm     mov     si, n
+asm     shl     si, 1
+asm     shl     si, 1
+asm     add     si, n
+asm     shl     si, 1
+        /* si = 10*n */
+asm     jl      ply_domain
+asm     LES_    bx, c
+asm     FLD     LONGDOUBLE (ES_ [bx+si])        /* get Nth coefficient */
+asm     jz      short   ply_end                 /* if n=0, we're done */
+
+ply_loop:
+asm     FMUL    ST, ST(1)                       /* x*c[n] */
+asm     sub     si, 10                          /* n-- */
+asm     FLD     LONGDOUBLE (ES_ [bx+si])        /* get next coefficient */
+asm     FADD
+asm     jg      ply_loop
+
+ply_end:
+asm     FXAM
+asm     FSTSW   W0 (sw)
+asm     FSTP    ST(1)                   /* discard ST(1) */
+asm     mov     ax, sw
+asm     sahf
+asm     jc      ply_range
+        return;
+
+ply_domain:
+asm     mov     si, DOMAIN
+asm     jmp     short   ply_err
+
+ply_range:
+asm     mov     si, OVERFLOW
+
+ply_err:
+asm     FSTP    ST(0)                   /* discard ST */
+#pragma warn -ret
+        return  __matherrl (_SI, "polyl", &x, c, _LHUGE_VAL);
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use

@@ -1,0 +1,89 @@
+/*------------------------------------------------------------------------
+ * filename - log10.cas
+ *
+ * function(s)
+ *       log10 - base 10 logarithm function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+
+static  unsigned short   NANLOG [4] = {0,0,0x0480, 0xFFF8};
+
+/*--------------------------------------------------------------------------*
+
+Name            log10 - base 10 logarithm function
+
+Usage           double log10(double x);
+
+Prototype in    math.h
+
+Description     log10 calculates the base 10  logarithm of x, which must be
+                greater than zero.
+
+Return value    log10 returns  the base 10   logarithm of x,  which must be
+                greater than zero.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+
+double _FARFUNC log10( double  x )
+{
+double  temp;
+
+asm     FLD     DOUBLE (x)
+
+asm     mov     ax, W0 (x [6])          /* get the exponent field */
+asm     shl     ax, 1
+asm     jz      l10_zero
+asm     jc      l10_imaginary
+asm     cmp     ax, 0FFE0h
+asm     je      l10_infinite
+
+#ifdef _Windows
+        _f87_Log10();
+#else
+asm     _FAST_  (_FLOG10_)
+#endif
+
+l10_end:
+        return;
+
+l10_zero:
+asm     mov     si, SING
+        temp = -HUGE_VAL;
+asm     jmp     short   l10_complain
+
+l10_infinite:
+asm     mov     si, OVERFLOW
+        temp = HUGE_VAL;
+asm     jmp     short   l10_complain
+
+l10_imaginary:
+asm     mov     si, DOMAIN
+        temp = *((double *) NANLOG);
+
+l10_complain:
+asm     FSTP    ST(0)                   /* pop x from stack */
+#pragma warn -ret
+        return  _matherr (_SI, "log10", &x, NULL, temp);
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use

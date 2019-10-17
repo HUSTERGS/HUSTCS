@@ -1,0 +1,349 @@
+/*************************************************************************/
+                     TURBO PROFILER UTILITIES DOCUMENTATION
+
+This file documents the TDRF file transfer utility. This utility is used 
+for transferring files over the remote link when remote profiling.
+
+
+TDRF: Utility for remote file transfer and profiling
+====================================================
+
+The remote file transfer utility (TDRF) works in conjunction with
+TFREMOTE or WREMOTE running on another system. With TDRF you can perform
+most DOS file maintenance operations on the remote system. You can
+
+  o copy files to the remote system
+  o copy files from the remote system
+  o make directories
+  o remove directories
+  o display directories
+  o change directories
+  o rename files
+  o delete files
+
+Once you have started TFREMOTE or WREMOTE on the remote system, you can
+use TDRF at any time. You can start it directly from the DOS prompt, or
+you can access DOS from inside Turbo Profiler by using the File|DOS
+Shell command, then start TDRF (even while profiling a program on the
+remote system). This second method is useful if you've forgotten to put
+some files on the remote system that are required by the program you're
+profiling.
+
+When describing TDRF in the following sections, we refer to the system
+you're typing at as the "local system" and any files there as "local
+files," and the other system connected by a serial cable or network as
+the "remote system" and any files there as "remote files."
+  
+  
+Starting TDRF from the DOS command line
+---------------------------------------
+The general form of the command line for TDRF is
+
+   TDRF [<options>] <command> [<arguments>]
+
+The <options> control whether the link is network or serial, and, if
+it's serial, the speed of the remote link and which port it runs on.
+The options are described in more detail in the next section.
+
+<command> indicates the operation you wish to perform.  You can type the
+command either as a DOS command--like COPY, DEL, MD, and so on--or as
+a single-letter abbreviation.
+
+<arguments> are any arguments to the command.
+
+For example, to get a directory display of all files starting with ABC
+in the current directory on the remote system, you could type:
+
+   TDRF DIR ABC*
+
+All the commands are described fully after the next section.
+  
+  
+TDRF command-line options
+-------------------------
+You must start an option with either a hyphen (-) or a slash (/).
+The following list shows the command-line options for TDRF:
+
+-rn<L>;<R>  Sets the link to network, the local name to <L>, and the remote
+            name to <R>.
+
+  If you link over the network, the name of the local machine defaults to
+  "LOCAL" and the remote machine to "REMOTE". You can set your own name for
+  the machines by entering a name up to 16 characters long for either the
+  local machine, the remote machine, or both.
+
+  You must be running TFREMOTE or WREMOTE with the -rn option on the remote
+  machine with the local machine name set to the same name as you've
+  indicated in the TDRF command.
+
+-rsN        Sets the type of remote link to serial and the speed of the link.
+
+  The -rs option sets the speed at which the remote serial link operates.
+  You must make sure you use the same speed with TDRF that you specified
+  when you started TFREMOTE or WREMOTE on the remote system. N can be 1, 2,
+  3, or 4, where 1 signifies a speed of 9600 baud, 2 signifies 19,200 baud,
+  3 signifies 38,400 baud, and 4 signifies 115,000 baud.
+
+  In other words, the higher the number, the faster the data transfer
+  rate across the serial link. Normally, TDRF defaults to -rs4 (the highest
+  speed).
+
+-rpN        Sets the remote serial link port.
+
+  The -rp option specifies which port to use for the remote serial link.
+  N can be either 1 or 2, where 1 stands for COM1 and 2 stands for COM2.
+
+-w          Writes options to the TDRF executable program file.
+
+  You can make the TDRF command-line options permanent by writing them
+  back into the TDRF executable program image on disk. Do this by
+  specifying the -w command-line option along with the other options you
+  wish to make permanent. You will then be prompted for the name of the
+  executable program.
+
+  If you're running on DOS 3.0 or later, the prompt will indicate the
+  path and file name that you executed TDRF from. You can accept this
+  name by pressing Enter, or you can enter a new executable file name.
+  The new name must already exist and msut be a copy of the TDRF program
+  that you've already made.
+
+  If you're running on DOS 2.x, you'll have to supply the full path
+  and file name of the executable program.
+
+  If you enter the name of an executable file that doesn't exist (a new
+  filename), TDRF will create a new executable file.
+    
+
+TDRF commands
+-------------
+Following are the command names you can use with the TDRF utility. You
+can use the wildcards * and ? with the COPY, COPYFROM, DEL, and DIR
+commands.
+
+
+COPY
+
+  Copies files from the local system to the remote system. You can also
+  type COPYTO instead of COPY. The single letter abbreviation for this
+  command is T.
+
+  If you supply a single file name after the COPY command, that file
+  name will be copied to the current directory on the remote system. If
+  you supply a second file name after the name of the file on the local
+  system, the local file will be copied to that destination on the
+  remote system. You can specify either a new file name, a directory
+  name, or a drive name on the remote system. For example,
+
+     TDRF COPY TEST1 \MYDIR
+
+  copies file TEST1 from the local system to file MYDIR\TEST1 on the
+  remote system.
+
+
+COPYFROM
+
+  Copies files from the remote system to the local system. The single
+  letter abbreviation for this command is F.
+
+  If you supply a single file name after the COPYFROM command, that file
+  name will be copied from the current directory on the remote system to
+  the current directory on the local system. If you supply a second file
+  name after the name of the file on the remote system, the remote file
+  will be copied to that destination on the local system. You can
+  specify either a new file name, a directory name, or a drive name on
+  the local system. For example,
+
+     TDRF COPYFROM MYFILE ..
+
+  copies file MYFILE from the remote system to the parent directory of
+  the current directory on the local system.
+
+     TDRF F TC*.* A:\TCDEMO
+
+  copies all files beginning with TC on the current directory of the
+  remote system to the TCDEMO directory on the local system's drive A.
+
+
+DEL
+
+  Erases a single file from the remote system. The single letter
+  abbreviation for this command is E.
+
+  If you just give a file name with no directory or drive, the file is
+  deleted from the current directory on the remote system. For example,
+
+     TDRF DEL XYZ
+
+  removes file XYZ from the current directory of the remote system.
+
+
+DIR
+
+  Displays a listing of the files in a directory on the remote system.
+  The single letter abbreviation for this command is D.
+
+  This command behaves similarly to the equivalent DOS command. If
+  you don't specify a wildcard mask, it shows all the files in the
+  directory; if you do specify a mask, only those files will be listed.
+  You can interrupt the directory display at any time by pressing
+  Ctrl-Break.
+
+  The directory listing is displayed in a format similar to that
+  used by the DOS DIR command. For example,
+
+     TDRF DIR \SYS\*.SYS
+
+  results in a display like the following:
+
+  Directory of C:\SYS
+
+  ANSI         SYS     4833  8-23-91  6:00a
+  VDISK        SYS     5190  8-23-91  6:00a
+
+
+REN
+
+  Renames a single file on the remote system. The single letter
+  abbreviation for this command is R.
+
+  You must supply two file names with this command: the original file
+  name and the new file name. The new name can specify a different
+  directory as part of the name, but not a different drive. For example,
+
+     TDRF REN TEST1 \TEST2
+
+  renames file TEST1 in the current directory in the remote to TEST2 in
+  the root directory. This effectively "moves" the file from one
+  directory to another. You can also use this command to simply rename a
+  file within a directory, without moving it to another directory.
+
+
+MD
+
+  Makes a new directory on the remote system. The single letter
+  abbreviation for this command is M.
+
+  You must supply the name of the directory to be created. If you don't
+  supply a directory path as part of the new directory name, the new
+  directory will be created in the current directory on the remote
+  system. For example,
+
+     TDRF MD TEST
+
+  creates a directory named TEST in the current directory on the remote
+  system.
+
+
+RD
+
+  Removes an existing directory on the remote system. The single letter
+  abbreviation for this command is K.
+
+  You must supply the name of the directory to be removed. If you don't
+  supply a directory path as part of the new directory name, the
+  directory will be removed from the current directory on the remote
+  system. For example,
+
+     TDRF RD MYDIR
+
+  removes a directory named MYDIR from the current directory on the
+  remote system.
+
+
+CD
+
+  Changes to a new directory on the remote system. The single letter
+  abbreviation for this command is C.
+
+  You must supply the name of the directory to change to. You can also
+  supply a new drive to switch to, or even supply a new drive and
+  directory all at once. For example,
+
+     TDRF CD A:ABC
+
+  makes drive A the current drive on the remote system, and switches to
+  directory ABC as well.
+    
+  
+TDRF messages
+-------------
+Following is a list of the messages you might encounter when working with
+TDRF:
+
+"Can't create file on local system: ___"
+  You were copying a file from the remote system using the COPYFROM
+  command, and the file could not be created on the local system.
+  Either the disk is full on the local system, or if the file name on the
+  remote system is the same as a directory name on the local system.
+
+"Can't modify exe file"
+  The file name you specified to modify is not a valid copy of the TDRF
+  utility. You can only modify a copy of the TDRF utility with the -w
+  option.
+
+"Can't open exe file to modify"
+  The file name you specified to be modified can't be opened. You've
+  probably entered an invalid or nonexistent file name.
+
+"Error opening file: ___"
+  The file you wanted to transfer to the remote system could not be
+  opened. You probably specified a nonexistent or invalid file name.
+
+"Error writing file: ___"
+  An error occurred while writing to a file on the local system,
+  probably because the local disk is full. Try deleting enough
+  files to make room for the file you want to copy from the
+  remote system.
+
+"Error writing file ___ on remote system"
+  An error occurred while writing a file to the disk on the remote
+  system, probably because the remote disk is full. Try deleting
+  enough files to make room for the file you want to transfer.
+
+"File name is a directory on remote"
+  You've tried to copy a file from the local to the remote system, but
+  the local file name exists as a directory on the remote system. You'll
+  have to rename the file by giving a second argument to the COPY
+  command.
+
+"Interrupted"
+  You have pressed Ctrl-Break while waiting for communications to be
+  established with the remote system.
+
+"Invalid command: ___"
+  You've entered a command that TDRF doesn't recognize. For each command,
+  you can use the DOS-style command word or the single-letter abbreviation.
+
+"Invalid command line option: ___"
+  You've given an invalid command-line option when starting TDRF from
+  the DOS command line.
+
+"Invalid destination disk drive"
+  You've specified a nonexistent disk drive letter in your command.
+  Remember that the remote system might have a different number of disk
+  drives than the local system.
+
+"No matching files on remote"
+  You've done a DIR command, but either there are no files in the
+  directory on the remote system, or no files match the wildcard
+  specification that you gave as an argument to the DIR command.
+
+"No remote command specified"
+  You haven't specified any command on the DOS command line; TDRF has
+  nothing to do.
+
+"Too few arguments"
+  You haven't supplied enough arguments for the command that you
+  requested. Some commands require an argument, like DEL, MD, CD, RD,
+  and so on.
+
+"Too many arguments"
+  You've specified too many arguments for the command you requested.
+  No command requires more than two arguments, and some require only one.
+
+"Wrong version of remote driver"
+  You're using incompatible versions of TDRF and TFREMOTE. Make sure
+  you're using the latest version of each utility.
+  
+/***************************** End of File *******************************/
+    

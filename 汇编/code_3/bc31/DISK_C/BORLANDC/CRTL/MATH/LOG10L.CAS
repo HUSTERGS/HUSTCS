@@ -1,0 +1,86 @@
+/*------------------------------------------------------------------------
+ * filename - log10l.cas
+ *
+ * function(s)
+ *        log10l - base 10 logarithm function of long double
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+static  unsigned short   NANLOGL [5] = {0,0,0,0xC024, 0xFFFF};
+
+/*--------------------------------------------------------------------------*
+
+Name            log10l - base 10 logarithm function of long double
+
+Usage           long double log10l(long double x);
+
+Prototype in    math.h
+
+Description     log10l calculates the base 10 logarithm of x, which  must be
+                greater than zero.
+
+Return value    log10l returns the base 10 logarithm of x.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+#pragma warn -use
+long double _FARFUNC log10l (long double  x)
+{
+long double     temp;
+
+asm     FLD     LONGDOUBLE (x)
+
+asm     mov     ax, W0 (x [8])          /* get the exponent field */
+asm     shl     ax, 1
+asm     jz      l10_zero
+asm     jc      l10_imaginary
+asm     cmp     ax, 0FFFEh
+asm     je      l10_infinite
+
+#ifdef _Windows
+        _f87_Log10();
+#else
+asm     _FAST_  (_FLOG10_)
+#endif
+
+l10_end:
+        return;
+
+l10_zero:
+asm     mov     si, SING
+        temp = -_LHUGE_VAL;
+asm     jmp     short   l10_complain
+
+l10_infinite:
+asm     mov     si, OVERFLOW
+        temp = _LHUGE_VAL;
+asm     jmp     short   l10_complain
+
+l10_imaginary:
+asm     mov     si, DOMAIN
+        temp = *((long double *) NANLOGL);
+
+l10_complain:
+asm     FSTP    ST(0)                   /* pop x from stack */
+#pragma warn -ret
+        return  __matherrl (_SI, "log10l", &x, NULL, temp);
+#pragma warn .ret
+}
+#pragma warn .rvl
+#pragma warn .use

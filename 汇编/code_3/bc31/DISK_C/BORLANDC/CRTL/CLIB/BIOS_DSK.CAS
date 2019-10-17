@@ -1,0 +1,61 @@
+/*---------------------------------------------------------------------------
+ * filename - bios_dsk.cas
+ *
+ * function(s)
+ *        _bios_disk - hard disk/floppy I/O (MSC compatible)
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#define _MSC
+#include <bios.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _bios_disk - hard disk/floppy I/O
+
+Usage           unsigned _bios_disk(unsigned cmd,
+                             struct diskinfo_t *dinfo);
+
+Prototype in    bios.h
+
+Description     interface for BIOS interrupt 0x13, disk services.
+
+Return value    value returned through AX register by int 013h.
+
+Note            Compatible with Microsoft C.  Not the same as biosdisk().
+                See DOS Technical Reference Manual for further details of
+                BIOS interrupt 0x13.
+
+*---------------------------------------------------------------------------*/
+unsigned _bios_disk(unsigned cmd, struct diskinfo_t *dinfo)
+{
+#if !(LDATA)
+asm     push    ds
+asm     pop     es
+#endif
+asm     LES_    bx, dinfo
+asm     mov     ah, cmd
+asm     mov     al, ES_ [bx].nsectors
+asm     mov     cx, ES_ [bx].track
+asm     shr     cx, 1
+asm     shr     cx, 1
+asm     and     cl, 0C0h
+asm     add     cl, ES_ [bx].sector
+asm     mov     ch, ES_ [bx].track
+asm     mov     dh, ES_ [bx].head
+asm     mov     dl, ES_ [bx].drive
+asm     les     bx, ES_ [bx].buffer
+asm     int     013h
+        return _AX;
+}

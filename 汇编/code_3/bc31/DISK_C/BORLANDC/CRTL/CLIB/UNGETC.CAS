@@ -1,0 +1,77 @@
+/*-----------------------------------------------------------------------*
+ * filename - ungetc.cas
+ *
+ * function(s)
+ *        ungetc - pushes a character back into input stream
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <stdio.h>
+#include <asmrules.h>
+
+#undef  ungetc                /* remove macro version */
+
+/*---------------------------------------------------------------------*
+
+Name            ungetc - pushes a character back into input stream
+
+Usage           #include <stdio.h>
+                int ungetc(int c, FILE *stream);
+
+Prototype in    stdio.h
+
+Description     pushes the character c back onto the named input stream.
+                This character will be returned on the next call to getc
+                or fread for that stream.  One character may be pushed
+                back in all situations.  A second call to ungetc without
+                a call to getc will force the previous character to be
+                forgotten.  fseek erases all memory of a pushed-back
+                character.
+
+Return value    returns the character c if it is successful.  A value of
+                EOF indicates an error.
+
+*---------------------------------------------------------------------*/
+asm _TEXT       segment public 'CODE'
+asm             public __Nungetc
+asm __Nungetc   label near
+
+#if LPROG
+asm             pop     ax
+asm             push    cs
+asm             push    ax
+#endif
+asm             ends
+
+int _FARFUNC ungetc( int c, FILE *fp )
+  {
+  if( c != EOF )
+    {
+    if( fp->level < 0 )  return( EOF );    /* file is not in input mode */
+
+    fp->flags &= ~_F_EOF;                  /* clear EOF flag */
+
+    if( ++(fp->level) > 1 )                /* store in file buffer */
+      {
+      return( (unsigned char)(*--(fp->curp) = c) );
+      }
+    else                                   /* buf was empty, use hold   */
+      {
+      fp->curp = &fp->hold;
+      return( (unsigned char)(fp->hold = c) );
+      }
+    }
+  else
+    {
+    return( c );
+    }
+  }

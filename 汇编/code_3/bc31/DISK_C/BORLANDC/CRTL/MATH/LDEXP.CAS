@@ -1,0 +1,92 @@
+/*------------------------------------------------------------------------
+ * filename - ldexp.cas
+ *
+ * function(s)
+ *        ldexp - calculates value * 2^exp
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            ldexp - calculates value * 2^exp
+
+Usage           double ldexp(double value, int exp);
+
+Prototype in    math.h
+
+Description     ldexp calculates value * 2^exp
+
+Return value    ldexp returns value * 2^exp
+                Overflows return HUGE_VAL * sign(value), underflows return 0.0,
+                in both cases with errno set to ERANGE.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+double  _FARFUNC ldexp (double value, int scale)
+{
+        double  yVal;               /* used in error exits */
+
+asm     FILD    W0 (scale)
+/*
+  While that is loading, we should check for range error.
+*/
+asm     mov     ax, 7FF0h
+asm     and     ax, value [6]
+asm     mov     cl, 4
+asm     ror     ax, cl
+
+asm     FLD     DOUBLE (value)
+asm     jz      ldx_zero
+
+asm     mov     bx, scale
+asm     cmp     bh, 7h
+asm     jg      ldx_overflow
+asm     cmp     bh, -7h
+asm     jl      ldx_overflow
+
+asm     add     ax, bx
+asm     jng     ldx_underflow
+asm     cmp     ax, 7FFh
+asm     jnl     ldx_overflow
+
+asm     FSCALE
+ldx_zero:
+asm     FSTP    st(1)                   /* remove the scale from the stack */
+
+ldx_end:
+        return;
+
+
+ldx_overflow:
+asm     mov     si, OVERFLOW
+asm     jmp     short   ldx_err
+
+
+ldx_underflow:
+asm     mov     si, UNDERFLOW
+
+ldx_err:
+asm     FSTP    st(0)                   /* pop value from stack */
+asm     FSTP    DOUBLE (yVal)           /* yVal = scale         */
+
+#pragma warn -ret
+        return  _matherr (_SI, "ldexp", &value, &yVal,
+                (OVERFLOW == _SI) ? HUGE_VAL : 0.0);
+#pragma warn .ret
+}
+#pragma warn .rvl

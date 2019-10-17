@@ -1,0 +1,157 @@
+/*---------------------------------------------------------------------------
+ * filename - dosfind.cas
+ *
+ * function(s)
+ *        _dos_findfirst - searches disk directory
+ *        _dos_findnext  - fetches files which match _dos_findfirst
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma  inline
+#include <asmrules.h>
+#include <_io.h>
+#include <dos.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            _dos_findfirst - searches disk directory
+
+Usage           unsigned _dos_findfirst(const char *pathname, unsigned attrib,
+                              struct find_t *fileinfo);
+
+Prototype in    dir.h
+
+Description     begins a search of a disk directory by using the
+                MS-DOS system call 0x4E.
+
+                pathname is a string with an optional drive specifier,
+                path and file name of the file to be found.   If a
+                matching file is found, the fileinfo structure is filled
+                with the file-directory information.
+
+                attrib is an MS-DOS file-attribute byte used in selecting
+                eligible files for the search.  attrib can be one of the
+                following constants defined in dos.h
+
+                        _A_RDONLY  Read only
+                        _A_HIDDEN  Hidden file
+                        _A_SYSTEM  System file
+                        _A_VOLID   Volume label
+                        _A_SUBDIR  Directory
+                        _A_ARCH    Archive
+
+                For more detailed information about these attributes, refer
+                to the MS-DOS Programmer's Reference Manual.
+
+Return value    success : 0
+                else : -1 and errno is set to
+                        ENOENT  Path or file name not found
+                        ENMFILE No more files
+
+*---------------------------------------------------------------------------*/
+
+unsigned _dos_findfirst(const char *pathname, unsigned attrib,
+                                struct find_t *fileinfo )
+{
+asm     push    ds
+
+asm     mov     ah,2fh          /* get (and save) DTA */
+asm     int     21h
+asm     push    es
+asm     push    bx
+
+asm     mov     ah, 01Ah
+asm     LDS_    dx, fileinfo
+asm     int     021h            /* Set the disk transfer address */
+
+asm     mov     ah, 04Eh
+asm     mov     cx, attrib
+asm     LDS_    dx, pathname
+asm     int     021h            /* Find first matching file */
+
+asm     pushf                   /* save state of carry flag */
+asm     pop     cx
+asm     xchg    ax, bx          /* save return code */
+
+asm     mov     ah, 01Ah        /* restore DTA */
+asm     pop     dx
+asm     pop     ds
+asm     int     21h
+
+asm     push    cx
+asm     popf
+asm     pop     ds
+
+asm     jc      findfirstFailed
+        return(0);
+
+findfirstFailed:
+        return (__DOSerror(_BX));
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            _dos_findnext - fetches files which match _dos_findfirst
+
+Usage           unsigned _dos_findnext(struct find_t *fileinfo);
+
+Prototype in    dir.h
+
+Description     _dos_findnext is used to fetch subsequent files which
+                match the pathname given in _dos_findfirst.  fileinfo is the
+                same block filled in by the _dos_findfirst call.  This
+                block contains necessary information for continuing
+                the search.  One file name for each call to _dos_findnext will
+                be returned until no more files are found in the directory
+                matching the pathname.
+
+Return value    success : 0
+                else : -1 and errno is set to
+                        ENOENT  Path or file name not found
+                        ENMFILE No more files
+
+*---------------------------------------------------------------------------*/
+unsigned _dos_findnext(struct find_t *fileinfo)
+{
+asm     push    ds
+
+asm     mov     ah,2fh          /* get (and save) DTA */
+asm     int     21h
+asm     push    es
+asm     push    bx
+
+asm     mov     ah, 01Ah
+asm     LDS_    dx, fileinfo
+asm     int     021h            /* Set the disk transfer address */
+
+asm     mov     ah, 04Fh
+asm     int     021h            /* Find next matching file */
+
+asm     pushf                   /* save state of carry flag */
+asm     pop     cx
+asm     xchg    ax, bx          /* save return code */
+
+asm     mov     ah, 01Ah        /* restore DTA */
+asm     pop     dx
+asm     pop     ds
+asm     int     21h
+
+asm     push    cx
+asm     popf
+asm     pop     ds
+
+asm     jc      findnextFailed
+        return(0);
+
+findnextFailed:
+        return (__DOSerror(_BX));
+}

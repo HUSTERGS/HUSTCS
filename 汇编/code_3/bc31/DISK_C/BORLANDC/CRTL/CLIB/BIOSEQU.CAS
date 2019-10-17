@@ -1,0 +1,91 @@
+/*---------------------------------------------------------------------------
+ * filename - biosequ.cas
+ *
+ * function(s)
+ *        biosequip  - checks equipment
+ *        biosmemory - returns memory size
+ *        biostime   - returns time of day
+ *--------------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <bios.h>
+#include <dos.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            biosequip - checks equipment
+
+Usage           int biosequip(void);
+
+Prototype in    bios.h
+
+Description     interface to BIOS interrupt 0x11, equipment list service
+
+Return value    value returned through AX by interrupt 0x11
+
+*---------------------------------------------------------------------------*/
+int biosequip(void)
+{
+        geninterrupt(0x11);
+
+        return _AX;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            biosmemory - returns memory size
+
+Usage           int biosmemory(void);
+
+Prototype in    bios.h
+
+Description     interface to BIOS interrupt 0x12, memory-size service
+
+Return value    value returned through AX by interrupt 0x12, the size
+                of memory in 1K blocks.
+
+*---------------------------------------------------------------------------*/
+int biosmemory(void)
+{
+asm     int     12h
+
+        return _AX;
+}
+
+
+/*--------------------------------------------------------------------------*
+
+Name            biostime - returns time of day
+
+Usage           long biostime(int cmd, long newtime);
+
+Prototype in    bios.h
+
+Description     interface to BIOS interrupt 0x1A, time-of-day services
+
+Return value    When biostime reads the BIOS timer, (cmd = 0), it returns
+                the timer's current value.
+
+*---------------------------------------------------------------------------*/
+long biostime(int cmd, long newtime)
+{
+asm     mov     ah, cmd
+asm     mov     cx, W1(newtime)
+asm     mov     dx, W0(newtime)
+asm     int     1ah
+asm     xchg    ax, dx
+asm     mov     dx, cx
+
+return( MK_LONG );
+}

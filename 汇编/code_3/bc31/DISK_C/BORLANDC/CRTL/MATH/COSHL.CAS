@@ -1,0 +1,108 @@
+/*------------------------------------------------------------------------
+ * filename - coshl.cas
+ *
+ * function(s)
+ *        coshl - long double hyperbolic cosine function
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+#include <stddef.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            coshl - long double hyperbolic function
+
+Usage           long double coshl(long double x);
+
+Prototype in    math.h
+
+Description     coshl computes the hyperbolic cosine of the input value.
+
+Return value    coshl returns the hyperbolic cosine of the input value.
+                For  large arguments  (absolute value greater  than
+                ~11356.5) the result  will be  _LHUGE_VAL of
+                the appropriate sign and errno will be set to:
+                        ERANGE  Range error.
+e
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+long double _FARFUNC coshl (long double  x)
+{
+asm     FLD1
+asm     mov     ax, 7FFFh
+asm     FCHS                    /* TOS = -1.0, used in FSCALE later */
+asm     and     ax, x [8]       /* select exponent */
+
+asm     FLD     LONGDOUBLE (x)
+asm     cmp     ax, 3fffh+13
+asm     jae     coshl_tooBig    /* exp (+-2^13) considered too large */
+asm     cmp     ax, 3fffh-13
+asm     jb      coshl_tiny
+
+coshl_justFits:
+        __expld();               /* TOS = expl(x) */
+
+asm     FLD1
+asm     FDIV    st, st(1)       /* TOS = expl (-x) = 1 / expl(x) */
+asm     FADDP   st(1), st       /* TOS = expl(x) + expl(-x) */
+asm     FSCALE                  /* coshl (x) = (expl(x) + expl(-x)) / 2 */
+asm     FSTP    st(1)
+
+coshl_end:
+        return;
+
+coshl_tooBig:
+asm     mov     ax, 0FFFFh      /* force extreme */
+asm     ja      coshl_excess
+asm     mov     ax, x [6]
+
+coshl_excess:
+asm     test    BY0 (x [9]), 80h
+asm     jnz     coshl_tooTiny
+asm     cmp     ax, 0B172h
+asm     jb      coshl_justFits
+asm     mov     si, OVERFLOW
+asm     jmp     short   coshl_err
+
+coshl_tooTiny:
+asm     cmp     ax, 0B16Ch
+asm     jb      coshl_justFits
+asm     mov     si, UNDERFLOW
+
+coshl_err:
+asm     FSTP    ST(0)                   /* pop two items off the stack */
+asm     FSTP    ST(0)
+
+#pragma warn -ret
+        return  __matherrl (_SI, "coshl", &x, NULL,
+                          (UNDERFLOW == _SI) ? 0.0 : _LHUGE_VAL);
+
+/*
+  coshl is more accurately calculated by the polynomial
+
+        (1 + x^2/2)
+
+  when x is tiny (|x| < 2^-13).
+*/
+coshl_tiny:
+asm     FLD     LONGDOUBLE (x)
+asm     FMUL    ST(0), ST(0)
+asm     FSCALE                  /* divide by 2  */
+asm     FSUBRP  ST(1), ST(0)    /* +1 == - (-1) */
+asm     jmp     short   coshl_end
+}
+#pragma warn .rvl

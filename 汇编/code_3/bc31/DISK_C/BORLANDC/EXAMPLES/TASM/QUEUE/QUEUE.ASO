@@ -1,0 +1,26 @@
+;--------------------------
+;-- Define Queue objects --
+;--------------------------
+
+INCLUDE list.aso
+
+GLOBAL PASCAL queue_init:near
+GLOBAL PASCAL queue_insert:near
+GLOBAL PASCAL queue_delete:near
+GLOBAL PASCAL queue_first:near
+GLOBAL PASCAL queue_last:near
+GLOBAL PASCAL queue_dequeue:near
+
+;** Define Queue object **
+
+queue STRUC GLOBAL list METHOD {
+  init:word = queue_init			;queue initialization routine
+  virtual insert:word = queue_insert		;(queue node insert routine)
+  virtual remove:word = queue_delete		;(queue node delete routine)
+  virtual first:word = queue_first		;(queue first node routine)
+  virtual last:word = queue_last		;(queue end node routine)
+  virtual enqueue:word = list_append		;queue enqueue routine
+  virtual dequeue:word = queue_dequeue		;queue dequeue routine
+  }
+ENDS
+

@@ -1,0 +1,21 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#define ID_COLORBAR1    101
+#define ID_COLORBAR2    102
+#define ID_COLORBAR3    103
+#define ID_SELCOLOR     104
+#define ID_STATIC1      105
+#define ID_STATIC2      106
+#define ID_STATIC3      107
+#define ID_COLOR1       108
+#define ID_COLOR2       109
+#define ID_COLOR3       110
+#define ID_COLOR4       111
+#define ID_COLOR5       112
+#define ID_COLOR6       113
+#define ID_COLOR7       114
+#define ID_COLOR8       115
+#define ID_BARGROUP     116
+#define ID_COLORGROUP   117
+
+

@@ -1,0 +1,54 @@
+/*------------------------------------------------------------------------
+ * filename - floor.cas
+ *
+ * function(s)
+ *        floor - rounds down
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+/*--------------------------------------------------------------------------*
+
+Name            floor - rounds down
+
+Usage           double floor(double x);
+
+Prototype in    math.h
+
+Description     floor finds the largest integer not greater than x.
+
+Return value    floor returns the integer found as a double.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+
+double _FARFUNC floor( double x )
+{
+asm     FLD     DOUBLE (x)
+
+asm     mov     ax, x [6]
+asm     shl     ax, 1
+asm     cmp     ax, 7FE0h + 06A0h       /* 2^53, maximum double precision */
+asm     ja      dlm_beyond
+
+asm     mov     ch, 04          /* iNDP-87 control bits for floor mode */
+        __round();
+
+dlm_beyond:                     /* magnitudes beyond 2^53 have no fraction */
+dlm_end:
+        return;
+}
+#pragma warn .rvl

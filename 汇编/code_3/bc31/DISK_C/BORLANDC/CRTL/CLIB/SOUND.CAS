@@ -1,0 +1,78 @@
+/*-----------------------------------------------------------------------*
+ * filename - sound.cas
+ *
+ * function(s)
+ *        sound   - outputs a sound of a specified frequency to the speaker
+ *        nosound - turns off the speaker
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            sound - outputs a sound of a specified frequency to the
+                        speaker
+
+Usage           void sound(unsigned frequency)
+
+Prototype in    dos.h
+
+Description     outputs a sound of a specified frequency to the speaker
+
+*------------------------------------------------------------------------*/
+void sound(unsigned frequency)
+{
+asm     mov     bx,  frequency
+asm     mov     ax,  34DDh
+asm     mov     dx,  0012h
+asm     cmp     dx,  bx
+asm     jnb     stop
+asm     div     bx
+asm     mov     bx,  ax
+asm     in      al,  61h
+asm     test    al,  3
+asm     jne     j1
+asm     or      al,  3
+asm     out     61h, al
+asm     mov     al,  0B6h
+asm     out     43h, al
+j1:
+asm     mov     al,  bl
+asm     out     42h, al
+asm     mov     al,  bh
+asm     out     42h, al
+stop: ;
+}
+
+
+/*-----------------------------------------------------------------------*
+
+Name            nosound - turns off the speaker
+
+Usage           void nosound(void)
+
+Prototype in    dos.h
+
+Description     turns the speaker off
+
+*------------------------------------------------------------------------*/
+
+void nosound(void)
+/* Turns the speaker off */
+{
+asm     in      al,61H
+asm     and     al, 0fcH
+asm     out     61H, al
+
+/*      outportb(0x61, inportb(0x61) & 0xfc); */
+} /* nosound */

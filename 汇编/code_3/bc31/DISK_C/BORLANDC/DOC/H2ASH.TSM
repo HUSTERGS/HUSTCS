@@ -1,0 +1,755 @@
++----------------------------------------------------------------------------+
+|    Online Documentation for H2ASH                                          |
++----------------------------------------------------------------------------+
+
+C/C++ modules within a program typically share definitions of types and data 
+structures among themselves. They do this by including small files called 
+header files, which contain type definitions and data structure definitions 
+used by more than one module. A C/C++ header file usually has a name ending 
+in H.  Similarly, assembly modules use header files with names that end in 
+.ASH (or .INC).
+
+Programs containing modules written in both C or C++ and modules written 
+using Turbo Assembler must be able to share definitions of types and data
+structures.  The H2ASH converter utility lets this happen.
+
+The converter has the following limitations:
+
+  -- All executable statements are ignored; no code output is generated.
+
+  -- #INCLUDEs are fully expanded in the output.
+
+  -- Name conflicts can occur in the assembly output since C++ scoping
+     rules differ greatly from assembly rules; using Ideal mode output 
+     can help.
+
+  -- Multiple Inheritance, Virtual Base Classes, and Templates are not
+     supported in this version of H2ASH.
+
+The H2ASH converter not only smooths the interface between C/C++ and assembly 
+language, it also lets you write C++ base classes directly in assembly lang-
+uage (for maximum performance). H2ASH automatically converts base class 
+declarations in C++ into equivalent assembly object definitions, and defines 
+method names. We recommend that you use the following procedure for writing 
+base classes in assembly language:
+
+  1) Write the class declaration in a C/C++ header file.
+
+  2) Include the C header file in all descendant classes, and in the C/C++
+     modules that use the base class.
+
+  3) Use the H2ASH converter on the header file to produce an assembly
+     object header file; you can automate this by setting up a makefile.
+
+  4) Include the assembly object header file in the module where the
+     assembly language methods are written.
+
+
++----------------------------------------------------------------------------+
+|    Command Line Interface for H2ASH                                        |
++----------------------------------------------------------------------------+
+
+  You can invoke H2ASH by typing the following command on the command line:
+
+      H2ASH [[switches] <filename> [<filename> ... ]]
+
+H2ASH triggers the printing of a help screen. By default, H2ASH accepts a 
+C/C++ header file, and produces a Turbo Assembler (TASM) 3.0 compatible 
+assembly include file with extension .ASH.  The resulting file is
+not a self-contained assembly language program; rather, it contains TASM
+type declarations and EQU statements that correspond to declarations in
+the original C/C++ header file.  H2ASH recognizes wild cards for filename
+matching.
+
+   All H2ASH-specific command line switches are a submode of the -q switch, 
+that is they all have the following form:
+
+     -q[<character>] [-]
+
+H2ASH also recognizes a majority of the Borland C++ command-line switches.
+In particular, word-alignment (-a), force C++ compile (-P), set output file 
+name (-o), define symbol (-D), and the compilation model directives (-mt, 
+-ms, -ml, ...), are all supported.  For a definitive description of the BCC 
+command-line interface, see the Borland C++ User's Guide.
+
+H2ASH allows the following switches:
+
+  -q-           turn off the H2ASH converter
+                <default is on>
+
+  -qc		pass c/c++ comments into the .ASH file 
+                <default is off>
+  
+  -qn           enable name-mangling 
+                <default is on>
+
+  -qf           a 'strict' mode that strips out all untranslatable source 
+                code (as opposed to the default behavior of issuing a warning
+                and partially translating the declaration in question)
+                <default is off>
+
+  -qi           generate Ideal mode code, as opposed to Masm mode code
+                <default is off>
+
+  -qd           generate EQUs for #DEFINE statements which appear on the
+                command-line, in project configuration file, or in the 
+                original source program
+                <default is on>
+
+  -qb           generate EQUs for #DEFINE statements which are normally 
+                generated automatically by the compiler
+                <default is off>
+
+  -qt           generate Tasm directives as needed (H2ASH will emit .DATA 
+                and .MODEL directives whenever static declarations appear 
+                in the original C/C++ header file.  The IDEAL directive is 
+                generated whenever Ideal mode is used)
+                <default is on>
+
+  -qs           pass original source code into the .ASH file
+                <default is off>
+
++----------------------------------------------------------------------------+
+|    Processing #DEFINE directives and macros                                |
++----------------------------------------------------------------------------+
+
+    H2ASH accepts C preprocessor #DEFINE direcives and generates a corres-
+ponding EQU directive containing the symbol name and its associated value.
+Hexidecimal and octal constants force H2ASH to append an 'h' or 'q' radix 
+specifier onto the end of the constant value.  Decimal constants are passed 
+directly to the output stream, while floating point numbers are treated as 
+text literals. Here's an example of input and output:
+
+                          ---- H2ASH input ----
+
+#define        ONE 		1
+#define        NEG_ONE	       -1
+#define        OCTAL_ONE       01
+#define        HEX_ONE         0x1
+#define	       FLOAT_ONE       1.000
+
+                          ---- H2ASH output ----
+
+ONE	       EQU 		1
+NEG_ONE	       EQU 		-1
+OCTAL_ONE      EQU             1q
+HEX_ONE        EQU             1h
+FLOAT_ONE      EQU             <1.000>
+
+    All other macro #DEFINEs generate text EQUs into the H2ASH output 
+stream.  However, if the #DEFINE contains any macro arguments, a warning is 
+issued and the macro in question is not processed.  For example,
+
+                          ---- H2ASH input ----
+
+#define        PI              22/7
+#define        LOOP_FOREVER    while(1) {
+#define        seq(s,t)	       strcmp(s,t)
+    
+                          ---- H2ASH output ----
+
+PI             EQU             <22/7>
+LOOP_FOREVER   EQU	       <while(1) {>
+
+    H2ASH does not directly translate C preprocessor conditional 
+#IF/#ELSE/#ENDIF directives into their TASM equivalents. Rather, it evaluates 
+the constant-expression that is the argument to the conditional directive, and
+then passes the appropriate clause of the conditional into the output stream, 
+as follows:
+
+                          ---- H2ASH input ----
+
+#if 0
+#define 	PI 		3.14159
+#else
+#define 	PI 		22/7
+#endif
+
+                          ---- H2ASH output ----
+
+ZOO		PI		<22/7>
+
++----------------------------------------------------------------------------+
+|    Processing Simple Declarations                                          |
++----------------------------------------------------------------------------+
+
+    H2ASH does not process declarations that have storage class 'auto'; that 
+is, any C/C++ declarations contained in compound-blocks are ignored. However, 
+declarations that have static linkage are translated into TASM 'DB', 'DW', 
+'DD', .... statements, depending on the size or type of the variable. Further-
+more, declarations that have external linkage are translated into TASM 
+'GLOBAL' statements with an appropriate type specifier that is dependant on 
+the size of the C/C++ variable. H2ASH ignores all initializers for declara-
+tions if the initializer expression is not a constant expression. If this 
+situation occurs, H2ASH issues a warning message. For example,
+
+                          ---- H2ASH input ----
+
+char				char;
+unsigned char  		        unsigned_char;
+signed char			signed_char;
+int				integer;
+unsigned int			unsigned_integer;
+signed int			signed_integer;
+long				long;
+unsigned long			unsigned_long;
+signed long			signed_long;
+float				float;
+double				double;
+long double			long_double;
+
+                          ---- H2ASH output ----
+
+GLOBAL	C		        char:BYTE
+GLOBAL	C                       unsigned_char:BYTE
+GLOBAL	C		        signed_char:BYTE
+GLOBAL	C                       integer:WORD
+GLOBAL	C                       unsigned_integer:WORD
+GLOBAL	C		        signed_integer:WORD
+GLOBAL	C                       long:DWORD
+GLOBAL	C                       unsigned_long:DWORD
+GLOBAL	C                       signed_long:DWORD
+GLOBAL	C                       float:PWORD
+GLOBAL	C                       double:QWORD
+GLOBAL	C                       long_double:TBYTE
+
+    H2ASH ignores the type modifiers 'const' and 'volatile'.  However, the
+linkage specifiers 'pascal' and 'cdecl', do generate the corresponding TASM
+equivalents.  Static variables, as required by the ANSI C standard, generate
+a default zero initializer expression of the appropriate width for the data 
+type in question.
+
+                          ---- H2ASH input ----
+
+const int const_int;
+volatile int volatile_int;
+static int static_int;
+static double static_double;
+extern int extern_int;
+int pascal int_pascal;
+int cdecl  int_cdecl;
+
+                          ---- H2ASH output ----
+
+GLOBAL          C	        const_int   :WORD
+GLOBAL          C               volatile_int:WORD
+
+.DATA
+static_int      DW              0 
+static_double   DQ              0.0
+
+GLOBAL          C               extern_int  :WORD
+GLOBAL          PASCAL          int_pascal  :WORD
+GLOBAL          C               int_cdecl   :WORD
+
+
++----------------------------------------------------------------------------+
+|    Processing Reference/Pointer/Array Declarations                         |
++----------------------------------------------------------------------------+
+
+    Reference and pointer declarations are handled in a similar manner to
+basic variable declarations, except that the 'PTR' type specifier is intro-
+duced for each level of pointer/reference indirection.  Note that any init-
+ializer that requires the creation of a temporary variable, or is not a 
+constant expression is ignored.  For example,
+
+                          ---- H2ASH input ----
+
+char      *v1;
+int      **v2;
+char far  *v3;
+char near *v4;
+int       &v5 = 1;
+
+                          ---- H2ASH output ----
+
+GLOBAL		C	v1:	PTR      BYTE
+GLOBAL		C	v2:	PTR  PTR WORD
+GLOBAL		C	v3:	FAR  PTR BYTE
+GLOBAL		C	v4:	NEAR PTR BYTE
+GLOBAL          C       v5:     PTR      WORD
+
+    Arrays are treated like basic variable declarations, where the type 
+specifier consists of the element type of the array, followed by an optional 
+repetition field that contains the dimension of the array. If the array is an
+incomplete declaration, (that is, if it's dimension is not fully specified)
+the repetition field is not passed into the output stream.  For example,
+
+                          ---- H2ASH input ----
+
+extern char a1[];
+extern char a2[10];
+extern char a3[][10];
+extern char a4[10][20];
+
+                          ---- H2ASH output ----
+
+GLOBAL		C	a1:	BYTE
+GLOBAL		C	a2:	BYTE : 10
+GLOBAL		C       a3:	BYTE
+GLOBAL		C	a4:	BYTE : 200
+
++----------------------------------------------------------------------------+
+|    Processing TYPEDEF Declarations                                         |
++----------------------------------------------------------------------------+
+
+    C/C++ TYPEDEF declarations are mapped directly onto their equivalent TASM
+counterpart.  When the typedef alias (the name of the typedef) is used as the
+type specifier in another declaration, the actual type of the typedef, as op-
+posed to the typedef alias itself, is emitted into the output stream. For
+example,
+    
+                          ---- H2ASH input ----
+
+typedef 	unsigned long 	ul;
+typedef 	ul 		alias_ul;
+alias_ul 			ul_object;
+
+                          ---- H2ASH output ----
+
+ul		TYPEDEF		DWORD
+alias_ul	TYPEDEF		DWORD
+GLOBAL	C	ul_object      :DWORD
+
++----------------------------------------------------------------------------+
+|    Processing ENUM Declarations                                            |
++----------------------------------------------------------------------------+
+
+    C/C++ enumeration types are converted directly into TASM 'ENUM' defini-
+tions.  Each enumerator is given an explicit initializer if the value of the
+enumerator changes by more than one unit from the previously processed enum-
+erator, or if the enumerator already has an explicit initializer in the
+C/C++ source code.  As usual, this initializer must contain a constant-
+expression.
+
+    H2ASH automatically synthesizes a tag name if the enumeration does not 
+contain a tag.  This generated name is always unique within the compilation 
+unit it occurs in, and can be in subsequent variable declarations. For 
+example,
+
+                          ---- H2ASH input ----
+
+ enum FOO	{ a, b, c = -1, d = sizeof(enum FOO)};
+ enum           { north, east, south, west };
+
+                          ---- H2ASH output ---- 
+
+ FOO  enum \	
+   a = 0,  \
+   b,      \
+   c = -1, \
+   d = 2   \
+
+
+ tag$1 enum \
+   north,   \
+   east,    \
+   south,   \
+   west     \
+
+    Finally, if the enumeration is not representable within a declaration
+of size BYTE, H2ASH generates an extra enumerator (which has a unique name),
+and appends it to the end of the enumeration list.  This enumerator is used 
+to induce TASM to pack the enumeration within a datatype of size WORD. This 
+situation can occur whenvever you use the -b option, or whenever the value 
+of an enumerator exceeds a value representable within a BYTE. For example,
+
+
+                          ---- H2ASH input ----
+
+ enum direction  { north, east = 254, south, west };
+ enum color      { red, green = 256, blue };
+
+                          ---- H2ASH output ----  
+
+ direction enum \
+   north, \
+   east = 254, \
+   south, \
+   west, \
+   pad$0 = 256
+
+ direction enum \
+   red, \
+   green = 256, \
+   blue  
+   
+
++----------------------------------------------------------------------------+
+|    Processing Simple Aggregate Declarations                                |
++----------------------------------------------------------------------------+
+
+
+    Structures and unions are mapped by H2ASH onto their direct TASM STRUC 
+and UNION counterparts. If a tag is not present in the aggregate declaration, 
+H2ASH automatically generates one.  The GLOBAL directive is used to represent
+an instance of the structure, where the type-field contains that tag name of
+the structure or union in question.  For example,
+
+
+                          ---- H2ASH input ----
+
+ struct S1 {
+   int field1;
+   int field2;
+   } S1_object;
+
+
+ union U1 {
+   int field1;
+   int field2;
+   int (*field3)(void); 
+   } U1_object;
+
+                          ---- H2ASH output ----  
+
+ S1		STRUC
+ S1@field1	DW		?
+ S1@field2      DW		?
+ S1		ENDS
+
+ GLOBAL          C       S1_object:S1
+
+ tag$0		UNION              ; tag name is synthesized
+ tag$0@field1   DW		?
+ tag$0@field2   DW		?
+ tag$0@field3   DD FAR PTR      ?  ; or NEAR PTR, depending on the model
+ tag$0          ENDS
+
+ GLOBAL       	C	U1_object:tag$0     
+
+
+    Using the word-alignment (-a) option lets H2ASH explicitly output
+appropriate padding.  For the exact structure-alignment rules, see the 
+C++ Programmer's Guilde.  For example,
+
+
+                          ---- H2ASH input ----  
+
+ struct S2 {         
+   char field1;
+   int  field2;
+   };
+
+                          ---- H2ASH output ----      
+
+ S2             STRUC
+ S2@field1      DB              ?
+                DB              ?  ; force word alignment (only if -a is used)
+ S2@field2      DW              ?
+ S2             ENDS
+
+
+    H2ASH treats nested structures as separate TASM STRUC declarations, and
+gives the nested structures specially mangled names. This is done because
+nested structures are not true members; they are merely in the lexical scope
+of the structure in which they are contained.  However, if a nested structure
+is instantiated (for example, an object of the type of that structure is 
+declared), the appropriate space is reserved in the enclosing structure as 
+in the following example:
+
+                          ---- H2ASH input ----  
+
+struct a {
+	int i;
+	struct b {
+		int j;
+	};
+        int k;
+        struct c {
+                int l;
+	} c_instance;
+};
+
+                          ---- H2ASH output ----  
+
+a@b           STRUC   
+a@b@j         DW      ?
+a@b           ENDS
+
+a@c           STRUC
+a@c@l         DW      ?
+a@c           ENDS
+
+a             STRUC   
+a@i           DW      ?
+a@k           DW      ?
+a@c_instance  C       <>  ;this is an actual member, so reserve space for it
+a             ENDS
+
+
++----------------------------------------------------------------------------+
+|    Processing Bitfield Declarations                                        |
++----------------------------------------------------------------------------+
+
+
+    Bitfields are represented by H2ASH as TASM RECORD declarations.  In 
+general, it generates two kinds of RECORDS. First, if a STRUCT contains
+only bitfield declarations and if each of the bitfields are of the same type,
+and if this type is sufficiently large to contain all of the fields, H2ASH 
+generates a global RECORD declaration.  H2ASH inserts a uniquely named padding
+field at the top of the RECORD so that proper alignment is achieved.  For 
+example,
+
+                          ---- H2ASH input ----
+
+ struct S1 {
+   int field1: 1;
+   int field2: 4;
+   };
+
+                          ---- H2ASH output ----
+
+  S1	RECORD {
+
+  	S1@pad_0    :11,  ; 11+4+1 = sizeof(int);
+        S1@field21  :4,  
+        S1@field11  :1
+
+        }
+
+   If H2ASH is unable to generate a global RECORD declaration, a local one
+is emitted within the STRUC in which the original bitfield is declared. 
+Furthermore, a member with the type of the tag of the local RECORD declaration
+is declared to reserve the appropriate amount of storage. H2ASH attempts to 
+pack adjacent bitfields within a single record when adjacent bitfields are 
+of the same type, and whenever the type of the bitfield is large enough to 
+contain the adjacent fields.  For example,
+
+                          ---- H2ASH input ----
+
+ struct S1 {
+    int  field1;
+    char field2: 1;
+    char field3: 8; // NOTE: cannot be packed with field2
+    };
+
+                          ---- H2ASH output ----
+
+ S1		STRUC
+ S1@field1	DW	?
+
+ S1@REC_0       RECORD {
+                S1@REC_0   :7 
+                S1@field2  :1
+                }
+ S1@BIT_0       S1@REC_0   <>  ; create an instance of this record
+
+ S1@REC_1       RECORD {
+                S1@field2  :8
+                }
+
+ S1@BIT_1       S1@REC_1   <>  ; create an instance of this record
+ S1             ENDS
+
++----------------------------------------------------------------------------+
+|    Processing Function/Operator Declarations                               |
++----------------------------------------------------------------------------+
+
+    File scope function declarations are emitted as GLOBAL declarations with
+type NEAR or FAR, depending on the model settings.  Prototypes for func-
+tions are ignored, because TASM does not support typed CALLs or typed PROTO
+statements.  However, the prototype is encrypted by the mangled name of the 
+function.  For example,
+
+                          ---- H2ASH input ----
+
+ void   fvv(void);
+ extern efvv(void);
+ int    fiii(int, int);
+
+                          ---- H2ASH output ----
+
+ GLOBAL	 C 	@fvv$qv 	:NEAR  ;or far, depending on model
+ GLOBAL  C	@efvv$qv	:NEAR  ;or far, depending on model
+ GLOBAL  C	@fiii$qii	:NEAR  ;or far, depending on model
+
+
+    H2ASH ignores default arguments, as well as all function bodies. In both
+cases, H2ASH issues a warning and processes that declaration as if the default
+arguments and function bodies were not present.  H2ASH also ignores static 
+function declarations. In this case, the declaration is not emitted into the 
+output stream.  Here's an example:
+
+
+                          ---- H2ASH input ---- 
+
+ static sfvv(void);
+ void   dfii(int i = 0, int = sizeof(foo));
+ int    fvv(int i) { return ++i; }
+
+                          ---- H2ASH output ----
+
+ ; warning, declaration of static function 'sfvv(...)' ignored 
+
+ void   C       @dfii$qii      :NEAR   ; warning, default arguments ignored
+ void   C       @fvv$qi        :NEAR   ; warning, function body ignored
+
+
+    H2ASH supports function and operator overloading by encoding function 
+prototypes and operator names. Otherwise, H2ASH treats these declarations 
+in exactly the same manner as ordinary functions.  For example,
+
+                          ---- H2ASH input ---- 
+
+ int abs(int,  int);
+ int abs(int);
+ 
+ struct alpha;
+
+ int operator+(alpha, int); 
+ int operator+(int, alpha); 
+
+                          ---- H2ASH output ----
+
+ GLOBAL	C	@abs$qii        :NEAR
+ GLOBAL	C	@abs$qi         :NEAR
+
+ GLOBAL	C	@$badd$q5alphai :NEAR
+ GLOBAL	C	@$badd$iq5alpha :NEAR
+
++----------------------------------------------------------------------------+
+|    Processing Classes                                                      |
++----------------------------------------------------------------------------+
+
+    C++ classes are mapped onto TASM STRUC declarations, just as C STRUCTS 
+are.  Nonstatic class data members are treated as ordinary STRUCT fields.
+Static class data members are treated as GLOBAL declarations, and are emitted
+after the class declaration in whcih they are declared. Nonvirtual function
+members are treated exactly like ordinary function definitions, except, that
+they recieve a mangled name that encodes the tagname of class in which they 
+are contained. Virtual function members are treated exactly like nonvirtual 
+functions, except that they force H2ASH to allocate space for a virtual-
+function-table-pointer.  This pointer has a mangled name containing the suffix
+'vptr$', which is always unique throughout a single compilation unit. Finally,
+all 'special' member functions (constructors, copy constructors, assignment 
+operators), are treated as ordinary function declarations. However, if they 
+are compiler-synthesized members, H2ASH does not emit them.  For example,
+
+
+                          ---- H2ASH input ----
+
+ class c {
+
+
+     static int static_member;
+     	    int normal_member;
+
+ public:
+
+     virtual void f1_virtual(void);
+     virtual void f2_virtual(void);
+             void f3_normal(void);
+
+     void *operator ++();
+
+     c();
+     c(int&);
+     ~c(); 
+
+   };
+
+                          ---- H2ASH output ----
+
+c                   STRUC   
+@c@normal_member    DW      ?
+@c@vptr$0           DW      NEAR PTR ?
+c                   ENDS
+
+GLOBAL C            @c@static_member    :WORD 
+GLOBAL C            @c@f1_virtual$qv    :FAR
+GLOBAL C            @c@f2_virtual$qv    :FAR
+GLOBAL C            @c@f3_normal$qv     :FAR
+GLOBAL C            @c@$binc$qv         :FAR
+GLOBAL C            @c@$bctr$qv         :FAR
+GLOBAL C            @c@$bctr$qmi        :FAR
+GLOBAL C            @c@$bdtr$qv         :FAR
+
+
+    H2ASH supports single inheritance. If a program using multiple inheri-
+tance is presented as input, or if virtual bases are present, H2ASH terminates
+and gives an appropriate error message. Within a derived class, a base class
+is represented as a member subobject, and is treated by H2ASH as if it were 
+an ordinary member with a specially synthesized name: 'subobject$' which has 
+the type of the base class in question.  Again, this name is always unique.
+Virtual function table pointers are shared between the base and derived class;
+hence, no further space is allocated for the virtual-pointer within the 
+derived class.  For example,
+
+
+                          ---- H2ASH input ---- 
+ 
+ class d : c {
+
+     int derived_member;
+
+     virtual void f1_virtual(void); // virtual override of c::f1_virtual()
+     
+     d();
+    ~d();
+
+ };
+
+                          ---- H2ASH output ---- 
+
+d                   STRUC   
+d@subobject$0       c       <>
+d@derived_member    DW      ?
+d                   ENDS
+
+GLOBAL C            @d@f1_virtual$qv    :FAR
+GLOBAL C            @d@$bctr$qv         :FAR
+GLOBAL C            @d@$bdtr$qv         :FAR
+
+
+    There are two kinds of pointer to data members: SI/MI members, or VB 
+members, represented as a single WORD or as a STRUC of width two WORD's, 
+respectively.  Pointers to function members are either a single WORD, for 
+SI, a double WORD STRUC, for MI, or a triple WORD STRUC, for VB.  In each 
+case, a separate TASM TYPEDEF or STRUC name is used as an alias for the type
+of the appropriate width. For a further discussion of pointers to data 
+members, see the Borland C++ Programmer's Guilde.  Here's another example:
+
+
+                          ---- H2ASH input ---- 
+
+ int  f::*pointer_to_data_member;
+ int (f::*pointer_to_function)(char *);
+
+
+                          ---- H2ASH output ---- 
+
+  ; if a SI/MI data member is generated
+
+ SIMIdataPtr$   TYPEDEF         WORD
+
+ GLOBAL		C		pointer_to_data_member:SIMIdataPtr$
+
+  ; if a SI function member pointer is generated
+
+ SIfuncFPtr$    TYPEDEF         FAR PTR WORD
+
+ GLOBAL		C		pointer_to_function_member:SIfuncFPtr$
+
+  ; if a VB data member is generated
+
+ VBdataPtr$     STRUC
+    VBdataPtr@memberOffset      WORD
+    VBdataPtr@vbcptrOffset      WORD
+ VBdataPtr$     ENDS
+
+ GLOBAL		C		pointer_to_data_member:VBdataPtr$
+
+  ; if a SI function member pointer is generated
+
+ VBFuncFPtr$    STRUC
+    VBFuncFPtr@funcAddr         FAR PTR WORD
+    VBFuncFPtr@memberOffset     WORD
+    VBFuncFPtr@vbcptrOffset     WORD
+ VBdataFPtr$    ENDS
+
+ GLOBAL		C		pointer_to_function_member:VBFuncFPtr$
+
+   C++ Templates are not supported in this version of H2ASH. If a program 
+containing templates is given as input, H2ASH outputs an error and terminates 
+execution.

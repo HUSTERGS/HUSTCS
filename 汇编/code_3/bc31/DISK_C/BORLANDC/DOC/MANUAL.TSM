@@ -1,0 +1,226 @@
+Corrections/Additions for Turbo Assembler User's Guide
+-------------------------------------------------------
+
+Correction
+==============
+p. 333 in Appendix D, "Utilities," says that Turbo Assembler's online
+help facility is called TASMHELP. You can use TASMHELP as documented
+in the manual only if you install Turbo Assembler in a different
+directory than Borland C++. Otherwise, you should use the THELP
+utility, which has been modified so that you can access any of a
+variety of help files from a menu. 
+
+Here's how you should use the THELP utility:
+
+1) After installing Borland C++ and Turbo Assembler, invoke THELP at
+   your DOS prompt.
+
+2) Type ALT-F to bring up the menu of available help files.
+
+3) Choose TASM.TAH to access help for Turbo Assembler.
+
+New features for Turbo Assembler version 3.1
+===============================================
+
+Turbo Assembler version 3.1 now provides the following features:
+
+1. Extended SETFIELD and GETFIELD instructions
+
+  The SETFIELD instruction no longer ORs the source value to itself
+  when your source and target registers are the same. Instead, 
+  SETFIELD will ensure that the fields of the target register
+  not being set will be zero.
+
+  Similarly, if you're using the GETFIELD instruction when your
+  source and target registers are the same, the instruction will
+  not generate the nonfunctional MOV target, source instruction.
+
+2. Additional command-line options
+
+  Turbo Assembler 3.1 now lets you specify additional object 
+  formats to use with particular linkers. The options are:
+
+  Option	Meaning
+  ------	--------
+    /o		Output standard TLINK-compatible objects with overlay
+		support enabled.
+    /oi		Output IBM linker-compatible objects
+    /op		Output Phar Lap-compatible objects.
+    /os		Output standard TLINK-compatible objects without overlay
+		support. This is the default selection.
+
+3. New segment attribute and uninitialized segment warning
+
+  Segment attribute UNINIT lets you see if you have inadvertently 
+  written initialized data to uninitialized data segments. Using 
+  this attribute as part of your segment description lets you 
+  produce a warning message to alert you of this problem.
+
+  Here's an example of a segment directive using this new attribute:
+
+       BSS SEGMENT PUBLIC WORD UNINIT 'BSS'
+
+  The warning message that this directive will produce is
+
+       Warning: Data or code written to uninitialized segment
+
+  To disable this warning message, use the NOWARN UNI directive. You
+  can reenable the warning message by using the WARN UNI directive.
+
+4. PUSHSTATE and POPSTATE directives
+
+  The PUSHSTATE directive saves the current operating state on an
+  internal stack that is 16 levels deep. PUSHSTATE is particularly
+  useful if you have code inside a macro that functions independently
+  of the current operating state, but does not affect the current
+  operating mode.
+
+  The state information that Turbo Assembler saves consists of:
+
+  o current emulation version (for example T310)
+  o mode selection (for example IDEAL, MASM, QUIRKS, MASM51)
+  o EMUL or NOEMUL switches
+  o current processor or coprocessor selection
+  o MULTERRS or NOMULTERRS switches
+  o SMART or NOSMART switches
+  o the current radix
+  o JUMPS or NOJUMPS switches
+  o LOCALS or NOLOCALS switches
+  o the current local symbol prefix
+
+  Use the POPSTATE directive to return to the last saved state
+  from the stack.
+
+; PUSHSTATE and POPSTATE examples
+
+ideal
+model small
+codeseg
+
+jumps
+locals  @@
+
+
+        ; Show changing processor selection, number radix, and JUMPS mode
+        pushstate
+        nojumps
+        radix   2          ; Set to binary radix
+        p386
+        jl      next1      ; No extra NOPS after this
+        mov     eax,100    ; Now 100 means binary 100 or 4 decimal.
+next1:
+        popstate           ; Restores JUMPS and non 386 mode.
+
+        ; Back to jumps directive, no 386, and decimal radix
+        jl      next2      ; Three extra NOPS to handle JUMPS
+        xor     eax,eax    ; Not in 386 mode anymore!
+
+        mov     cx,100     ; Now 100 means decimal 100
+
+        pushstate
+        MULTERRS
+        mov     ax,[bp+abc
+        popstate
+
+        mov     ax,[bp+abc
+
+
+        ; Show disabling local scoping of symbols
+        locals
+next2:
+@@a:    loop @@a
+next3:
+@@a:    loop @@a           ; Allowed because of scoping of NEXT2: and NEXT3:
+
+        pushstate
+        nolocals
+next4:
+@@b:    loop @@b
+next5:
+@@b:    loop @@b           ; This will conflict because of nolocals
+        popstate
+
+
+
+        ; Show changing local symbol prefix and MASM/IDEAL mode
+        pushstate
+        masm
+        locals @$
+
+testproc proc              ; MASM mode for procedure declaration
+         jmp    @$end
+
+@$end:   nop
+@@end:   ret
+testproc endp
+
+testproc2 proc
+        jmp    @$end
+@$end:  nop                ; This doesn't conflict with label in TESTPROC
+@@end:  ret                ; This label does conflict
+testproc2 endp
+        popstate
+
+
+        ; Now back to @@ as a local label prefix, and IDEAL mode
+testproc2b  proc           ; This wont work since we are back in IDEAL mode!
+        ret
+testproc2b  endp           ; And this will give an error also.
+
+proc    testproc3
+        jmp    @$end2
+@$end2: nop
+@@end2: ret
+endp    testproc3
+
+proc    testproc4
+        jmp    @$end2
+@$end2: nop                ; This label does conflict
+@@end2: ret                ; This label doesn't conflict with
+                           ;   label in TESTPROC3
+endp    testproc4
+
+end
+
+
+5. New processor directives
+
+  New processor directives added to accomodate use of the 486SX
+  chip are:
+
+  .487    Enables assembly of 487 numeric processor instructions.
+          This instruction works only in MASM mode.
+  P487    Enables assembly of 487 numeric processor instructions.
+          This instruction works in both MASM and Ideal modes.
+
+6. Text Equate Substitution
+
+  TASM 3.1 introduces changes to the way text equates are substituted,
+  for increased MASM compatibility. This may make old code produce
+  errors with TASM 3.1. There are two possible remedies:
+
+     1) Use the /UT300 command line directive to select TASM 3.0 style
+        processing.
+
+     2) Explicitly use the % text macro substitution operator at the
+        start of lines that cause errors with TASM 3.1 but not TASM 3.0.
+
+  An example of this is in the WHEREIS example files. For WHEREIS, the
+  model size is defined on the commandline like this:
+      TASM /dMDL=small iwhereis.asm
+
+  Then within IWHEREIS.ASM, the code checks to make sure that MDL has
+  been defined, and if it has, the following line of code was used with
+  TASM 3.0:
+
+      model MDL
+
+  TASM 3.0 automatically substituted the value of MDL before evaluating
+  the expression. TASM 3.1 now requires you to explicitly use the
+  % operator, like this:
+
+    % model MDL
+
+
+
+

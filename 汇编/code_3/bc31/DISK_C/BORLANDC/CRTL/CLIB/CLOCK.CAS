@@ -1,0 +1,64 @@
+/*------------------------------------------------------------------------
+ * filename - clock.cas
+ *
+ * function(s)
+ *        clock     - ANSI standard; returns number of timer ticks
+ *                    that have elapsed since this program started.
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <dos.h>
+#include <time.h>
+#include <RtlData.h>
+
+#if !defined( _RTLDLL )
+extern unsigned long _StartTime;        /* beginning of program execution  */
+                                        /*   initialized in C0.ASM         */
+#endif
+
+static unsigned char DayFlip;           /* keeps track                     */
+
+#pragma inline
+
+#define I asm
+
+clock_t clock(void)
+{
+   clock_t NowTime;
+
+I   xor    ah,ah
+I   int    1ah                          /* call BIOS for timer ticks       */
+
+I   add    BY0(DayFlip), al             /* record whether day has changed  */
+
+I   mov    W0 (NowTime), DX             /* save return values              */
+I   mov    W1 (NowTime), CX             /*  which is current time in ticks */
+
+
+   if (_AL != 0)                        /* did day change just now?        */
+   {
+      /* Set the BIOS midnight flag to 1 again, then call DOS get-date
+       * function to force DOS to update its internal date counter.
+       */
+      *((unsigned char far *)MK_FP(0x40,0x70)) = 1;
+      _AH = 0x2a;                       /* get DOS date to force DOS       */
+      geninterrupt(0x21);               /*  to recognize date change       */
+   }
+
+   if(DayFlip)
+      NowTime += 0x1800b0L;             /* number of clock ticks in day    */
+
+   return(NowTime - _RTLInstanceData(_StartTime));
+                                        /* return count of ticks           */
+}
+

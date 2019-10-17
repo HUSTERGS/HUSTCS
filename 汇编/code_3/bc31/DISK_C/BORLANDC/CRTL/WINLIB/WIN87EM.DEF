@@ -1,0 +1,6 @@
+LIBRARY     WIN87EM                       
+
+DESCRIPTION 'Microsoft Windows 3.0 Coprocessor/Emulator Library 6.00.11'
+
+EXPORTS
+            __FPMATH                      @1   

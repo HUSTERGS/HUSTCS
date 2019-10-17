@@ -1,0 +1,490 @@
+Script  EPSILON;
+
+
+/***********************************************************************
+
+            Epsilon editor emulation for Borland C++ IDE.
+
+    This file contains a Turbo Editor Macro Language (TEML)
+script which emulates the Epsilon programmer's editor in the Borland
+C++ IDE.  A complete description of the TEML language and the Turbo
+Editor Macro Compiler (TEMC) can be found in the file "UTIL.DOC".
+
+    The TEMC compiler can be invoked from the DOS command line at
+follows:
+ 
+      temc [-c] epsilon.tem <IDE configuration file>
+
+The optional -c switch can also be specified as /c, and can appear in
+any argument position on the command line. If you use this option,
+any existing command table in your configuration file is thrown away
+before the script file is merged with those already defined. The
+configuration file extensions is assumed to be .TC.  The configuration
+file need not exist. If it does not exist, it is created. 
+tcconfig.tc is the main configuration file.
+
+Most of the simple Epsilon commands have been fully implemented.  Most
+of the complex command have been either partially implemented or not
+implemented at all.  The TEML macros names correspond to the names in
+the Espilon default macro set.  Below is a list of the commands that
+have been fully or partially implemented.
+
+IDE Binding   Epsilon Command            Comments
+-----------   ---------------            -------------------------
+Ctrl-B        backward_character         
+Ctrl-H        backward_delete_character  
+Alt-B         backward_word      
+Ctrl-A        beginning_of_line      
+Home          beginning_of_window    
+Ctrl-L        center_window      
+Alt-W         copy_region        
+Esc+@w        copy_region        
+Ctrl-D        delete_character
+Ctrl-N        down_line
+Tab           do_c_indent
+Ctrl-E        end_of_line
+End           end_of_window
+Ctrl-X+Ctrl-X exchange_point_and_mark
+Ctrl-X+Ctrl-C Quit;
+Ctrl-X+Ctrl-Z exit_level                 Leaves editor - Enables Menus
+Ctrl-X+Ctrl-F find_file
+Ctrl-F        forward_character
+Alt-F         forward_word
+Esc+@f        forward_word
+Ctrl-Home     goto_beginning
+Esc+<         goto_beginning
+Ctrl-End      goto_end
+Esc+>         goto_end
+Ctrl-X+@i     insert_file
+Ctrl-K        kill_line                  Uses Block-copy - Allowing yanking
+Ctrl-W        kill_region
+Ctrl-X+0      kill_window
+Alt-D         kill_word                  Does not allow for yanking
+Esc+d         kill_word
+Esc+D         kill_word
+Ctrl-X+@m     make
+Alt-X         named_command
+Ctrl-X+Ctrl-N next_error                
+Ctrl-V        next_page
+Ctrl-O        open_line
+Alt-V         previous_page
+Esc+@v        previous_page
+Ctrl-Q        quoted_insert
+Ctrl-X+@r     redo
+F10           redo
+Ctrl-S+Ctrl-S RepeatSearch
+Ctrl-X+@u     undo
+F9            undo
+Ctrl-X+Ctrl-S save_file
+Alt-Z         scroll_down
+Esc+@z        scroll_down
+Ctrl-Z        scroll_up
+Ctrl-X+Ctrl-M set_mark
+Ctrl-S        string_search
+Ctrl-P        up_line
+Ctrl-X+@w     write_region
+Ctrl-Y        yank
+Alt-Y         yank_pop                   Displays the Clipboard
+
+********************************************************************/
+
+/*******************************************************************
+        TEML SCRIPTS TO EMULATE EPSILON FROM THE BORLAND C++ IDE     
+ *******************************************************************/
+
+
+macro   backward_character
+    CursorSwitchedLeft;
+end;
+
+
+macro   backward_delete_character
+    BackSpaceDelete;
+end;
+
+
+macro   backward_word
+    WordLeft;
+end;
+
+
+macro   beginning_of_line
+    LeftOfLine;
+end;
+
+
+macro   beginning_of_window
+    TopOfScreen;
+end;
+
+
+macro   center_window
+    SetTempPos;
+    ScrollScreenUp;
+    CenterFixScreenPos;
+    ScrollScreenDown;
+    CenterFixScreenPos;
+    PageScreenUp;
+    CenterFixScreenPos;
+    PageScreenDown;
+    CenterFixScreenPos;
+    MoveToTempPos;
+end;
+
+
+macro   copy_region
+    HideBlock;
+    SwapPrevPos;
+    SetBlockBeg;
+    SwapPrevPos;
+    SetBlockEnd;
+    HighlightBlock;
+    ClipCopy;
+end;
+
+
+macro   delete_character
+    DeleteChar;
+end;
+
+
+macro   do_c_indent
+    LiteralChar( 9 );
+end;
+
+
+macro   down_line
+    CursorDown;
+end;
+
+
+macro   end_of_line
+    RightOfLine;
+end;
+
+
+macro   end_of_window
+    BottomOfScreen;
+end;
+
+
+macro   exchange_point_and_mark
+    SwapPrevPos;
+    CenterFixScreenPos;
+end;
+
+
+macro   exit_level
+    Quit;
+end;
+
+
+macro   find_delimiter
+    MatchPairForward;
+end;
+
+
+macro   find_file
+    OpenFile;
+end;
+
+
+macro   forward_character
+    CursorSwitchedRight;
+end;
+
+
+macro   forward_level
+    MatchPairForward;
+end;
+
+
+macro   forward_word
+    WordRight;
+end;
+
+
+macro   goto_beginning
+    HomeCursor;
+end;
+
+
+macro   goto_end
+    EndCursor;
+end;
+
+
+macro   insert_file
+    SetPrevPos;
+    HideBlock;
+    ReadBlock;
+end;
+
+
+/*  The kill_line Macro does not use the built-in DeleteToEOL TEML macro    */
+/*  but rather makes a highlighted block out the line, cuts the block into  */
+/*  the clipboard, thereby allowing 'yank'ing of deleted lines.  This method*/
+/*  however, requires that delete_character be used when empty lines ( lines*/
+/*  containing only a LineFeed character ) are to be deleted...             */
+macro   kill_line
+    SetTempPos;
+    SetBlockBeg;
+    end_of_line;
+    SetBlockEnd;
+    MoveToTempPos;
+    HighlightBlock;
+    ClipCut;
+end;
+
+
+macro   kill_region
+    SwapPrevPos;
+    SetBlockBeg;
+    SwapPrevPos;
+    SetBlockEnd;
+    HighlightBlock;
+    ClipCut;
+end;
+
+
+macro   kill_window
+    CloseWindow;
+end;
+
+
+macro   kill_word
+    DeleteWord;
+end;
+
+
+macro   make
+    MakeProject;
+end;
+
+
+macro   named_command
+    Menu;
+end;
+
+
+macro   next_error
+    NextError;
+end;
+
+
+macro   next_page
+    PageDown;
+end;
+
+
+macro   next_window
+    NextWindow;
+end;
+
+
+macro   open_line
+    LiteralChar( 13 );
+    CursorSwitchedLeft;
+end;
+
+
+macro   previous_page
+    PageUp;
+end;
+
+
+macro   query_replace
+    Replace;
+end;
+
+
+macro   quoted_insert
+    LiteralChar;
+end;
+
+
+macro   save_file
+    SaveFile;
+end;
+
+
+macro   scroll_down
+    ScrollScreenDown;
+    FixCursorPos;
+end;
+
+
+macro   scroll_up
+    ScrollScreenUp;
+    FixCursorPos;
+end;
+
+
+macro   set_mark
+    HideBlock;
+    SetPrevPos;
+end;
+
+
+macro   string_search
+    SearchMenu;
+end;
+
+
+macro   up_line
+    CursorUp;
+end;
+
+
+macro   write_region
+    HideBlock;
+    SwapPrevPos;
+    SetBlockBeg;
+    SwapPrevPos;
+    SetBlockEnd;
+    HighlightBlock;
+    WriteBlock;
+end;
+
+
+macro   yank
+    HideBlock;
+    ClipPaste;
+end;
+
+
+macro   yank_pop
+    ClipShow;
+end;
+
+
+
+Ctrl-B          :backward_character;
+
+Ctrl-H          :backward_delete_character;
+
+Alt-B           :backward_word;
+
+Ctrl-A          :beginning_of_line;
+
+Home            :beginning_of_window;
+
+Ctrl-L          :center_window;
+
+Alt-W           :copy_region;
+Esc+@w          :copy_region;
+
+Ctrl-D          :delete_character;
+
+Ctrl-N          :down_line;
+
+Tab             :do_c_indent;
+
+Ctrl-E          :end_of_line;
+
+End             :end_of_window;
+
+Ctrl-X+Ctrl-X   :exchange_point_and_mark;
+
+Ctrl-X+Ctrl-C   :Quit;
+
+Ctrl-X+Ctrl-Z   :exit_level;
+
+Ctrl-X+Ctrl-F   :find_file;
+
+Ctrl-F          :forward_character;
+
+Alt-F           :forward_word;
+Esc+@f          :forward_word;
+
+Ctrl-Home       :goto_beginning;
+Esc+<           :goto_beginning;
+
+
+Ctrl-End        :goto_end;
+Esc+>           :goto_end;
+
+
+Ctrl-X+@i       :insert_file;
+
+Ctrl-K          :kill_line;
+
+Ctrl-W          :kill_region;
+
+
+Ctrl-X+0        :kill_window;
+
+Alt-D           :kill_word;
+Esc+d           :kill_word;
+Esc+D           :kill_word;
+
+Ctrl-X+@m       :make;
+
+
+/* The following is a non-Epsilon MACRO which can be usefully combined with */
+/* the insert_file macro to compensate for the fact that TEML's ReadBlock   */
+/* internal MACRO leaves point at the beginning of the block just read.     */
+/* Epsilon leaves point at the end of the block inserted.  This MACRO allows*/
+/* one to quickly move to the end of the block inserted...                  */
+Ctrl-X+Ctrl-K   :Begin
+                    MoveToBlockEnd;
+                    center_window;
+                    HideBlock;
+                 End;
+
+Alt-X           :named_command;
+
+Ctrl-X+Ctrl-N   :next_error;
+
+Ctrl-V          :next_page;
+
+Ctrl-O          :open_line;
+
+Alt-V           :previous_page;
+Esc+@v          :previous_page;
+
+Ctrl-Q          :quoted_insert;
+
+Ctrl-X+@r       :redo;
+F10             :redo;
+
+Ctrl-S+Ctrl-S   :RepeatSearch;
+
+Ctrl-X+@u       :undo;
+F9              :undo;
+
+Ctrl-X+Ctrl-S   :save_file;
+
+Alt-Z           :scroll_down;
+Esc+@z          :scroll_down;
+
+Ctrl-Z          :scroll_up;
+
+Ctrl-X+Ctrl-M   :set_mark;
+
+Ctrl-S          :string_search;
+
+Ctrl-P          :up_line;
+
+Ctrl-X+@w       :write_region;
+
+Ctrl-Y          :yank;
+
+Alt-Y           :yank_pop;
+
+/* These need to be redefined or TEMC needs to be changed to accept them
+Alt-,           :beginning_of_window
+Alt-.           :end_of_window;
+Alt-)           :find_delimiter;
+Ctrl-Alt-F      :forward_level;
+Alt-<           :goto_beginning;
+Alt->           :goto_end;
+Alt-End         :next_window;
+Esc+End         :next_window;
+Alt-%           :query_replace;
+Esc+%           :query_replace;
+Ctrl-@          :set_mark;
+*/
+
+
+

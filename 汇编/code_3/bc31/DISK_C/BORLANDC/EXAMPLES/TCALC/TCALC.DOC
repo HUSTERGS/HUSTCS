@@ -1,0 +1,103 @@
+How to compile TurboCalc
+컴컴컴컴컴컴컴컴컴컴컴컴
+
+With TC.EXE:
+
+  1. Run TC.EXE
+  2. In the Project pulldown menu specify the project name "TCALC.PRJ"
+  3. From the main menu select the Run option from the Run menu
+
+With TCC.EXE:
+
+  Compile from DOS with the following command line:
+    TCC tcalc tcparser tcdisply tcinput tcommand tcutil
+
+In both cases, compiling under a large data model (COMPACT, LARGE, or HUGE)
+will give you much more memory for your spreadsheets.
+
+The compiler may run out of file handles when compiling TurboCalc.
+To allow the compiler to open as many files as possible, put the
+statement "FILES = 20" in the file CONFIG.SYS in the root directory
+of the disk that you start your computer with.
+
+The TurboCalc parser
+컴컴컴컴컴컴컴컴컴컴
+
+The state and goto information for the parser was created using the UNIX YACC
+utility.  The input to YACC was as follows:
+
+%token CONST CELL FUNC
+%%
+e : e '+' t
+  | e '-' t
+  | t
+  ;
+t : t '*' f
+  | t '/' f
+  | f
+  ;
+f : x '^' f
+  | x
+  ;
+x : '-' u
+  | u
+  ;
+u : CELL ':' CELL
+  | o
+  ;
+o : CELL
+  | '(' e ')'
+  | CONST
+  | FUNC '(' e ')'
+  ;
+%%
+
+Additional TurboCalc information
+컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴
+
+Formulas are entered as text.  TurboCalc will determine if what you entered
+is a legal formula or text.
+
+Cell names in formulas are typed in with the column followed by the row.
+
+Examples:
+
+A1+A2
+B6^5
+
+To sum a group of cells, put a colon between the first cell and the last
+cell in the group.
+
+Example:
+
+A1:A10 sums all of the cells from A1 to A10 and puts the result in the
+current cell.
+
+The available TurboCalc functions are:
+
+ABS - absolute value
+ACOS - arc cosine
+ASIN - arc sine
+ATAN - arc tangent
+COS - cosine
+COSH - hyperbolic cosine
+EXP - exponential function
+LOG - logarithm
+LOG10 - base 10 logarithm
+POW10 - raise argument to the 10th power
+ROUND - round to the nearest whole number
+SIN - sine
+SINH - hyperbolic sine
+SQR - square
+SQRT - square root
+TAN - tangent
+TANH - hyperbolic tangent
+TRUNC - return the whole part of a number
+
+Examples:
+
+TRUNC(A1)
+SQRT(SQR(34.5))
+ABS(TRUNC(B16))
+
+

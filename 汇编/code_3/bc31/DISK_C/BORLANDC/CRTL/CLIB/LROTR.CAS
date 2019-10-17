@@ -1,0 +1,50 @@
+/*-----------------------------------------------------------------------*
+ * filename - lrotr.cas
+ *
+ * function(s)
+ *        _lrotr - rotates an unsigned long integer right
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <stdlib.h>
+
+/*-----------------------------------------------------------------------*
+
+Name
+
+Usage           unsigned long _lrotr(unsigned long val, int rotate_count)
+
+Prototype in    stdlib.h
+
+Description     Rotates an unsigned long integer to the right count times.
+
+Return value    The value after rotation.
+
+*------------------------------------------------------------------------*/
+unsigned long _lrotr(unsigned long val, int rotate_count)
+{
+asm     mov     ax, W0(val)
+asm     mov     dx, W1(val)
+asm     mov     cx, rotate_count
+asm     and     cx, 01Fh
+asm     jz      Rotated
+Rotating:
+asm     mov     bx, dx
+asm     shr     bx, 1
+asm     rcr     ax, 1
+asm     rcr     dx, 1
+asm     loop    Rotating
+
+Rotated:
+        return( MK_ULONG );
+}

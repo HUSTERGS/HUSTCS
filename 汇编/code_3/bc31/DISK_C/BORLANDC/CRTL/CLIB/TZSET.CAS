@@ -1,0 +1,229 @@
+/*------------------------------------------------------------------------
+ * filename - tzset.cas
+ *
+ * function(s)
+ *        tzset     - UNIX time compatibility
+ *        __isDst   - determines whether daylight savings is in effect
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <_io.h>
+#include <io.h>
+#include <time.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define YES 1
+#define NO  0
+
+#define Normal    0
+#define Daylight  1
+#define TZstrlen        3        /* Len of tz string(- null terminator) */
+#define DefaultTimeZone 5L
+#define DefaultDaylight YES
+#define DefaultTZname   "EST"    /* Default normal time zone name */
+#define DefaultDSTname  "EDT"    /* Default daylight savings zone name */
+
+unsigned _monthDay [] =
+{
+     0,   31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 365
+};
+
+#if !defined( _RTLDLL )
+static char _DfltZone[ TZstrlen+1 ], _DfltLight[ TZstrlen+1 ];
+char  *const tzname[2] = {&_DfltZone[0], &_DfltLight[0]};
+
+long  timezone = DefaultTimeZone * 60L * 60L; /* Set for EST */
+
+int   daylight = DefaultDaylight;             /* Apply daylight savings */
+#endif
+
+/*---------------------------------------------------------------------*
+
+Name            tzset
+
+Usage           void tzset(void);
+
+Prototype in    time.h
+
+Description     sets local timezone info base on the "TZ" environment string
+
+Return value    None
+
+*---------------------------------------------------------------------*/
+void  _FARFUNC tzset(void)
+{
+        register int  i;       /* A loop index */
+        char *env;             /* Pointer to "TZ" environment string */
+
+#define  issign(c)   (((c) == '-') || ((c) == '+'))
+
+        if (
+           /************************************************************
+              1. Check for "TZ" string in the environment.
+                    env[0] - 1st char in time zone name
+                    env[1] - 2nd "    "   "    "
+                    env[2] - 3rd "    "   "    "
+                    env[3] - 1st char in time zone difference value
+                    env[4] - 2nd "    "   "    "       "        "
+              2. Rule out short strings.
+              3. Rule out non A-Z time zone characters.
+              4. Rule out bad time zone difference numbers.
+                 a. Not a +/- or 0-9.
+                 b. Sign with no following digit(s).
+           ************************************************************/
+/* 1. */ ((env = getenv("TZ")) == 0)                                      ||
+/* 2. */ (strlen(env) < (TZstrlen+1))                                     ||
+/* 3. */ ((!isalpha(env[0])) || (!isalpha(env[1])) || (!isalpha(env[2]))) ||
+/* 4a.*/ (!(issign(env[ TZstrlen ]) || isdigit(env[ TZstrlen ])))         ||
+/* 4b.*/ ((!isdigit(env[ TZstrlen ])) && (!isdigit(env[ TZstrlen+1 ]))) )
+        {
+                /*----- Missing or bogus "TZ" string, set default values -----*/
+
+                daylight = DefaultDaylight;
+                timezone = DefaultTimeZone * 60L * 60L;
+                strcpy(tzname[Normal], DefaultTZname);
+                strcpy(tzname[Daylight], DefaultDSTname);
+        }
+        else    /*----- Parse the "TZ" string and set values from string -----*/
+        {
+                memset(tzname[Daylight], 0, TZstrlen+1); /* Dlt daylight to NULL  */
+                strncpy(tzname[Normal], env, TZstrlen);  /* Set zime zone string  */
+                tzname[Normal][TZstrlen] = '\0';         /* Force NULL termination*/
+                timezone = atol(&env[TZstrlen]) * 3600L; /* Base timezone on "TZ" */
+
+                /*----- Scan for optional daylight savings field -----*/
+
+                /* Scan for string start  */
+                for (daylight=NO,i=TZstrlen; env[i]; i++)
+                {
+                        if (isalpha(env[i]))        /* Found the string start */
+                        {
+                                if ((strlen(&env[i])<TZstrlen) ||
+                                    (!isalpha(env[i+1]))       ||
+                                    (!isalpha(env[i+2])) )
+                                        break;
+                                /* Copy and null-terminate dlt sav string */
+                                strncpy(tzname[Daylight], &env[i], TZstrlen);
+                                tzname[Daylight][TZstrlen] = '\0';
+                                daylight = YES;
+                                break;
+                        }
+                }
+        }
+}
+
+#pragma startup tzset 30
+
+/*--------------------------------------------------------------------------*
+
+Name            __isDST  -  determines whether daylight savings is in effect
+
+Usage           int  pascal __isDST (unsigned hour,  unsigned yday,
+                                     unsigned month, unsigned year);
+
+Prototype in    _io.h
+
+Description     Returns non-zero if daylight savings is in effect for
+                the given date.
+
+                If month is 0, yday is the day of the year, otherwise yday is
+                the day of the month.  yday is zero based.
+
+                It is assumed that the caller has called tzset() to fill in
+                the timezone info.
+
+Return value    Non-zero if DST is in effect for the given date.
+
+*---------------------------------------------------------------------------*/
+int pascal near __isDST(unsigned hour, unsigned yday, unsigned month, unsigned year)
+{
+        register  unsigned  temp;
+
+        if (month == 0)         /* if only day of year given    */
+            {
+            temp = yday;
+            /* if Mar 1 or later and leap year, sub day to calculate month */
+            if (yday >= 31+28 && (((year+70) & 3) == 0))
+                temp--;
+            for (month = 0; temp >= _monthDay[month]; month++)
+                ;
+            }
+        else                    /* if month+day of month given  */
+            {
+                yday += _monthDay[month-1];
+                if (month > 3 && (((year+70) & 3) == 0))
+                    yday++;
+            }
+
+asm     cmp     word ptr month, 4
+asm     jb      _notDST         /* has to be >= April           */
+asm     je      _check
+asm     cmp     word ptr month, 10
+asm     ja      _notDST         /* has to be <= October         */
+asm     jne     _isDST
+_check:
+asm     mov     bx, month
+asm     shl     bx, 1
+asm     cmp     word ptr year, 16
+asm     jle     _else_1         /* skip if before 1986          */
+asm     cmp     word ptr month, 4
+asm     jne     _else_1         /* skip if not April            */
+asm     mov     cx, _monthDay-2[bx]
+asm     add     cx, 7           /* day = 7th day in month       */
+asm     jmp     _endif_1
+_else_1:
+asm     mov     cx, _monthDay[bx]/* day = last day in month     */
+_endif_1:
+asm     mov     bx, year
+asm     add     bx, 1970
+asm     test    bl, 3           /* leap year ?                  */
+asm     jz      _leap
+asm     dec     cx              /* no --> adjust                */
+_leap:
+asm     mov     bx, year
+asm     inc     bx
+asm     sar     bx, 1
+asm     sar     bx, 1
+asm     add     bx, cx          /* add leap days since 1970     */
+asm     mov     ax, 365
+asm     mul     word ptr year   /* ax = (year-1970) * 365       */
+asm     add     ax, bx
+asm     add     ax, 4           /* 01-01-70 was Thursday        */
+asm     xor     dx, dx
+asm     mov     bx, 7           /* find day of week             */
+asm     div     bx
+asm     sub     cx, dx          /* cx = threshold day of year   */
+asm     mov     ax, yday
+asm     cmp     word ptr month, 4
+asm     jne     _October
+asm     cmp     ax, cx
+asm     ja      _isDST          /* is DST if past threshold     */
+asm     jne     _notDST
+asm     cmp     byte ptr hour, 2
+asm     jb      _notDST         /* not DST if too early         */
+asm     jmp     SHORT _isDST
+_October:
+asm     cmp     ax, cx
+asm     jb      _isDST          /* is DST if before threshold   */
+asm     jne     _notDST
+asm     cmp     byte ptr hour, 1
+asm     ja      _notDST         /* not DST if too late          */
+
+_isDST:
+        return(1);
+_notDST:
+        return(0);
+}

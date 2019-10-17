@@ -1,0 +1,1637 @@
+
+;   FILENAME: MDOS.MAC
+;
+;   Copyright (c) 1988, 1990 by Borland International, Inc.
+;
+;   DESCRIPTION: This include file contains various macros that may
+;   be used to communicate with DOS. This include file uses Masm mode
+;   syntax. For documentation on each of the macros in this file see the
+;   file DOSMAC.DOC.
+;
+;   NOTE: In order to use this macro file you must also include the files:
+;   MMACROS.MAC, KBD.INC, and DOS.INC in your module.
+
+
+Terminate10Program  macro
+    DosCall <DOS_PROGRAM_TERMINATE>
+endm
+
+ReadKBDEcho macro
+    DosCall <DOS_READ_KBD_ECHO>
+endm
+
+CharacterOutput macro   Character
+    ifb <Character>
+        display "Caller must provide Character parameter to CharacterOutput."
+        err
+    else
+        mov     dl, Character
+        DosCall <DOS_WRITE_CHARACTER>
+    endif
+endm
+
+AuxiliaryInput  macro
+    DosCall <DOS_AUXILIARY_INPUT>
+endm
+
+AuxiliaryOutput macro   Character
+    ifb <Character>
+        display "Caller must provide Character parameter to AuxiliaryOutput."
+        err
+    else
+        mov     dl, <Character>
+        DosCall <DOS_AUXILIARY_OUTPUT>
+    endif
+endm
+
+PrinterOutput   macro   Character
+    ifb <Character>
+        display "Caller must provide Character parameter to PrinterOutput."
+        err
+    else
+        mov     dl, <Character>
+        DosCall <DOS_PRINTER_OUTPUT>
+    endif
+endm
+
+ConsoleIO   macro   Value
+    ifb <Value>
+        display "Caller must provide the Value parameter to ConsoleIO."
+        err
+    else
+        mov     dl, Value
+        DosCall <DOS_CONSOLE_IO>
+    endif
+endm
+
+UnfilteredCharInput macro
+    DosCall <DOS_UNFILTERED_INPUT>
+endm
+
+CharInputNoEcho macro
+    DosCall <DOS_CHARACTER_INPUT>
+endm
+
+WriteString macro   StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide the string address parameters to WriteString."
+        err
+    endm
+
+    ifb <StringSeg>
+        ErrMsg
+    else
+        ifb <StringOfs>
+            ErrMsg
+        else
+            ifidni  <StringSeg>, <ds>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <StringSeg>
+            endif
+            mov     dx, StringOfs
+            DosCall DOS_WRITE_STRING
+        endif
+    endif
+endm
+
+BufferedInput   macro   StringSeg, StringOfs
+    ErrMsg  macro
+        display "Caller must provide the address parameters to BufferedInput."
+        err
+    endm
+
+    ifb <StringSeg>
+        ErrMsg
+    else
+        ifb <StringOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <StringSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <StringSeg>
+            endif
+            mov     dx, StringOfs
+            DosCall <DOS_BUFFERED_INPUT>
+        endif
+    endif
+endm
+
+GetInputStatus  macro
+    DosCall <DOS_GET_INPUT_STATUS>
+endm
+
+ResetInputBuffer    macro   Function, StringSeg, StringOfs
+    ifb <Function>
+        display "Caller must provide the Function parameter to ResetInputBuffer."
+        err
+    else
+        ifb <StringSeg>
+            mov     al, Function
+        else
+            ifb <StringOfs>
+                display "Caller must provide the StringOfs parameter to ResetInputBuffer."
+                err
+            else
+                ifidni  <ds>, <StringSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <StringSeg>
+                endif
+                mov     dx, StringOfs
+            endif
+        endif
+        DosCall <DOS_RESET_INPUT>
+    endif
+endm
+
+ResetDisk   macro
+    DosCall <DOS_DISK_RESET>
+endm
+
+ChangeDrive macro   Drive
+    ifb <Drive>
+        display "You must provide the Drive parameter to ChangeDrive."
+        err
+    else
+        mov     dl, Drive
+        DosCall DOS_CHANGE_DISK_DRIVE
+    endif
+endm
+
+OpenFCBFile macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to OpenFCBFile."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_OPEN_FCB_FILE>
+        endif
+    endif
+endm
+
+CloseFCBFile    macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to CloseFCBFile."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_CLOSE_FCB_FILE>
+        endif
+    endif
+endm
+
+FindFirstFCB    macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to FindFirstFCB."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_FIND_FIRST_FCB>
+        endif
+    endif
+endm
+
+FindNextFCB macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to FindNextFCB."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_FIND_NEXT_FCB>
+        endif
+    endif
+endm
+
+DeleteFCBFile   macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to DeleteFCBFile."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_DELETE_FCB_FILE>
+        endif
+    endif
+endm
+
+SequentialFCBRead   macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to SequentialFCBRead."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_SEQUENTIAL_READ>
+        endif
+    endif
+endm
+
+SequentialFCBWrite  macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to SequentialFCBWrite."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_SEQUENTIAL_WRITE>
+        endif
+    endif
+endm
+
+CreateFCBFile   macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to CreateFCBFile."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_CREATE_FCB_FILE>
+        endif
+    endif
+endm
+
+RenameFCBFile   macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to RenameFCBFile."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_RENAME_FCB_FILE>
+        endif
+    endif
+endm
+
+GetDrive    macro
+    DosCall <DOS_GET_DISK_DRIVE>
+endm
+
+SetDTA  macro   DTASeg, DTAOfs
+    ErrMsg  macro
+        display "You must provide the DTASeg:DTAOfs parameters to SetDTA."
+        err
+    endm
+
+    ifb <DTASeg>
+        ErrMsg
+    else
+        ifb <DTAOfs>
+            ErrMsg
+        else
+
+            ; First check if the parameter is a register. If it is then
+            ; push it and pop the value into ds. If not check if it's a
+            ; constant or variable and act accordingly.
+
+            ifidni  <ds>, <DTASeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <DTASeg>
+            endif
+            mov     dx, DTAOfs              ; Get offset of DTA
+            DosCall DOS_SET_DTA             ; Set new DTA address
+        endif
+    endif
+endm
+
+DefaultDiskAllocation   macro
+    DosCall <DOS_DEFAULT_DRIVE_INFO>
+endm
+
+DiskAllocation  macro   Drive
+    ifb <Drive>
+        display "Caller must provide Drive parameter to DiskAllocation."
+        err
+    else
+        mov     dl, Drive
+        DosCall <DOS_DRIVE_INFO>
+    endif
+endm
+
+RandomFCBRead   macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to RandomFCBRead."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_RANDOM_READ>
+        endif
+    endif
+endm
+
+RandomFCBWrite  macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to RandomFCBWrite."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_RANDOM_WRITE>
+        endif
+    endif
+endm
+
+GetFCBFileSize  macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to GetFCBFileSize."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_GET_FILE_SIZE>
+        endif
+    endif
+endm
+
+SetFCBFileRecord    macro   FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide FCB address to SetFCBFileRecord."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <FCBSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <FCBSeg>
+            endif
+            mov     dx, FCBOfs
+            DosCall <DOS_SET_RECORD_NUMBER>
+        endif
+    endif
+endm
+
+SetVector   macro   Vector, VectorSeg, VectorOfs
+    ErrMsg  macro
+        display "You must provide the Vector, VectorSeg and VectorOfs parameters to SetVector."
+        err
+    endm
+
+    ifb <Vector>
+        ErrMsg
+    else
+        ifb <VectorSeg>
+            ErrMsg
+        else
+            ifb <VectorOfs>
+                ErrMsg
+            else
+                ifidni  <ds>, <VectorSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <VectorSeg>
+                endif
+                mov     dx, VectorOfs
+                mov     al,Vector        ; Load the number of the vector
+                DosCall DOS_SET_VECTOR
+            endif
+        endif
+    endif
+endm
+
+CreatePSP   macro   PSPSeg
+    ifb <PSPSeg>
+        display "Caller must provide PSPSeg parameter to CreatePSP."
+        err
+    else
+        mov     dx, <PSPSeg>
+        DosCall <DOS_CREATE_PSP>
+    endif
+endm
+
+RandomFCBBlockRead  macro   FCBSeg, FCBOfs, Count
+    ErrMsg  macro
+        display "Caller must provide FCB address to RandomFCBBlockRead."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifb <Count>
+                ErrMsg
+            else
+                ifidni  <ds>, <FCBSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <FCBSeg>
+                endif
+                mov     dx, FCBOfs
+                mov     cx, Count
+                DosCall <DOS_RANDOM_BLOCK_READ>
+            endif
+        endif
+    endif
+endm
+
+RandomFCBBlockWrite macro   FCBSeg, FCBOfs, Count
+    ErrMsg  macro
+        display "Caller must provide FCB address to RandomFCBBlockWrite."
+        err
+    endm
+
+    ifb <FCBSeg>
+        ErrMsg
+    else
+        ifb <FCBOfs>
+            ErrMsg
+        else
+            ifb <Count>
+                ErrMsg
+            else
+                ifidni  <ds>, <FCBSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <FCBSeg>
+                endif
+                mov     dx, FCBOfs
+                mov     cx, Count
+                DosCall <DOS_RANDOM_BLOCK_WRITE>
+            endif
+        endif
+    endif
+endm
+
+ParseFCBFilename    macro   Flags, FilenameSeg, FilenameOfs, FCBSeg, FCBOfs
+    ErrMsg  macro
+        display "Caller must provide the Flags and address parameters to ParseFCBFilename."
+        err
+    endm
+
+    ifb <Flags>
+        ErrMsg
+    else
+        ifb <FilenameSeg>
+            ErrMsg
+        else
+            ifb <FilenameOfs>
+                ErrMsg
+            else
+                ifb <FCBSeg>
+                    ErrMsg
+                else
+                    ifb <FCBOfs>
+                        ErrMsg
+                    else
+                        LoadSegment <es>, <FCBSeg>
+                        mov     di, FCBOfs
+                        LoadSegment <ds>, <FilenameSeg>
+                        mov     si, FilenameOfs
+                        mov     al, Flags
+                        DosCall <DOS_PARSE_FILENAME>
+                    endif
+                endif
+            endif
+        endif
+    endif
+endm
+
+GetDate macro
+    DosCall <DOS_GET_DATE>
+endm
+
+SetDate macro   Year, Month, Day
+    ErrMsg  macro
+        display "Caller must provide Year, Month and Day parameters to SetDate."
+        err
+    endm
+
+    ifb <Year>
+        ErrMsg
+    else
+        ifb <Month>
+            ErrMsg
+        else
+            ifb <Day>
+                ErrMsg
+            else
+                mov     cx, Year
+                mov     dh, Month
+                mov     dl, Day
+                DosCall <DOS_SET_DATE>
+            endif
+        endif
+    endif
+endm
+
+GetTime macro
+    DosCall <DOS_GET_TIME>
+endm
+
+SetTime macro   Hour, Minute, Second, Hundredth
+    ErrMsg  macro
+        display "Caller must provide Hour, Minute, Second and Hundredth parameters to SetTime."
+        err
+    endm
+
+    ifb <Hour>
+        ErrMsg
+    else
+        ifb <Minute>
+            ErrMsg
+        else
+            ifb <Second>
+                ErrMsg
+            else
+                ifb <Hundredth>
+                    ErrMsg
+                else
+                    mov     ch, Hour
+                    mov     cl, Minute
+                    mov     dh, Second
+                    mov     dl, Hundredth
+                    DosCall <DOS_SET_TIME>
+                endif
+            endif
+        endif
+    endif
+endm
+
+SetVerifyFlag   macro   Flag
+    ifb <Flag>
+        display "Caller must provide Flag parameter to SetVerifyFlag."
+        err
+    else
+        xor     dl, dl
+        mov     al, Flag
+        DosCall <DOS_SET_VERIFY_FLAG>
+    endif
+endm
+
+GetDTA  macro
+    DosCall DOS_GET_DTA
+endm
+
+GetDOSVersion   macro
+    DosCall DOS_GET_DOS_VERSION
+endm
+
+TSR macro   Result, Paragraphs
+    ErrMsg  macro
+        display "Caller must provide Result and Paragraphs parameters to TSR."
+        err
+    endm
+
+    ifb <Result>
+        ErrMsg
+    else
+        ifb <Paragraphs>
+            ErrMsg
+        else
+            mov     al, Result
+            mov     dx, Paragraphs
+            DosCall <DOS_KEEP>
+        endif
+    endif
+endm
+
+GetSetBREAK macro   Mode, Value
+    ifb <Mode>
+        display "Caller must provide Mode and optionally Value parameters to GetSetBREAK."
+        err
+    else
+        ifnb    <Value>
+            mov     dl, Value
+        endif
+        mov     al, Mode
+        DosCall <DOS_GET_SET_CTRL_BREAK>
+    endif
+endm
+
+GetVector   macro   Interrupt
+    ifb <Interrupt>
+        display "Caller must provide Interrupt parameter to GetVector."
+        err
+    else
+        mov     al, Interrupt
+        DosCall <DOS_GET_VECTOR>
+    endif
+endm
+
+GetDiskSpace    macro   Disk
+    ifb <Disk>
+        display "Caller must provide Disk parameter to GetDiskSpace."
+        err
+    else
+        mov     dl, Disk
+        DosCall <DOS_GET_DISK_SPACE>
+    endif
+endm
+
+GetSetCountryInfo   macro   BufferSeg, BufferOfs, ShortCode, LongCode
+    ErrMsg  macro
+        display "Caller must provide the buffer address and country code parameters"
+        display "to GetSetCountryInfo."
+        err
+    endm
+
+    ifb <BufferSeg>
+        ErrMsg
+    else
+        ifb <BufferOfs>
+            ErrMsg
+        else
+            ifb <ShortCode>
+                ErrMsg
+            else
+                ifnb    <LongCode>
+                    mov     bx, LongCode
+                endif
+                mov     al, ShortCode
+                LoadSegment <ds>, <BufferSeg>
+                mov     dx, BufferOfs
+                DosCall <DOS_GET_SET_COUNTRY>
+            endif
+        endif
+    endif
+endm
+
+CreateDir   macro   StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide address parameters to CreateDir."
+        err
+    endm
+
+    ifb <StringSeg>
+        ErrMsg
+    else
+        ifb <StringOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <StringSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <StringSeg>
+            endif
+            mov     dx, StringOfs
+            DosCall DOS_MAKE_DIRECTORY
+        endif
+    endif
+endm
+
+RemoveDir   macro   StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide address parameters to RemoveDir."
+        err
+    endm
+
+    ifb <StringSeg>
+        ErrMsg
+    else
+        ifb <StringOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <StringSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <StringSeg>
+            endif
+            mov     dx, StringOfs
+            DosCall DOS_DELETE_DIRECTORY
+        endif
+    endif
+endm
+
+ChangeDirectory macro   StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide the segment and offset of the new path to ChangeDirectory."
+        err
+    endm
+
+    ifb <StringSeg>
+        ErrMsg
+    else
+        ifb <StringOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <StringSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <StringSeg>
+            endif
+            mov     dx, StringOfs           ; Store the offset of the
+            DosCall DOS_SET_CURRENT_DIR     ; new path
+        endif
+    endif
+endm
+
+
+CreateFile  macro   Attributes, StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide Attributes and address parameters to CreateFile."
+        err
+    endm
+
+    ifb <Attributes>
+        ErrMsg
+    else
+        ifb <StringSeg>
+            ErrMsg
+        else
+            ifb <StringOfs>
+                ErrMsg
+            else
+                ifidni  <ds>, <StringSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <StringSeg>
+                endif
+                mov     dx, StringOfs
+                mov     cx, Attributes
+                DosCall DOS_CREATE_FILE
+            endif
+        endif
+    endif
+endm
+
+OpenFile    macro   AccessMode, StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide AccessMode and address parameters to OpenFile."
+        err
+    endm
+
+    ifb <AccessMode>
+        ErrMsg
+    else
+        ifb <StringSeg>
+            ErrMsg
+        else
+            ifb <StringOfs>
+                ErrMsg
+            else
+                ifidni  <ds>, <StringSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <StringSeg>
+                endif
+                mov     dx, StringOfs
+                mov     al, AccessMode
+                DosCall DOS_OPEN_FILE
+            endif
+        endif
+    endif
+endm
+
+CloseFile   macro   Handle
+    ifb <Handle>
+        display "You must provide a file handle to CloseFile."
+        err
+    else
+        mov     bx, Handle
+        DosCall DOS_CLOSE_FILE
+    endif
+endm
+
+ReadFile    macro   Handle, Count, StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide Handle, Count and address parameters to ReadFile."
+        err
+    endm
+
+    ifb <Handle>
+        ErrMsg
+    else
+        ifb <Count>
+            ErrMsg
+        else
+            ifb <StringSeg>
+                ErrMsg
+            else
+                ifb <StringOfs>
+                    ErrMsg
+                else
+                    ifidni  <ds>, <StringSeg>
+                        ; Do nothing
+                    else
+                        LoadSegment <ds>, <StringSeg>
+                    endif
+                    mov     dx, StringOfs
+                    mov     cx, Count
+                    mov     bx, Handle
+                    DosCall DOS_READ_FROM_HANDLE
+                endif
+            endif
+        endif
+    endif
+endm
+
+WriteFile   macro   Handle, Count, StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide Handle, Count and address parameters to WriteFile."
+        err
+    endm
+
+    ifb <Handle>
+        ErrMsg
+    else
+        ifb <Count>
+            ErrMsg
+        else
+            ifb <StringSeg>
+                ErrMsg
+            else
+                ifb <StringOfs>
+                    ErrMsg
+                else
+                    ifidni  <ds>, <StringSeg>
+                        ; Do nothing
+                    else
+                        LoadSegment <ds>, <StringSeg>
+                    endif
+                    mov     dx, StringOfs
+                    mov     cx, Count
+                    mov     bx, Handle
+                    DosCall DOS_WRITE_TO_HANDLE
+                endif
+            endif
+        endif
+    endif
+endm
+
+DeleteFile  macro   StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide address parameters to OpenFile."
+        err
+    endm
+
+    ifb <StringSeg>
+        ErrMsg
+    else
+        ifb <StringOfs>
+            ErrMsg
+        else
+            ifidni  <ds>, <StringSeg>
+                ; Do nothing
+            else
+                LoadSegment <ds>, <StringSeg>
+            endif
+            mov     dx, StringOfs
+            DosCall DOS_DELETE_FILE
+        endif
+    endif
+endm
+
+MoveFilePtr macro   Mode, Handle, OffsetHigh, OffsetLow
+    ErrMsg  macro
+        display "You must provide Mode, Handle and offset parameters to MoveFilePtr."
+        err
+    endm
+
+    ifb <Mode>
+        ErrMsg
+    else
+        ifb <Handle>
+            ErrMsg
+        else
+            ifb <OffsetHigh>
+                ErrMsg
+            else
+                ifb <OffsetLow>
+                    ErrMsg
+                else
+                    mov     al, Mode
+                    mov     bx, Handle
+                    mov     cx, OffsetHigh
+                    mov     dx, OffsetLow
+                    DosCall DOS_MOVE_FILE_POINTER
+                endif
+            endif
+        endif
+    endif
+endm
+
+GetSetAttributes    macro   Mode, Attributes, StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide Mode, Attribute and address parameters to GetSetAttributes."
+        err
+    endm
+
+    ifb <Mode>
+        ErrMsg
+    else
+        ifb <Attributes>
+            ErrMsg
+        else
+            ifb <StringSeg>
+                ErrMsg
+            else
+                ifb <StringOfs>
+                    ErrMsg
+                else
+                    ifidni  <ds>, <StringSeg>
+                        ; Do nothing
+                    else
+                        LoadSegment <ds>, <StringSeg>
+                    endif
+                    mov     dx, StringOfs
+                    mov     al, Mode
+                    cmp     al, 1
+                    mov     cx, Attributes
+                    DosCall DOS_GET_SET_ATTRIBUTES
+                endif
+            endif
+        endif
+    endif
+endm
+
+IOCTL   macro   Function, HandleDrive, Count, BufSegDevInfo, BufferOfs
+    ErrMsg  macro
+        display "Caller must provide Function, HandleDrive, Count, BufferSeg,"
+        display "BufferOfs and DeviceInfo parameters to IOCTL."
+        err
+    endm
+
+    ifb <Function>
+        ErrMsg
+    else
+        ifb <HandlDrive>
+            ErrMsg
+        else
+            ifb <Count>
+                ErrMsg
+            else
+                ifnb    <BufferOfs>                   ; Assume that the buffer
+                    LoadSegment <ds>, <BufSegDevInfo> ; address parameters are
+                    mov     dx, BufferOfs             ; are defined
+                else                                  ; Assume that the Device
+                    mov     dx, BufSegDevinfo         ; information parameter
+                endif                                 ; is defined
+                mov     al, Function
+                mov     bx, HandleDrive
+                mov     cx, Count
+                DosCall <DOS_IOCTL>
+            endif
+        endif
+    endif
+endm
+
+DuplicateHandle macro   Handle
+    ifb <Handle>
+        display "Caller must provide Handle parameter to DuplicateHandle."
+        err
+    else
+        mov     bx, Handle
+        DosCall <DOS_DUPLICATE_HANDLE>
+    endif
+endm
+
+ForceDupHandle  macro   OriginalHandle, HandleCopy
+    ErrMsg  macro
+        display "Caller must provide handle parameters to ForceDupHandle."
+        err
+    endm
+
+    ifb <Original>
+        ErrMsg
+    else
+        ifb <Copy>
+            ErrMsg
+        else
+            mov     bx, OriginalHandle
+            mov     cx, HandleCopy
+            DosCall <DOS_FORCE_DUP_HANDLE>
+        endif
+    endif
+endm
+
+GetCurrentDir   macro   Drive, StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide Drive and address parameters to GetCurrentDir."
+        err
+    endm
+
+    ifb <Drive>
+        ErrMsg
+    else
+        ifb <StringSeg>
+            ErrMsg
+        else
+            ifb <StringOfs>
+                ErrMsg
+            else
+                ifidni  <ds>, <StringSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <StringSeg>
+                endif
+                mov     si, StringOfs
+                mov     dl, Drive
+                DosCall DOS_GET_DIRECTORY
+            endif
+        endif
+    endif
+endm
+
+AllocateMemory  macro   Paragraphs
+    ifb <Paragraphs>
+        display "You must provide the number of paragraphs to AllocateMemory."
+        err
+    else
+        mov     bx, Paragraphs
+        DosCall DOS_ALLOCATE_MEMORY
+    endif
+endm
+
+FreeMemory  macro   BlockAddress
+    ifb <BlockAddress>
+        display "You must provide the BlockAddress parameter to FreeMemory."
+        err
+    else
+        LoadSegment <es>, <BlockAddress>
+        DosCall DOS_FREE_MEMORY
+    endif
+endm
+
+ModifyMemory    macro   Size, MemoryBlock
+    ErrMsg  macro
+        display "You must provide the Size and MemoryBlock parameters to ModifyMemory."
+        err
+    endm
+
+    ifb <Size>
+        ErrMsg
+    else
+        ifb <MemoryBlock>
+            ErrMsg
+        else
+            ifidni  <es>, <MemoryBlock>
+                ; Do nothing
+            else
+                LoadSegment <es>, <MemoryBlock>
+            endif
+            mov     bx, Size
+            DosCall DOS_MODIFY_MEMORY
+        endif
+    endif
+endm
+
+Exec    macro   Type, ParmSeg, ParmOfs, ProgramSeg, ProgramOfs
+    ErrMsg  macro
+        display "Caller must provide Type and address parameters to Exec."
+        err
+    endm
+
+    ifb <Type>
+        ErrMsg
+    else
+        ifb <ParmSeg>
+            ErrMsg
+        else
+            ifb <ParmOfs>
+                ErrMsg
+            else
+                ifb <ProgramSeg>
+                    ErrMsg
+                else
+                    ifb <ProgramOfs>
+                        ErrMsg
+                    else
+                        mov     al, Type
+                        LoadSegment <es>, <ParmSeg>
+                        mov     bx, ParmOfs
+                        LoadSegment <ds>, <ProgramSeg>
+                        mov     dx, ProgramOfs
+                        DosCall <DOS_EXEC>
+                    endif
+                endif
+            endif
+        endif
+    endif
+endm
+
+TerminateProgram    macro   ErrorLevel
+    ifnb    <ErrorLevel>
+        mov al, ErrorLevel      ; Return optional errorlevel to DOS
+    endif
+    DosCall DOS_TERMINATE_EXE
+endm
+
+GetReturnCode   macro
+    DosCall <DOS_GET_RETURN_CODE>
+endm
+
+FindFirst   macro   Attributes, StringSeg, StringOfs
+    ErrMsg  macro
+        display "You must provide Attributes and address parameters to FindFirst."
+        err
+    endm
+
+    ifb <Attributes>
+        ErrMsg
+    else
+        ifb <StringSeg>
+            ErrMsg
+        else
+            ifb <StringOfs>
+                ErrMsg
+            else
+                ifidni  <ds>, <StringSeg>
+                    ; Do nothing
+                else
+                    LoadSegment <ds>, <StringSeg>
+                endif
+                mov     dx, StringOfs
+                mov     cx, Attributes
+                DosCall DOS_FIND_FIRST
+            endif
+        endif
+    endif
+endm
+
+FindNext    macro
+    DosCall DOS_FIND_NEXT
+endm
+
+GetVerifyFlag   macro
+    DosCall <DOS_GET_VERIFY_FLAG>
+endm
+
+RenameFile  macro   OrigSeg, OrigOfs, NewSeg, NewOfs
+    ErrMsg  macro
+        display "Caller must provide address parameters to RenameFile."
+        err
+    endm
+
+    ifb <OrigSeg>
+        ErrMsg
+    else
+        ifb <OrigOfs>
+            ErrMsg
+        else
+            ifb <NewSeg>
+                ErrMsg
+            else
+                ifb <NewOfs>
+                    ErrMsg
+                else
+                    LoadSegment <es>, <NewSeg>
+                    LoadSegment <ds>, <OrigSeg>
+                    mov     dx, OrigOfs
+                    mov     di, NewOfs
+                    DosCall <DOS_RENAME_FILE>
+                endif
+            endif
+        endif
+    endif
+endm
+
+GetSetFileDateTime  macro   GetSet, Handle, Time, Date
+    ErrMsg  macro
+        display "Caller must provide GetSet and Handle parameters to GetSetFileDateTime."
+        err
+    endm
+
+    ifb <GetSet>
+        ErrMsg
+    else
+        ifb <Handle>
+            ErrMsg
+        else
+            ifnb    <Time>
+                mov     cx, Time
+                ifb <Date>
+                    display "You must provide the Date parameter to GetSetFileDateTime."
+                    err
+                else
+                    mov     dx, Date
+                endif
+                mov     bx, Handle
+                mov     al, GetSet
+                DosCall <DOS_GET_SET_DATE_TIME>
+            endif
+        endif
+    endif
+endm
+
+GetSetAllocationStrategy    macro
+    DosCall <DOS_GET_SET_ALLOCATION>
+endm
+GetExtendedErrors   macro
+    xor     bx, bx
+    DosCall <DOS_GET_EXTENDED_ERRORS>
+endm
+
+CreateTemporaryFile macro   Attribute, FilenameSeg, FilenameOfs
+    ErrMsg  macro
+        display "Caller must provide Attribute and address parameters to CreateTemporaryFile."
+        err
+    endm
+
+    ifb <Attribute>
+        ErrMsg
+    else
+        ifb <FilenameSeg>
+            ErrMsg
+        else
+            ifb <FilenameOfs>
+                ErrMsg
+            else
+                LoadSegment <ds>, <FilenameSeg>
+                mov     dx, FilenameOfs
+                mov     cx, Attribute
+                DosCall <DOS_CREATE_TEMP_FILE>
+            endif
+        endif
+    endif
+endm
+
+CreateNewFile   macro   Attribute, FilenameSeg, FilenameOfs
+    ErrMsg  macro
+        display "Caller must provide Attribute and address parameters to CreateNewFile."
+        err
+    endm
+
+    ifb <Attribute>
+        ErrMsg
+    else
+        ifb <FilenameSeg>
+            ErrMsg
+        else
+            ifb <FilenameOfs>
+                ErrMsg
+            else
+                LoadSegment <ds>, <FilenameSeg>
+                mov     dx, FilenameOfs
+                mov     cx, Attribute
+                DosCall <DOS_CREATE_NEW_FILE>
+            endif
+        endif
+    endif
+endm
+
+ControlFileAccess   macro   LockUnlock, Handle, OffsetHigh, OffsetLow, LengthHigh, LengthLow
+    ErrMsg  macro
+        display "Caller must provide the function, file handle, record position and size"
+        display "parameters to ControlFileAccess."
+        err
+    endm
+
+    ifb <LockUnlock>
+        ErrMsg
+    else
+        ifb <Handle>
+            ErrMsg
+        else
+            ifb <OffsetHigh>
+                ErrMsg
+            else
+                ifb <OffsetLow>
+                    ErrMsg
+                else
+                    ifb <LengthHigh>
+                        ErrMsg
+                    else
+                        ifb <LengthLow>
+                            ErrMsg
+                        else
+                            mov     al, LockUnlock
+                            mov     bx, Handle
+                            mov     cx, OffsetHigh
+                            mov     dx, OffsetLow
+                            mov     si, LengthHigh
+                            mov     di, LengthLow
+                            DosCall <DOS_CONTROL_ACCESS>
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endif
+endm
+
+GetMachineName  macro   BufferSeg, BufferOfs
+    ErrMsg  macro
+        display "Caller must provide buffer address parameters to GetMachineName."
+        err
+    endm
+
+    ifb <BufferSeg>
+        ErrMsg
+    else
+        ifb <BufferOfs>
+            ErrMsg
+        else
+            LoadSegment <ds>, <BufferSeg>
+            mov     dx, BufferOfs
+            xor     al, al
+            DosCall <NET_GET_MACHINE_NAME>
+        endif
+    endif
+endm
+
+SetupPrinter    macro   BufferSeg, BufferOfs, ListIndex, StrLength
+    ErrMsg  macro
+        display "Caller must provide buffer address, Index and length parameters"
+        display "to SetupPrinter."
+        err
+    endm
+
+    ifb <BufferSeg>
+        ErrMsg
+    else
+        ifb <BufferOfs>
+            ErrMsg
+        else
+            ifb <ListIndex>
+                ErrMsg
+            else
+                ifb <StrLength>
+                    ErrMsg
+                else
+                    mov     al, 2
+                    mov     bx, ListIndex
+                    mov     cx, StrLength
+                    LoadSegment <ds>, <BufferSeg>
+                    mov     si, BufferOfs
+                    DosCall <NET_SET_PRINTER_SETUP>
+                endif
+            endif
+        endif
+    endif
+endm
+
+GetPrinterSetup macro   BufferSeg, BufferOfs, ListIndex
+    ErrMsg  macro
+        display "Caller must provide buffer address and Index parameters GetPrinterSetup."
+        err
+    endm
+
+    ifb <BufferSeg>
+        ErrMsg
+    else
+        ifb <BufferOfs>
+            ErrMsg
+        else
+            ifb <ListIndex>
+                ErrMsg
+            else
+                mov     al, 3
+                mov     bx, ListIndex
+                LoadSegment <es>, <BufferSeg>
+                mov     di, BufferOfs
+                DosCall <NET_GET_PRINTER_SETUP>
+            endif
+        endif
+    endif
+endm
+
+GetListEntry    macro   ListIndex, DeviceSeg, DeviceOfs, NetworkSeg, NetworkOfs
+    ErrMsg  macro
+        display "Caller must provide ListIndex and buffer address parameters to GetListEntry."
+        err
+    endm
+
+    ifb <ListIndex>
+        ErrMsg
+    else
+        ifb <DeviceSeg>
+            ErrMsg
+        else
+            ifb <DeviceOfs>
+                ErrMsg
+            else
+                ifb <NetworkSeg>
+                    ErrMsg
+                else
+                    ifb <NetworkOfs>
+                        ErrMsg
+                    else
+                        mov     al, 2
+                        mov     bx, ListIndex
+                        LoadSegment <ds>, <DeviceSeg>
+                        LoadSegment <es>, <NetworkSeg>
+                        mov     si, DeviceOfs
+                        mov     di, NetworkOfs
+                        DosCall <NET_GET_REDIRECTION_LIST>
+                    endif
+                endif
+            endif
+        endif
+    endif
+endm
+
+GetListEntry    macro   Type, Save, DeviceSeg, DeviceOfs, NetworkSeg, NetworkOfs
+    ErrMsg  macro
+        display "Caller must provide ListIndex and buffer address parameters to GetListEntry."
+        err
+    endm
+
+    ifb <Type>
+        ErrMsg
+    else
+        ifb <Save>
+            ErrMsg
+            ifb <DeviceSeg>
+                ErrMsg
+            else
+                ifb <DeviceOfs>
+                    ErrMsg
+                else
+                    ifb <NetworkSeg>
+                        ErrMsg
+                    else
+                        ifb <NetworkOfs>
+                            ErrMsg
+                        else
+                            mov     al, 3
+                            mov     bl, Type
+                            mov     cx, Save
+                            LoadSegment <ds>, <DeviceSeg>
+                            LoadSegment <es>, <NetworkSeg>
+                            mov     si, DeviceOfs
+                            mov     di, NetworkOfs
+                            DosCall <NET_REDIRECT_DEVICE>
+                        endif
+                    endif
+                endif
+            endif
+        endif
+    endif
+endm
+
+GetListEntry    macro   DeviceSeg, DeviceOfs
+    ErrMsg  macro
+        display "Caller must provide ListIndex and buffer address parameters to GetListEntry."
+        err
+    endm
+
+    ifb <DeviceSeg>
+        ErrMsg
+    else
+        ifb <DeviceOfs>
+            ErrMsg
+        else
+            mov     al, 4
+            mov     cx, Save
+            LoadSegment <ds>, <DeviceSeg>
+            mov     si, DeviceOfs
+            DosCall <NET_CANCEL_REDIRECT>
+        endif
+    endif
+endm
+
+GetPSPAddress   macro
+    DosCall <DOS_GET_PSP>
+endm
+
+LeadByteTable   macro   Function, Console
+    ifb <Function>
+        display "Caller must provide Function parameter to LeadByteTable."
+        err
+    else
+        ifnb    <Console>
+            mov     dl, Console
+        else
+            mov     al, Function
+            DosCall <DOS_GET_LEAD_BYTE_TABLE>
+        endif
+    endif
+endm
+

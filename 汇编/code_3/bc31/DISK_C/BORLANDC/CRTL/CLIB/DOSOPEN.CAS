@@ -1,0 +1,81 @@
+/*-----------------------------------------------------------------------*
+ * filename - _dos_open.cas
+ *
+ * function(s)
+ *        _dos_open - opens a file for reading or writing (MSC)
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1991, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <fcntl.h>
+#include <_io.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            _dos_open - opens a file for reading or writing
+
+Usage           #include <fcntl.h>
+                unsigned _dos_open(const char *pathname, unsigned oflag,
+                                int *handle);
+
+Prototype in    dos.h
+
+Description     _dos_open opens the file pathname with the access mode
+                specified by oflag.  See _open for information on
+                oflag.  If the open is successful, the file handle
+                is stored at *handle.
+
+Return value    success : 0
+                else    : the DOS error code, and errno is set.
+
+Note            Compatible with Microsoft C.  Not the same as _open().
+
+*------------------------------------------------------------------------*/
+
+unsigned _dos_open (const char *pathP, unsigned oflag, int *handle )
+{
+/* Convert Borland access mode flags to DOS access mode:
+ *      Borland         DOS
+ *      =======         ===
+ *      O_RDONLY        0
+ *      O_WRONLY        1
+ *      O_RDWR          2
+ */
+asm     mov     cl, oflag
+asm     mov     al, 1
+asm     test    cl, O_WRONLY
+asm     jnz     ready
+asm     mov     al, 2
+asm     test    cl, O_RDWR
+asm     jnz     ready
+asm     mov     al, 0   /* assume O_RDONLY is set, since others aren't */
+
+/* Put DOS inheritance and sharing flags in high nibble of access mode,
+ * and open the file.
+ */
+ready:
+asm     and     cl, 0F0h
+asm     or      al, cl
+asm     mov     ah, 3Dh
+        pushDS_
+asm     LDS_    dx, pathP
+asm     int     21h             /* AX = open (DS:DX, AL) */
+        popDS_
+asm     jc      _openFailed
+
+asm     LES_    bx,handle       /* *handle = fd */
+asm     mov     ES_ [bx],ax
+        return (0);
+
+_openFailed:
+        return (__DOSerror(_AX));       /* set errno */
+}

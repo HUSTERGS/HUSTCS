@@ -1,0 +1,38 @@
+/*-----------------------------------------------------------------------*
+ * filename - setdta.dta
+ *
+ * function(s)
+ *        setdta - sets disk transfer address
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <dos.h>
+
+/*-----------------------------------------------------------------------*
+
+Name            setdta - sets disk transfer address
+
+Usage           void setdta(char far *dta);
+
+Prototype in    dos.h
+
+Description     see getdta
+
+*------------------------------------------------------------------------*/
+void setdta(char far *dta)
+{
+asm     push    ds
+asm     mov     ah, 01Ah
+asm     lds     dx, dta
+asm     int     021H
+asm     pop     ds
+}

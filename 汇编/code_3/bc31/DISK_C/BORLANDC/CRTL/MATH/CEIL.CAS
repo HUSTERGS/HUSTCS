@@ -1,0 +1,55 @@
+/*------------------------------------------------------------------------
+ * filename - ceil.cas
+ *
+ * function(s)
+ *        ceil - rounds up
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            ceil - rounds up
+
+Usage           double ceil(double x);
+
+Prototype in    math.h
+
+Description     ceil finds the smallest integer not less than x.
+
+Return value    ceil returns the integer found as a double.
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+
+double _FARFUNC ceil( double x )
+{
+asm     FLD     DOUBLE (x)
+
+asm     mov     ax, x [6]
+asm     shl     ax, 1
+asm     cmp     ax, 7FE0h + 06A0h       /* 2^53, maximum double precision */
+asm     ja      dlm_beyond
+
+asm     mov     ch, 08          /* iNDP-87 control bits for ceiling mode */
+        __round();
+
+dlm_beyond:                     /* magnitudes beyond 2^53 have no fraction */
+dlm_end:
+        return;
+}
+#pragma warn .rvl

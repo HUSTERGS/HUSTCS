@@ -1,0 +1,12 @@
+// ObjectWindows - (C) Copyright 1992 by Borland International
+
+#include "cctltest.h"
+
+COMMANDS MENU
+BEGIN
+  MENUITEM "&Color", CM_COLOR
+END
+
+#include "colordlg.dlg"
+
+

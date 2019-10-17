@@ -1,0 +1,174 @@
+/*-----------------------------------------------------------------------*
+ * filename - read.cas
+ *
+ * function(s)
+ *        read - reads from file
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+#include <io.h>
+#include <_io.h>
+#include <fcntl.h>
+#include <RtlData.h>
+
+#define _ctlZ  26
+
+/*-----------------------------------------------------------------------*
+
+Name            read - reads from file
+
+Usage           int read(int handle, void *buf, unsigned nbyte);
+
+Related
+functions usage int _read(int handle, void *buf, unsigned nbyte);
+
+Prototype in    io.h
+
+Description     read and _read attempt to read nbyte bytes from the
+                file  associated with handle into the buffer pointed to by buf.
+                _read is a direct call to the MS-DOS read system call.
+
+                For a file opened in text mode, read removes carriage returns
+                and reports end-of-file when a <Ctrl-Z> character is read. No
+                such removal or reporting is performed by _read.
+
+                handle is a file handle obtained from a creat, open, dup, dup2,
+                or fcntl call.
+
+                On disk files, these functions begin reading at the current
+                file pointer. When the reading is complete, they increment the
+                file pointer by the number of bytes read. On devices, the bytes
+                are read directly from the device.
+
+*------------------------------------------------------------------------*/
+
+/* NOTE: This function is named __read for internal library use.
+ * The user entry point is in readu.asm.
+ */
+
+int _CType _FARFUNC __read (int fd, void *buf, unsigned int len)
+{
+#if 0
+        char    *top;       // CHECK
+        char    *bottom;
+#endif
+        register unsigned       dlen;
+        char    c;
+        _QRTLDataBlock;
+
+        if ((unsigned)fd >= _QRTLInstanceData(_nfile))
+                return __IOerror(e_badHandle);
+
+        if ((len + 1) < 2 || _QRTLInstanceData(_openfd)[fd] & _O_EOF)
+                return( 0 );  /* 0, -1 are not allowed lengths */
+
+        do {
+                dlen = _read (fd, buf, len);
+                if ((dlen + 1) < 2  ||
+                     (_QRTLInstanceData(_openfd)[fd] & O_TEXT) == 0)
+                        return(dlen);
+
+                /* Squeeze out carriage returns */
+#if 0
+                top = bottom = buf;
+                do {
+                        if ((c = *top++) == _ctlZ) {
+                                lseek (fd, -dlen, SEEK_END);
+                _QInstanceData(_openfd)[fd] |= _O_EOF; /* note that ^Z EOF has been seen */
+                return(bottom - buf);
+                        }
+                        else {
+                                if (c != '\r')
+                                        *bottom++ = c;
+                                else if (1 == dlen) {
+                                        _read (fd, &c, 1);
+                                        *bottom++ = c;
+                                }
+                        }
+                } while (--dlen);
+        } while ((bottom - buf) == 0);
+
+        return bottom - buf;
+
+#endif
+
+asm     mov     cx, dlen
+asm     LES_    si, buf
+#if (! LDATA)
+asm     push    DS
+asm     pop     ES
+#endif
+asm     mov     di, si
+asm     mov     bx, si
+asm     cld
+squeeze:
+asm             lods    BY0 (ES_ [si])
+asm             cmp     al, _ctlZ
+asm             je      endSeen
+asm             cmp     al, 0Dh         /* '\r' */
+asm             je      elseSqueeze
+asm             stosb
+whileSqueeze:
+asm             loop    squeeze
+asm             jmp     short  squeezeBreak
+
+elseSqueeze:
+asm             loop    squeeze         /* if (1 == dlen)  */
+asm             push    ES
+asm             push    bx
+
+asm             mov     ax, 1
+asm             push    ax
+asm             lea     ax, c
+#if LDATA
+asm             push    SS
+#endif
+asm             push    ax
+asm             push    fd              /*     _read (fd, &c, 1);  */
+asm             call    EXTPROC (_read)
+asm             add     sp, 4 + dPtrSize
+
+asm             pop     bx
+asm             pop     ES
+asm             cld
+asm             mov     al, c
+
+asm             stosb                   /*     *bottom++ = c; */
+
+squeezeBreak: ;
+        } while (_DI == _BX);
+asm     jmp  short doneText
+
+endSeen:
+asm     push bx              /* keep safe */
+
+asm     mov  ax, SEEK_CUR
+asm     push    ax
+asm     neg     cx
+asm     sbb     ax, ax
+asm     push    ax
+asm     push    cx
+asm     push    W0 (fd)
+asm     call    EXTPROC(lseek)  /* lseek (fd, -dlen, SEEK_CUR); */
+asm     add     sp, 8
+
+    _QRTLInstanceData(_openfd)[fd] |= _O_EOF;   /* note that ^Z EOF has been seen  */
+
+asm     pop     bx
+
+doneText:
+asm     sub     di, bx
+asm     xchg    ax, di
+
+return _AX;
+}

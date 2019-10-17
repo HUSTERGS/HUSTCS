@@ -1,0 +1,91 @@
+/*------------------------------------------------------------------------
+ * filename - hypot.cas
+ *
+ * function(s)
+ *        hypot - calculates hypotenuse of right angle
+ *-----------------------------------------------------------------------*/
+
+/*
+ *      C/C++ Run Time Library - Version 5.0
+ *
+ *      Copyright (c) 1987, 1992 by Borland International
+ *      All Rights Reserved.
+ *
+ */
+
+
+#pragma inline
+#include <asmrules.h>
+
+#include <_math.h>
+#include <math.h>
+#include <errno.h>
+
+
+/*--------------------------------------------------------------------------*
+
+Name            hypot - calculates hypotenuse of right angle
+
+Usage           double hypot(double x, double y);
+
+Prototype in    math.h
+
+Description     hypot calculates the value z where
+                        z^2 = x^2 + y^2
+
+                This is  equivalent to the   length of the  hypotenuse of a
+                right triangle, if  the lengths of the two sides  are x and
+                y.
+
+Return value    hypot returns sqrt (x^2 + y^2);
+                On  error (such  as an  overflow), hypot  returns the value
+                HUGE_VAL, and sets errno to
+                        ERANGE  Value out of range
+
+*---------------------------------------------------------------------------*/
+#pragma warn -rvl
+
+double _FARFUNC hypot( double x, double y )
+{
+        unsigned temp;
+
+asm     FLD     DOUBLE (x)
+asm     mov     ax, x [6]
+asm     FMUL    st, st                  /*      (z.x)^2 */
+asm     shl     ax, 1
+asm     cmp     ax, 0FFE0h
+asm     jnb     hyp_infiniteX
+
+asm     FLD     DOUBLE (y)
+asm     mov     ax, y [6]
+asm     FMUL    st, st                  /*               (z.y)^2        */
+asm     shl     ax, 1
+asm     cmp     ax, 0FFE0h
+asm     jnb     hyp_infiniteY
+
+asm     FADD                            /*       --"--  +  --"--        */
+asm     FSQRT                           /* sqrt (               )       */
+#ifdef __HUGE__
+asm     mov     ax, seg HUGE_VAL
+asm     mov     es,ax
+asm     FCOM    es: DOUBLE (HUGE_VAL)
+#else
+asm     FCOM    DOUBLE (HUGE_VAL)
+#endif
+asm     FSTSW   temp
+asm     test    temp, 04500H
+asm     jz      hyp_infiniteX           /* Result too large for double  */
+hyp_end:
+        return;
+
+
+hyp_infiniteY:
+asm     FSTP    st(0)                   /* pop y off stack      */
+hyp_infiniteX:
+asm     FSTP    st(0)                   /* pop x off stack      */
+
+#pragma warn -ret
+        return  _matherr (OVERFLOW, "hypot", &x, &y, HUGE_VAL);
+#pragma warn .ret
+}
+#pragma warn .rvl
