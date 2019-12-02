@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.s": "gas",
+        "*.rmd": "markdown",
+        "wait.h": "c"
+    }
+}
