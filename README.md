@@ -14,23 +14,14 @@
 
 ## 文件说明
 
-<details>
-    <summary>C语言实验</summary>
-    * C 语言实验
-    	* `U201714668-HUSTERGS.docx` ： **报告**
-    * 在线题目
-    	> 在线OJ代码
-    
+<details><summary>C语言</summary>
+
+  * C 语言实验
+    * `U201714668-HUSTERGS.docx` ： **报告**
+  * 在线题目
+    > 在线OJ代码
 </details>
-
-
-
-
-​    	
-
-
-
-* 数据结构实验
+<details><summary>数据结构实验</summary>
 
   * Graph
 
@@ -51,8 +42,8 @@
     `2017-数据结构实验报告格式示例（2016级）.docx` ：报告格式说明
 
     `CS-HUSTERGS.docx `：**报告**
-
-* 数据结构课设
+</details>
+<details><summary>数据结构课设</summary>
 
   * LastTry
 
@@ -75,8 +66,9 @@
     `CS1703-U201714668-葛松.docx` ：**报告**
 
     `README.md`：使用说明
+</details>
 
-* 汇编
+<details><summary>汇编</summary>
 
   * code_1
 
@@ -97,8 +89,9 @@
     `demo.asm`：最后一次GUI实验提供的demo
 
     `README.md`：啥都没写的readme
+</details>
 
-* 计算机系统基础
+<details><summary>计算机系统基础</summary>
 
   * lab1
 
@@ -128,7 +121,9 @@
 
     `CS1703_U201714668`：**报告**
 
-* 计算机组成原理
+</details>
+
+<details><summary>计算机组成原理</summary>
 
   * 实验1
 
@@ -163,11 +158,14 @@
     `sort.hex`用于载入命令rom的冒泡排序程序
   
     其余文件具体看[mooc](http://www.icourse163.org/learn/HUST-1205809816)，此处不再赘述
-  
-* 计算机操作系统实验
+</details>
+<details><summary>计算机操作系统</summary>
 
   * exp1
-
     `exp1.c`:代码
 
     `exp1.pdf`: 实验说明 
+</details>
+
+
+    
