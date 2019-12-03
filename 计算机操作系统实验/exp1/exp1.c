@@ -9,16 +9,13 @@
 int p1;
 int p2;
 int pipefd[2];
-int pipe_id;
-char buffer[BUFSIZ];
-
 
 // SIGINT signal handler for parent process
 void my_func(int signum) {
     signal(SIGINT, SIG_DFL);
     kill(p1, SIGTERM);
     kill(p2, SIGTERM);
-    close(pipe_id);
+    
 }
 
 void p1_killed() {
@@ -33,7 +30,8 @@ void p2_killed() {
 
 int main() {
     // Ctrl + C will emit SIGINT signal
-    pipe_id = pipe(pipefd);
+    char buffer[BUFSIZ];
+    pipe(pipefd);
     signal(SIGINT, my_func);
     p1 = fork();
     if (p1 == 0) {
@@ -60,10 +58,13 @@ int main() {
                 printf("%s", buffer);
             }
         } else {
+            // parent process
             waitpid(p1, NULL, 0);
             waitpid(p2, NULL, 0);
+            close(pipefd[0]);
+            close(pipefd[1]);
             printf("Parent Process is Killed\n");
-    		return 0;
+            return 0;
         }
     }
 }
