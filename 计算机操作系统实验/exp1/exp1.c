@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <string.h>
 
 
 // set p1, p2 and pipe_id as global to make sure `my_func` have access to them when called
@@ -20,8 +19,6 @@ void my_func(int signum) {
     kill(p1, SIGTERM);
     kill(p2, SIGTERM);
     close(pipe_id);
-    printf("Parent Process is Killed\n");
-    exit(EXIT_SUCCESS);
 }
 
 void p1_killed() {
@@ -65,6 +62,8 @@ int main() {
         } else {
             waitpid(p1, NULL, 0);
             waitpid(p2, NULL, 0);
+            printf("Parent Process is Killed\n");
+    		return 0;
         }
     }
 }
