@@ -11,9 +11,11 @@
 * 计算机操作系统
 * 汇编
 内含相关资料、报告以及代码
+* 软件工程
+* 大数据导论
 
 ## 文件说明
-
+### 大一上:
 <details><summary>C语言</summary>
 
   * C 语言实验
@@ -21,6 +23,8 @@
   * 在线题目
     > 在线OJ代码
 </details>
+
+### 大二上:
 <details><summary>数据结构实验</summary>
 
   * Graph
@@ -43,6 +47,8 @@
 
     `CS-HUSTERGS.docx `：**报告**
 </details>
+
+### 大二下:
 <details><summary>数据结构课设</summary>
 
   * LastTry
@@ -123,6 +129,7 @@
 
 </details>
 
+### 大三上：
 <details><summary>计算机组成原理</summary>
 
   * 实验1
@@ -165,6 +172,20 @@
     `exp1.c`:代码
 
     `exp1.pdf`: 实验说明 
+</details>
+
+<details><summary>大数据导论</summary>
+
+  * `大数据报告.docx`: 课程报告(删去了同组人员)
+  > 基于之前[新加坡的暑期项目](https://github.com/Langford-tang/University-Logo-Deep-Learning-Community-Detection)，个人感觉参考价值不大
+</details>
+
+<details><summary>软件工程课设</summary>
+  
+  * `2019《软件工程》项目任务书（2017级）.docx`: 任务书
+  * `《软件工程》项目报告撰写内容及规范化参考样本.docx`: 报告样本
+  * 项目链接: [数独App](https://github.com/HUSTERGS/SoftwareEngineeringProject)
+  > 做的实在不太行，参考价值不大，没有提供报告，只有任务书以及报告样本
 </details>
 
 
