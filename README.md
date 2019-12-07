@@ -14,11 +14,14 @@
 * 软件工程
 * 大数据导论
 
+可以使用[DownGit](https://minhaskamal.github.io/DownGit/)来下载单个文件/文件夹
+
 ## 文件说明
 ### 大一上:
 <details><summary>C语言</summary>
 
   * C 语言实验
+    
     * `U201714668-HUSTERGS.docx` ： **报告**
   * 在线题目
     > 在线OJ代码
@@ -181,7 +184,7 @@
 </details>
 
 <details><summary>软件工程课设</summary>
-  
+
   * `2019《软件工程》项目任务书（2017级）.docx`: 任务书
   * `《软件工程》项目报告撰写内容及规范化参考样本.docx`: 报告样本
   * 项目链接: [数独App](https://github.com/HUSTERGS/SoftwareEngineeringProject)
@@ -189,4 +192,4 @@
 </details>
 
 
-    
+​    
