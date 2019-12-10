@@ -177,7 +177,11 @@
     `exp1.pdf`: 实验说明 
   * exp2
     `exp2.c`: 代码
+
+    `exp2p.c`: 进程版本的代码，区别在于使用了共享内存
+
     `exp2.pdf`: 实验说明
+
 </details>
 
 <details><summary>大数据导论</summary>
