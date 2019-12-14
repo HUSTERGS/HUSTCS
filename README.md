@@ -100,6 +100,24 @@
     `README.md`：啥都没写的readme
 </details>
 
+<details><summary>数字逻辑</summary>
+
+  * 1
+    * `1.circ`: 电路
+    * `1.docx`: 报告
+  * 2
+    * `2_1.circ`: 第一部分电路
+    * `2_2.circ`: 第二部分电路
+    * `2.docx`: 报告
+  * 3
+    * `3.circ`: 电路
+    * `3.docx`: 报告
+  * 4
+    * `4.circ`: 电路
+    * `4.docx`: 报告
+
+</details>
+
 <details><summary>计算机系统基础</summary>
 
   * lab1
