@@ -194,6 +194,7 @@
     `exp1.c`:代码
 
     `exp1.pdf`: 实验说明 
+
   * exp2
   
     `exp2.c`: 代码
@@ -201,6 +202,17 @@
     `exp2p.c`: 进程版本的代码，区别在于使用了共享内存
 
     `exp2.pdf`: 实验说明
+
+  * exp3
+  
+    `exp3.c`: 代买
+
+    `exp3.pdf`: 实验说明
+
+    `input.txt`: 测试输入文件
+
+    `output.txt`: 测试输出文件
+  
 
 </details>
 
