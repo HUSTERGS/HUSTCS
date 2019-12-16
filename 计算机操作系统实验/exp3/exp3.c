@@ -41,15 +41,18 @@ int main(void) {
     // 信号灯集
     int semid;
     // 创建共享分区，大小为buff
-    int share_buffer = shmget(IPC_PRIVATE, sizeof(char) * BUFFSIZE, IPC_CREAT | 0666);
+    int share_buffer = shmget(IPC_PRIVATE, sizeof(unsigned char) * BUFFSIZE, IPC_CREAT | 0666);
     // 两个Index, in_index和out_index
     int finish_flag = shmget(IPC_PRIVATE, sizeof(bool), IPC_CREAT | 0666);
-    int in_index_id = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
+    int in_index_id = shmget(IPC_PRIVATE, sizeof(long long), IPC_CREAT | 0666);
     *(int *)shmat(in_index_id, NULL, SHM_R) = 0;
     // 先暂时这么写
     const char * source = "input.txt";
     const char * target = "output.txt";
-
+    // const char * source = "exp3.pdf";
+    // const char * target = "test.pdf";
+    // const char * source = "source.png";
+    // const char * target = "output.png";
     // 测试文件是否可以正常访问
     FILE * source_file = fopen(source, "r");
     if (source_file == NULL) {
@@ -85,31 +88,31 @@ int main(void) {
             int write_buff = fork();
             if (write_buff == 0) {
                 // 写进程当中
-                char c; // 暂时存储文件数据
+                unsigned char c; // 暂时存储文件数据
                 source_file = fopen(source, "r");
-                int * in_index = (int *)shmat(in_index_id, NULL, SHM_W); // 用于标志写入的位置
-                char * buffer = (char *)shmat(share_buffer, NULL, SHM_W);
+                long long * in_index = (long long *)shmat(in_index_id, NULL, SHM_W); // 用于标志写入的位置
+                unsigned char * buffer = (unsigned char *)shmat(share_buffer, NULL, SHM_W);
                 bool * finished = (bool *)shmat(finish_flag, NULL, SHM_W);
-                c = fgetc(source_file);
-                if (c == EOF) {
-                    // 文件为空
+
+                if (fread(&c, 1, sizeof(unsigned char), source_file) <= 0) {
+                    printf("文件为空\n");
                     exit(EXIT_SUCCESS);
                 }
                 while(true) {
                     P(semid, 0);
                     *(buffer + (*in_index) % BUFFSIZE) = c;
-                    // printf("填入缓冲区%c, 此时in_index = %d\n", c,  (*in_index));
-                    (*in_index)++;
-                    // 此时的c是下一轮的字符
-                    c = fgetc(source_file);
-                    if (c == EOF) {
-                        // P(semid, 2);
+                    // printf("填入缓冲区%c, 此时in_index = %lld\n", c,  (*in_index));
+                    
+                    if (fread(&c, 1, sizeof(unsigned char), source_file) <= 0) {
+                        printf("文件结束\n");
                         *finished = true;
-                        // V(semid, 2);
                         V(semid, 1);
                         fclose(source_file);
                         break;
                     }
+                    // sleep(0.1);
+                    (*in_index)++;
+                    (*in_index) %= BUFFSIZE;
                     V(semid, 1);
                 }
 
@@ -117,25 +120,25 @@ int main(void) {
                 int read_buff = fork();
                 if (read_buff == 0) {
                     // 读进程
-                    target_file = fopen(target, "a");
-                    int out_index = 0;
-                    char * buffer = (char *)shmat(share_buffer, NULL, SHM_R);
+                    target_file = fopen(target, "w");
+                    long long out_index = 0;
+                    unsigned char * buffer = (unsigned char *)shmat(share_buffer, NULL, SHM_R);
                     bool * finished = (bool *)shmat(finish_flag, NULL, SHM_R);
-                    int * in_index = (int *)shmat(in_index_id, NULL, SHM_R);
-                    char c;
+                    long long * in_index = (long long *)shmat(in_index_id, NULL, SHM_R);
+                    unsigned char c;
                     while (true)
                     {
                         P(semid, 1);
                         c = *(buffer + out_index % BUFFSIZE);
-                        fputc(c, target_file);
+                        fwrite(&c,1, sizeof(unsigned char), target_file);
                         out_index++;
-                        // printf("写入文件%c, 此时out_index = %d\n", c, out_index);
+                        out_index %= BUFFSIZE;
+                        // printf("写入文件%c, 此时out_index = %lld, in_index = %lld\n", c, out_index, *in_index);
                         V(semid, 0);
-                        // P(semid, 2);
-                        if ((*finished) && out_index == (*in_index)) {
-                            // V(semid, 2);
+                        if ((*finished) && (out_index == ((*in_index) + 1) % BUFFSIZE)) {
                             fclose(target_file);
-                            break;
+                            printf("文件结束啦");
+                            exit(EXIT_SUCCESS);
                         }
                     }
                 } else {
