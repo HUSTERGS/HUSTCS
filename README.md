@@ -205,13 +205,18 @@
 
   * exp3
   
-    `exp3.c`: 代买
+    `exp3.c`: 代码
 
     `exp3.pdf`: 实验说明
 
     `input.txt`: 测试输入文件
 
     `output.txt`: 测试输出文件
+  
+  * exp4
+    * `exp4.c`: 代码
+
+    * `exp4.pdf`: 实验说明
   
 
 </details>
