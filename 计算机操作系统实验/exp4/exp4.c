@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +7,7 @@
 #include <pwd.h>
 #include <time.h>
 
+#include<getopt.h>
 // 颜色输出
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -17,8 +17,11 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-#define RECURSIVE 0
-#define BEGIN_PATH "/home/samuel/"
+
+int RECURSIVE = 0;
+int COLOR = 0;
+char * PATH = NULL;
+
 
 const char * track_symbolic_link(const char * path, char * buff, unsigned int size) {
     readlink(path, buff, size);
@@ -74,15 +77,31 @@ void printStat(struct stat * statBuf, const char * name, int depth) {
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&(statBuf->st_mtim.tv_sec)));
     printf("\t%s", buffer);
 
+    // 文件创建时间，注释掉了，需要的可以取消注释
+//    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localtime(&(statBuf->st_ctim.tv_sec)));
+//    printf("\t%s", buffer);
+
     // 文件名
     switch (statBuf->st_mode & S_IFMT) {
 //        case S_IFBLK:  printf("b");             break;
 //        case S_IFCHR:  printf("c");             break;
-        case S_IFDIR:  printf(ANSI_COLOR_BLUE " %s \n" ANSI_COLOR_RESET, name);             break;
+        case S_IFDIR:  {
+            if (COLOR) {
+                printf(ANSI_COLOR_BLUE " %s \n" ANSI_COLOR_RESET, name);
+            } else {
+                printf(" %s \n", name);
+            }
+            break;
+        }
 //        case S_IFIFO:  printf("p");             break;
         case S_IFLNK:  {
             // 如果是链接文件
-            printf(ANSI_COLOR_GREEN " %s -> " ANSI_COLOR_RESET, name);
+            if (COLOR) {
+                printf(ANSI_COLOR_GREEN " %s -> " ANSI_COLOR_RESET, name);
+
+            } else {
+                printf(" %s -> ", name);
+            }
             printf(" %s\n", track_symbolic_link(name, buffer, sizeof(buffer)));
             break;
         }
@@ -126,7 +145,35 @@ void printdir(char * dir, int depth) {
     chdir("..");
 }
 
-int main(void) {
-    printdir(BEGIN_PATH, 0);
+void usage() {
+    printf("\nUsage: \n"
+           "exp4 [-r][-c] -p PATH\n"
+           "-r : Recursive\n"
+           "-c : Highlight directory and symbolic link\n");
+}
+
+
+int main(int argc, char * argv[]) {
+    int opt;
+    char * string = "rcp:";
+    while((opt = getopt(argc, argv, string)) != -1) {
+        switch (opt) {
+            case 'r': RECURSIVE = 1;
+                break;
+            case 'c': COLOR = 1;
+                break;
+            case 'p':
+                PATH = optarg;
+                break;
+            case '?':
+                usage();
+                break;
+        }
+    }
+    if (PATH) {
+        printdir(PATH, 0);
+    } else {
+        usage();
+    }
     return 0;
 }
