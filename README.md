@@ -2,6 +2,9 @@
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/HUSTERGS/HUSTCS?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/HUSTERGS/HUSTCS?style=flat-square)
+![GitHub license](https://img.shields.io/github/license/HUSTERGS/HUSTCS.svg)
+
+
 文件存留
 
 * C语言
