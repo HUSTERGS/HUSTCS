@@ -1,4 +1,7 @@
 # HUSTCS
+
+![GitHub repo size](https://img.shields.io/github/repo-size/HUSTERGS/HUSTCS?style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/HUSTERGS/HUSTCS?style=flat-square)
 文件存留
 
 * C语言
@@ -217,7 +220,7 @@
     * `exp4.c`: 代码，支持对文件夹的以及软连接的高亮，以及软连接的目标显示
 
     * `exp4.pdf`: 实验说明
-  
+
 
 </details>
 
