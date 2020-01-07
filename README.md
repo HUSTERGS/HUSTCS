@@ -3,7 +3,6 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/HUSTERGS/HUSTCS?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/HUSTERGS/HUSTCS?style=flat-square)
 ![GitHub license](https://img.shields.io/github/license/HUSTERGS/HUSTCS?style=flat-square)
-
 ![GitHub stars](https://img.shields.io/github/stars/HUSTERGS/HUSTCS?style=flat-square)
 
 
