@@ -3,7 +3,6 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/HUSTERGS/HUSTCS?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/HUSTERGS/HUSTCS?style=flat-square)
 ![GitHub license](https://img.shields.io/github/license/HUSTERGS/HUSTCS?style=flat-square)
-![GitHub stars](https://img.shields.io/github/stars/HUSTERGS/HUSTCS?style=flat-square)
 
 
 
@@ -21,6 +20,7 @@
 内含相关资料、报告以及代码
 * 软件工程
 * 大数据导论
+* 计算机网络实验
 
 可以使用[DownGit](https://minhaskamal.github.io/DownGit/)来下载单个文件/文件夹
 
@@ -241,6 +241,20 @@
   * `《软件工程》项目报告撰写内容及规范化参考样本.docx`: 报告样本
   * 项目链接: [数独App](https://github.com/HUSTERGS/SoftwareEngineeringProject)
   > 做的实在不太行，参考价值不大，没有提供报告，只有任务书以及报告样本
+</details>
+
+<details><summary>计算机网络实验</summary>
+
+  直接访问[对应仓库](https://github.com/HUSTERGS/Computer_Network)或在`clone`后执行以下命令
+  ```sh
+  git submodule init
+  git submodule update
+  ```
+  或在clone时加入 `--recursive`选项
+  ```sh
+  git clone git@github.com:HUSTERGS/HUSTCS.git --recursive
+  ```
+  文件说明请直接查看对应仓库[README.md](https://github.com/HUSTERGS/Computer_Network/blob/master/README.md)
 </details>
 
 
