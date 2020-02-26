@@ -263,3 +263,12 @@
 
 
 ​    
+
+## 相关仓库
+
+[HUSTER-CS](https://github.com/AlexFanw/HUSTER-CS) [@AlexFanw](https://github.com/AlexFanw/)
+
+[awesome-hust](https://github.com/recolic/awesome-hust) [@recolic ](https://github.com/recolic/) (强烈推荐)
+
+[HUST-Homeworks](https://github.com/husixu1/HUST-Homeworks) [@husixu1](https://github.com/husixu1)
+
