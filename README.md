@@ -4,12 +4,6 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/HUSTERGS/HUSTCS?style=flat-square)
 ![GitHub license](https://img.shields.io/github/license/HUSTERGS/HUSTCS?style=flat-square)
 
----
-
-**备注**: 由于组原课程要求，课设相关文件在课程结束之前将不再更新。此外，由于本人比较菜，额外分配的4条指令实现方式似乎有问题，也即`cpu24.circ`不再具有参考价值。
-
----
-
 文件存留
 
 * C语言
