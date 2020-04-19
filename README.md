@@ -20,7 +20,7 @@
 * 大数据导论
 * 计算机网络实验
 
-可以使用[DownGit](https://minhaskamal.github.io/DownGit/)来下载单个文件/文件夹
+可以使用[GitZip](http://kinolien.github.io/gitzip/)来下载单个文件/文件夹
 
 ## 文件说明
 ### 大一上:
