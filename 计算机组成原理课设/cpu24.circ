@@ -2692,34 +2692,9 @@
       <a name="labelfont" val="Dialog plain 12"/>
       <a name="labelcolor" val="#000000"/>
       <a name="contents">addr/data: 10 32
-20110001 8000c05 20110001 20120002 20130003 8000c09 20110001 20120002
-20130003 8000c0d 20110001 20120002 20130003 8000c11 20110001 20120002
-20130003 c000cb8 20100001 20110001 118fc0 112020 20020022 c
-118882 12200001 8000c15 112020 20020022 c 20110001 118880
-112020 20020022 c 12200001 8000c1f 20110001 118fc0 112020
-20020022 c 1188c3 112020 20020022 c 118903 112020
-20020022 c 118903 112020 20020022 c 118903 112020
-20020022 c 118903 112020 20020022 c 118903 112020
-20020022 c 118903 112020 20020022 c 118903 112020
-20020022 c 20100001 109fc0 139fc3 8021 2012000c 24160003
-26100001 3210000f 20080008 20090001 139900 2709825 132020 20020022
-c 1094022 1500fff9 22100001 2018000f 2188024 108700 20080008
-20090001 139902 2709825 132021 20020022 c 1094022 1500fff9
-108702 2c9b022 12c00001 8000c50 4020 1084027 84400 3508ffff
-82021 20020022 c 2010ffff 20110000 ae300000 22100001 22310004
-ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000 22100001
-22310004 ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000
-22100001 22310004 ae300000 22100001 22310004 ae300000 22100001 22310004
-ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000 22100001
-22310004 ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000
-22100001 22310004 ae300000 22100001 22310004 22100001 8020 2011003c
-8e130000 8e340000 274402a 11000002 ae330000 ae140000 2231fffc 1611fff8
-102020 20020022 c 22100004 2011003c 1611fff2 20020032 c
-20100000 22100001 102020 20020022 c 22100002 102020 20020022
-c 22100003 102020 20020022 c 22100004 102020 20020022
-c 22100005 102020 20020022 c 22100006 102020 20020022
-c 22100007 102020 20020022 c 22100008 102020 20020022
-20020022 c 3e00008
+20080001 20090003 20110876 118d00 112020 20020022 c 200b0008
+1118807 1318807 112020 20020022 c 216bffff 1560fff9 2002000a
+c
 </a>
       <a name="Select" val="high"/>
     </comp>
@@ -20576,9 +20551,7 @@ c
     <wire from="(540,790)" to="(580,790)"/>
     <wire from="(1220,1170)" to="(1220,1240)"/>
     <wire from="(1050,1060)" to="(1050,1260)"/>
-    <wire from="(1100,1160)" to="(1220,1160)"/>
     <wire from="(780,1000)" to="(780,1150)"/>
-    <wire from="(1070,1150)" to="(1070,1160)"/>
     <wire from="(2700,620)" to="(2700,670)"/>
     <wire from="(870,860)" to="(980,860)"/>
     <wire from="(1390,690)" to="(1850,690)"/>
@@ -20596,7 +20569,6 @@ c
     <wire from="(1160,910)" to="(1370,910)"/>
     <wire from="(2010,630)" to="(2010,790)"/>
     <wire from="(2340,970)" to="(2370,970)"/>
-    <wire from="(890,1150)" to="(1070,1150)"/>
     <wire from="(1920,970)" to="(2210,970)"/>
     <wire from="(1790,880)" to="(1790,910)"/>
     <wire from="(2300,560)" to="(2300,1050)"/>
@@ -20605,7 +20577,6 @@ c
     <wire from="(1180,1190)" to="(1370,1190)"/>
     <wire from="(2520,610)" to="(2530,610)"/>
     <wire from="(890,740)" to="(1180,740)"/>
-    <wire from="(810,710)" to="(850,710)"/>
     <wire from="(1090,560)" to="(2300,560)"/>
     <wire from="(780,910)" to="(780,930)"/>
     <wire from="(2270,1150)" to="(2340,1150)"/>
@@ -20615,7 +20586,6 @@ c
     <wire from="(1410,850)" to="(1480,850)"/>
     <wire from="(270,780)" to="(270,960)"/>
     <wire from="(1870,910)" to="(1890,910)"/>
-    <wire from="(940,1170)" to="(1070,1170)"/>
     <wire from="(2270,790)" to="(2380,790)"/>
     <wire from="(2330,490)" to="(2630,490)"/>
     <wire from="(1050,1020)" to="(1050,1060)"/>
@@ -20625,13 +20595,11 @@ c
     <wire from="(810,880)" to="(990,880)"/>
     <wire from="(1260,950)" to="(1370,950)"/>
     <wire from="(720,590)" to="(720,790)"/>
-    <wire from="(1080,1180)" to="(1080,1200)"/>
     <wire from="(1000,860)" to="(1000,870)"/>
     <wire from="(2500,550)" to="(2520,550)"/>
     <wire from="(1250,620)" to="(1250,970)"/>
     <wire from="(2290,540)" to="(2290,910)"/>
     <wire from="(780,880)" to="(780,910)"/>
-    <wire from="(810,620)" to="(810,710)"/>
     <wire from="(780,1150)" to="(780,1240)"/>
     <wire from="(1410,910)" to="(1600,910)"/>
     <wire from="(2660,600)" to="(2660,610)"/>
@@ -20667,7 +20635,6 @@ c
     <wire from="(1220,870)" to="(1220,1050)"/>
     <wire from="(2610,600)" to="(2660,600)"/>
     <wire from="(1480,600)" to="(1480,850)"/>
-    <wire from="(780,710)" to="(810,710)"/>
     <wire from="(2270,890)" to="(2380,890)"/>
     <wire from="(1220,810)" to="(1370,810)"/>
     <wire from="(1220,1050)" to="(1370,1050)"/>
@@ -20679,7 +20646,6 @@ c
     <wire from="(1870,810)" to="(2230,810)"/>
     <wire from="(2550,610)" to="(2580,610)"/>
     <wire from="(1100,820)" to="(1100,840)"/>
-    <wire from="(1410,1170)" to="(1650,1170)"/>
     <wire from="(780,930)" to="(780,1000)"/>
     <wire from="(1260,980)" to="(1260,1010)"/>
     <wire from="(720,910)" to="(780,910)"/>
@@ -20727,7 +20693,6 @@ c
     <wire from="(1890,860)" to="(1890,910)"/>
     <wire from="(1650,860)" to="(1650,900)"/>
     <wire from="(1990,910)" to="(2010,910)"/>
-    <wire from="(1650,1000)" to="(1650,1170)"/>
     <wire from="(1220,1070)" to="(1370,1070)"/>
     <wire from="(780,830)" to="(790,830)"/>
     <wire from="(780,1150)" to="(790,1150)"/>
@@ -20735,8 +20700,6 @@ c
     <wire from="(2690,620)" to="(2690,640)"/>
     <wire from="(890,800)" to="(1160,800)"/>
     <wire from="(890,1190)" to="(940,1190)"/>
-    <wire from="(810,620)" to="(1250,620)"/>
-    <wire from="(1080,1200)" to="(1250,1200)"/>
     <wire from="(870,850)" to="(870,860)"/>
     <wire from="(1220,1070)" to="(1220,1160)"/>
     <wire from="(1890,860)" to="(2190,860)"/>
@@ -20842,7 +20805,6 @@ c
     <wire from="(1510,970)" to="(1510,990)"/>
     <wire from="(1510,970)" to="(1550,970)"/>
     <wire from="(1540,990)" to="(1550,990)"/>
-    <wire from="(1540,990)" to="(1540,1030)"/>
     <wire from="(1410,1150)" to="(1560,1150)"/>
     <wire from="(1560,1030)" to="(1590,1030)"/>
     <wire from="(1560,1030)" to="(1560,1150)"/>
@@ -20877,7 +20839,6 @@ c
     <wire from="(1650,1440)" to="(1680,1440)"/>
     <wire from="(1700,1440)" to="(1710,1440)"/>
     <wire from="(1410,930)" to="(1430,930)"/>
-    <wire from="(1600,910)" to="(1600,1360)"/>
     <wire from="(1600,1360)" to="(1680,1360)"/>
     <wire from="(1660,1390)" to="(1690,1390)"/>
     <wire from="(1690,1370)" to="(1690,1390)"/>
@@ -20904,18 +20865,6 @@ c
     <wire from="(90,1750)" to="(1710,1750)"/>
     <wire from="(90,960)" to="(90,1750)"/>
     <wire from="(1970,1010)" to="(1970,1060)"/>
-    <wire from="(2060,1090)" to="(2060,1120)"/>
-    <wire from="(2420,1010)" to="(2430,1010)"/>
-    <wire from="(2390,990)" to="(2430,990)"/>
-    <wire from="(2400,960)" to="(2540,960)"/>
-    <wire from="(2270,1110)" to="(2550,1110)"/>
-    <wire from="(2550,990)" to="(2550,1110)"/>
-    <wire from="(2470,1000)" to="(2500,1000)"/>
-    <wire from="(2500,980)" to="(2500,1000)"/>
-    <wire from="(2500,980)" to="(2540,980)"/>
-    <wire from="(2570,970)" to="(2580,970)"/>
-    <wire from="(2580,970)" to="(2580,1260)"/>
-    <wire from="(1050,1260)" to="(2580,1260)"/>
     <wire from="(1550,1680)" to="(1560,1680)"/>
     <wire from="(1550,1700)" to="(1560,1700)"/>
     <wire from="(1640,1690)" to="(1690,1690)"/>
@@ -20942,7 +20891,6 @@ c
     <wire from="(430,750)" to="(430,790)"/>
     <wire from="(90,960)" to="(220,960)"/>
     <wire from="(2750,810)" to="(2750,1110)"/>
-    <wire from="(2550,1110)" to="(2750,1110)"/>
     <wire from="(2730,800)" to="(2740,800)"/>
     <wire from="(2770,790)" to="(2780,790)"/>
     <wire from="(2780,790)" to="(2780,1320)"/>
@@ -20985,7 +20933,6 @@ c
     <wire from="(1410,1050)" to="(1730,1050)"/>
     <wire from="(1730,1050)" to="(1830,1050)"/>
     <wire from="(1790,1110)" to="(1790,1140)"/>
-    <wire from="(1410,1110)" to="(1790,1110)"/>
     <wire from="(1790,1110)" to="(1830,1110)"/>
     <wire from="(2120,1110)" to="(2120,1140)"/>
     <wire from="(2140,720)" to="(2170,720)"/>
@@ -21037,6 +20984,70 @@ c
     <wire from="(1380,1380)" to="(1380,1450)"/>
     <wire from="(610,1250)" to="(670,1250)"/>
     <wire from="(610,1200)" to="(610,1250)"/>
+    <wire from="(1650,1000)" to="(1650,1060)"/>
+    <wire from="(1410,1170)" to="(1640,1170)"/>
+    <wire from="(1640,1090)" to="(1640,1170)"/>
+    <wire from="(1410,1110)" to="(1790,1110)"/>
+    <wire from="(1600,1210)" to="(1660,1210)"/>
+    <wire from="(1600,910)" to="(1600,1210)"/>
+    <wire from="(1600,1210)" to="(1600,1360)"/>
+    <wire from="(1410,1090)" to="(1490,1090)"/>
+    <wire from="(1540,990)" to="(1540,1020)"/>
+    <wire from="(1480,1030)" to="(1480,1070)"/>
+    <wire from="(1410,1030)" to="(1480,1030)"/>
+    <wire from="(1480,1070)" to="(1490,1070)"/>
+    <wire from="(1520,1080)" to="(1630,1080)"/>
+    <wire from="(1660,1170)" to="(1660,1210)"/>
+    <wire from="(1660,1090)" to="(1660,1150)"/>
+    <wire from="(1410,1130)" to="(1830,1130)"/>
+    <wire from="(2060,1090)" to="(2060,1140)"/>
+    <wire from="(1870,1130)" to="(2230,1130)"/>
+    <wire from="(1050,1260)" to="(2650,1260)"/>
+    <wire from="(2270,1110)" to="(2620,1110)"/>
+    <wire from="(2620,1110)" to="(2750,1110)"/>
+    <wire from="(2390,990)" to="(2470,990)"/>
+    <wire from="(2420,1010)" to="(2470,1010)"/>
+    <wire from="(2510,1000)" to="(2570,1000)"/>
+    <wire from="(2450,960)" to="(2470,960)"/>
+    <wire from="(2570,950)" to="(2610,950)"/>
+    <wire from="(2640,960)" to="(2650,960)"/>
+    <wire from="(2570,970)" to="(2610,970)"/>
+    <wire from="(2650,960)" to="(2650,1260)"/>
+    <wire from="(2570,970)" to="(2570,1000)"/>
+    <wire from="(2620,980)" to="(2620,1110)"/>
+    <wire from="(2510,960)" to="(2540,960)"/>
+    <wire from="(2400,960)" to="(2410,960)"/>
+    <wire from="(2410,960)" to="(2430,960)"/>
+    <wire from="(2410,930)" to="(2410,960)"/>
+    <wire from="(2410,930)" to="(2520,930)"/>
+    <wire from="(2520,940)" to="(2540,940)"/>
+    <wire from="(2520,930)" to="(2520,940)"/>
+    <wire from="(2550,970)" to="(2550,1130)"/>
+    <wire from="(2270,1130)" to="(2550,1130)"/>
+    <wire from="(820,620)" to="(820,710)"/>
+    <wire from="(820,620)" to="(1250,620)"/>
+    <wire from="(780,710)" to="(820,710)"/>
+    <wire from="(820,710)" to="(850,710)"/>
+    <wire from="(810,730)" to="(850,730)"/>
+    <wire from="(810,610)" to="(810,730)"/>
+    <wire from="(810,610)" to="(1230,610)"/>
+    <wire from="(1230,610)" to="(1230,1030)"/>
+    <wire from="(1230,1030)" to="(1370,1030)"/>
+    <wire from="(800,750)" to="(850,750)"/>
+    <wire from="(800,600)" to="(800,750)"/>
+    <wire from="(800,600)" to="(1210,600)"/>
+    <wire from="(1210,1090)" to="(1370,1090)"/>
+    <wire from="(1210,600)" to="(1210,1090)"/>
+    <wire from="(740,790)" to="(850,790)"/>
+    <wire from="(740,790)" to="(740,1100)"/>
+    <wire from="(1340,1100)" to="(1340,1130)"/>
+    <wire from="(740,1100)" to="(1340,1100)"/>
+    <wire from="(1340,1130)" to="(1370,1130)"/>
+    <wire from="(1090,1200)" to="(1250,1200)"/>
+    <wire from="(1110,1160)" to="(1220,1160)"/>
+    <wire from="(1090,1180)" to="(1090,1200)"/>
+    <wire from="(940,1170)" to="(1080,1170)"/>
+    <wire from="(890,1150)" to="(1080,1150)"/>
     <comp lib="0" loc="(580,270)" name="Tunnel">
       <a name="facing" val="north"/>
       <a name="width" val="32"/>
@@ -21261,6 +21272,14 @@ c
       <a name="halign" val="center"/>
       <a name="valign" val="base"/>
     </comp>
+    <comp lib="2" loc="(1110,1160)" name="Multiplexer">
+      <a name="facing" val="east"/>
+      <a name="selloc" val="bl"/>
+      <a name="select" val="1"/>
+      <a name="width" val="32"/>
+      <a name="disabled" val="Z"/>
+      <a name="enable" val="false"/>
+    </comp>
     <comp lib="6" loc="(1355,865)" name="Text">
       <a name="text" val="JMP"/>
       <a name="font" val="Dialog plain 12"/>
@@ -21374,11 +21393,6 @@ c
       <a name="label" val="WB.IR"/>
       <a name="labelfont" val="SansSerif plain 10"/>
     </comp>
-    <comp lib="0" loc="(1540,1030)" name="Constant">
-      <a name="facing" val="east"/>
-      <a name="width" val="32"/>
-      <a name="value" val="0x0"/>
-    </comp>
     <comp lib="1" loc="(2550,610)" name="NOT Gate">
       <a name="facing" val="east"/>
       <a name="width" val="1"/>
@@ -21458,34 +21472,9 @@ c
       <a name="labelfont" val="Dialog plain 12"/>
       <a name="labelcolor" val="#000000"/>
       <a name="contents">addr/data: 10 32
-20110001 8000c05 20110001 20120002 20130003 8000c09 20110001 20120002
-20130003 8000c0d 20110001 20120002 20130003 8000c11 20110001 20120002
-20130003 c000cb8 20100001 20110001 118fc0 112020 20020022 c
-118882 12200001 8000c15 112020 20020022 c 20110001 118880
-112020 20020022 c 12200001 8000c1f 20110001 118fc0 112020
-20020022 c 1188c3 112020 20020022 c 118903 112020
-20020022 c 118903 112020 20020022 c 118903 112020
-20020022 c 118903 112020 20020022 c 118903 112020
-20020022 c 118903 112020 20020022 c 118903 112020
-20020022 c 20100001 109fc0 139fc3 8021 2012000c 24160003
-26100001 3210000f 20080008 20090001 139900 2709825 132020 20020022
-c 1094022 1500fff9 22100001 2018000f 2188024 108700 20080008
-20090001 139902 2709825 132021 20020022 c 1094022 1500fff9
-108702 2c9b022 12c00001 8000c50 4020 1084027 84400 3508ffff
-82021 20020022 c 2010ffff 20110000 ae300000 22100001 22310004
-ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000 22100001
-22310004 ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000
-22100001 22310004 ae300000 22100001 22310004 ae300000 22100001 22310004
-ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000 22100001
-22310004 ae300000 22100001 22310004 ae300000 22100001 22310004 ae300000
-22100001 22310004 ae300000 22100001 22310004 22100001 8020 2011003c
-8e130000 8e340000 274402a 11000002 ae330000 ae140000 2231fffc 1611fff8
-102020 20020022 c 22100004 2011003c 1611fff2 20020032 c
-20100000 22100001 102020 20020022 c 22100002 102020 20020022
-c 22100003 102020 20020022 c 22100004 102020 20020022
-c 22100005 102020 20020022 c 22100006 102020 20020022
-c 22100007 102020 20020022 c 22100008 102020 20020022
-20020022 c 3e00008
+20080001 20090003 20110876 118d00 112020 20020022 c 200b0008
+1118807 1318807 112020 20020022 c 216bffff 1560fff9 2002000a
+c
 </a>
       <a name="Select" val="high"/>
     </comp>
@@ -21742,12 +21731,6 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="label" val="EX.RegDst"/>
       <a name="labelfont" val="Dialog plain 12"/>
     </comp>
-    <comp lib="0" loc="(2060,1120)" name="Tunnel">
-      <a name="facing" val="north"/>
-      <a name="width" val="1"/>
-      <a name="label" val="Halt"/>
-      <a name="labelfont" val="Dialog plain 12"/>
-    </comp>
     <comp lib="0" loc="(2080,980)" name="Tunnel">
       <a name="facing" val="north"/>
       <a name="width" val="1"/>
@@ -21954,6 +21937,12 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="label" val="ID.PC"/>
       <a name="labelfont" val="SansSerif plain 10"/>
     </comp>
+    <comp lib="0" loc="(2060,1140)" name="Tunnel">
+      <a name="facing" val="north"/>
+      <a name="width" val="1"/>
+      <a name="label" val="Halt"/>
+      <a name="labelfont" val="Dialog plain 12"/>
+    </comp>
     <comp lib="6" loc="(916,834)" name="Text">
       <a name="text" val="RegDst"/>
       <a name="font" val="Dialog plain 12"/>
@@ -21984,6 +21973,18 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="color" val="#000000"/>
       <a name="halign" val="center"/>
       <a name="valign" val="base"/>
+    </comp>
+    <comp lib="1" loc="(1520,1080)" name="OR Gate">
+      <a name="facing" val="east"/>
+      <a name="width" val="1"/>
+      <a name="size" val="30"/>
+      <a name="inputs" val="2"/>
+      <a name="out" val="01"/>
+      <a name="label" val=""/>
+      <a name="labelfont" val="Dialog plain 12"/>
+      <a name="labelcolor" val="#000000"/>
+      <a name="negate0" val="false"/>
+      <a name="negate1" val="false"/>
     </comp>
     <comp lib="0" loc="(1730,1140)" name="Tunnel">
       <a name="facing" val="north"/>
@@ -22037,6 +22038,44 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="bit18" val="0"/>
       <a name="bit19" val="0"/>
       <a name="bit20" val="0"/>
+      <a name="bit21" val="none"/>
+      <a name="bit22" val="none"/>
+      <a name="bit23" val="none"/>
+      <a name="bit24" val="none"/>
+      <a name="bit25" val="none"/>
+      <a name="bit26" val="none"/>
+      <a name="bit27" val="none"/>
+      <a name="bit28" val="none"/>
+      <a name="bit29" val="none"/>
+      <a name="bit30" val="none"/>
+      <a name="bit31" val="none"/>
+    </comp>
+    <comp lib="0" loc="(1660,1170)" name="Splitter">
+      <a name="facing" val="north"/>
+      <a name="fanout" val="1"/>
+      <a name="incoming" val="32"/>
+      <a name="appear" val="center"/>
+      <a name="bit0" val="0"/>
+      <a name="bit1" val="0"/>
+      <a name="bit2" val="0"/>
+      <a name="bit3" val="0"/>
+      <a name="bit4" val="0"/>
+      <a name="bit5" val="none"/>
+      <a name="bit6" val="none"/>
+      <a name="bit7" val="none"/>
+      <a name="bit8" val="none"/>
+      <a name="bit9" val="none"/>
+      <a name="bit10" val="none"/>
+      <a name="bit11" val="none"/>
+      <a name="bit12" val="none"/>
+      <a name="bit13" val="none"/>
+      <a name="bit14" val="none"/>
+      <a name="bit15" val="none"/>
+      <a name="bit16" val="none"/>
+      <a name="bit17" val="none"/>
+      <a name="bit18" val="none"/>
+      <a name="bit19" val="none"/>
+      <a name="bit20" val="none"/>
       <a name="bit21" val="none"/>
       <a name="bit22" val="none"/>
       <a name="bit23" val="none"/>
@@ -22273,9 +22312,6 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="bit29" val="none"/>
       <a name="bit30" val="none"/>
       <a name="bit31" val="none"/>
-    </comp>
-    <comp lib="3" loc="(2470,1000)" name="Adder">
-      <a name="width" val="32"/>
     </comp>
     <comp lib="0" loc="(2120,100)" name="Tunnel">
       <a name="facing" val="north"/>
@@ -22659,6 +22695,14 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="label" val="MEM.IR"/>
       <a name="labelfont" val="SansSerif plain 10"/>
     </comp>
+    <comp lib="2" loc="(2640,960)" name="Multiplexer">
+      <a name="facing" val="east"/>
+      <a name="selloc" val="bl"/>
+      <a name="select" val="1"/>
+      <a name="width" val="32"/>
+      <a name="disabled" val="Z"/>
+      <a name="enable" val="false"/>
+    </comp>
     <comp lib="5" loc="(280,90)" name="Hex Digit Display">
       <a name="color" val="#f00000"/>
       <a name="offcolor" val="#dcdcdc"/>
@@ -22680,14 +22724,6 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="width" val="1"/>
       <a name="label" val="CLK"/>
       <a name="labelfont" val="Dialog plain 12"/>
-    </comp>
-    <comp lib="2" loc="(1100,1160)" name="Multiplexer">
-      <a name="facing" val="east"/>
-      <a name="selloc" val="bl"/>
-      <a name="select" val="1"/>
-      <a name="width" val="32"/>
-      <a name="disabled" val="Z"/>
-      <a name="enable" val="false"/>
     </comp>
     <comp lib="0" loc="(1510,1440)" name="Constant">
       <a name="facing" val="east"/>
@@ -23047,6 +23083,9 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="offcolor" val="#dcdcdc"/>
       <a name="bg" val="#ffffff"/>
     </comp>
+    <comp lib="3" loc="(2510,1000)" name="Adder">
+      <a name="width" val="32"/>
+    </comp>
     <comp lib="6" loc="(919,795)" name="Text">
       <a name="text" val="RegWrite"/>
       <a name="font" val="Dialog plain 12"/>
@@ -23104,6 +23143,11 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="labelloc" val="north"/>
       <a name="labelfont" val="Dialog plain 12"/>
       <a name="labelcolor" val="#000000"/>
+    </comp>
+    <comp lib="0" loc="(2510,960)" name="Bit Extender">
+      <a name="in_width" val="8"/>
+      <a name="out_width" val="32"/>
+      <a name="type" val="zero"/>
     </comp>
     <comp lib="0" loc="(250,150)" name="Tunnel">
       <a name="facing" val="east"/>
@@ -23223,6 +23267,44 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="halign" val="center"/>
       <a name="valign" val="base"/>
     </comp>
+    <comp lib="0" loc="(2430,960)" name="Splitter">
+      <a name="facing" val="east"/>
+      <a name="fanout" val="1"/>
+      <a name="incoming" val="32"/>
+      <a name="appear" val="center"/>
+      <a name="bit0" val="0"/>
+      <a name="bit1" val="0"/>
+      <a name="bit2" val="0"/>
+      <a name="bit3" val="0"/>
+      <a name="bit4" val="0"/>
+      <a name="bit5" val="0"/>
+      <a name="bit6" val="0"/>
+      <a name="bit7" val="0"/>
+      <a name="bit8" val="none"/>
+      <a name="bit9" val="none"/>
+      <a name="bit10" val="none"/>
+      <a name="bit11" val="none"/>
+      <a name="bit12" val="none"/>
+      <a name="bit13" val="none"/>
+      <a name="bit14" val="none"/>
+      <a name="bit15" val="none"/>
+      <a name="bit16" val="none"/>
+      <a name="bit17" val="none"/>
+      <a name="bit18" val="none"/>
+      <a name="bit19" val="none"/>
+      <a name="bit20" val="none"/>
+      <a name="bit21" val="none"/>
+      <a name="bit22" val="none"/>
+      <a name="bit23" val="none"/>
+      <a name="bit24" val="none"/>
+      <a name="bit25" val="none"/>
+      <a name="bit26" val="none"/>
+      <a name="bit27" val="none"/>
+      <a name="bit28" val="none"/>
+      <a name="bit29" val="none"/>
+      <a name="bit30" val="none"/>
+      <a name="bit31" val="none"/>
+    </comp>
     <comp lib="0" loc="(1780,80)" name="Pin">
       <a name="facing" val="west"/>
       <a name="output" val="true"/>
@@ -23273,6 +23355,11 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="label" val=""/>
       <a name="labelfont" val="Dialog plain 12"/>
       <a name="labelcolor" val="#000000"/>
+    </comp>
+    <comp lib="0" loc="(1540,1020)" name="Constant">
+      <a name="facing" val="east"/>
+      <a name="width" val="32"/>
+      <a name="value" val="0x0"/>
     </comp>
     <comp lib="3" loc="(2500,550)" name="Comparator">
       <a name="width" val="32"/>
@@ -23361,6 +23448,14 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="bit29" val="none"/>
       <a name="bit30" val="none"/>
       <a name="bit31" val="none"/>
+    </comp>
+    <comp lib="2" loc="(1650,1060)" name="Multiplexer">
+      <a name="facing" val="north"/>
+      <a name="selloc" val="bl"/>
+      <a name="select" val="1"/>
+      <a name="width" val="5"/>
+      <a name="disabled" val="Z"/>
+      <a name="enable" val="false"/>
     </comp>
     <comp lib="0" loc="(680,60)" name="Probe">
       <a name="facing" val="west"/>
@@ -23591,14 +23686,6 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="bit29" val="none"/>
       <a name="bit30" val="none"/>
       <a name="bit31" val="none"/>
-    </comp>
-    <comp lib="2" loc="(2570,970)" name="Multiplexer">
-      <a name="facing" val="east"/>
-      <a name="selloc" val="bl"/>
-      <a name="select" val="1"/>
-      <a name="width" val="32"/>
-      <a name="disabled" val="Z"/>
-      <a name="enable" val="false"/>
     </comp>
     <comp lib="0" loc="(2480,850)" name="Tunnel">
       <a name="facing" val="west"/>
@@ -24064,6 +24151,14 @@ c 22100007 102020 20020022 c 22100008 102020 20020022
       <a name="width" val="32"/>
       <a name="label" val="ID.PC"/>
       <a name="labelfont" val="SansSerif plain 10"/>
+    </comp>
+    <comp lib="2" loc="(2570,950)" name="Multiplexer">
+      <a name="facing" val="east"/>
+      <a name="selloc" val="bl"/>
+      <a name="select" val="1"/>
+      <a name="width" val="32"/>
+      <a name="disabled" val="Z"/>
+      <a name="enable" val="false"/>
     </comp>
     <comp lib="6" loc="(1009,345)" name="Text">
       <a name="text" val="戳工具置1进入计数暂停模式，ctrl+k时钟自动运行到对应节拍暂停"/>
