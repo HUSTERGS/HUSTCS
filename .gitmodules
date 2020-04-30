@@ -4,3 +4,6 @@
 [submodule "软件工程"]
 	path = 软件工程
 	url = git@github.com:HUSTERGS/SoftwareEngineeringProject.git
+[submodule "函数式编程"]
+	path = 函数式编程
+	url = git@github.com:HUSTERGS/SML_HUST.git
