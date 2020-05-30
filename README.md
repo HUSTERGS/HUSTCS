@@ -19,8 +19,11 @@
 * 软件工程
 * 大数据导论
 * 计算机网络实验
+* Java课程实验(不含平时作业)
 
 可以使用[GitZip](http://kinolien.github.io/gitzip/)来下载单个文件/文件夹
+
+**由于一些课程包含了老师提供的文档或者题目，若有侵权请联系删除**
 
 ## 文件说明
 ### 大一上:
@@ -257,7 +260,8 @@
 
 ### 大三下：
 [函数式编程](https://github.com/HUSTERGS/SML_HUST)
-​    
+
+[Java实验](https://github.com/HUSTERGS/Java_HUST)    
 
 ## 相关仓库
 
