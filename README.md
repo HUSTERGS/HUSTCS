@@ -20,6 +20,7 @@
 * 大数据导论
 * 计算机网络实验
 * Java课程实验(不含平时作业)
+* 数据库系统原理实验
 
 可以使用[GitZip](http://kinolien.github.io/gitzip/)来下载单个文件/文件夹
 
@@ -259,9 +260,11 @@
 </details>
 
 ### 大三下：
-[函数式编程](https://github.com/HUSTERGS/SML_HUST)
+[函数式编程实验](https://github.com/HUSTERGS/SML_HUST)
 
-[Java实验](https://github.com/HUSTERGS/Java_HUST)    
+[Java实验](https://github.com/HUSTERGS/Java_HUST) 
+
+[数据库系统原理实验](https://github.com/HUSTERGS/Database_HUST) (写的稀烂)
 
 ## 相关仓库
 
