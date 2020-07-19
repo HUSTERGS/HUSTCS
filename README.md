@@ -10,7 +10,7 @@
 
 **由于一些课程包含了老师提供的文档或者题目，若有侵权请联系删除**
 
-## 文件说明
+## 文件列表
 ### 大一上:
 - [C语言实验](https://github.com/HUSTERGS/HUSTCS/tree/master/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E9%AA%8C)
 
@@ -38,17 +38,17 @@
 - [计算机网络实验](https://github.com/HUSTERGS/Computer_Network)
 
 ### 大三下：
-[函数式编程实验](https://github.com/HUSTERGS/SML_HUST)
+- [函数式编程实验](https://github.com/HUSTERGS/SML_HUST)
 
-[Java实验](https://github.com/HUSTERGS/Java_HUST) (不含平时作业)
+- [Java实验](https://github.com/HUSTERGS/Java_HUST) (不含平时作业)
 
-[数据库系统原理实验](https://github.com/HUSTERGS/Database_HUST) (写的稀烂)
+- [数据库系统原理实验](https://github.com/HUSTERGS/Database_HUST) (写的稀烂)
 
 ## 相关仓库
 
-[HUSTER-CS](https://github.com/AlexFanw/HUSTER-CS) [@AlexFanw](https://github.com/AlexFanw/)
+- [HUSTER-CS](https://github.com/AlexFanw/HUSTER-CS) [@AlexFanw](https://github.com/AlexFanw/)
 
-[awesome-hust](https://github.com/recolic/awesome-hust) [@recolic ](https://github.com/recolic/) (强烈推荐)
+- [awesome-hust](https://github.com/recolic/awesome-hust) [@recolic ](https://github.com/recolic/) (强烈推荐)
 
-[HUST-Homeworks](https://github.com/husixu1/HUST-Homeworks) [@husixu1](https://github.com/husixu1)
+- [HUST-Homeworks](https://github.com/husixu1/HUST-Homeworks) [@husixu1](https://github.com/husixu1)
 
