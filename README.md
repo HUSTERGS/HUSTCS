@@ -6,263 +6,41 @@
 
 文件存留
 
-* C语言
-  * 在线题目
-  * C语言实验
-* 数据结构
-* 数据结构课设
-* 计算机系统基础
-* 计算机组成原理
-* 计算机操作系统
-* 汇编
-内含相关资料、报告以及代码
-* 软件工程
-* 大数据导论
-* 计算机网络实验
-* Java课程实验(不含平时作业)
-* 数据库系统原理实验
-
 可以使用[GitZip](http://kinolien.github.io/gitzip/)来下载单个文件/文件夹
 
 **由于一些课程包含了老师提供的文档或者题目，若有侵权请联系删除**
 
 ## 文件说明
 ### 大一上:
-<details><summary>C语言</summary>
-
-  * C 语言实验
-    
-    * `U201714668-HUSTERGS.docx` ： **报告**
-  * 在线题目
-    > 在线OJ代码
-</details>
+- [C语言实验](https://github.com/HUSTERGS/HUSTCS/tree/master/C%E8%AF%AD%E8%A8%80%E5%AE%9E%E9%AA%8C)
 
 ### 大二上:
-<details><summary>数据结构实验</summary>
-
-  * Graph
-
-  * LIst
-
-  * SqList
-
-  * Tree
-
-    > 以上文件夹包含
-    >
-    > 1. 测试数据文件
-    > 2. 代码
-    > 3. `.exe`文件
-
-    `2017-数据结构实验（2016级）.docx` ：任务书
-
-    `2017-数据结构实验报告格式示例（2016级）.docx` ：报告格式说明
-
-    `CS-HUSTERGS.docx `：**报告**
-</details>
+- [数据结构实验](https://github.com/HUSTERGS/HUSTCS/tree/master/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%AE%9E%E9%AA%8C)
 
 ### 大二下:
-<details><summary>数据结构课设</summary>
+- [数据结构课设](https://github.com/HUSTERGS/HUSTCS/tree/master/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E8%AF%BE%E8%AE%BE)
+- [汇编实验](https://github.com/HUSTERGS/HUSTCS/tree/master/%E6%B1%87%E7%BC%96)
+- [数字逻辑实验](https://github.com/HUSTERGS/HUSTCS/tree/master/%E6%95%B0%E5%AD%97%E9%80%BB%E8%BE%91)
+- [计算机系统基础实验](https://github.com/HUSTERGS/HUSTCS/tree/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80)
 
-  * LastTry
-
-    > Qt代码
-
-  * Total
-
-    > 命令行版本代码
-
-  * Windows
-
-    > `Windows`下可执行文件
-
-  * 资料
-
-    > 数独问题相关论文，包括任务书中参考目录中的论文以及自己找到的一些论文
-
-    `2018-数据结构实验（2017级）-更正版.rar` ：任务书以及报告格式说明书压缩包
-
-    `CS1703-U201714668-葛松.docx` ：**报告**
-
-    `README.md`：使用说明
-</details>
-
-<details><summary>汇编</summary>
-
-  * code_1
-
-  * code_2
-
-  * code_3
-
-  * code_4
-
-    > 以上文件夹包含相关`.asm`代码
-
-    `CS1703_U201714668_葛松.tar.gz`：最后提交的压缩包，内含
-
-    1. 总封面
-    2. 代码压缩包
-    3. 每次分开的报告
-
-    `demo.asm`：最后一次GUI实验提供的demo
-
-    `README.md`：啥都没写的readme
-</details>
-
-<details><summary>数字逻辑</summary>
-
-  * 1
-    * `1.circ`: 电路
-    * `1.docx`: 报告
-  * 2
-    * `2_1.circ`: 第一部分电路
-    * `2_2.circ`: 第二部分电路
-    * `2.docx`: 报告
-  * 3
-    * `3.circ`: 电路
-    * `3.docx`: 报告
-  * 4
-    * `4.circ`: 电路
-    * `4.docx`: 报告
-
-</details>
-
-<details><summary>计算机系统基础</summary>
-
-  * lab1
-
-    * lab1-handout ：提供的测试代码
-
-      `bits.c`：代码
-
-      `任务书.pdf`：任务书
-
-  * lab2
-
-    * CS2017010203 ：三班所有人的不同问题（我也不知道当初为什么放进来了）
-
-    * U201714668 ：本人代码
-
-      `GDB完全中文手册.pdf`
-
-      `Linux下objdump使用方法.pdf`
-
-      `计算机系统基础实验介绍 (lab2) - 2019.pdf`
-
-  * lab3
-
-    * lab3 ：本人代码
-
-      `计算机系统基础实验介绍(Lab3)-2019.pdf`
-
-    `CS1703_U201714668`：**报告**
-
-</details>
 
 ### 大三上：
-<details><summary>计算机组成原理</summary>
-
-  * 实验1
-
-    `data.circ`：电路文件
-
-    `remain.py`：求`CRC`循环校验余数的脚本
-
-    `trasform.py`：国际码转区位码脚本
-
-    `使用说明.md`： 脚本使用说明
-
-  * 实验2
-
-    `alu.circ`：电路文件
-
-  * 实验3
-
-    `storage(2019-11-16).circ`：截止检查时提供的最新电路
-
-    `chip2_content`：`字库实验`中参考字库第二块储存器导出的镜像文本文件，没什么用
-
-    `sec1`至`sec4`：`字库实验`中四个小块所需要的镜像文本文件，直接导入即可
-    
-    `cache性能测试trace.hex`用于导入cache电路的rom，测试命中率，直接映射，4路组相连，全相连应该分别为`0.81`,`0.94`,`0.96`
-    
-  * 实验4
-  
-    `cpu.circ`电路文件
-  
-    `cpu24.circ`课设电路文件
-  
-    `sort.hex`用于载入命令rom的冒泡排序程序
-  
-    其余文件具体看[mooc](http://www.icourse163.org/learn/HUST-1205809816)，此处不再赘述
-</details>
-<details><summary>计算机操作系统</summary>
-
-  * exp1
-  
-    `exp1.c`:代码
-
-    `exp1.pdf`: 实验说明 
-
-  * exp2
-  
-    `exp2.c`: 代码
-
-    `exp2p.c`: 进程版本的代码，区别在于使用了共享内存
-
-    `exp2.pdf`: 实验说明
-
-  * exp3
-  
-    `exp3.c`: 代码
-
-    `exp3.pdf`: 实验说明
-
-    `input.txt`: 测试输入文件
-
-    `output.txt`: 测试输出文件
-  
-  * exp4
-    * `exp4.c`: 代码，支持对文件夹的以及软连接的高亮，以及软连接的目标显示
-
-    * `exp4.pdf`: 实验说明
-
-
-</details>
-
-<details><summary>大数据导论</summary>
-
+- [计算机组成原理实验](https://github.com/HUSTERGS/HUSTCS/tree/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86)
+- [计算机操作系统实验](https://github.com/HUSTERGS/HUSTCS/tree/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C)
+- [大数据导论](https://github.com/Langford-tang/University-Logo-Deep-Learning-Community-Detection)
   * `大数据报告.docx`: 课程报告(删去了同组人员)
   > 基于之前[新加坡的暑期项目](https://github.com/Langford-tang/University-Logo-Deep-Learning-Community-Detection)，个人感觉参考价值不大
-</details>
-
-<details><summary>软件工程课设</summary>
-
+- [软件工程课设](https://github.com/HUSTERGS/SoftwareEngineeringProject/)
   * `2019《软件工程》项目任务书（2017级）.docx`: 任务书
   * `《软件工程》项目报告撰写内容及规范化参考样本.docx`: 报告样本
   * 项目链接: [数独App](https://github.com/HUSTERGS/SoftwareEngineeringProject)
   > 做的实在不太行，参考价值不大，没有提供报告，只有任务书以及报告样本
-</details>
-
-<details><summary>计算机网络实验</summary>
-
-  直接访问[对应仓库](https://github.com/HUSTERGS/Computer_Network)或在`clone`后执行以下命令
-  ```sh
-  git submodule init
-  git submodule update
-  ```
-  或在clone时加入 `--recursive`选项
-  ```sh
-  git clone git@github.com:HUSTERGS/HUSTCS.git --recursive
-  ```
-  文件说明请直接查看对应仓库[README.md](https://github.com/HUSTERGS/Computer_Network/blob/master/README.md)
-</details>
+- [计算机网络实验](https://github.com/HUSTERGS/Computer_Network)
 
 ### 大三下：
 [函数式编程实验](https://github.com/HUSTERGS/SML_HUST)
 
-[Java实验](https://github.com/HUSTERGS/Java_HUST) 
+[Java实验](https://github.com/HUSTERGS/Java_HUST) (不含平时作业)
 
 [数据库系统原理实验](https://github.com/HUSTERGS/Database_HUST) (写的稀烂)
 
