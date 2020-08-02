@@ -13,3 +13,6 @@
 [submodule "数据库系统原理实验"]
 	path = 数据库系统原理实验
 	url = git@github.com:HUSTERGS/Database_HUST.git
+[submodule "机器学习"]
+	path = 机器学习
+	url = git@github.com:HUSTERGS/ML_HUST.git

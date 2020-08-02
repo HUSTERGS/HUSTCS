@@ -39,10 +39,9 @@
 
 ### 大三下：
 - [函数式编程实验](https://github.com/HUSTERGS/SML_HUST)
-
 - [Java实验](https://github.com/HUSTERGS/Java_HUST) (不含平时作业)
-
 - [数据库系统原理实验](https://github.com/HUSTERGS/Database_HUST) (写的稀烂)
+- [机器学习](https://github.com/HUSTERGS/ML_HUST/)
 
 ## 相关仓库
 
