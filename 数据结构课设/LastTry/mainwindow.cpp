@@ -11,12 +11,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QPushButton *SubmitButton = this->findChild<QPushButton *>(QString("pushButton_2"));
     QPushButton *SolveButton = this->findChild<QPushButton *>(QString("pushButton_3"));
     QPushButton *ClearButton = this->findChild<QPushButton *>(QString("pushButton_4"));
-
+    QPushButton *ImportButtom = this->findChild<QPushButton *>(QString("pushButton_5"));
     connect(initialButton, &QPushButton::clicked, this, &MainWindow::initSudoku);
     connect(SolveButton, &QPushButton::clicked, this, &MainWindow::SolveSudoku);
     connect(SubmitButton, &QPushButton::clicked, this, &MainWindow::submitSudoku);
     connect(ClearButton, &QPushButton::clicked, this, &MainWindow::ClearBoard);
-
+    connect(ImportButtom, &QPushButton::clicked, this, &MainWindow::ImportFile);
     QRegExp regExp ("[1-9]");
     for (int i = 0; i < 9; i ++){
         for (int j = 0; j < 9; j ++){
@@ -26,6 +26,14 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     this->initSudoku();
+}
+
+void MainWindow::ImportFile() {
+    QString fileName = QFileDialog::getOpenFileName(
+            this,
+            tr("open a file."),
+            "C:/",
+            tr("All files(*.*)"));
 }
 
 MainWindow::~MainWindow()

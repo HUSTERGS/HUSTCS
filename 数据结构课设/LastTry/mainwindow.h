@@ -6,7 +6,7 @@
 #include "sudoku.h"
 #include <QList>
 #include <qvalidator.h>
-
+#include <QFileDialog>
 
 namespace Ui {
 class MainWindow;
@@ -25,6 +25,7 @@ public:
     void SolveSudoku();
     void CheckSudoku();
     void ClearBoard();
+    void ImportFile();
 private:
     Ui::MainWindow *ui;
 };

@@ -41,6 +41,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
      <string notr="true"/>
     </property>
@@ -69,6 +74,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -93,6 +103,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -119,6 +134,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -143,6 +163,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -169,6 +194,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -193,6 +223,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -219,6 +254,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -243,6 +283,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -321,6 +366,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -345,6 +395,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -371,6 +426,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -395,6 +455,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -421,6 +486,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -445,6 +515,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -471,6 +546,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -495,6 +575,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -521,6 +606,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -545,6 +635,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -571,6 +666,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -595,6 +695,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -621,6 +726,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -645,6 +755,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -671,6 +786,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -695,6 +815,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -721,6 +846,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -745,6 +875,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -771,6 +906,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -795,6 +935,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -821,6 +966,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -845,6 +995,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -871,6 +1026,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -895,6 +1055,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -921,6 +1086,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -945,6 +1115,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -971,6 +1146,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -995,6 +1175,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1021,6 +1206,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1045,6 +1235,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1071,6 +1266,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1095,6 +1295,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1121,6 +1326,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1145,6 +1355,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1171,6 +1386,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1195,6 +1415,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1221,6 +1446,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1245,6 +1475,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1271,6 +1506,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1295,6 +1535,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1321,6 +1566,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1345,6 +1595,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1371,6 +1626,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1395,6 +1655,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1421,6 +1686,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1445,6 +1715,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1471,6 +1746,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1495,6 +1775,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1521,6 +1806,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1545,6 +1835,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1571,6 +1866,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1595,6 +1895,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1621,6 +1926,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1645,6 +1955,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1671,6 +1986,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1695,6 +2015,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1721,6 +2046,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1745,6 +2075,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1771,6 +2106,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1795,6 +2135,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1821,6 +2166,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1845,6 +2195,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1871,6 +2226,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1895,6 +2255,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1921,6 +2286,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1945,6 +2315,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -1971,6 +2346,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -1995,6 +2375,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -2021,6 +2406,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -2045,6 +2435,11 @@ color: rgb(0, 0, 0);
       <width>30</width>
       <height>30</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -2071,6 +2466,11 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -2096,8 +2496,26 @@ color: rgb(0, 0, 0);
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_5">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>320</y>
+      <width>97</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Inport</string>
     </property>
    </widget>
   </widget>
