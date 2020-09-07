@@ -42,7 +42,7 @@
 - [Java实验](https://github.com/HUSTERGS/Java_HUST) (不含平时作业)
 - [数据库系统原理实验](https://github.com/HUSTERGS/Database_HUST) (写的稀烂)
 - [机器学习](https://github.com/HUSTERGS/ML_HUST/)
-- [计算机组成原理课设]([https://github.com/HUSTERGS/HUSTCS/tree/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86%E8%AF%BE%E8%AE%BE](https://github.com/HUSTERGS/HUSTCS/tree/master/计算机组成原理课设))(没有完成后续流水中断以及动态分支预测)
+- [计算机组成原理课设](https://github.com/HUSTERGS/HUSTCS/tree/master/计算机组成原理课设)(没有完成后续流水中断以及动态分支预测)
 
 ## 相关仓库
 
