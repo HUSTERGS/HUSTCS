@@ -44,6 +44,10 @@
 - [机器学习](https://github.com/HUSTERGS/ML_HUST/)
 - [计算机组成原理课设](https://github.com/HUSTERGS/HUSTCS/tree/master/计算机组成原理课设)(没有完成后续流水中断以及动态分支预测)
 
+### 杂项
+
+- [CSP Python题解](https://github.com/HUSTERGS/CSP)（部分）
+
 ## 相关仓库
 
 - [HUSTER-CS](https://github.com/AlexFanw/HUSTER-CS) [@AlexFanw](https://github.com/AlexFanw/)

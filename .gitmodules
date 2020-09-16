@@ -16,3 +16,6 @@
 [submodule "机器学习"]
 	path = 机器学习
 	url = git@github.com:HUSTERGS/ML_HUST.git
+[submodule "CSP-Python"]
+	path = CSP-Python
+	url = https://github.com/HUSTERGS/CSP
