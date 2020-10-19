@@ -47,6 +47,39 @@
 ### 杂项
 
 - [CSP Python题解](https://github.com/HUSTERGS/CSP)（部分）
+- [华科相关常用网站列表以及简略介绍](https://github.com/HUSTERGS/HUSTCS/blob/master/网站列表.md)
+
+----
+
+### 关于子模块(git submodule)
+
+一些内容使用submodule进行管理。有以下几个可选方式
+
+- clone时就初始化所有的模块，获得所有内容
+
+  在clone的时候增加`--recurse-submodules`选项
+
+  ```sh
+  git clone --recurse-submodules git@github.com:HUSTERGS/HUSTCS.git
+  ```
+
+- clone之后再初始化所有的模块
+
+  ```sh
+  git clone git@github.com:HUSTERGS/HUSTCS.git
+  cd ./HUSTCS
+  git submodule update --init
+  ```
+
+- clone后单独初始化某一个模块
+
+  ```sh
+  git clone git@github.com:HUSTERGS/HUSTCS.git
+  cd ./HUSTCS
+  git submodule update --init Java课程实验 # 此处以Java课程实验为例，其他submodule类似
+  ```
+
+- 直接访问子模块对应的仓库，clone或者下载即可
 
 ## 相关仓库
 
