@@ -44,6 +44,9 @@
 - [机器学习](https://github.com/HUSTERGS/ML_HUST/)
 - [计算机组成原理课设](https://github.com/HUSTERGS/HUSTCS/tree/master/计算机组成原理课设)(没有完成后续流水中断以及动态分支预测)
 
+### 大四上
+- [系统能力综合训练-虚拟机-riscv](https://github.com/HUSTERGS/PA)
+
 ### 杂项
 
 - [CSP Python题解](https://github.com/HUSTERGS/CSP)（部分）

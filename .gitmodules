@@ -19,3 +19,6 @@
 [submodule "CSP-Python"]
 	path = CSP-Python
 	url = https://github.com/HUSTERGS/CSP
+[submodule "系统能力综合训练-虚拟机-riscv"]
+	path = 系统能力综合训练-虚拟机-riscv
+	url = git@github.com:HUSTERGS/PA.git
